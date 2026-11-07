@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.10.26 – 07.11.2026
+- Kontaktseite: spricht auch Unternehmen und landwirtschaftliche Betriebe an. Neuer Abschnitt „Für Zuhause, Betrieb und Hof“, neutralere Texte, FAQ zu Unternehmen. Rückrufformular mit „Anfrage für“ und „Firma (optional)“; Datenschutzerklärung nennt die neuen Felder.
+
 ## 0.10.25 – 07.11.2026
 - Kontaktseite: Unterzeile bei „So arbeite ich“ freundlicher („Offen und transparent: So läuft die Zusammenarbeit mit mir.“).
 
