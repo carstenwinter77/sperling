@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Photovoltaik &amp; Wärmepumpe – persönliche Beratung</title>
-<meta name="description" content="Persönliche Beratung zu Photovoltaik und Wärmepumpe – verständlich, ehrlich und ohne Druck.">
+<meta name="description" content="Persönliche Beratung zu Photovoltaik und Wärmepumpe für Privatleute, Unternehmen und Landwirtschaft – verständlich, ehrlich und ohne Druck.">
 <meta name="theme-color" content="#0b4a2a">
 <script>document.documentElement.classList.add('js');</script>
 <meta name="robots" content="noindex">
@@ -108,6 +108,11 @@ ul.haken li::before { content: ""; position: absolute; left: 0; top: .32em; widt
 ul.haken li::after { content: ""; position: absolute; left: .36rem; top: .52em; width: .28rem; height: .5rem; border: solid var(--k); border-width: 0 2px 2px 0; transform: rotate(45deg); }
 
 .schritt { position: relative; }
+@media (min-width: 640px) { .raster.vier { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 980px) { .raster.vier { grid-template-columns: repeat(4, 1fr); } }
+.zielgruppe { border-top: 4px solid var(--gruen-2); }
+.zielgruppe h3 { margin: 0 0 .4rem; font-size: 1.05rem; color: var(--gruen); }
+.zielgruppe p { margin: 0; color: var(--text-2); font-size: .97rem; }
 .kontakt-person { margin: 0 0 .3rem; font-size: 1.05rem; }
 .vertrauen { list-style: none; padding: 0; margin: 1.2rem 0 0; display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; color: var(--text-2); font-size: .95rem; }
 .vertrauen li { display: inline-flex; align-items: center; gap: .45rem; }
@@ -262,8 +267,8 @@ a:focus-visible, button:focus-visible, .weg:focus-visible { outline: 3px solid v
     <div class="huelle">
       <div>
         <p class="oberzeile auftritt" style="--i:0"><span class="punkt pv"></span>Photovoltaik <span class="punkt wp"></span>Wärmepumpe</p>
-        <h1 class="auftritt" style="--i:1">Energie fürs eigene Zuhause – persönlich beraten.</h1>
-        <p class="einleitung auftritt" style="--i:2">Ich berate Hausbesitzer <span data-feld="region-satz">in der Region</span> zu Solarstrom und moderner Heiztechnik: verständlich, ehrlich und ohne Druck. Sie haben einen festen Ansprechpartner, vom ersten Gespräch bis nach der Inbetriebnahme.</p>
+        <h1 class="auftritt" style="--i:1">Energie für Zuhause und Betrieb – persönlich beraten.</h1>
+        <p class="einleitung auftritt" style="--i:2">Ich berate Privatleute, Unternehmen und landwirtschaftliche Betriebe <span data-feld="region-satz">in der Region</span> zu Solarstrom und moderner Heiztechnik: verständlich, ehrlich und ohne Druck. Sie haben einen festen Ansprechpartner, vom ersten Gespräch bis nach der Inbetriebnahme.</p>
         <div class="knoepfe auftritt" style="--i:3">
           <a class="btn primaer" data-link="tel" href="#kontakt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Jetzt anrufen</a>
           <a class="btn sekundaer" href="#rueckruf">Rückruf vereinbaren</a>
@@ -303,11 +308,36 @@ a:focus-visible, button:focus-visible, .weg:focus-visible { outline: 3px solid v
             <h3>Wärmepumpe<small>Heizen mit Umweltwärme</small></h3>
           </div>
           <ul class="haken">
-            <li>Effizient heizen mit Wärme aus der Luft, ohne Öl oder Gas im Haus</li>
+            <li>Effizient heizen mit Wärme aus der Luft, ohne Öl oder Gas im Gebäude</li>
             <li>Für Neubau und viele Bestandsgebäude geeignet</li>
             <li>Ideal in Kombination mit Photovoltaik, inklusive Hinweisen zu Fördermöglichkeiten</li>
           </ul>
         </article>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-fuer-wen">
+    <div class="huelle">
+      <h2 id="t-fuer-wen" class="zeigen-beim-scrollen">Für Zuhause, Betrieb und Hof</h2>
+      <p class="unterzeile zeigen-beim-scrollen" style="--i:1">Egal, um welches Gebäude es geht: Melden Sie sich, wenn Photovoltaik oder eine Wärmepumpe für Sie ein Thema ist.</p>
+      <div class="raster vier">
+        <div class="karte zielgruppe zeigen-beim-scrollen" style="--i:1">
+          <h3>Privathaushalte</h3>
+          <p>Für Einfamilien-, Doppel- und Reihenhäuser, im Neubau wie im Bestand.</p>
+        </div>
+        <div class="karte zielgruppe zeigen-beim-scrollen" style="--i:2">
+          <h3>Gewerbe und Handwerk</h3>
+          <p>Dächer von Hallen, Werkstätten und Büros bieten oft viel Fläche. Solarstrom entsteht tagsüber, also dann, wenn im Betrieb gearbeitet wird.</p>
+        </div>
+        <div class="karte zielgruppe zeigen-beim-scrollen" style="--i:3">
+          <h3>Landwirtschaft</h3>
+          <p>Scheunen, Ställe und Maschinenhallen haben große Dachflächen. Dazu kommt Wärme für Wohnhaus, Hofgebäude oder Betrieb.</p>
+        </div>
+        <div class="karte zielgruppe zeigen-beim-scrollen" style="--i:4">
+          <h3>Vermieter und mehr</h3>
+          <p>Ob Mehrfamilienhaus, Vereinsheim oder andere Gebäude: Sprechen Sie mich an, wir schauen gemeinsam, was passt.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -318,7 +348,7 @@ a:focus-visible, button:focus-visible, .weg:focus-visible { outline: 3px solid v
       <p class="unterzeile zeigen-beim-scrollen" style="--i:1">Unverbindlich und in Ihrem Tempo. Sie entscheiden, ob und wann es weitergeht.</p>
       <div class="raster drei">
         <div class="karte schritt zeigen-beim-scrollen" style="--i:1"><div class="nr">1</div><h3>Kennenlernen</h3><p>Ein kurzes Telefonat: Was haben Sie vor, welche Fragen gibt es?</p></div>
-        <div class="karte schritt zeigen-beim-scrollen" style="--i:2"><div class="nr">2</div><h3>Beratung vor Ort</h3><p>Ich schaue mir bei Ihnen zu Hause genau das an, was für Ihr Vorhaben zählt: Dach, Heizung oder beides.</p></div>
+        <div class="karte schritt zeigen-beim-scrollen" style="--i:2"><div class="nr">2</div><h3>Beratung vor Ort</h3><p>Ich schaue mir bei Ihnen vor Ort genau das an, was für Ihr Vorhaben zählt: Dach, Heizung oder beides.</p></div>
         <div class="karte schritt zeigen-beim-scrollen" style="--i:3"><div class="nr">3</div><h3>Ihr Angebot</h3><p>Verständlich erklärt und in Ruhe zu prüfen. Wenn Sie sich dafür entscheiden, begleite ich Sie bis zur Inbetriebnahme.</p></div>
       </div>
     </div>
@@ -331,7 +361,7 @@ a:focus-visible, button:focus-visible, .weg:focus-visible { outline: 3px solid v
       <div class="raster drei">
         <div class="karte versprechen zeigen-beim-scrollen" style="--i:1"><h3>Unverbindlich</h3><p>Gespräch, Beratung vor Ort und Angebot sind für Sie unverbindlich. Unterschrieben wird erst, wenn Sie sich sicher sind.</p></div>
         <div class="karte versprechen zeigen-beim-scrollen" style="--i:2"><h3>In Ihrem Tempo</h3><p>Sie nehmen sich die Zeit, die Sie brauchen, gern auch für ein Gespräch in der Familie oder einen Vergleich mit anderen Angeboten.</p></div>
-        <div class="karte versprechen zeigen-beim-scrollen" style="--i:3"><h3>Ehrlich</h3><p>Wenn Photovoltaik oder eine Wärmepumpe für Ihr Haus keinen Sinn ergibt, sage ich Ihnen das offen.</p></div>
+        <div class="karte versprechen zeigen-beim-scrollen" style="--i:3"><h3>Ehrlich</h3><p>Wenn Photovoltaik oder eine Wärmepumpe für Ihr Gebäude keinen Sinn ergibt, sage ich Ihnen das offen.</p></div>
       </div>
     </div>
   </section>
@@ -347,7 +377,7 @@ a:focus-visible, button:focus-visible, .weg:focus-visible { outline: 3px solid v
             <li><b>Planbarere Kosten:</b> Was das eigene Dach an Strom liefert, muss nicht eingekauft werden. Preissprünge am Energiemarkt treffen Sie weniger hart.</li>
             <li><b>Sonne im Alltag nutzen:</b> Mittags läuft die Waschmaschine mit eigenem Strom, das E-Auto lädt in der Einfahrt, und an sonnigen Tagen hilft der Solarstrom auch der Wärmepumpe beim Warmwasser.</li>
             <li><b>Weniger Aufwand im Haus:</b> Mit einer Wärmepumpe entfallen Öltank, Ölbestellung oder Gasanschluss. Und kein Schornsteinfeger muss mehr Abgase messen.</li>
-            <li><b>Ein Haus mit Zukunft:</b> Eine moderne, klimafreundliche Heizung und Strom vom Dach machen ein Haus für die nächsten Jahre und Generationen gut aufgestellt.</li>
+            <li><b>Ein Haus mit Zukunft:</b> Eine moderne, klimafreundliche Heizung und Strom vom Dach machen ein Gebäude für die nächsten Jahre und Generationen gut aufgestellt.</li>
             <li><b>Gut fürs Klima:</b> Jede Kilowattstunde vom eigenen Dach und jede Heizperiode ohne Öl oder Gas spart CO₂, ganz ohne Verzicht.</li>
           </ul>
         </div>
@@ -396,6 +426,10 @@ a:focus-visible, button:focus-visible, .weg:focus-visible { outline: 3px solid v
           <p>Für Sie nichts. Gespräch, Termin vor Ort und Angebot sind kostenlos und unverbindlich. Vergütet werde ich nur, wenn Sie sich für ein Angebot entscheiden (siehe „So arbeite ich“).</p>
         </details>
         <details>
+          <summary>Beraten Sie auch Unternehmen und landwirtschaftliche Betriebe?</summary>
+          <p>Ja. Ob Einfamilienhaus, Werkstatt, Halle, Hof oder Mehrfamilienhaus: Ich berate alle, die Photovoltaik oder eine Wärmepumpe in Betracht ziehen. Bei größeren Gebäuden schauen wir gemeinsam mit dem Fachunternehmen genauer auf Verbrauch, Dachflächen und Betriebszeiten.</p>
+        </details>
+        <details>
           <summary>Muss ich nach dem Termin etwas unterschreiben?</summary>
           <p>Nein. Sie bekommen Ihr Angebot und können es in Ruhe prüfen, mit der Familie besprechen oder vergleichen. Unterschrieben wird erst, wenn Sie sich sicher sind.</p>
         </details>
@@ -404,7 +438,7 @@ a:focus-visible, button:focus-visible, .weg:focus-visible { outline: 3px solid v
           <p>Das hängt vor allem von Ausrichtung, Neigung, Verschattung und Ihrem Stromverbrauch ab. Auch Ost-West-Dächer eignen sich oft gut. Ich schaue mir das bei Ihnen an und sage Ihnen ehrlich, ob es sich rechnet.</p>
         </details>
         <details>
-          <summary>Passt eine Wärmepumpe zu meinem älteren Haus?</summary>
+          <summary>Passt eine Wärmepumpe auch in einen Altbau?</summary>
           <p>In vielen Bestandsgebäuden ja. Entscheidend sind Heizlast, Heizkörper und Dämmung. Manchmal reichen kleine Anpassungen, zum Beispiel einzelne größere Heizkörper. Wenn eine Wärmepumpe bei Ihnen nicht sinnvoll ist, erfahren Sie das von mir.</p>
         </details>
         <details>
@@ -444,6 +478,16 @@ a:focus-visible, button:focus-visible, .weg:focus-visible { outline: 3px solid v
               <label><span>Name <span aria-hidden="true">*</span></span><input name="name" autocomplete="name" required aria-required="true" aria-describedby="fehler"></label>
               <label><span>Telefon <span aria-hidden="true">*</span></span><input name="telefon" type="tel" autocomplete="tel" inputmode="tel" required aria-required="true" aria-describedby="fehler"></label>
             </div>
+            <fieldset>
+              <legend>Anfrage für</legend>
+              <div class="wahl">
+                <label><input type="radio" name="art" value="Privathaushalt" checked> Privat</label>
+                <label><input type="radio" name="art" value="Unternehmen"> Unternehmen</label>
+                <label><input type="radio" name="art" value="Landwirtschaft"> Landwirtschaft</label>
+                <label><input type="radio" name="art" value="Sonstiges"> Sonstiges</label>
+              </div>
+            </fieldset>
+            <label>Firma oder Betrieb (optional)<input name="firma" autocomplete="organization"></label>
             <fieldset>
               <legend>Thema</legend>
               <div class="wahl">
@@ -582,10 +626,11 @@ a:focus-visible, button:focus-visible, .weg:focus-visible { outline: 3px solid v
     fehler.textContent = '';
     const text = [
       'Rückrufwunsch', '',
-      'Name: ' + n, 'Telefon: ' + t,
+      'Name: ' + n, String(d.get('firma') || '').trim() ? 'Firma/Betrieb: ' + String(d.get('firma')).trim() : null, 'Telefon: ' + t,
+      'Anfrage für: ' + d.get('art'),
       'Thema: ' + d.get('thema'), 'Wunschzeit: ' + d.get('zeit'),
       String(d.get('nachricht') || '').trim() ? '\nNachricht: ' + String(d.get('nachricht')).trim() : '',
-    ].join('\n').trim();
+    ].filter((z) => z !== null).join('\n').trim();
     location.href = kanal === 'mail' ? mail('Rückrufwunsch: ' + d.get('thema'), text) : wa(text);
   });
 
