@@ -24,6 +24,8 @@ Tests in `tests/core.test.mjs` sichern das ab. Diese Tests dürfen nie gelöscht
 
 **R-ENPAL-DOKU – Gesprächsdokumentation für Enpal.** Jeder Enpal-Kontakt (Telefon, Hausbesuch) wird beim Kunden in `enpalKontakte` gespeichert und als kopierfertiger Text für die Enpal-App angeboten. Der Gesprächsleitfaden legt bei PV/WP automatisch einen Eintrag an. Fristen können als Wiedervorlage in die Termine.
 
+**R-LEITFADEN – Seriöse Gesprächsführung.** Leitfragen (`src/core/leitfragen.ts`) und Einwandbehandlung (`src/core/einwaende.ts`) nutzen nur kundenorientierte Methoden: Fragen, Zuhören, ehrliche Empfehlung, freiwilliger nächster Schritt. Keine künstliche Verknappung, kein Angstmachen, kein Drängen zur Unterschrift, keine Preise, Förderquoten oder Renditeversprechen (UWG §§ 4a, 5, 7). Das Widerrufsrecht (14 Tage bei Haustür- und Telefonverträgen) wird aktiv erklärt. Ein Unit-Test prüft verbotene Formulierungen.
+
 ## Sicherheit
 
 **R-KRYPTO** – Kundendaten verlassen den Arbeitsspeicher nur verschlüsselt (IndexedDB, Backup/iCloud-Datei). Nie `localStorage` oder `sessionStorage` für Kundendaten. Ausnahmen: in `localStorage` nur das gewählte Farbschema (`sperling.farbschema`) das gewählte Mailprogramm (`sperling.mailprogramm`) die zuletzt gesehene Version für „Was ist neu“ (`sperling.version`) und die Hilfe-Vorlieben des Geräts (`sperling.hilfe`: ?-Knöpfe an/aus, „auf diesem Gerät installiert“, Installationshinweis weggeklickt). „Zuletzt geöffnet“ der Kommandozeile enthält Kunden-IDs und liegt deshalb im verschlüsselten Bestand (`einstellungen.zuletzt`). Fotos und Unterschriften sind Kundendaten und liegen nur im verschlüsselten Bestand; das PDF entsteht im Arbeitsspeicher und verlässt das Gerät nur, wenn der Nutzer es teilt.

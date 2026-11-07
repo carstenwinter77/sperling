@@ -12,7 +12,8 @@ Browser (Tablet / Handy / Laptop)
  │   ├─ model.ts ......... Sparten, Status, Feldkatalog, Normalisierung, Migration
  │   ├─ textgen.ts ....... Enpal-/Vorwerk-Texte (strikt getrennt)
  │   ├─ ics.ts ........... Kalenderexport (RFC 5545)
- │   ├─ einwaende.ts ..... Gesprächsleitfaden: Einstiegsfragen, Einwände, Überleitungen
+ │   ├─ einwaende.ts ..... Gesprächsleitfaden: Einwände, Überleitungen
+│   ├─ leitfragen.ts .... Geführter Ablauf: 7 Phasen, Leitfragen je Bereich, Fluss-Zustand (nur Arbeitsspeicher)
  │   ├─ papierkorb.ts .... Löschen in „Gelöscht“, Wiederherstellen, endgültig löschen
  │   ├─ belegung.ts ...... Belegungskalender: Tage, Balken, freie Zeiträume
  │   ├─ kalender.ts ...... Leihgaben je Tag für den Kalender, Termine ziehen (15-Min-Raster), auf anderen Tag legen

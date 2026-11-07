@@ -2,6 +2,14 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.6',
+    punkte: [
+      'Der Gesprächsleitfaden führt jetzt in 7 Phasen durchs Gespräch, vom Vorbereiten bis zum nächsten Schritt. Oben siehst du, wo du stehst; wischen oder antippen wechselt die Phase.',
+      'Leitfragen antippen: Sie bekommen einen Haken und das Stichwort landet in der Notiz. Die Antwort des Kunden tippst oder diktierst du dahinter.',
+      'Bei Einwänden kommt zuerst die Rückfrage, dann die Antwort. Am Ende ein Haken für „Widerrufsrecht erklärt“.',
+    ],
+  },
+  {
     version: '0.10.5',
     punkte: [
       'Textbausteine lassen sich am Griff ⠿ verschieben.',

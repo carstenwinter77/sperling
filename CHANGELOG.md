@@ -1,5 +1,12 @@
 # Änderungsverlauf
 
+## 0.10.6 – 07.11.2026
+- **Geführter Gesprächsleitfaden in 7 Phasen** (`src/core/leitfragen.ts`): Vorbereiten, Einstieg, Situation, Problem, Zusammenfassen, Lösung, Nächster Schritt. Grundlage sind seriöse Vertriebsmethoden (SPIN-Fragen, aktives Zuhören, ehrlicher Denkanstoß, offene Fragen, klarer nächster Schritt); keine Druck- oder Manipulationstechniken (R-LEITFADEN).
+- Leitfragen je Bereich (Enpal, GALVANY, Vorwerk) zum Antippen: Haken, das Stichwort fliegt in die Notiz des Bereichs, die Antwort wird dahinter getippt oder diktiert. Phasenleiste mit Fortschritt, Wischen oder Antippen wechselt die Phase, „Einwand?“ springt zur Einwandbehandlung.
+- Einwände: Rückfrage zuerst, Antwort erst nach „Rückfrage gestellt · Antwort zeigen“. Letzte Phase mit „Widerrufsrecht erklärt“ (Satz in der Notiz).
+- Gesprächsmodus: Notiz direkt unter dem Leitfaden; beim Abschließen eine Gesprächsbilanz, das Maskottchen erscheint bei Termin, Test, Angebot oder Abschluss.
+- Sanfte Animationen (Karten gleiten, Haken federn, Phasenpunkt pulsiert); bei „Bewegung reduzieren“ nur ruhige Überblendungen.
+
 ## 0.10.5 – 07.11.2026
 - **Textbausteine per Griff sortieren** (Finger, Maus, Pfeiltasten auf dem Griff), Pfeilknöpfe bleiben.
 - **Einstellungen übertragen:** „Einstellungen sichern“/„Einstellungen einlesen“ unter Datensicherung. Verschlüsselte Datei ohne Kunden; „Sicherung einspielen“ lehnt sie ab.

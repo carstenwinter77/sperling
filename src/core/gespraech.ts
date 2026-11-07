@@ -5,6 +5,7 @@ import {
 } from './model.ts';
 import { LEITFADEN, gespraechsNotiz } from './einwaende.ts';
 import { nowIso } from './util.ts';
+import type { Fluss } from './leitfragen.ts';
 
 /** Notizen werden je Bereich getrennt geführt (seit 0.10.4: PV, WP und Vorwerk einzeln, R-TEXT). */
 export type Gruppe = Sparte;
@@ -24,6 +25,8 @@ export interface Entwurf {
   /** Einwände aus dem Leitfaden: Sparte -> Einwand-ID -> Ergebnis */
   verlauf: Verlauf;
   leitfadenSparte: Sparte;
+  /** Geführter Ablauf (Phase, abgehakte Leitfragen); nur im Arbeitsspeicher */
+  fluss?: Fluss;
 }
 
 export interface Abschluss {

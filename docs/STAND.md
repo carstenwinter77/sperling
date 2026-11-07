@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.5
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.6
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,11 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.5)
+## Erledigt (Version 0.10.6)
+
+### Neu in 0.10.6
+- [x] **Geführter Gesprächsleitfaden** (`src/core/leitfragen.ts`, `src/ui/views/gespraech.ts`): 7 Phasen mit Phasenleiste (Wischen/Antippen), Leitfragen je Bereich mit Stichwort in die Notiz, Denkanstoß je Anbieter, Einwände mit Rückfrage vor Antwort, „Widerrufsrecht erklärt“, Gesprächsbilanz mit Maskottchen, Animationen mit „Bewegung reduzieren“. Zustand nur im Entwurf (Arbeitsspeicher), kein Schemawechsel. 2 neue Unit-Tests, Browser-Test erweitert. Grundlage: Vorschlagsdokument „Gesprächsleitfäden: Strategien erfolgreicher Berater“ (freigegeben 07.11.2026, ohne Konfetti).
+- [ ] Auf echtem iPad testen: Wischen zwischen Phasen, Stichwort-Flug, Diktat in der Leitfaden-Notiz
 
 ### Neu in 0.10.5
 - [x] Textbausteine per Griff sortieren (`src/ui/ziehsortieren.ts`).

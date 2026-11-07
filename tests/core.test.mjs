@@ -941,3 +941,44 @@ test('Einstellungsdatei: ohne Kunden und „zuletzt“, verschlüsselt übertrag
   assert.throws(() => ed.einstellungenAusPaket(null, ziel.einstellungen));
   assert.equal(ed.istEinstellungsPaket(emptyData()), false);
 });
+
+test('Geführter Ablauf: 7 Phasen, Leitfragen je Bereich, eindeutige IDs', async () => {
+  const lf = await import('../src/core/leitfragen.ts');
+  assert.equal(lf.PHASEN.length, 7);
+  assert.deepEqual(lf.PHASEN_IDS, ['vorbereiten', 'einstieg', 'situation', 'problem', 'zusammenfassen', 'loesung', 'schritt']);
+  for (const s of ['pv', 'wp', 'vorwerk']) {
+    const alle = lf.alleLeitfragen(s);
+    assert.equal(new Set(alle.map((q) => q.id)).size, alle.length, `doppelte IDs in ${s}`);
+    for (const p of ['situation', 'problem', 'schritt']) assert.ok(lf.leitfragen(s, p).length >= 2, `${s}/${p} zu wenige Fragen`);
+    assert.ok(lf.IMPULS[s].length > 20);
+    // Bereichseigene Fragen kommen zuerst, fremde Bereiche nie
+    const fremd = ['pv', 'wp', 'vorwerk'].filter((x) => x !== s).map((x) => (x === 'vorwerk' ? 'vw-' : `${x}-`));
+    assert.ok(alle.every((q) => !fremd.some((f) => q.id.startsWith(f))), `fremde Fragen in ${s}`);
+  }
+  // R-LEITFADEN: keine Druck-Formulierungen
+  const text = ['pv', 'wp', 'vorwerk'].flatMap((s) => lf.alleLeitfragen(s).map((q) => q.frage)).join(' ') + Object.values(lf.IMPULS).join(' ');
+  assert.doesNotMatch(text, /nur heute|sofort unterschreiben|letzte Chance|€|Prozent/i);
+});
+
+test('Geführter Ablauf: Navigation, Abhaken, Fortschritt, Stichpunkt', async () => {
+  const lf = await import('../src/core/leitfragen.ts');
+  assert.equal(lf.nachbar('vorbereiten', -1), 'vorbereiten');
+  assert.equal(lf.nachbar('vorbereiten', 1), 'einstieg');
+  assert.equal(lf.nachbar('schritt', 1), 'schritt');
+  assert.equal(lf.phasenIndex('quatsch'), 0);
+  const f = lf.neuerFluss();
+  assert.equal(f.phase, 'vorbereiten');
+  const q = lf.leitfragen('pv', 'problem')[0];
+  assert.equal(lf.umschalten(f, 'pv', q.id), true);
+  assert.equal(lf.fortschritt(f, 'pv').problem, 1);
+  assert.equal(lf.fortschritt(f, 'wp').problem, 0, 'Fortschritt ist je Bereich getrennt');
+  assert.equal(lf.anzahlGefragt(f), 1);
+  assert.equal(lf.umschalten(f, 'pv', q.id), false);
+  assert.equal(lf.anzahlGefragt(f), 0);
+  assert.equal(lf.stichpunkt({ id: 'x', frage: 'F?', stichwort: 'Dach' }), 'Dach: ');
+  assert.equal(lf.stichpunkt({ id: 'x', frage: 'F?' }), '');
+  // Zwei neue Abläufe teilen keinen Zustand
+  const a = lf.neuerFluss(); const b = lf.neuerFluss();
+  lf.umschalten(a, 'wp', 'wp-sit-heizung');
+  assert.equal(b.gefragt.wp.length, 0);
+});

@@ -14,6 +14,7 @@ import { bindeFelder } from './kunde.ts';
 import { felderHtml } from '../felder.ts';
 import { markierenHtml, markierenVerdrahten, markierenNeuZeichnen } from '../produkte.ts';
 import { bausteinAnhaengen } from '../../core/bausteine.ts';
+import { neuerFluss, anzahlGefragt } from '../../core/leitfragen.ts';
 
 type Seite = 'notizen' | 'leitfaden' | 'abschluss';
 const SEITEN: [Seite, string][] = [['notizen', '📝 Notizen'], ['leitfaden', '💬 Leitfaden'], ['abschluss', '✓ Abschließen']];
@@ -152,10 +153,26 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
     rechts.innerHTML = `<div class="gm-leitfaden"></div>
       <div class="knopfreihe gm-unten"><button type="button" class="btn ghost" data-geh="notizen">‹ Zurück zu den Notizen</button><button type="button" class="btn primary" data-geh="abschluss">Gespräch abschließen ›</button></div>`;
     leitfaden.render(rechts.querySelector('.gm-leitfaden'), new URLSearchParams(), [], {
-      kundeId: id, sparte: e.leitfadenSparte, verlauf: e.verlauf,
+      kundeId: id, sparte: e.leitfadenSparte, verlauf: e.verlauf, fluss: e.fluss || (e.fluss = neuerFluss()), notiz: e.notiz,
       onSparte: (s) => { e.leitfadenSparte = s; if (!e.sparten.includes(s)) e.sparten.push(s); },
       onEinwand: () => { if (!e.sparten.includes(e.leitfadenSparte)) e.sparten.push(e.leitfadenSparte); },
     });
+  };
+
+  /** Kleine Bilanz des Gesprächs; das Maskottchen zeigt sich, wenn ein Termin oder Abschluss gewählt wird. */
+  const bilanzHtml = (sparten: Sparte[]) => {
+    const f = e.fluss;
+    const fragen = f ? anzahlGefragt(f) : 0;
+    const einwaende = SPARTEN_KEYS.reduce((n, s) => n + Object.keys(e.verlauf[s]).length, 0);
+    const teile = [
+      fragen ? `${fragen} ${fragen === 1 ? 'Leitfrage' : 'Leitfragen'} gestellt` : '',
+      einwaende ? `${einwaende} ${einwaende === 1 ? 'Einwand' : 'Einwände'} besprochen` : '',
+      f?.widerruf.length ? `Widerrufsrecht erklärt (${f.widerruf.map((s) => SPARTEN[s].kurz).join(', ')})` : '',
+    ].filter(Boolean);
+    return `<div class="gm-bilanz" id="gmBilanz">
+      <span class="gm-bilanz-bild" aria-hidden="true">${maskottchen('sperling', 'gm-bilanz-sperling')}</span>
+      <p><b id="gmBilanzTitel">Gesprächsbilanz</b><br>${teile.length ? esc(teile.join(' · ')) : 'Noch keine Leitfragen oder Einwände angetippt.'}</p>
+    </div>`;
   };
 
   const abschlussZeichnen = () => {
@@ -165,6 +182,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
     rechts.innerHTML = `
       <div class="karte-box">
         <h2>Gespräch abschließen</h2>
+        ${bilanzHtml(sparten)}
         <p class="hinweis">${esc(KONTAKTART[e.kontaktart])}${e.erreicht ? '' : ' · nicht erreicht'} · ${sparten.length ? sparten.map((s) => esc(SPARTEN[s].label)).join(', ') : 'ohne Thema'}${ablauf.hatInhalt(e) ? '' : ' · noch keine Notizen'}</p>
         ${sparten.map((s) => `
         <fieldset class="abschluss-sparte bereich-rand bereich-${s}" data-abschluss="${s}">
@@ -182,6 +200,13 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
           <button type="button" class="btn ghost danger-text" id="gmVerwerfen">Verwerfen</button>
         </div>
       </div>`;
+    rechts.querySelectorAll<HTMLSelectElement>('[data-abschluss] [name=ausgang]').forEach((sel) => sel.addEventListener('change', () => {
+      const gut = [...rechts.querySelectorAll<HTMLSelectElement>('[data-abschluss] [name=ausgang]')].some((x) => ['termin', 'abschluss', 'test', 'angebot'].includes(x.value));
+      const bilanz = rechts.querySelector('#gmBilanz');
+      bilanz?.classList.toggle('gut', gut);
+      const titel = rechts.querySelector('#gmBilanzTitel');
+      if (titel) titel.textContent = gut ? 'Schönes Gespräch, nächster Schritt steht.' : 'Gesprächsbilanz';
+    }));
     rechts.querySelector('#gmSpeichern').addEventListener('click', () => {
       const abschluesse: ablauf.Abschluss[] = [];
       for (const fs of rechts.querySelectorAll<HTMLFieldSetElement>('[data-abschluss]')) {

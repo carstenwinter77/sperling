@@ -344,16 +344,46 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForSelector('.gm-teilung .gm-links [data-feld=telefon]');
   await p.fill('textarea[data-gruppe] >> nth=0', 'E2E-Gesprächsnotiz Speicherwunsch');
   await p.click('.gm-seiten [data-seite=leitfaden]');
+  // Geführter Ablauf: 7 Phasen, Weiter, Leitfrage antippen -> Haken + Stichwort in der Notiz
+  await p.waitForSelector('.gl-leiste .gl-punkt.aktiv');
+  if ((await p.$$('.gl-leiste .gl-punkt')).length !== 7) fail('Phasenleiste hat nicht 7 Phasen');
+  if ((await p.inputValue('#gNotiz')) !== 'E2E-Gesprächsnotiz Speicherwunsch') fail('Leitfaden zeigt die Notiz des Bereichs nicht');
+  await p.click('.gl-weiter [data-schritt="1"]');
+  await p.waitForSelector('.gl-punkt.aktiv[data-phase=einstieg]');
+  await p.click('.gl-leiste [data-phase=situation]');
+  await p.waitForSelector('.gl-punkt.aktiv[data-phase=situation]');
+  const stichwort = ((await p.textContent('.gl-frage >> nth=0')).split('→ Notiz:')[1] || '').trim();
+  if (!stichwort) fail('Leitfrage ohne Stichwort');
+  await p.click('.gl-frage >> nth=0');
+  await p.waitForSelector('.gl-frage.gefragt');
+  await p.waitForSelector('.gl-punkt.erledigt[data-phase=situation]');
+  const mitStichwort = 'E2E-Gesprächsnotiz Speicherwunsch\n' + stichwort + ': ';
+  if ((await p.inputValue('#gNotiz')) !== mitStichwort) fail('Stichwort nicht in die Notiz übernommen: ' + JSON.stringify(await p.inputValue('#gNotiz')));
+  // Einwand: Rückfrage zuerst, Antwort erst nach Aufdecken
+  await p.click('.gl-einwand-sprung');
+  await p.waitForSelector('.gl-punkt.aktiv[data-phase=loesung]');
   await p.click('.gm-leitfaden .einwand >> nth=0');
+  if (await p.$('.gm-leitfaden .argumente')) fail('Antwort vor der Rückfrage sichtbar');
+  await p.click('#gAufdecken');
+  await p.waitForSelector('.gm-leitfaden .argumente');
   await p.click('.gm-leitfaden [data-ergebnis=ueberzeugt]');
+  // Letzte Phase: Widerrufsrecht erklärt -> Satz in der Notiz
+  await p.click('.gl-leiste [data-phase=schritt]');
+  await p.click('[data-widerruf]');
+  if (!(await p.inputValue('#gNotiz')).includes('Widerrufsrecht (14 Tage) erklärt.')) fail('Widerruf nicht in der Notiz');
   await p.click('.gm-seiten [data-seite=notizen]');
-  if ((await p.inputValue('textarea[data-gruppe] >> nth=0')) !== 'E2E-Gesprächsnotiz Speicherwunsch') fail('Notiz nach Leitfaden verloren');
+  const nachLeitfaden = await p.inputValue('textarea[data-gruppe] >> nth=0');
+  if (!nachLeitfaden.startsWith(mitStichwort.trimEnd()) || !nachLeitfaden.includes('Widerrufsrecht')) fail('Notiz nach Leitfaden verloren: ' + JSON.stringify(nachLeitfaden));
+  await p.fill('textarea[data-gruppe] >> nth=0', 'E2E-Gesprächsnotiz Speicherwunsch');
   // Textbaustein antippen hängt eine Zeile an
   const bsText = (await p.textContent('.gm-bausteine .gm-baustein >> nth=0')).replace(/^\+\s*/, '').trim();
   await p.click('.gm-bausteine .gm-baustein >> nth=0');
   if ((await p.inputValue('textarea[data-gruppe] >> nth=0')) !== 'E2E-Gesprächsnotiz Speicherwunsch\n' + bsText) fail('Textbaustein nicht angehängt');
   if (!(await p.isVisible('.gm-diktat'))) fail('Diktat-Hinweis fehlt');
   await p.click('.gm-seiten [data-seite=abschluss]');
+  if (!(await p.textContent('#gmBilanz')).includes('1 Leitfrage gestellt')) fail('Gesprächsbilanz fehlt: ' + (await p.textContent('#gmBilanz')));
+  await p.selectOption('[data-abschluss] [name=ausgang] >> nth=0', 'termin');
+  await p.waitForSelector('#gmBilanz.gut');
   await p.selectOption('[data-abschluss] [name=ausgang] >> nth=0', 'wiedervorlage');
   await p.click('#gmSpeichern');
   await p.waitForSelector('.verlauf');
@@ -362,6 +392,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   // Vom Leitfaden aus nahtlos in die geteilte Ansicht
   await p.goto(BASE + '#/gespraech');
   await p.selectOption('#gKunde', { index: 1 });
+  await p.click('#gInhalt .gl-einwand-sprung');
   await p.click('#gInhalt .einwand >> nth=1');
   await p.click('#gGeteilt');
   await p.waitForSelector('.gm-leitfaden .einwand.e-offen');

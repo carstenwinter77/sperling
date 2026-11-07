@@ -7,6 +7,7 @@ import { nowIso } from '../core/util.ts';
 import { SPARTEN, type Sparte } from '../core/model.ts';
 import { speichern, leererVerlauf, leereNotizen, hatEinwaende, hatInhalt, gruppeVon, type Entwurf, type Abschluss, type Gruppe, type Verlauf } from '../core/gespraech.ts';
 import * as store from '../storage/store.ts';
+import { neuerFluss } from '../core/leitfragen.ts';
 
 export { speichern, leererVerlauf, hatEinwaende, hatInhalt, gruppeVon, type Entwurf, type Abschluss, type Gruppe, type Verlauf };
 
@@ -31,7 +32,7 @@ export function beginnen(kundeId: string, vorgabe: Partial<Entwurf> = {}): Entwu
     const sparten = vorgabe.sparten?.length ? vorgabe.sparten : vermuteteSparten(kundeId);
     e = {
       kundeId, start: nowIso(), kontaktart: 'telefon', erreicht: true, sparten,
-      notiz: leereNotizen(), verlauf: leererVerlauf(), leitfadenSparte: sparten[0] || 'pv', ...vorgabe,
+      notiz: leereNotizen(), verlauf: leererVerlauf(), leitfadenSparte: sparten[0] || 'pv', fluss: neuerFluss(), ...vorgabe,
     };
     entwuerfe.set(kundeId, e);
   } else if (vorgabe.verlauf) {
@@ -39,6 +40,14 @@ export function beginnen(kundeId: string, vorgabe: Partial<Entwurf> = {}): Entwu
     for (const s of Object.keys(vorgabe.verlauf) as Sparte[]) Object.assign(e.verlauf[s], vorgabe.verlauf[s]);
     for (const s of vorgabe.sparten || []) if (!e.sparten.includes(s)) e.sparten.push(s);
   }
+  if (e && vorgabe.fluss && e.fluss !== vorgabe.fluss) {
+    // aus dem Leitfaden kommend: Phase und abgehakte Fragen übernehmen
+    const f = (e.fluss ||= neuerFluss());
+    f.phase = vorgabe.fluss.phase;
+    for (const s of Object.keys(vorgabe.fluss.gefragt) as Sparte[]) for (const id of vorgabe.fluss.gefragt[s]) if (!f.gefragt[s].includes(id)) f.gefragt[s].push(id);
+    for (const s of vorgabe.fluss.widerruf) if (!f.widerruf.includes(s)) f.widerruf.push(s);
+  }
+  e.fluss ||= neuerFluss();
   return e;
 }
 
