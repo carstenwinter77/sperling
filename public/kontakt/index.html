@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
 <!--
   Sperling – öffentliche Kontaktseite (eigenständig, ohne App-Code, ohne Tracking, ohne Cookies,
-  ohne externe Schriften). Alle Kontaktdaten stehen NUR im Block KONTAKT unten.
+  ohne externe Schriften). Alle persönlichen Angaben stehen NUR in daten.js (auch für datenschutz.html).
   Stand: Konzept mit Platzhalterdaten – Impressum und Datenschutz folgen.
 -->
 <style>
@@ -146,6 +146,7 @@ legend { font-weight: 600; font-size: .92rem; margin-bottom: .3rem; }
 
 footer { padding: 36px 0 48px; color: var(--text-2); font-size: .9rem; border-top: 1px solid var(--linie); margin-top: 20px; }
 footer .huelle { display: grid; gap: 14px; }
+.fuss-links { margin: 0; font-weight: 600; } .fuss-links a { color: var(--text); }
 details { background: var(--karte); border: 1px solid var(--linie); border-radius: 12px; padding: 12px 16px; }
 summary { cursor: pointer; font-weight: 650; color: var(--text); }
 details p { margin: .6rem 0 0; }
@@ -239,10 +240,10 @@ details p { margin: .6rem 0 0; }
   <section aria-labelledby="t-versprechen">
     <div class="huelle">
       <h2 id="t-versprechen">Beratung ohne Druck – mein Versprechen</h2>
-      <p class="unterzeile">Eine gute Entscheidung braucht Zeit und ehrliche Informationen, keine Überredung.</p>
+      <p class="unterzeile">Eine gute Entscheidung braucht Zeit und ehrliche Informationen.</p>
       <div class="raster drei">
-        <div class="karte versprechen"><h3>Unverbindlich</h3><p>Gespräch, Beratung vor Ort und Angebot verpflichten Sie zu nichts. Sie unterschreiben nichts nebenbei.</p></div>
-        <div class="karte versprechen"><h3>Kein Zeitdruck</h3><p>Keine „Nur heute“-Preise und keine Lockangebote. Sie entscheiden in Ruhe, gern nach Rücksprache mit der Familie oder einem Vergleichsangebot.</p></div>
+        <div class="karte versprechen"><h3>Unverbindlich</h3><p>Gespräch, Beratung vor Ort und Angebot sind für Sie unverbindlich. Unterschrieben wird erst, wenn Sie sich sicher sind.</p></div>
+        <div class="karte versprechen"><h3>In Ihrem Tempo</h3><p>Sie nehmen sich die Zeit, die Sie brauchen, gern auch für ein Gespräch in der Familie oder einen Vergleich mit anderen Angeboten.</p></div>
         <div class="karte versprechen"><h3>Ehrlich</h3><p>Wenn Photovoltaik oder eine Wärmepumpe für Ihr Haus keinen Sinn ergibt, sage ich Ihnen das offen.</p></div>
       </div>
     </div>
@@ -253,7 +254,7 @@ details p { margin: .6rem 0 0; }
       <div class="zitat">
         <img src="foto.jpg" alt="" width="96" height="96" loading="lazy">
         <div>
-          <p>„Ich schwatze niemandem etwas auf. Mir ist wichtig, dass Sie am Ende genau wissen, was Sie bekommen und warum es zu Ihrem Haus passt, und dass Sie sich frei dafür oder dagegen entscheiden.“</p>
+          <p>„Ich berate so, wie ich selbst beraten werden möchte: offen, verständlich und mit Zeit für Ihre Entscheidung.“</p>
           <p><span data-feld="name">Jan Sperling</span></p>
         </div>
       </div>
@@ -303,7 +304,7 @@ details p { margin: .6rem 0 0; }
               <button class="btn primaer" type="submit" value="whatsapp">Per WhatsApp senden</button>
               <button class="btn sekundaer" type="submit" value="mail">Per E-Mail senden</button>
             </div>
-            <p class="klein">Ihre Angaben werden nicht auf dieser Seite gespeichert. Sie gehen erst an mich, wenn Sie die vorbereitete Nachricht in WhatsApp oder Ihrem E-Mail-Programm absenden.</p>
+            <p class="klein">Ihre Angaben werden nicht auf dieser Seite gespeichert. Sie gehen erst an mich, wenn Sie die vorbereitete Nachricht in WhatsApp oder Ihrem E-Mail-Programm absenden. Mehr dazu in der <a href="datenschutz.html#rueckruf">Datenschutzerklärung</a>.</p>
           </form>
         </div>
       </div>
@@ -313,13 +314,10 @@ details p { margin: .6rem 0 0; }
 
 <footer>
   <div class="huelle">
+    <p class="fuss-links"><a href="#impressum" id="impressumLink">Impressum</a> · <a href="datenschutz.html">Datenschutzerklärung</a></p>
     <details id="impressum">
       <summary>Impressum</summary>
       <p><span class="platzhalter">Folgt.</span> Angaben nach § 5 DDG: vollständiger Name, ladungsfähige Anschrift, Telefon, E-Mail, gegebenenfalls Umsatzsteuer-Identifikationsnummer und Berufsangaben.</p>
-    </details>
-    <details id="datenschutz">
-      <summary>Datenschutz</summary>
-      <p><span class="platzhalter">Folgt.</span> Diese Seite verwendet keine Cookies, kein Tracking und keine externen Schriften. Der Server des Hosting-Anbieters protokolliert technisch notwendige Zugriffsdaten. Wenn Sie über WhatsApp oder E-Mail Kontakt aufnehmen, verarbeite ich Ihre Angaben nur zur Bearbeitung Ihrer Anfrage.</p>
     </details>
     <p class="klein">© <span id="jahr"></span> <span data-feld="name">Jan Sperling</span> · Photovoltaik und Wärmepumpe</p>
   </div>
@@ -327,19 +325,8 @@ details p { margin: .6rem 0 0; }
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="../vendor/qrcode/qrcode.js"></script>
+<script src="daten.js"></script>
 <script>
-// ── KONTAKT: nur hier die echten Daten eintragen ─────────────────────────────
-const KONTAKT = {
-  konzept: true,                          // false = Hinweis „Platzhalter“ ausblenden
-  vorname: 'Jan',
-  nachname: 'Sperling',
-  titel: 'Berater für Photovoltaik und Wärmepumpe',
-  telefon: '+49 151 23456789',            // Platzhalter
-  whatsapp: '+49 151 23456789',           // Platzhalter (darf gleich der Telefonnummer sein)
-  email: 'kontakt@beispiel.de',           // Platzhalter
-  region: 'Raum Musterstadt',             // Platzhalter
-};
-// ─────────────────────────────────────────────────────────────────────────────
 (function () {
   'use strict';
   const K = KONTAKT;
@@ -356,6 +343,7 @@ const KONTAKT = {
   $$('[data-feld="region-satz"]').forEach((el) => { el.textContent = K.region ? 'im ' + K.region : 'in der Region'; });
   $$('[data-feld-alt="name"]').forEach((el) => { el.alt = 'Porträt von ' + name; });
   if (!K.konzept) $$('[data-konzept]').forEach((el) => el.remove());
+  document.getElementById('impressumLink').addEventListener('click', () => { document.getElementById('impressum').open = true; });
   document.getElementById('jahr').textContent = new Date().getFullYear();
 
   // Links
