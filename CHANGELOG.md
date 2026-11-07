@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.10.29 – 07.11.2026
+- **Hinfahren/Route mit der richtigen Karten-App:** Eine Web-App kann die Standard-Karten-App des iPhones nicht erkennen; bisher öffnete „Automatisch“ dort immer Apple Karten. Jetzt fragt Sperling beim ersten „Hinfahren“ auf iPhone/iPad einmal „Womit navigierst du?“ (Google Maps, Apple Karten, Waze) und merkt sich die Wahl (`einstellungen.kartenApp`). Google Maps und Waze öffnen auf iPhone/iPad direkt über ihr App-Schema (`comgooglemaps://`, `waze://`), ohne App nach kurzer Zeit die Web-Fassung. Gilt für alle Hinfahren-/Route-Knöpfe (Kunde, Karte, Übersicht, Termine, Kundenliste, Suche), da `src/ui/navi.ts` die Links zentral abfängt.
+
 ## 0.10.28 – 07.11.2026
 - **Kürzere Wege** (aus dem Vorschlag „Weniger Klicks“, Punkte 1–4):
   - **Abhaken mit Folgeschritt** (`src/core/abhaken.ts`, `src/ui/abhaken.ts`): Der Haken in Terminlisten und „✓ Erledigt“ in der Termin-Karte öffnen ein kleines Fenster „Wie ging's aus?“ mit Schnelltexten, Notiz (geht mit dem Bereich des Termins zum Kunden, R-TEXT) und Schnellwahl für die nächste Wiedervorlage (gleicher Kunde, Bereich und Titel, änderbar). Leer lassen = nur abhaken. Erledigtes wird mit einem Tipp wieder offen.

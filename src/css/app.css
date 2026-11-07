@@ -1313,3 +1313,7 @@ body.schutz-aktiv .plus-knopf, body.ka-aktiv .plus-knopf { display: none; }
 .dlg-abhaken fieldset, .abhaken-folge { border: 1px solid var(--linie); border-radius: var(--radius); padding: .5rem .75rem .75rem; margin: 0 0 .75rem; }
 .dlg-abhaken textarea { width: 100%; }
 .abhaken-bausteine { margin: .25rem 0 .5rem; }
+
+/* „Hinfahren“: Wahl der Karten-App */
+.navi-wahl { display: grid; gap: .5rem; margin-top: .75rem; }
+.navi-wahl .btn { min-height: 52px; font-size: 1.05rem; }

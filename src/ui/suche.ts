@@ -10,7 +10,7 @@ import { KATEGORIEN } from '../core/produkte.ts';
 import * as theme from './theme.ts';
 import { toast } from './dom.ts';
 import { anrufen, emailSchreiben } from './kontakt.ts';
-import { naviLink } from './navi.ts';
+import { navigieren } from './navi.ts';
 import { terminDialog } from './parts.ts';
 import * as enpalDoku from './enpaldoku.ts';
 import { verleihDialog, reservierenDialog, ruecknahme } from './views/bestand.ts';
@@ -179,9 +179,8 @@ function kundenAktion(id: string, aktion: Aktion) {
   merken('kunde', id);
   if (aktion === 'hinfahren') {
     // im Klick selbst öffnen, sonst blockiert der Browser das neue Fenster
-    const href = naviLink(k);
     schliessen();
-    if (href) window.open(href, '_blank', 'noopener');
+    navigieren(k);
     return;
   }
   schliessen();

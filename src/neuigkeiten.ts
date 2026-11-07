@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.29',
+    punkte: [
+      'Hinfahren: Beim ersten Mal fragt Sperling, ob du mit Google Maps, Apple Karten oder Waze navigierst, und öffnet danach immer diese App.',
+    ],
+  },
+  {
     version: '0.10.28',
     punkte: [
       'Abhaken mit einem Tipp mehr: „Wie ging’s aus?“ notieren (mit Schnelltexten wie „Nicht erreicht“) und gleich die nächste Wiedervorlage setzen.',

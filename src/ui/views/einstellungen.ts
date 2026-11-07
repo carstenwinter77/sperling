@@ -82,7 +82,7 @@ export function render(el: HTMLElement) {
     <section class="karte-box">
       <h2>Navigation</h2>
       <label>„Hinfahren“ öffnet<select id="kartenApp">
-        ${[['auto', 'Automatisch (Apple Karten auf iPhone/iPad, sonst Google Maps)'], ['apple', 'Apple Karten'], ['google', 'Google Maps'], ['waze', 'Waze']].map(([k, v]) => `<option value="${k}" ${e.kartenApp === k ? 'selected' : ''}>${v}</option>`).join('')}
+        ${[['auto', 'Beim ersten Mal fragen (iPhone/iPad), sonst Google Maps'], ['apple', 'Apple Karten'], ['google', 'Google Maps'], ['waze', 'Waze']].map(([k, v]) => `<option value="${k}" ${e.kartenApp === k ? 'selected' : ''}>${v}</option>`).join('')}
       </select></label>
       <p class="hinweis">Eine Web-App kann die in iOS gewählte Standard-Navigations-App nicht direkt aufrufen. Wähle hier die App, mit der du fährst; Google Maps und Waze öffnen sich, wenn sie installiert sind, sonst im Browser.</p>
     </section>

@@ -27,6 +27,7 @@ import * as vGespraechsmodus from './ui/views/gespraechsmodus.ts';
 import * as schutz from './ui/schutz.ts';
 import * as plusknopf from './ui/plusknopf.ts';
 import * as tour from './ui/tour.ts';
+import * as navi from './ui/navi.ts';
 import * as fotos from './storage/fotos.ts';
 import * as suche from './ui/suche.ts';
 import * as hilfe from './ui/hilfe.ts';
@@ -262,6 +263,7 @@ function shell() {
   if (!document.body.dataset.tourKlick) {
     document.body.dataset.tourKlick = '1';
     document.addEventListener('click', (ev) => { if ((ev.target as Element).closest?.('[data-tour-start]')) tour.starten(); });
+    navi.verdrahten(); // „Hinfahren“/„Route“: einmal nach der Karten-App fragen, App direkt öffnen
   }
   $('#sperren').addEventListener('click', sperren);
   $('#demoEnde')?.addEventListener('click', sperren);
