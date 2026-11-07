@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.2
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.3
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -15,7 +15,10 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.9.1)
+## Erledigt (Version 0.9.3)
+
+### Neu in 0.9.3
+- [x] Kontaktseite mit echtem Namen und Abschnitt „Beratung ohne Druck“ (unverbindlich, kein Zeitdruck, ehrlich). Platzhalter: nur noch Kontaktdaten und Impressum.
 
 ### Neu in 0.9.2
 - [x] Bereichsfarben (PV gelb, WP blau, Vorwerk grün) in Chips, Karten, Bögen, Gesprächsmodus, Leitfaden und Icons (`scripts/branding.py` färbt das Produktsymbol ein).

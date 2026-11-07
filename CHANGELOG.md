@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.9.3 – 07.11.2026
+- **Kontaktseite:** echter Name, Leiste „Unverbindlich · Ohne Druck · Ehrlich beraten“, neuer Abschnitt „Beratung ohne Druck – mein Versprechen“ mit drei Karten; Zitat, Ablauf und Rückruf-Hinweis angepasst. Platzhalter sind nur noch Kontaktdaten und Impressum.
+
 ## 0.9.2 – 07.11.2026
 - **Bereichsfarben überall:** Status-Chips, Interesse-Karten, Erfassungsbögen, Gesprächsmodus, Leitfaden-Reiter und die Produktsymbole der Bereichs-Icons in PV gelb, WP blau, Vorwerk grün (hell und dunkel).
 
