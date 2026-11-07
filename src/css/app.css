@@ -512,3 +512,7 @@ body.ka-aktiv { overflow: hidden; }
 .aw-tabelle td + td, .aw-tabelle th + th { text-align: right; font-variant-numeric: tabular-nums; width: 5rem; }
 .umkreis { display: flex; align-items: center; gap: .4rem; font-weight: 600; font-size: .9rem; }
 .umkreis select { width: auto; }
+.geloescht-hinweis { text-align: center; margin: 1.25rem 0; }
+.geloescht-hinweis a { color: var(--text-2); font-weight: 600; }
+.geloescht-liste .zeile { flex-wrap: wrap; gap: .4rem; }
+.danger-text { color: var(--rot); }

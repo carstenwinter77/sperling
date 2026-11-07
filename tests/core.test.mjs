@@ -316,7 +316,7 @@ test('Papierkorb: Kunde löschen und mit Bezügen wiederherstellen', async () =>
   assert.deepEqual(data.papierkorb, []);
 });
 
-test('Papierkorb: Einträge älter als 30 Tage verfallen beim Laden', () => {
+test('Papierkorb: Gelöschtes verfällt nie von selbst, nur Kaputtes fällt weg', () => {
   const alt = new Date(Date.now() - 31 * 864e5).toISOString();
   const neu = new Date(Date.now() - 2 * 864e5).toISOString();
   const d = migrate({ ...emptyData(), papierkorb: [
@@ -324,7 +324,7 @@ test('Papierkorb: Einträge älter als 30 Tage verfallen beim Laden', () => {
     { id: 'b', typ: 'termin', objekt: { id: 't2' }, geloeschtAm: neu },
     { id: 'c', typ: 'quatsch', objekt: {}, geloeschtAm: neu },
   ] });
-  assert.deepEqual(d.papierkorb.map((e) => e.id), ['b']);
+  assert.deepEqual(d.papierkorb.map((e) => e.id), ['a', 'b']);
 });
 
 test('Gerätebelegung: Reservierungen und Verleihe, tageweise inklusive', async () => {

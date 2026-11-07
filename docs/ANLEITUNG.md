@@ -42,7 +42,7 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Gerät reservieren:** Bestand → Gerät → Reservieren → Kunde und Zeitraum. Belegte Zeiträume werden abgelehnt. Am Tag selbst „Jetzt verleihen“.
 - **Leihschein:** Beim Verleihen Fotos vom Zustand machen und den Kunden auf dem Tablet unterschreiben lassen. Danach „Teilen / Speichern“ schickt das PDF per Mail oder legt es in Dateien ab. Bei der Rücknahme genauso (Rückgabeschein).
 - **Kundenansicht:** Kunde → „Kundenansicht“ → Tablet dem Kunden geben. Er sieht nur Name, Adresse, Erfassungsbogen und Leihgeräte. Beenden nur mit Master-Passwort oder Face ID.
-- **Papierkorb:** Versehentlich gelöscht? Einstellungen → Papierkorb → Wiederherstellen (30 Tage lang).
+- **Gelöscht:** Versehentlich gelöscht? Kunden → ganz unten „Gelöscht“ → Wiederherstellen. Nichts verfällt von selbst; endgültig weg ist ein Eintrag erst, wenn du ihn dort einzeln endgültig löschst.
 - **Vorführgerät verleihen:** Bestand → Gerät → Verleihen → Kunde und „zurück bis“. Die Nachfrage-Erinnerung erscheint unter Termine. Bei Rückgabe „Zurückgenommen“ oder „Kunde kauft es“.
 - **Telefonat mit Einwänden:** Kunde → „Gesprächsleitfaden“ (oder Leiste → Gespräch). Sparte wählen, Einwand antippen, Gegenargumente vorlesen, Ergebnis markieren. Am Ende „Als Notiz speichern“.
 - **Enpal-Dokumentation:** Kunde → Enpal-Doku → „Telefonat dokumentieren“ bzw. „Hausbesuch dokumentieren“ → Speichern → „Text kopieren“ → in der Enpal-App beim Lead einfügen. Beim Gesprächsleitfaden entsteht der Eintrag automatisch.

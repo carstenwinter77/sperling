@@ -138,7 +138,7 @@ export async function terminBearbeitenOderLoeschen(t) {
   if (wahl === 'bearbeiten') return terminDialog({ termin: t });
   if (wahl === 'loeschen') {
     store.mutate((d) => { pk.terminLoeschen(d, t.id); });
-    toast('Termin gelöscht – im Papierkorb wiederherstellbar', 'ok');
+    toast('Termin gelöscht – unter Kunden › Gelöscht wiederherstellbar', 'ok');
     return true;
   }
   return null;

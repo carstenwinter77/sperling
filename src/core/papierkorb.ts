@@ -1,4 +1,4 @@
-// Sperling – Papierkorb: Gelöschtes 30 Tage wiederherstellbar (R-LOESCH).
+// Sperling – Gelöscht (Papierkorb): Gelöschtes bleibt, bis es einzeln endgültig gelöscht wird (R-LOESCH).
 // Reine Datenfunktionen, werden innerhalb von store.mutate() aufgerufen.
 import { uid, nowIso, clone } from './util.ts';
 import { kundenTitel, normalizeKunde, normalizeNotiz, normalizeEnpalKontakt, normalizeTermin, type Daten, type PapierkorbEintrag } from './model.ts';

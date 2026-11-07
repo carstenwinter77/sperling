@@ -13,7 +13,7 @@ Browser (Tablet / Handy / Laptop)
  │   ├─ textgen.ts ....... Enpal-/Vorwerk-Texte (strikt getrennt)
  │   ├─ ics.ts ........... Kalenderexport (RFC 5545)
  │   ├─ einwaende.ts ..... Gesprächsleitfaden: Einstiegsfragen, Einwände, Überleitungen
- │   └─ papierkorb.ts .... Löschen in den Papierkorb, Wiederherstellen (30 Tage)
+ │   └─ papierkorb.ts .... Löschen in „Gelöscht“, Wiederherstellen, endgültig löschen
  ├─ src/storage/
  │   ├─ db.ts ............ IndexedDB: vault (aktueller Umschlag), history (10), meta (Geräte-ID)
  │   ├─ store.ts ......... Datenzustand im Speicher, mutate(), Speicherkette, Demo-Modus

@@ -7,7 +7,7 @@ export const NEUIGKEITEN = [
       'Kalender mit Monats-, Wochen- und Tagesansicht: Termin per Fingertipp anlegen, in Woche/Tag auch per Wischen den Zeitraum wählen.',
       '„Hinfahren“ beim Kunden, auf der Karte und bei Terminen öffnet Apple Karten bzw. Google Maps.',
       'Zahl am App-Symbol zeigt heute fällige Aufgaben und überfällige Leihgaben.',
-      'Papierkorb: Gelöschtes 30 Tage zurückholen (Einstellungen → Papierkorb).',
+      'Papierkorb: Gelöschtes zurückholen.',
       'Kundenansicht zum Herzeigen: Tablet dem Kunden geben, ohne dass er interne Notizen sieht.',
       'Vorführgeräte reservieren, Fotos und Unterschrift bei Übergabe und Rückgabe, Leihschein als PDF.',
     ],

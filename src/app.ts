@@ -22,6 +22,7 @@ import * as vBestand from './ui/views/bestand.ts';
 import * as vGespraech from './ui/views/gespraech.ts';
 import * as vBelegung from './ui/views/belegung.ts';
 import * as vAuswertung from './ui/views/auswertung.ts';
+import * as vGeloescht from './ui/views/geloescht.ts';
 
 interface Ansicht { render(el: HTMLElement, params: URLSearchParams, treffer: string[]): void | (() => void) }
 interface Route { muster: RegExp; view: Ansicht; nav: string }
@@ -35,6 +36,7 @@ const ROUTEN: Route[] = [
   { muster: /^\/bestand$/, view: vBestand, nav: 'bestand' },
   { muster: /^\/belegung$/, view: vBelegung, nav: 'bestand' },
   { muster: /^\/auswertung$/, view: vAuswertung, nav: 'auswertung' },
+  { muster: /^\/geloescht$/, view: vGeloescht, nav: 'kunden' },
   { muster: /^\/gespraech$/, view: vGespraech, nav: 'gespraech' },
 ];
 

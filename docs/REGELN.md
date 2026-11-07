@@ -16,7 +16,7 @@ Tests in `tests/core.test.mjs` sichern das ab. Diese Tests dürfen nie gelöscht
 
 **R-ZEIT – Notiz-Zeitstempel:** Standard ist der Moment des Speicherns. Ändert der Nutzer das Zeitfeld, gilt sein Wert. Bearbeiten ist jederzeit möglich. Gespeichert wird immer als ISO-String in UTC.
 
-**R-LOESCH – Nie stillschweigend Daten verwerfen.** Löschen nur nach Bestätigung. Termine eines gelöschten Kunden bleiben ohne Kundenbezug erhalten. Migration repariert, statt zu verwerfen.
+**R-LOESCH – Nie stillschweigend Daten verwerfen.** Löschen nur nach Bestätigung. Gelöschtes kommt in die Liste „Gelöscht“ (`papierkorb`) und verfällt nie von selbst; endgültig weg ist es erst, wenn es dort einzeln mit Bestätigung gelöscht wird (kein „Alles leeren“). Termine eines gelöschten Kunden bleiben ohne Kundenbezug erhalten. Migration repariert, statt zu verwerfen.
 
 **R-KONTAKT – Anrufen und E-Mail.** Anrufe nur nach Sicherheitsabfrage (`anrufen()` in `src/ui/kontakt.ts`), nie direkte `tel:`-Links. E-Mails werden nur vorbereitet und im Mailprogramm geöffnet; Sperling verschickt selbst nichts. Gmail/Outlook im Browser bekommen Empfänger, Betreff und Text nur, weil der Nutzer es in diesem Moment auslöst (Ausnahme zu R-EXTERN, durch Nutzeraktion).
 

@@ -131,7 +131,7 @@ export function emptyData(): Daten {
     leihvorgaenge: [],
     // Reservierungen von Vorführgeräten für künftige Termine (ab Schema 3)
     reservierungen: [],
-    // Gelöschtes, 30 Tage wiederherstellbar (ab Schema 3)
+    // Gelöschtes, bleibt bis zum endgültigen Löschen (ab Schema 3)
     papierkorb: [],
   };
 }
@@ -334,7 +334,6 @@ export function geraetBelegung(data: Daten, geraetId: string, von: string, bis: 
   return konflikte;
 }
 
-export const PAPIERKORB_TAGE = 30;
 /** Papierkorb-Eintrag: gelöschtes Objekt mit Typ, wiederherstellbar. */
 export function normalizePapierkorb(e: unknown) {
   const src: Rec = e && typeof e === 'object' ? e : {};
@@ -520,9 +519,9 @@ export function migrate(input: unknown): Daten {
     reservierungen: Array.isArray(data.reservierungen)
       ? data.reservierungen.map(normalizeReservierung).map((r) => (r.kundeId === '' || kundenIds.has(r.kundeId) ? r : { ...r, kundeId: '' }))
       : [],
-    // Papierkorb: Einträge älter als 30 Tage verfallen beim Laden
+    // Gelöschtes verfällt nie von selbst (R-LOESCH)
     papierkorb: Array.isArray(data.papierkorb)
-      ? data.papierkorb.map(normalizePapierkorb).filter((e): e is PapierkorbEintrag => !!e && Date.now() - new Date(e.geloeschtAm).getTime() < PAPIERKORB_TAGE * 86400000)
+      ? data.papierkorb.map(normalizePapierkorb).filter((e): e is PapierkorbEintrag => !!e)
       : [],
   };
 }

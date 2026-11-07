@@ -241,10 +241,10 @@ function uebersicht(el, k, kopf) {
   });
 
   el.querySelector('#loeschen').addEventListener('click', async () => {
-    const ok = await bestaetigen('Kunde löschen?', `${kundenTitel(k)} kommt mit allen Notizen in den Papierkorb (30 Tage wiederherstellbar). Zugehörige Termine bleiben ohne Kundenbezug erhalten.`);
+    const ok = await bestaetigen('Kunde löschen?', `${kundenTitel(k)} kommt mit allen Notizen in die Liste „Gelöscht“ und lässt sich dort jederzeit wiederherstellen. Zugehörige Termine bleiben erhalten.`);
     if (!ok) return;
     store.mutate((d) => { pk.kundeLoeschen(d, k.id); });
-    toast('Kunde gelöscht – im Papierkorb (Einstellungen) 30 Tage wiederherstellbar', 'ok', 5000);
+    toast('Kunde gelöscht – unter Kunden › Gelöscht wiederherstellbar', 'ok', 5000);
     location.hash = '#/kunden';
   });
 }
@@ -305,7 +305,7 @@ function notizen(el, k) {
     if (btn.dataset.aktion === 'loeschen') {
       if (!(await bestaetigen('Notiz löschen?', n.text.slice(0, 120)))) return;
       store.mutate((d) => { pk.notizLoeschen(d, k.id, nid); });
-      toast('Notiz im Papierkorb', 'ok');
+      toast('Notiz gelöscht – unter Kunden › Gelöscht wiederherstellbar', 'ok');
       notizen(el, store.findKunde(k.id));
     } else if (btn.dataset.aktion === 'bearbeiten') {
       const res = await dialog({

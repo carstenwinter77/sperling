@@ -13,7 +13,7 @@ Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Mensch
 | `geraete` | Gerät[] | Vorführbestand (Vorwerk) |
 | `leihvorgaenge` | Leihvorgang[] | Verleih an Kunden |
 | `reservierungen` | Reservierung[] | Vormerkungen für Vorführgeräte (ab Schema 3) |
-| `papierkorb` | Eintrag[] | Gelöschtes, 30 Tage wiederherstellbar (ab Schema 3) |
+| `papierkorb` | Eintrag[] | Gelöschtes, bleibt bis zum endgültigen Löschen (ab Schema 3) |
 
 ## Kunde
 
@@ -127,7 +127,7 @@ Belegt ist ein Gerät, wenn sich der Zeitraum mit einer Reservierung oder einem 
 | `typ` | `kunde` \| `notiz` \| `termin` \| `geraet` \| `enpalKontakt` | |
 | `objekt` | Objekt | das gelöschte Objekt, unverändert |
 | `kundeId` | String | zugehöriger Kunde (bei Notiz/Enpal-Eintrag) |
-| `geloeschtAm` | ISO-Datum | nach 30 Tagen entfernt `migrate()` den Eintrag |
+| `geloeschtAm` | ISO-Datum | nur zur Anzeige; Einträge verfallen nie von selbst (ab 0.9.0) |
 | `bezug` | Objekt oder `null` | beim Kunden: IDs der Termine, Verleihe, Reservierungen, die wieder verknüpft werden |
 
 ## Einstellungen

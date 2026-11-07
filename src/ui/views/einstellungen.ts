@@ -10,7 +10,6 @@ import * as dbx from '../../storage/dropbox.ts';
 import * as sync from '../../storage/sync.ts';
 import * as theme from '../theme.ts';
 import * as bio from '../../storage/biometrie.ts';
-import * as pk from '../../core/papierkorb.ts';
 import { KeyRing } from '../../core/crypto.ts';
 import { MAILPROGRAMME, gemerktesMailprogramm, mailprogrammMerken } from '../kontakt.ts';
 import { maskottchen, toast, download, dateiWaehlen, dialog, bestaetigen, teilenOderSpeichern } from '../dom.ts';
@@ -66,10 +65,9 @@ export function render(el: HTMLElement) {
     </section>
 
     <section class="karte-box">
-      <h2>Papierkorb</h2>
-      <p class="hinweis">Gelöschte Kunden, Notizen, Enpal-Dokumentationen und Termine bleiben ${30} Tage hier und lassen sich zurückholen.</p>
-      ${(store.getData().papierkorb || []).length ? `<ul class="liste" id="papierkorb">${store.getData().papierkorb.map((x) => { const t = pk.eintragTitel(x, store.getData()); return `<li class="zeile"><span class="zeile-haupt"><strong>${esc(t.art)}: ${esc(t.text)}</strong><small>gelöscht ${esc(formatDateTime(x.geloeschtAm))}</small></span><button class="btn klein primary" data-zurueck="${esc(x.id)}">Wiederherstellen</button><button class="btn klein ghost" data-weg="${esc(x.id)}" aria-label="Endgültig löschen">🗑</button></li>`; }).join('')}</ul>
-      <button class="btn danger klein" id="pkLeeren">Papierkorb leeren</button>` : '<p class="hinweis">Der Papierkorb ist leer.</p>'}
+      <h2>Gelöscht</h2>
+      <p class="hinweis">Gelöschte Kunden, Notizen, Termine und Enpal-Dokumentationen gehen nie verloren. Sie bleiben in der Liste „Gelöscht“, bis du sie dort einzeln endgültig löschst.</p>
+      <a class="btn" href="#/geloescht" id="geloeschtLink">Gelöscht öffnen (${(store.getData().papierkorb || []).length})</a>
     </section>
 
     <section class="karte-box">
@@ -178,23 +176,6 @@ export function render(el: HTMLElement) {
     } catch (err) { toast(`Entfernen fehlgeschlagen: ${(err as Error).message}`, 'error'); }
   });
   el.querySelector('#kartenApp').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.kartenApp = (ev.target as HTMLInputElement).value; }));
-  el.querySelector('#papierkorb')?.addEventListener('click', async (ev) => {
-    const zurueck = (ev.target as Element).closest('[data-zurueck]');
-    const weg = (ev.target as Element).closest('[data-weg]');
-    try {
-      if (zurueck) { await store.mutate((d) => pk.wiederherstellen(d, zurueck.dataset.zurueck || '')); toast('Wiederhergestellt', 'ok'); render(el); }
-      if (weg) {
-        if (!(await bestaetigen('Endgültig löschen?', 'Dieser Eintrag kann danach nicht mehr zurückgeholt werden.'))) return;
-        await store.mutate((d) => pk.endgueltigLoeschen(d, weg.dataset.weg || ''));
-        render(el);
-      }
-    } catch (err) { toast((err as Error).message, 'error', 5000); }
-  });
-  el.querySelector('#pkLeeren')?.addEventListener('click', async () => {
-    if (!(await bestaetigen('Papierkorb leeren?', 'Alle Einträge werden endgültig gelöscht.', 'Leeren'))) return;
-    await store.mutate((d) => pk.leeren(d));
-    render(el);
-  });
   el.querySelector('#mailprogramm').addEventListener('change', (ev) => { mailprogrammMerken((ev.target as HTMLInputElement).value); toast('Gespeichert', 'ok'); });
   el.querySelector('#empfEnpal').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.empfaenger.enpal = (ev.target as HTMLInputElement).value.trim(); }));
   el.querySelector('#empfVorwerk').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.empfaenger.vorwerk = (ev.target as HTMLInputElement).value.trim(); }));

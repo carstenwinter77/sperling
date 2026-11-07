@@ -22,7 +22,7 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 - [x] **1 Hinfahren** (`src/ui/navi.ts`): Apple Karten bzw. Google Maps, Wahl unter Einstellungen → Navigation (`kartenApp`).
 - [x] **2 Zahl am App-Symbol** (`src/ui/badge.ts`): heute offene Termine + überfällige Leihgaben (wo `setAppBadge` unterstützt wird, iOS ab 16.4 als installierte App).
 - [x] **3 Update-Hinweis** (`src/ui/update.ts`, `src/neuigkeiten.ts`): neue Version wartet, Leiste „Jetzt aktualisieren“, danach „Was ist neu“.
-- [x] **4 Papierkorb** (`src/core/papierkorb.ts`): Kunde (mit Rückverknüpfung von Terminen/Verleihen/Reservierungen), Notiz, Termin, Enpal-Eintrag; 30 Tage, dann automatisch weg.
+- [x] **4 Papierkorb** (`src/core/papierkorb.ts`): Kunde (mit Rückverknüpfung von Terminen/Verleihen/Reservierungen), Notiz, Termin, Enpal-Eintrag; ab 0.9.0 ohne Verfall, Liste „Gelöscht“ unter Kunden (`#/geloescht`), endgültig nur einzeln mit Bestätigung.
 - [x] **5 Kundenansicht** (`src/ui/kundenansicht.ts`): Vollbild ohne Notizen/Bemerkungen; Navigation gesperrt; Beenden mit Passwort oder Face ID.
 - [x] **6 Leihschein-PDF** (`src/ui/leihschein.ts`, jsPDF lokal): Leihschein und Rückgabeschein mit Unterschrift, Teilen/Speichern.
 - [x] **7 Fotos** bei Übergabe und Rückgabe (max. 4, verkleinert auf 1280 px, verschlüsselt).

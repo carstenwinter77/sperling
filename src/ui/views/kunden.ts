@@ -34,7 +34,8 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       <select id="sparte"><option value="">Alle Sparten</option>${SPARTEN_KEYS.map((s) => `<option value="${s}" ${s === zustand.sparte ? 'selected' : ''}>${esc(SPARTEN[s].label)}</option>`).join('')}</select>
       <select id="status"><option value="">Jeder Status</option>${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${k === zustand.status ? 'selected' : ''}>${esc(v.label)}</option>`).join('')}</select>
     </div>
-    <ul class="liste" id="liste"></ul>`;
+    <ul class="liste" id="liste"></ul>
+    <p class="geloescht-hinweis"><a href="#/geloescht">🗑 Gelöscht (${(store.getData().papierkorb || []).filter((e) => e.typ === 'kunde').length} Kunden)</a></p>`;
 
   const liste = el.querySelector('#liste');
   const zeichnen = () => {
