@@ -556,3 +556,64 @@ test('Kundenansicht: Standard wie bisher, Auswahl wird übernommen', () => {
   const m = migrate({ ...emptyData(), einstellungen: { kundenansicht: { notizen: true, pv: false, quatsch: true } } }).einstellungen.kundenansicht;
   assert.equal(m.notizen, true); assert.equal(m.pv, false); assert.equal(m.wp, true); assert.equal('quatsch' in m, false);
 });
+
+test('Kommandozeile: Normalisierung, Bewertung, Gruppen, Verben, Zuletzt', async () => {
+  const s = await import('../src/core/suche.ts');
+  const { normalizeGeraet, neuerLeihvorgang, normalizeTermin } = await import('../src/core/model.ts');
+  assert.equal(s.suchText('Müller-Lüdenscheidt, Straße'), 'mueller luedenscheidt strasse');
+  assert.equal(s.suchText('René E-Mail'), 'rene email');
+  assert.equal(s.ziffern('0171 / 23-45'), '0171 2345'.replace(' ', ''));
+
+  const e = { text: 'anna mueller hauptstrasse', titelN: 'anna mueller' };
+  assert.equal(s.punkte(e, ['mueller'], 'mueller'), 3);
+  assert.equal(s.punkte(e, ['muel'], 'muel'), 2);
+  assert.equal(s.punkte(e, ['ller'], 'ller'), 1);
+  assert.equal(s.punkte(e, ['mueller', 'xyz'], 'mueller xyz'), 0, 'jedes Wort muss vorkommen');
+  assert.equal(s.punkte(e, ['anna', 'mueller'], 'anna mueller'), 12, 'Titel exakt +6');
+  assert.equal(s.punkte(e, ['anna'], 'anna'), 7, 'Titel beginnt mit Eingabe +4');
+
+  const data = emptyData();
+  const a = normalizeKunde({ id: 'a', vorname: 'Anna', nachname: 'Müller', ort: 'Bremen', telefon: '0421 123456', email: 'anna@example.org', status: { pv: 'interesse' } });
+  const b = normalizeKunde({ id: 'b', vorname: 'Bernd', nachname: 'Müllermann' });
+  a.notizen.push(neueNotiz({ text: 'Dach ist nach Süden ausgerichtet, Speicher gewünscht' }));
+  data.kunden = [a, b];
+  data.termine = [normalizeTermin({ kundeId: 'a', titel: 'Beratung Dach', beginn: '2026-11-10T10:00:00.000Z' })];
+  data.geraete = [normalizeGeraet({ id: 'g', name: 'Kobold VK7', aktiv: true })];
+  const idx = s.index(data);
+
+  let r = s.suchen(idx, 'müller');
+  assert.equal(r.gruppen[0].art, 'kunde');
+  assert.deepEqual(r.gruppen[0].treffer.map((t) => t.id), ['a', 'b'], 'exaktes Wort vor Wortanfang');
+  assert.equal(s.suchen(idx, '421123').gruppen[0].treffer[0].id, 'a', 'Telefonnummer ohne Leerzeichen');
+  assert.equal(s.suchen(idx, 'photovoltaik').gruppen.find((g) => g.art === 'kunde').treffer[0].id, 'a');
+  assert.ok(s.suchen(idx, 'speicher').gruppen.some((g) => g.art === 'notiz'));
+  assert.ok(s.suchen(idx, 'dach').gruppen.some((g) => g.art === 'termin'));
+  assert.ok(s.suchen(idx, 'zu teuer').gruppen.some((g) => g.art === 'einwand'));
+  assert.equal(s.suchen(idx, 'neuer kunde').gruppen[0].treffer[0].befehl, 'neuerKunde');
+  assert.deepEqual(s.suchen(idx, '   ').gruppen, []);
+
+  // Aktionen nur, wenn möglich
+  assert.deepEqual(s.kundenAktionen(a).slice(0, 3), ['anrufen', 'email', 'hinfahren']);
+  assert.equal(s.kundenAktionen(b).includes('anrufen'), false);
+
+  // Verb-Erkennung
+  assert.deepEqual(s.verbErkennen('Müller anrufen'), { aktion: 'anrufen', rest: 'mueller' });
+  r = s.suchen(idx, 'anna anrufen');
+  assert.equal(r.vorschlag.aktion, 'anrufen'); assert.equal(r.vorschlag.ziel.id, 'a');
+  assert.equal(s.suchen(idx, 'bernd anrufen').vorschlag, null, 'ohne Telefon kein Anruf-Vorschlag');
+  assert.equal(s.suchen(idx, 'kobold verleihen').vorschlag.ziel.id, 'g');
+  data.leihvorgaenge = [neuerLeihvorgang({ kundeId: 'a', geraetId: 'g' })];
+  const g = s.index(data).find((x) => x.art === 'geraet');
+  assert.deepEqual(g.aktionen, ['zuruecknehmen', 'reservieren']);
+  assert.match(g.unter, /Anna Müller/);
+
+  // Zuletzt
+  let z = [];
+  for (let i = 0; i < 10; i++) z = s.zuletztHinzu(z, { art: 'kunde', id: `k${i}` });
+  assert.equal(z.length, 8); assert.equal(z[0].id, 'k9');
+  z = s.zuletztHinzu(z, { art: 'kunde', id: 'k5' });
+  assert.equal(z[0].id, 'k5'); assert.equal(z.filter((x) => x.id === 'k5').length, 1);
+  assert.deepEqual(s.zuletztAufloesen(data, [{ art: 'kunde', id: 'weg' }, { art: 'kunde', id: 'a' }, { art: 'geraet', id: 'g' }]).map((x) => x.titel), ['Anna Müller', 'Kobold VK7']);
+  assert.deepEqual(migrate({ ...emptyData(), einstellungen: { zuletzt: [{ art: 'kunde', id: 'a' }, { art: 'x', id: 'b' }, 'quatsch'] } }).einstellungen.zuletzt, [{ art: 'kunde', id: 'a' }]);
+  assert.match(s.ausschnitt('x '.repeat(80) + 'Speicher gewünscht ' + 'y '.repeat(80), 'speicher'), /Speicher/);
+});

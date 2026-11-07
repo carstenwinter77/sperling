@@ -463,6 +463,21 @@ export function normalizeTermin(tm: unknown) {
   };
 }
 
+/** „Zuletzt geöffnet“ in der Kommandozeile: nur Art und ID, verschlüsselt im Store (R-KRYPTO). */
+export interface ZuletztEintrag { art: 'kunde' | 'geraet'; id: string }
+export const ZULETZT_MAX = 8;
+export function normalizeZuletzt(v: unknown): ZuletztEintrag[] {
+  if (!Array.isArray(v)) return [];
+  const out: ZuletztEintrag[] = [];
+  for (const x of v) {
+    if (!x || typeof x !== 'object') continue;
+    const { art, id } = x as Rec;
+    if ((art === 'kunde' || art === 'geraet') && typeof id === 'string' && id && id.length <= 100 && !out.some((y) => y.art === art && y.id === id)) out.push({ art, id });
+    if (out.length >= ZULETZT_MAX) break;
+  }
+  return out;
+}
+
 function normalizeEinstellungen(e: unknown) {
   const d = STANDARD_EINSTELLUNGEN;
   const src: Rec = e && typeof e === 'object' ? e : {};
@@ -499,6 +514,8 @@ function normalizeEinstellungen(e: unknown) {
     kundenansicht: Object.fromEntries(Object.entries(KUNDENANSICHT_TEILE).map(([k, v]) => [k, typeof src.kundenansicht?.[k] === 'boolean' ? src.kundenansicht[k] : v.standard])) as Record<KundenansichtTeil, boolean>,
     /** Umkreis für „Nachbarn“ beim Kunden (Meter), eine der NACHBAR_RADIEN-Stufen */
     nachbarRadiusM: NACHBAR_RADIEN.includes(Number(src.nachbarRadiusM)) ? Number(src.nachbarRadiusM) : 300,
+    /** Kommandozeile: zuletzt geöffnete Kunden/Geräte (ab 0.9.0) */
+    zuletzt: normalizeZuletzt(src.zuletzt),
   };
 }
 

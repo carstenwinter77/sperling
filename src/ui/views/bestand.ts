@@ -10,6 +10,7 @@ import * as leihschein from '../leihschein.ts';
 import { zeitraumWahl } from '../zeitraum.ts';
 import { tagVon, plusTage, balkenFuer, istBelegt, ersterFreierTag, type Tag } from '../../core/belegung.ts';
 import { kundenName } from '../../core/model.ts';
+import * as suche from '../suche.ts';
 
 const TAG_MS = 86400000;
 
@@ -56,7 +57,7 @@ export function verleihStatus(l: Leihvorgang): 'zurueck' | 'ueberfaellig' | 'ver
   return 'verliehen';
 }
 
-export function render(el: HTMLElement) {
+export function render(el: HTMLElement, params: URLSearchParams = new URLSearchParams()) {
   const d = store.getData();
   const aktiv = d.geraete.filter((g) => g.aktiv);
   const offen = d.leihvorgaenge.filter((l) => !l.rueckgabe);
@@ -119,6 +120,13 @@ export function render(el: HTMLElement) {
   }).join('')}</ul>
     </section>` : ''}`;
 
+  const ziel = params.get('geraet');
+  const karte = ziel ? [...el.querySelectorAll<HTMLElement>('.geraet')].find((x) => x.dataset.id === ziel) : null;
+  if (karte) {
+    karte.classList.add('such-ziel');
+    suche.merken('geraet', ziel!);
+    requestAnimationFrame(() => karte.scrollIntoView({ block: 'center' }));
+  }
   el.querySelector('#neu').addEventListener('click', async () => { if (await geraetDialog()) render(el); });
   el.querySelectorAll('[data-beleg]').forEach((b) => b.addEventListener('click', () => leihschein.anbieten(b.dataset.beleg, b.dataset.art, dialog)));
 
@@ -339,7 +347,7 @@ export async function verleihDialog(g: Geraet, reservierung: Reservierung | null
   return true;
 }
 
-async function ruecknahme(g: Geraet, gekauft: boolean): Promise<boolean> {
+export async function ruecknahme(g: Geraet, gekauft: boolean): Promise<boolean> {
   const d = store.getData();
   const l = offenerVerleih(d, g.id);
   if (!l) return false;

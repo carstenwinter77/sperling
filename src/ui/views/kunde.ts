@@ -15,6 +15,7 @@ import { istBeispiel } from '../../demo.ts';
 import { kundenVerlauf, letzterKontakt, tageSeit, seitText, type VerlaufEintrag } from '../../core/verlauf.ts';
 import { kontaktKlasse } from './kunden.ts';
 import * as ablauf from '../gespraechsablauf.ts';
+import * as suche from '../suche.ts';
 import { statusOptions, terminDialog, terminZeile, terminListeVerdrahten, icsExport, spartenIcon, statusChips } from '../parts.ts';
 
 const TABS = [
@@ -109,6 +110,8 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
   });
   zeigeTab(tab);
   if (params.get('neu') === '1') el.querySelector('[data-feld="vorname"]')?.focus();
+  if (params.get('fokus') === 'notiz') el.querySelector<HTMLTextAreaElement>('#notizForm textarea')?.focus();
+  suche.merken('kunde', id);
 }
 
 // ---------- Feld-Bindung ----------

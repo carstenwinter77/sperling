@@ -66,6 +66,8 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
     verlauf: einb ? einb.verlauf : ablauf.leererVerlauf(),
     offenerEinwand: null as string | null,
   };
+  // aus der Suche: Einwand direkt aufschlagen (nur nachschlagen, nichts wird angetippt)
+  if (!einb && LEITFADEN[zustand.sparte]?.einwaende.some((x) => x.id === p('einwand'))) zustand.offenerEinwand = p('einwand');
   const kundenOpts = [...d.kunden].sort((a, b) => kundenTitel(a).localeCompare(kundenTitel(b), 'de'))
     .map((k) => `<option value="${esc(k.id)}" ${k.id === zustand.kundeId ? 'selected' : ''}>${esc(kundenTitel(k))}</option>`).join('');
 

@@ -25,6 +25,7 @@ import * as vAuswertung from './ui/views/auswertung.ts';
 import * as vGeloescht from './ui/views/geloescht.ts';
 import * as vGespraechsmodus from './ui/views/gespraechsmodus.ts';
 import * as schutz from './ui/schutz.ts';
+import * as suche from './ui/suche.ts';
 
 interface Ansicht { render(el: HTMLElement, params: URLSearchParams, treffer: string[]): void | (() => void) }
 interface Route { muster: RegExp; view: Ansicht; nav: string }
@@ -194,6 +195,7 @@ function shell() {
     ${store.isDemo() ? '<div class="demo-band">Demo<span class="band-lang">&nbsp;· Beispieldaten, nichts wird gespeichert</span> <button id="demoEnde">Beenden</button><button class="thema-knopf" id="themaBand" aria-label="Hell/Dunkel umschalten">◐</button></div>' : ''}
     <nav class="hauptnav" aria-label="Hauptnavigation">
       <div class="marke">${maskottchen('sperling', 'marke-bild')}<span>Sperling</span></div>
+      <button type="button" class="nav-suche" id="navSuche" title="Suchen (${suche.kuerzel()})"><span class="nav-bild nav-lupe" aria-hidden="true">🔍</span><span>Suchen</span></button>
       ${NAV.map((n) => `<a href="${n.href}" data-nav="${n.key}">${maskottchen(n.bild, 'nav-bild')}<span>${n.label}</span></a>`).join('')}
       <button class="sperr-knopf" id="thema" title="Hell/Dunkel umschalten">◐<span>Hell / Dunkel</span></button>
       <button class="sperr-knopf" id="sperren" title="Sperren" style="margin-top:0">🔒<span>Sperren</span></button>
@@ -202,6 +204,8 @@ function shell() {
     <button type="button" class="schutz-knopf" id="schutzKnopf" aria-pressed="false" aria-label="Beratungs-Schutz">🛡</button>
     <main id="inhalt" class="inhalt" tabindex="-1"></main>`;
   schutz.verdrahten();
+  suche.verdrahten();
+  $('#navSuche').addEventListener('click', () => suche.oeffnen());
   $('#sperren').addEventListener('click', sperren);
   $('#demoEnde')?.addEventListener('click', sperren);
   const umschalten = () => { theme.umschalten(); if (location.hash.startsWith('#/einstellungen')) route(); };
@@ -229,6 +233,7 @@ function route() {
   if (umleiten) { history.replaceState(null, '', umleiten); route(); return; }
   const r = ROUTEN.find((x) => x.muster.test(pfad)) || ROUTEN[0];
   const treffer = pfad.match(r.muster)?.slice(1) || [];
+  suche.schliessen();
   try { aufraeumen?.(); } catch (e) { console.error(e); }
   aufraeumen = null;
   const el = $('#inhalt');

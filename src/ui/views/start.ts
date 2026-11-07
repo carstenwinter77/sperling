@@ -5,6 +5,7 @@ import * as store from '../../storage/store.ts';
 import * as db from '../../storage/db.ts';
 import { maskottchen } from '../dom.ts';
 import { terminZeile, terminListeVerdrahten, statusChips } from '../parts.ts';
+import * as suche from '../suche.ts';
 
 const AKTIV = ['interesse', 'termin', 'angebot', 'abschluss'];
 
@@ -39,6 +40,7 @@ export function render(el: HTMLElement) {
         <p>${d.leihvorgaenge.some((l) => !l.rueckgabe) ? `<a href="#/bestand">${d.leihvorgaenge.filter((l) => !l.rueckgabe).length} Vorführgerät(e) verliehen</a> · ` : ''}${faellig.length ? `Heute ${faellig.length === 1 ? 'steht <b>1 Aufgabe</b>' : `stehen <b>${faellig.length} Aufgaben</b>`} an.` : 'Für heute ist nichts mehr offen.'}</p>
       </div>
     </section>
+    <div class="start-suche">${suche.feldHtml()}${suche.zuletztHtml()}</div>
     <div id="sicherungHinweis"></div>
 
     <section class="kacheln">
@@ -73,6 +75,7 @@ export function render(el: HTMLElement) {
     const ul = el.querySelector(`#${id}`);
     if (ul) terminListeVerdrahten(ul, () => render(el));
   }
+  el.querySelector('#startSuche')?.addEventListener('click', () => suche.oeffnen());
   sicherungErinnern(el.querySelector('#sicherungHinweis'), d);
 }
 
