@@ -1,5 +1,10 @@
 # Änderungsverlauf
 
+## 0.4.0 – 07.11.2026
+- **iCloud-Sicherung:** verschlüsselte Sicherung über das Teilen-Menü in iCloud Drive ablegen und von dort einspielen; Anzeige der letzten Sicherung und Erinnerung nach 7 Tagen.
+- Dauerhaften Browser-Speicher anfordern (schützt vor automatischem Löschen).
+- Anleitung für GitHub Pages; Browser-Test deckt Enpal-Doku, Leitfaden, iCloud-Sicherung und Einspielen im echten Modus ab.
+
 ## 0.3.1 – 07.11.2026
 - Persönliche Angaben des Auftraggebers aus Code und Doku entfernt (Vorbereitung für öffentliches Repo / GitHub Pages).
 

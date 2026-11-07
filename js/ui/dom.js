@@ -63,6 +63,26 @@ export function download(dateiname, inhalt, mime = 'application/octet-stream') {
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
+/**
+ * Datei über das Teilen-Menü des Systems weitergeben (iPad/iPhone: „In Dateien sichern“
+ * → iCloud Drive). Muss direkt aus einem Klick heraus aufgerufen werden (Safari verlangt das).
+ * Rückgabe: 'geteilt' | 'abgebrochen' | 'heruntergeladen'.
+ */
+export async function teilenOderSpeichern(dateiname, inhalt, mime = 'application/octet-stream') {
+  try {
+    const datei = new File([inhalt], dateiname, { type: mime });
+    if (navigator.canShare?.({ files: [datei] })) {
+      await navigator.share({ files: [datei], title: dateiname });
+      return 'geteilt';
+    }
+  } catch (err) {
+    if (err?.name === 'AbortError') return 'abgebrochen';
+    // andere Fehler: auf Download ausweichen
+  }
+  download(dateiname, inhalt, mime);
+  return 'heruntergeladen';
+}
+
 export async function kopieren(text) {
   try {
     await navigator.clipboard.writeText(text);

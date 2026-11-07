@@ -190,6 +190,8 @@ store.onSaved((ev) => { if (ev.fehler) toast(`Speichern fehlgeschlagen: ${ev.feh
 async function start() {
   try { dbx.captureAuthCode(); } catch (e) { console.error(e); }
   sync.init();
+  // Browser bitten, die Daten nicht automatisch zu löschen (wichtig v. a. auf iPad/Android).
+  if (document.documentElement.dataset.demo !== '1') navigator.storage?.persist?.().catch(() => {});
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost') && document.documentElement.dataset.demo !== '1') {
     navigator.serviceWorker.register('sw.js').catch((e) => console.warn('Service Worker nicht registriert', e));
   }

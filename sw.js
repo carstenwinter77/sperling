@@ -1,7 +1,7 @@
 // Sperling – Service Worker: App-Dateien offline verfügbar machen.
 // REGEL: Bei jeder Änderung an App-Dateien CACHE_VERSION erhöhen (siehe docs/REGELN.md).
 // Kundendaten werden hier NIE gecacht (die liegen verschlüsselt in IndexedDB).
-const CACHE_VERSION = 'sperling-v0.3.1';
+const CACHE_VERSION = 'sperling-v0.4.0';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
   'vendor/leaflet/leaflet.js', 'vendor/leaflet/leaflet.css',

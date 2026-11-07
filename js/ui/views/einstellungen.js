@@ -9,9 +9,9 @@ import * as dbx from '../../storage/dropbox.js';
 import * as sync from '../../storage/sync.js';
 import * as theme from '../theme.js';
 import { MAILPROGRAMME, gemerktesMailprogramm, mailprogrammMerken } from '../kontakt.js';
-import { maskottchen, toast, download, dateiWaehlen, dialog, bestaetigen } from '../dom.js';
+import { maskottchen, toast, download, dateiWaehlen, dialog, bestaetigen, teilenOderSpeichern } from '../dom.js';
 
-export const APP_VERSION = '0.3.1';
+export const APP_VERSION = '0.4.0';
 
 export function render(el) {
   const e = store.getData().einstellungen;
@@ -75,9 +75,11 @@ export function render(el) {
 
     <section class="karte-box ${demo ? 'aus' : ''}">
       <h2>Datensicherung</h2>
-      <p class="hinweis">Die Sicherungsdatei ist mit deinem Master-Passwort verschlüsselt.</p>
+      <p class="hinweis">Die Sicherungsdatei ist mit deinem Master-Passwort verschlüsselt. <b>iCloud:</b> „In iCloud / Dateien sichern“ tippen, im Teilen-Menü „In Dateien sichern“ wählen und den Ordner in iCloud Drive aussuchen. Zum Zurückholen „Sicherung einspielen“ und die Datei aus iCloud Drive wählen.</p>
+      <p id="letzteSicherung" class="hinweis"></p>
       <div class="knopfreihe">
-        <button class="btn primary" id="backup" ${demo ? 'disabled' : ''}>Sicherung herunterladen</button>
+        <button class="btn primary" id="icloud" ${demo ? 'disabled' : ''}>☁️ In iCloud / Dateien sichern</button>
+        <button class="btn ghost" id="backup" ${demo ? 'disabled' : ''}>Sicherung herunterladen</button>
         <button class="btn ghost" id="import" ${demo ? 'disabled' : ''}>Sicherung einspielen</button>
       </div>
       <h3>Automatische Versionen auf diesem Gerät</h3>
@@ -144,15 +146,46 @@ export function render(el) {
     render(el);
   });
 
+  const sicherungsName = () => `sperling-sicherung-${new Date().toISOString().slice(0, 10)}.sperling`;
+  const letzteZeigen = () => {
+    db.getMeta('letzteSicherung').then((t) => {
+      const p = el.querySelector('#letzteSicherung');
+      if (p) p.textContent = t ? `Letzte Sicherung: ${formatDateTime(t)}` : 'Noch keine Sicherung erstellt.';
+    }).catch(() => {});
+  };
+  if (!demo) letzteZeigen();
+  const merken = () => db.setMeta('letzteSicherung', new Date().toISOString()).then(letzteZeigen).catch(() => {});
   el.querySelector('#backup').addEventListener('click', async () => {
     try {
       const env = await store.currentEnvelope();
-      const tag = new Date().toISOString().slice(0, 10);
-      download(`sperling-sicherung-${tag}.sperling`, JSON.stringify(env), 'application/json');
+      download(sicherungsName(), JSON.stringify(env), 'application/json');
+      merken();
     } catch (err) { toast(`Sicherung fehlgeschlagen: ${err.message}`, 'error'); }
   });
+  // iCloud: Safari erlaubt das Teilen-Menü nur direkt nach einem Tipp. Deshalb erst die
+  // Datei vorbereiten, dann ein zweiter Tipp auf „Jetzt sichern“ öffnet das Teilen-Menü.
+  el.querySelector('#icloud').addEventListener('click', async () => {
+    let inhalt;
+    try { inhalt = JSON.stringify(await store.currentEnvelope()); } catch (err) { toast(`Sicherung fehlgeschlagen: ${err.message}`, 'error'); return; }
+    const name = sicherungsName();
+    await dialog({
+      titel: 'In iCloud sichern',
+      html: `<p>Die verschlüsselte Sicherung <b>${esc(name)}</b> ist bereit.</p><p class="hinweis">Im nächsten Schritt „In Dateien sichern“ wählen, dann „iCloud Drive“ und einen Ordner (z. B. „Sperling“).</p>`,
+      knoepfe: [{ label: 'Jetzt sichern', primaer: true, wert: null }],
+      onOpen: (dlg) => {
+        dlg.querySelectorAll('.dlg-actions button')[1]?.addEventListener('click', async (ev) => {
+          ev.preventDefault();
+          const r = await teilenOderSpeichern(name, inhalt, 'application/json');
+          if (r === 'abgebrochen') { toast('Abgebrochen – nichts gesichert.', 'error'); return; }
+          merken();
+          toast(r === 'geteilt' ? 'Sicherung übergeben' : 'Sicherung heruntergeladen (Ordner „Downloads“ bzw. Dateien-App)', 'ok', 5000);
+          dlg.close();
+        });
+      },
+    });
+  });
   el.querySelector('#import').addEventListener('click', async () => {
-    const txt = await dateiWaehlen('.sperling,application/json');
+    const txt = await dateiWaehlen(); // ohne Filter: iOS graut .sperling sonst aus; Inhalt wird unten geprüft
     if (!txt) return;
     let env;
     try { env = JSON.parse(txt); validateEnvelope(env); } catch (err) { toast(err.message || 'Ungültige Datei.', 'error'); return; }

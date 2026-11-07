@@ -365,3 +365,5 @@ body { --band-h: 0px; }
 .frist-ueber { color: var(--rot); font-weight: 600; }
 .danger-text { color: var(--rot); }
 .kontaktart { display: flex; flex-direction: column; max-width: 360px; margin-bottom: .75rem; }
+.warnung-box { background: var(--tag-warn-bg); color: var(--text); border-radius: var(--radius); padding: .75rem 1rem; margin: 0 0 1rem; }
+.warnung-box a { font-weight: 600; }

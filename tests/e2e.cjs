@@ -47,6 +47,25 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   if (vw.includes('Testnotiz')) fail('WP-Notiz im Vorwerk-Text!');
   const en = await p.inputValue('#text-enpal');
   if (!en.includes('Testnotiz')) fail('WP-Notiz fehlt im Enpal-Text');
+  // Enpal-Doku im echten Modus
+  await p.click('button[data-tab=doku]');
+  await p.click('[data-neu=hausbesuch]');
+  await p.fill('dialog [name=notiz]', 'Dach besichtigt <b>fett</b>');
+  await p.selectOption('dialog [name=ergebnis]', 'angebot');
+  await p.click('dialog button.primary');
+  await p.waitForSelector('.doku-text');
+  const doku = await p.inputValue('.doku-text');
+  if (!doku.includes('Hausbesuch') || !doku.includes('Dach besichtigt')) fail('Enpal-Doku-Text unvollständig');
+  if (/vorwerk/i.test(doku)) fail('Vorwerk in Enpal-Doku!');
+  await p.click('dialog .dlg-actions button.ghost');
+  // Gesprächsleitfaden speichern (Telefon) -> zweiter Doku-Eintrag
+  const kid = (await p.evaluate(() => location.hash)).split('/')[2].split('?')[0];
+  await p.goto(BASE + '#/gespraech?kunde=' + kid);
+  await p.waitForSelector('#gKontaktart');
+  await p.selectOption('#gKontaktart', 'telefon');
+  await p.selectOption('[data-abschluss] [name=ausgang]', 'termin');
+  await p.click('#gSpeichernKnopf');
+  await p.waitForTimeout(500);
   // Sperren und Neuladen
   await p.click('#sperren');
   await p.waitForSelector('#sperrForm');
@@ -61,12 +80,30 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForSelector('#liste .zeile');
   const liste = await p.textContent('#liste');
   if (!liste.includes('Prüfer')) fail('Kunde nach Neuladen weg');
+  await p.click('#liste .zeile');
+  await p.click('button[data-tab=doku]');
+  await p.waitForSelector('.doku-liste');
+  if ((await p.locator('.doku-liste > li').count()) !== 2) fail('Enpal-Doku nach Neuladen nicht vollständig');
   if (await p.evaluate(() => window.__xss)) fail('XSS ausgeführt!');
   // Backup herunterladen, Klartext darf nicht drin sein
   await p.goto(BASE + '#/einstellungen');
   const [bk] = await Promise.all([p.waitForEvent('download'), p.click('#backup')]);
   const bkTxt = require('fs').readFileSync(await bk.path(), 'utf8');
   if (bkTxt.includes('Prüfer') || bkTxt.includes('Testnotiz')) fail('Backup enthält Klartext!');
+  // iCloud-Sicherung (Headless: kein Teilen-Menü -> Download-Ausweg)
+  await p.click('#icloud');
+  await p.waitForSelector('dialog');
+  const [ic] = await Promise.all([p.waitForEvent('download'), p.click('dialog button.primary')]);
+  const icPfad = await ic.path();
+  const icTxt = require('fs').readFileSync(icPfad, 'utf8');
+  if (icTxt.includes('Prüfer') || icTxt.includes('Dach besichtigt')) fail('iCloud-Sicherung enthält Klartext!');
+  await p.waitForFunction(() => document.querySelector('#letzteSicherung')?.textContent.includes('Letzte Sicherung'));
+  // Sicherung wieder einspielen
+  const [fc] = await Promise.all([p.waitForEvent('filechooser'), p.click('#import')]);
+  await fc.setFiles(icPfad);
+  await p.fill('dialog [name=pw]', 'testpasswort');
+  await p.click('dialog button.primary');
+  await p.waitForFunction(() => document.querySelector('#toast')?.textContent.includes('eingespielt'));
   // Historie vorhanden
   await p.waitForTimeout(500);
   if (!(await p.$('#historie [data-i]'))) fail('Keine Versionshistorie');

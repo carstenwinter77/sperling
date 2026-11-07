@@ -2,9 +2,26 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.3.1
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.4.0
 
-## Erledigt (Version 0.3.0)
+## Echte App vs. Demo – was zum Produktivbetrieb fehlt
+
+Alle Funktionen der Demo laufen auch in der echten App (gleicher Code; die Demo ist nur ein Modus mit Beispieldaten im Arbeitsspeicher). Geprüft am 07.11.2026 im Browser-Test: Einrichten mit Passwort, Kunde, Notiz, Termin/ICS, getrennte Texte, Enpal-Doku, Gesprächsleitfaden, Sperren/Neuladen, iCloud-/Datei-Sicherung und Einspielen, Versionshistorie, Offline-Start über den Service Worker.
+
+Was nur der Auftraggeber/Nutzer erledigen kann:
+- [ ] **Hosting einschalten:** Repo öffentlich + GitHub Pages (Anleitung Abschnitt 2). Adresse: `https://carstenwinter77.github.io/sperling/`
+- [ ] **Dropbox-App anlegen** (nur wenn Dropbox-Abgleich gewünscht, Anleitung Abschnitt 3) – sonst iCloud-Sicherung nutzen
+- [ ] Auf dem Tablet „Zum Home-Bildschirm“ hinzufügen und Master-Passwort festlegen
+
+Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
+
+## Erledigt (Version 0.4.0)
+
+### Neu in 0.4.0
+- [x] **iCloud-Sicherung (Stufe 1):** Einstellungen → „In iCloud / Dateien sichern“ öffnet das Teilen-Menü („In Dateien sichern“ → iCloud Drive); ohne Teilen-Menü (Laptop) wird heruntergeladen. Einspielen aus iCloud Drive über „Sicherung einspielen“ (Dateiauswahl ohne Filter, damit iOS `.sperling` nicht ausgraut). Anzeige „Letzte Sicherung“, Erinnerung auf der Übersicht nach 7 Tagen, wenn kein Dropbox-Abgleich läuft.
+- [x] Browser wird um dauerhaften Speicher gebeten (`navigator.storage.persist`).
+- [x] Persönliche Angaben des Auftraggebers aus Code, Doku und Git-Historie entfernt (0.3.1).
+
 
 ### Neu in 0.3.0
 - [x] **Enpal-Gesprächsdokumentation** (Tab „Enpal-Doku“ beim Kunden): Telefonat oder Hausbesuch dokumentieren (Zeitpunkt, erreicht, Gesprächspartner, Themen PV/WP, Ergebnis, nächster Schritt, Frist, Gesprächsinhalt). Kopierfertiger Text je Kontakt und als Gesamtverlauf für die Enpal-App. Frist optional als Wiedervorlage, überfällige Fristen rot. Der Gesprächsleitfaden fragt „Wie war der Kontakt?“ und legt bei PV/WP automatisch einen Eintrag an. Schema 2 (`enpalKontakte`).
@@ -59,7 +76,6 @@
 - [ ] Mit dem Nutzer die Felder der Erfassungsbögen gegen das echte Enpal-/Vorwerk-Formular prüfen
 - [ ] Einwände und Gegenargumente mit dem Nutzer überarbeiten; später in den Einstellungen selbst bearbeitbar machen
 - [ ] Vorführbestand: Leihgaben auch im Vorwerk-Tab des Kunden anzeigen, Fotos vom Zustand bei Ausgabe/Rückgabe
-- [ ] Hosting festlegen (Vorschlag: GitHub Pages oder Cloudflare Pages, kostenlos, HTTPS) und Dropbox-App anlegen
 - [ ] Fotos pro Kunde (Dach, Zählerschrank, Heizung) – verschlüsselt, mit Größenbegrenzung
 - [ ] Offline-Kartenbilder für ein Gebiet vorladen (Kachel-Cache mit Größenlimit)
 - [ ] Mehrere Notizen-Filter (nur Sparte X), Volltextsuche in Notizen
@@ -67,7 +83,7 @@
 
 ### Version 2
 - [ ] **Lieferscheine** zum Vorführbestand: Unterschrift auf dem Tablet, PDF-Lieferschein bei Ausgabe und Rückgabe (Bestand und Verleih sind seit 0.2.0 vorhanden)
-- [ ] **iCloud als Speicherort** (Wunsch Auftraggeber, 07.11.2026): Stufe 1 – verschlüsselte Sicherung per Teilen-Menü in „Dateien → iCloud Drive“ sichern und von dort einspielen (ohne Apple-Konto-Anbindung). Stufe 2 – automatischer Abgleich über CloudKit JS (braucht Apple-Developer-Konto, 99 €/Jahr).
+- [ ] **iCloud Stufe 2:** automatischer Abgleich über CloudKit JS (braucht Apple-Developer-Konto, 99 €/Jahr). Stufe 1 (manuelle Sicherung) ist seit 0.4.0 da.
 - [ ] CSV-Export, falls Enpal/Vorwerk strukturierte Daten brauchen
 - [ ] Enpal-Doku: Felder an das tatsächliche Formular der Enpal-App anpassen, sobald ein Beispiel vorliegt (Reihenfolge/Bezeichnungen)
 - [ ] Übersicht: anstehende Enpal-Fristen gesondert hervorheben

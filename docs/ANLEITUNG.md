@@ -8,9 +8,14 @@
 
 ## 2. Für Tablet und Handy bereitstellen (Hosting)
 
-Sperling ist eine statische Web-App. Empfehlung: **GitHub Pages** oder **Cloudflare Pages** (kostenlos, HTTPS).
+Sperling ist eine statische Web-App. Gewählt: **GitHub Pages** (kostenlos, HTTPS, Updates kommen automatisch mit jedem Push).
 
-- Den ganzen Ordner hochladen, außer `tests/`, `docs/`, `sperling-demo.html`, `start.command`.
+1. GitHub → Repo `sperling` → Settings → General → ganz unten „Change visibility“ → **Public** (mit kostenlosem Konto nötig; im Repo liegen keine Kundendaten).
+2. Settings → **Pages** → Source „Deploy from a branch“ → Branch `main`, Ordner `/ (root)` → Save.
+3. Nach 1–2 Minuten: `https://carstenwinter77.github.io/sperling/`
+4. Empfehlung: Zwei-Faktor-Anmeldung für das GitHub-Konto einschalten (wer das Konto übernimmt, könnte den Code ändern).
+
+Andere Anbieter (z. B. Cloudflare Pages) gehen genauso: den Ordner hochladen, `tests/`, `docs/`, `sperling-demo.html`, `start.command` werden nicht gebraucht.
 - HTTPS ist Pflicht (Verschlüsselung, Offline-Modus und Dropbox funktionieren nur damit).
 - Danach auf dem Tablet die Adresse öffnen und **„Zum Home-Bildschirm hinzufügen“** (iPad/iPhone: Teilen-Menü; Android/Chrome: Menü → App installieren). Ab dann startet Sperling wie eine normale App, auch offline.
 
@@ -39,6 +44,9 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 
 ## 5. Datensicherung
 
-- Einstellungen → **Sicherung herunterladen** erzeugt eine verschlüsselte `.sperling`-Datei. Regelmäßig machen, auch mit Dropbox.
+- **iCloud (iPad/iPhone):** Einstellungen → **„In iCloud / Dateien sichern“** → „Jetzt sichern“ → im Teilen-Menü **„In Dateien sichern“** → iCloud Drive → Ordner (z. B. „Sperling“) → Sichern. Die Datei ist verschlüsselt.
+- **Zurückholen / neues Gerät:** Master-Passwort einrichten → Einstellungen → **„Sicherung einspielen“** → Datei in iCloud Drive wählen → Passwort der Sicherung eingeben.
+- Ohne Dropbox erinnert die Übersicht nach 7 Tagen an eine neue Sicherung.
+- Am Laptop: **Sicherung herunterladen** erzeugt dieselbe verschlüsselte `.sperling`-Datei.
 - Einspielen fragt nach dem Passwort der Sicherung. Der vorherige Stand bleibt unter „Automatische Versionen“ erhalten.
 - **Passwort vergessen = Daten nicht wiederherstellbar.** Passwort sicher notieren.

@@ -2,6 +2,7 @@
 import { esc } from '../../core/util.js';
 import { SPARTEN, kundenTitel } from '../../core/model.js';
 import * as store from '../../storage/store.js';
+import * as db from '../../storage/db.js';
 import { maskottchen } from '../dom.js';
 import { terminZeile, terminListeVerdrahten, statusChips } from '../parts.js';
 
@@ -38,6 +39,7 @@ export function render(el) {
         <p>${d.leihvorgaenge.some((l) => !l.rueckgabe) ? `<a href="#/bestand">${d.leihvorgaenge.filter((l) => !l.rueckgabe).length} Vorführgerät(e) verliehen</a> · ` : ''}${faellig.length ? `Heute ${faellig.length === 1 ? 'steht <b>1 Aufgabe</b>' : `stehen <b>${faellig.length} Aufgaben</b>`} an.` : 'Für heute ist nichts mehr offen.'}</p>
       </div>
     </section>
+    <div id="sicherungHinweis"></div>
 
     <section class="kacheln">
       ${['pv', 'wp', 'vorwerk'].map((s) => `
@@ -71,4 +73,15 @@ export function render(el) {
     const ul = el.querySelector(`#${id}`);
     if (ul) terminListeVerdrahten(ul, () => render(el));
   }
+  sicherungErinnern(el.querySelector('#sicherungHinweis'), d);
+}
+
+/** Erinnert an eine Sicherung (iCloud/Datei), wenn kein Dropbox-Abgleich läuft und die letzte älter als 7 Tage ist. */
+function sicherungErinnern(box, d) {
+  if (!box || store.isDemo() || d.einstellungen.dropbox.refreshToken || !d.kunden.length) return;
+  db.getMeta('letzteSicherung').then((t) => {
+    const alt = !t || Date.now() - new Date(t).getTime() > 7 * 24 * 3600 * 1000;
+    if (!alt || !box.isConnected) return;
+    box.innerHTML = `<p class="hinweis warnung-box">☁️ ${t ? 'Die letzte Sicherung ist älter als eine Woche.' : 'Es gibt noch keine Sicherung.'} <a href="#/einstellungen">Jetzt in iCloud sichern</a></p>`;
+  }).catch(() => {});
 }

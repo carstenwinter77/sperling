@@ -24,7 +24,7 @@ Tests in `tests/core.test.mjs` sichern das ab. Diese Tests dürfen nie gelöscht
 
 ## Sicherheit
 
-**R-KRYPTO** – Kundendaten verlassen den Arbeitsspeicher nur verschlüsselt (IndexedDB, Backup, Dropbox). Nie `localStorage` oder `sessionStorage` für Kundendaten. Ausnahmen: in `sessionStorage` der kurzlebige Dropbox-OAuth-Code/-Verifier während der Anmeldung; in `localStorage` nur das gewählte Farbschema (`sperling.farbschema`) und das gewählte Mailprogramm (`sperling.mailprogramm`).
+**R-KRYPTO** – Kundendaten verlassen den Arbeitsspeicher nur verschlüsselt (IndexedDB, Backup/iCloud-Datei, Dropbox). Nie `localStorage` oder `sessionStorage` für Kundendaten. Ausnahmen: in `sessionStorage` der kurzlebige Dropbox-OAuth-Code/-Verifier während der Anmeldung; in `localStorage` nur das gewählte Farbschema (`sperling.farbschema`) und das gewählte Mailprogramm (`sperling.mailprogramm`).
 
 **R-XSS** – Jeder Nutzertext, der in `innerHTML` landet, geht durch `esc()` aus `js/core/util.js`. Auch Attribute (`value="${esc(x)}"`). Neue Ansichten werden im E2E-Test mit einem `<img onerror>`-Namen geprüft.
 
