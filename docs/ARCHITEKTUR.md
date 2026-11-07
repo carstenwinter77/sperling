@@ -15,6 +15,7 @@ Browser (Tablet / Handy / Laptop)
  │   ├─ einwaende.ts ..... Gesprächsleitfaden: Einstiegsfragen, Einwände, Überleitungen
  │   ├─ papierkorb.ts .... Löschen in „Gelöscht“, Wiederherstellen, endgültig löschen
  │   ├─ belegung.ts ...... Belegungskalender: Tage, Balken, freie Zeiträume
+ │   ├─ kalender.ts ...... Leihgaben je Tag für den Kalender, Termine ziehen (15-Min-Raster), auf anderen Tag legen
  │   ├─ auswertung.ts .... Zeiträume, Kennzahlen, Vergleich mit dem Vorzeitraum
  │   ├─ gespraech.ts ..... Gesprächsmodus speichern (je Bereich, Notiz je Firma, R-TEXT)
  │   ├─ verlauf.ts ....... Gesprächshistorie, letzter Kontakt
@@ -38,7 +39,8 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/navi.ts ....... „Hinfahren“ (Apple Karten / Google Maps)
  ├─ src/ui/badge.ts ...... Zahl am App-Symbol
  ├─ src/ui/update.ts ..... Update-Hinweis, „Was ist neu“ (Texte in src/neuigkeiten.ts)
- ├─ src/ui/kalender.ts ... Monats-/Wochen-/Tagesansicht, Termin per Fingertipp
+ ├─ src/ui/kalender.ts ... Monats-/Wochen-/Tagesansicht, Termin per Fingertipp, Griffe zum Verschieben/Ziehen, Leihgaben
+ ├─ src/ui/terminkarte.ts  Termin-Karte (Route, Anrufen, E-Mail, Erledigt, Bearbeiten, Löschen)
  ├─ src/ui/kundenansicht.ts  Vollbild zum Herzeigen, Beenden mit Passwort/Face ID
  ├─ src/ui/belege.ts ..... Fotos (verkleinert) und Unterschriftsfeld
  ├─ src/ui/leihschein.ts . Leihschein/Rückgabeschein als PDF (jsPDF aus vendor/)

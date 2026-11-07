@@ -15,7 +15,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
   if (b === 'alle' || SPARTEN_KEYS.includes(b as Sparte)) { bereich = b as Sparte | 'alle'; kategorie = ''; }
   const kat = katalog();
   el.innerHTML = `
-    <header class="seitenkopf"><h1>${maskottchen('sperling', 'titel-bild')} Produkte</h1></header>
+    <header class="seitenkopf"><h1>${maskottchen('produkte', 'titel-bild')} Produkte</h1></header>
     <nav class="tabs aw-bereiche" role="tablist" id="pBereiche">
       ${(['alle', ...SPARTEN_KEYS] as const).map((x) => `<button type="button" role="tab" data-bereich="${x}" class="bereich-${x}">${x === 'alle' ? 'Alle' : esc(SPARTEN[x].label)} <small>${produkteFuer(kat, x).length}</small></button>`).join('')}
     </nav>

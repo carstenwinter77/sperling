@@ -2,6 +2,15 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.3',
+    punkte: [
+      '„Termine“ heißt jetzt „Kalender“: mit Leihgaben, Rückgaben und Reservierungen und dem Reiter „Geräte“ (Belegungskalender).',
+      'Termin antippen öffnet die Termin-Karte mit Route, Anrufen, E-Mail, Erledigt, Bearbeiten und Löschen (mit Sicherheitsabfrage).',
+      'Termin verschieben: Finger halten, bis Griffe erscheinen; in der Mitte schieben, oben oder unten länger und kürzer ziehen. Im Monat auf einen anderen Tag ziehen.',
+      'Eigenes Symbol für „Produkte“. Produktbilder werden auf dem Gerät zwischengespeichert und sind danach auch offline da.',
+    ],
+  },
+  {
     version: '0.10.2',
     punkte: [
       'Kontaktseite ist als Entwurf gekennzeichnet: Link bitte noch nicht weitergeben. Teilen und QR-Code sind bis dahin ausgeblendet.',

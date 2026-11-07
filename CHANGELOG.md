@@ -1,5 +1,12 @@
 # Änderungsverlauf
 
+## 0.10.3 – 07.11.2026
+- **Kalender** statt „Termine“: Reiter Liste, Monat, Woche, Tag, Geräte (Belegungskalender, `#/belegung` gehört jetzt zum Kalender). Leihgaben, Rückgaben, Reservierungen und überfällige Leihgaben als Einträge im Monat und als Ganztagszeile in Woche/Tag, ein-/ausblendbar; Antippen öffnet die Belegungs-Details (`src/core/kalender.ts`).
+- **Termin-Karte** (`src/ui/terminkarte.ts`): Kunde, Adresse, Notiz, letzte Gespräche; Route, Anrufen (mit Sicherheitsabfrage), E-Mail, Erledigt, In Kalender-App, Bearbeiten, Löschen mit Sicherheitsabfrage. Auch aus der Terminliste.
+- **Termine ziehen:** Finger halten = Griffe; Mitte verschiebt (auch auf andere Tage der Woche), oben/unten ändern Beginn/Ende im 15-Minuten-Raster; Maus zieht direkt. Monat: Termin auf anderen Tag ziehen, Uhrzeit bleibt.
+- Symbol „Produkte“ in Menü und Produktübersicht.
+- Produktbilder werden vom Service Worker nach dem ersten Abruf zwischengespeichert (eigener Cache, übersteht Updates, höchstens 300 Bilder).
+
 ## 0.10.2 – 07.11.2026
 - Kontaktseite (öffentlich und Datenschutz): roter Balken „ENTWURF – NOCH NICHT VERWENDEN!“.
 - Einstellungen → Meine Kontaktseite: dieselbe Warnung; „Link teilen“ und „QR-Code“ ausgeblendet, solange `ENTWURF` in `src/ui/kontaktseite.ts` gesetzt ist.

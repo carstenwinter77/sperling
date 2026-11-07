@@ -830,3 +830,44 @@ test('Textbausteine: Startliste, Normalisierung, Anhängen', () => {
   const d2 = migrate(JSON.parse(JSON.stringify({ ...d, einstellungen: { ...d.einstellungen, bausteine: n } })));
   assert.deepEqual(d2.einstellungen.bausteine.wp, ['A', 'B C']);
 });
+
+import * as kal from '../src/core/kalender.ts';
+test('Kalender: Leihgaben je Tag, Termine ziehen und verschieben', () => {
+  const d = migrate({
+    kunden: [{ id: 'k1', nachname: 'Leih' }],
+    geraete: [{ id: 'g1', name: 'Kobold VK7' }, { id: 'g2', name: 'Kobold VR7' }],
+    leihvorgaenge: [
+      { id: 'l1', geraetId: 'g1', kundeId: 'k1', ausgabe: '2026-11-02T10:00:00', rueckgabeGeplant: '2026-11-09T10:00:00' },
+      { id: 'l2', geraetId: 'g2', kundeId: 'k1', ausgabe: '2026-10-20T10:00:00', rueckgabeGeplant: '2026-11-01T10:00:00' },
+    ],
+    reservierungen: [{ id: 'r1', geraetId: 'g2', kundeId: '', von: '2026-11-12T00:00:00', bis: '2026-11-14T00:00:00' }],
+  });
+  const m = kal.geraeteEintraege(d, '2026-11-01', '2026-11-30', '2026-11-07');
+  assert.deepEqual(m.get('2026-11-02').map((e) => e.art), ['ausgabe']);
+  assert.equal(m.get('2026-11-02')[0].kunde, 'Leih');
+  assert.deepEqual(m.get('2026-11-09').map((e) => e.art), ['zurueckErwartet']);
+  assert.deepEqual(m.get('2026-11-07').map((e) => [e.art, e.geraet]), [['ueberfaellig', 'Kobold VR7']]);
+  assert.ok(m.get('2026-11-12')[0].reservierung && m.get('2026-11-14')[0].art === 'resvEnde');
+  // Heute außerhalb: keine Überfällig-Einträge
+  assert.equal(kal.geraeteEintraege(d, '2026-12-01', '2026-12-31', '2026-11-07').size, 0);
+  // Ziehen im 15-Minuten-Raster
+  const b = new Date(2026, 10, 10, 10, 0).toISOString();
+  const lokal = (iso) => { const x = new Date(iso); return `${x.getDate()}. ${x.getHours()}:${String(x.getMinutes()).padStart(2, '0')}`; };
+  let r = kal.gezogen(b, 60, 'schieben', 52, 1);
+  assert.equal(lokal(r.beginn), '11. 10:45');
+  assert.equal(r.dauerMin, 60);
+  r = kal.gezogen(b, 60, 'unten', 31);
+  assert.equal(r.dauerMin, 90);
+  assert.equal(r.beginn, b);
+  r = kal.gezogen(b, 60, 'oben', -30);
+  assert.equal(lokal(r.beginn), '10. 9:30');
+  assert.equal(r.dauerMin, 90);
+  r = kal.gezogen(b, 60, 'oben', 200);
+  assert.equal(r.dauerMin, kal.MIN_DAUER);
+  assert.equal(lokal(r.beginn), '10. 10:45');
+  assert.equal(kal.gezogen(b, 60, 'unten', -500).dauerMin, kal.MIN_DAUER);
+  assert.equal(kal.gezogen('kaputt', 60, 'schieben', 30).beginn, 'kaputt');
+  // Monat: auf anderen Tag, Uhrzeit bleibt
+  assert.equal(lokal(kal.aufTag(b, '2026-11-20')), '20. 10:00');
+  assert.equal(kal.aufTag(b, 'quatsch'), b);
+});

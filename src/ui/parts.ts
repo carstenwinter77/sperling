@@ -6,6 +6,7 @@ import * as store from '../storage/store.ts';
 import * as pk from '../core/papierkorb.ts';
 import { hinfahrenKnopf } from './navi.ts';
 import { dialog, download, toast, maskottchen } from './dom.ts';
+import { terminKarte } from './terminkarte.ts';
 
 export function statusChips(kunde) {
   return `<span class="chips">${SPARTEN_KEYS.map((s) => {
@@ -98,7 +99,7 @@ export function terminZeile(t, kunde) {
   return `
     <li class="termin ${t.erledigt ? 'erledigt' : ''} ${ueberfaellig ? 'ueberfaellig' : ''}" data-id="${esc(t.id)}">
       <button class="haken" data-aktion="erledigt" aria-label="Erledigt umschalten">${t.erledigt ? '✓' : ''}</button>
-      <div class="termin-text">
+      <div class="termin-text" data-aktion="karte" role="button" tabindex="0">
         <strong>${esc(t.titel || 'Termin')}</strong>
         <small>${esc(formatDateTime(t.beginn))} · ${t.art === 'termin' ? 'Termin' : 'Wiedervorlage'}${t.sparte ? ` · ${esc(SPARTEN[t.sparte].label)}` : ''}${kunde ? ` · <a href="#/kunde/${esc(kunde.id)}">${esc(kundenTitel(kunde))}</a>` : ''}</small>
       </div>
@@ -123,23 +124,10 @@ export function terminListeVerdrahten(root, nachAenderung) {
     } else if (btn.dataset.aktion === 'ics') {
       icsExport([t], `termin-${(t.titel || 'sperling').replace(/[^\wäöüÄÖÜß-]+/g, '_').slice(0, 40)}.ics`);
     } else if (btn.dataset.aktion === 'bearbeiten') {
-      const r = await terminBearbeitenOderLoeschen(t);
-      if (r) nachAenderung();
+      if (await terminDialog({ termin: t })) nachAenderung();
+    } else if (btn.dataset.aktion === 'karte') {
+      if ((ev.target as Element).closest('a')) return;
+      if (await terminKarte(t)) nachAenderung();
     }
   });
-}
-
-export async function terminBearbeitenOderLoeschen(t) {
-  const wahl = await dialog({
-    titel: t.titel || 'Termin',
-    html: `<p>${esc(formatDateTime(t.beginn))}</p>`,
-    knoepfe: [{ label: 'Löschen', wert: 'loeschen', gefahr: true }, { label: 'Bearbeiten', wert: 'bearbeiten', primaer: true }],
-  });
-  if (wahl === 'bearbeiten') return terminDialog({ termin: t });
-  if (wahl === 'loeschen') {
-    store.mutate((d) => { pk.terminLoeschen(d, t.id); });
-    toast('Termin gelöscht – unter Kunden › Gelöscht wiederherstellbar', 'ok');
-    return true;
-  }
-  return null;
 }

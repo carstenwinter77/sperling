@@ -27,7 +27,10 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Haus markieren:** Karte → lange auf das Haus tippen (Laptop: Rechtsklick) → „Als Potenzial markieren“ oder „Kunde anlegen“. Die Adresse wird vorgeschlagen.
 - **Gesprächsnotiz:** Kunde → Notizen → Text, Sparten ankreuzen, Zeitpunkt bleibt „jetzt“ oder wird geändert. Häkchen „danach Wiedervorlage anlegen“ für einen separaten Termin (z. B. Vorwerk-Vorführung).
 - **Texte für Enpal bzw. Vorwerk:** Kunde → Texte → „In Zwischenablage kopieren“. Notizen erscheinen nur in dem Text, zu dessen Sparten sie ausschließlich gehören.
-- **Kalender in Sperling:** Termine → Monat, Woche oder Tag. Im Monat einen Tag antippen = neuer Termin; auf die Tageszahl tippen = Tagesansicht. In Woche/Tag eine Uhrzeit antippen = Termin über 1 Stunde; für eine andere Dauer den Finger kurz halten und nach unten ziehen. Termin antippen = bearbeiten oder löschen.
+- **Kalender:** Menü „Kalender“ → Liste, Monat, Woche, Tag oder Geräte (Belegung der Vorführgeräte). Im Monat einen Tag antippen = neuer Termin; auf die Tageszahl tippen = Tagesansicht. In Woche/Tag eine Uhrzeit antippen = Termin über 1 Stunde; für eine andere Dauer den Finger kurz halten und nach unten ziehen.
+- **Termin antippen** öffnet die Termin-Karte: Kunde, Adresse, Notiz, letzte Gespräche; Knöpfe Route, Anrufen, E-Mail, Erledigt, In Kalender-App, Bearbeiten, Löschen (mit Sicherheitsabfrage).
+- **Termin verschieben:** Finger auf dem Termin halten, bis Griffe erscheinen. Mitte (⠿) = verschieben, in der Woche auch auf einen anderen Tag; Balken oben/unten = früher anfangen oder länger dauern (15-Minuten-Raster). Tipp daneben wählt ab. Im Monat den Termin halten und auf einen anderen Tag ziehen.
+- **Leihgaben im Kalender:** ↗ geht raus, ↙ kommt zurück, 📌 Reservierung, ⚠ überfällig. „Leihgaben zeigen“ blendet sie aus. Antippen zeigt Gerät, Kunde und Leihschein.
 - **In den Gerätekalender übernehmen:** Bei jedem Termin 📅 → `.ics`-Datei öffnen.
 - **Hinfahren:** 🚗 beim Kunden, auf der Karte oder beim Termin öffnet die Navigation (Apple Karten oder Google Maps, Einstellungen → Navigation).
 - **Gerät reservieren:** Bestand → Gerät → Reservieren → Kunde und Zeitraum. Belegte Zeiträume werden abgelehnt. Am Tag selbst „Jetzt verleihen“.
@@ -46,7 +49,7 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Suchen und Befehle:** Feld auf der Übersicht, Lupe in der Seitenleiste oder ⌘K / Strg+K. Am Treffer direkt Anrufen, E-Mail, Hinfahren, Notiz, Termin, Gespräch; mit Verb geht es schneller („müller anrufen“).
 - **Beratungs-Schutz:** Beim Kunden unten rechts 🛡 tippen – alle anderen Kunden sind ausgeblendet. Aufheben mit Face ID oder Master-Passwort.
 - **Letzter Kontakt:** Beim Kunden oben; antippen trägt einen Kontakt von Hand nach. Kundenliste: Filter „Kontakt älter als …“ und Sortierung „Längster Kontakt zuerst“.
-- **Belegungskalender:** Bestand → „Belegungskalender“. Über freie Tage wischen reserviert direkt.
+- **Belegungskalender:** Kalender → „Geräte“ (oder Bestand → „Belegungskalender“). Über freie Tage wischen reserviert direkt.
 - **Auswertungen:** Bereich und Zeitraum wählen, mit ‹ › blättern, „PDF-Bericht“ zum Teilen.
 - **Hilfe:** ?-Knopf neben jeder Überschrift; alles unter Einstellungen → Hilfe (dort auch abschaltbar und die Installationsanleitung).
 

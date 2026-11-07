@@ -11,6 +11,7 @@ import { leer } from '../parts.ts';
 import { zeitraumWahl } from '../zeitraum.ts';
 import { reservierenDialog, verleihDialog } from './bestand.ts';
 import * as leihschein from '../leihschein.ts';
+import { kalenderTabs } from '../kalender.ts';
 
 const ANSICHTEN = [['zeitleiste', 'Zeitleiste'], ['liste', 'Liste nach Tagen'], ['frei', 'Freie finden']] as const;
 type Ansicht = typeof ANSICHTEN[number][0];
@@ -39,10 +40,11 @@ export function render(el: HTMLElement, params: URLSearchParams) {
 
   el.innerHTML = `
     <header class="seitenkopf">
-      <h1>${maskottchen('vorwerk', 'titel-bild')} Belegungskalender</h1>
-      <a class="btn ghost" href="#/bestand">‹ Bestand</a>
+      <h1>${maskottchen('termine', 'titel-bild')} Kalender <small>Geräte</small></h1>
+      <a class="btn ghost" href="#/bestand">Bestand</a>
     </header>
-    <nav class="tabs" role="tablist">${ANSICHTEN.map(([k, l]) => `<button type="button" data-ansicht="${k}" class="${k === ansicht ? 'aktiv' : ''}">${l}</button>`).join('')}</nav>
+    ${kalenderTabs('geraete')}
+    <nav class="tabs bk-unter" role="tablist">${ANSICHTEN.map(([k, l]) => `<button type="button" data-ansicht="${k}" class="${k === ansicht ? 'aktiv' : ''}">${l}</button>`).join('')}</nav>
     ${ansicht !== 'frei' ? `<div class="bk-leiste">
       <div class="k-nav"><button type="button" class="btn klein ghost" data-schritt="-1" aria-label="Zurück">‹</button><button type="button" class="btn klein ghost" data-schritt="0">Heute</button><button type="button" class="btn klein ghost" data-schritt="1" aria-label="Weiter">›</button></div>
       <select id="bkZoom" aria-label="Zeitraum">${ZOOM.map(([z, l]) => `<option value="${z}" ${z === zoom ? 'selected' : ''}>${l}</option>`).join('')}</select>
@@ -50,7 +52,11 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     </div>` : ''}
     <section class="karte-box" id="bkInhalt"></section>`;
 
-  el.querySelector('.tabs').addEventListener('click', (e) => { const b = (e.target as Element).closest('[data-ansicht]'); if (b) neu(b.dataset.ansicht as Ansicht, zoom, datum); });
+  el.querySelector('#kalTabs')?.addEventListener('click', (e) => {
+    const b = (e.target as Element).closest<HTMLElement>('[data-ansicht]');
+    if (b && b.dataset.ansicht !== 'geraete') location.hash = `#/termine?ansicht=${b.dataset.ansicht}`;
+  });
+  el.querySelector('.bk-unter').addEventListener('click', (e) => { const b = (e.target as Element).closest('[data-ansicht]'); if (b) neu(b.dataset.ansicht as Ansicht, zoom, datum); });
   el.querySelector('.k-nav')?.addEventListener('click', (e) => {
     const b = (e.target as Element).closest('[data-schritt]');
     if (!b) return;
@@ -128,7 +134,7 @@ function zeitleiste(box: HTMLElement, d: Daten, start: Tag, tage: number, nochma
 }
 
 /** Details zu einem Balken mit passenden Aktionen. Gibt true zurück, wenn sich etwas geändert hat. */
-async function balkenDialog(geraetName: string, b: Balken): Promise<boolean> {
+export async function balkenDialog(geraetName: string, b: Balken): Promise<boolean> {
   const d = store.getData();
   const wer = kundeName(d, b.kundeId);
   const zeitraum = `${formatDate(tagDatum(b.von).toISOString())} – ${b.bis ? formatDate(tagDatum(b.bis).toISOString()) : 'offen'}`;

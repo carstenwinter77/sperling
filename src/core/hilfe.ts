@@ -68,12 +68,14 @@ export const THEMEN = {
     ],
   },
   termine: {
-    titel: 'Termine und Kalender',
-    kurz: 'Termine und Wiedervorlagen als Liste, Monat, Woche oder Tag.',
+    titel: 'Kalender',
+    kurz: 'Termine, Wiedervorlagen und Leihgaben als Liste, Monat, Woche oder Tag; „Geräte“ zeigt die Belegung der Vorführgeräte.',
     schritte: [
-      'Im Monat einen Tag antippen legt einen Termin an.',
-      'In Woche und Tag eine Uhrzeit antippen ergibt eine Stunde; Finger halten und ziehen wählt eine andere Dauer.',
-      '📅 am Termin übernimmt ihn in den Kalender des Geräts.',
+      'Im Monat einen Tag antippen legt einen Termin an. In Woche und Tag eine Uhrzeit antippen ergibt eine Stunde; Finger halten und ziehen wählt eine andere Dauer.',
+      'Einen Termin kurz antippen öffnet die Termin-Karte: Kunde, Adresse, Notiz, letzte Gespräche und die Knöpfe Route, Anrufen, E-Mail, Erledigt, In Kalender-App, Bearbeiten und Löschen (mit Sicherheitsabfrage).',
+      'Finger auf einem Termin halten zeigt Griffe: in der Mitte verschieben (in der Woche auch auf einen anderen Tag), oben oder unten länger und kürzer ziehen, im 15-Minuten-Raster. Mit der Maus einfach ziehen. Tipp daneben wählt ab.',
+      'Im Monat einen Termin halten und auf einen anderen Tag ziehen; die Uhrzeit bleibt.',
+      'Leihgaben (↗ geht raus, ↙ kommt zurück, 📌 Reservierung, ⚠ überfällig) stehen mit im Kalender; der Schalter „Leihgaben zeigen“ blendet sie aus. Antippen zeigt Gerät, Kunde und Leihschein.',
     ],
   },
   gespraech: {

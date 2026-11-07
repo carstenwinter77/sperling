@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.2
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.3
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,11 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.1)
+## Erledigt (Version 0.10.3)
+
+### Neu in 0.10.3
+- [x] **Kalender** mit Leihgaben und Reiter „Geräte“, **Termin-Karte**, Termine mit Griffen verschieben und ziehen (`src/core/kalender.ts`, `src/ui/terminkarte.ts`).
+- [x] Symbol „Produkte“; Produktbilder auf dem Gerät zwischengespeichert.
 
 ### Neu in 0.10.1
 - [x] **Textbausteine im Gesprächsmodus** (`src/core/bausteine.ts`, `src/ui/bausteinverwaltung.ts`, Schema 6), Diktat-Hinweis statt eigener Spracheingabe.
@@ -165,7 +169,7 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 - [ ] **Vorwerk-Listenimport** aus PDF (pdf.js lokal), Abgleich neu/geändert/gleich/fehlt, Dubletten zusammenführen.
 - [ ] **Gekaufte Vorwerk-Geräte** mit Servicewartung nach 1 Jahr und **Zubehör-Nachbestellungen**.
 - [x] **Textbausteine** im Gesprächsmodus (seit 0.10.1), Diktat über die Tastatur.
-- [ ] **Kalender statt Termine:** ein Kalender mit Terminen, Leihgaben, Rückgaben, Reservierungen und Geräteansicht (bisher Belegungskalender). Termin antippen = Detailkarte mit Route, Anrufen, E-Mail, Bearbeiten, Löschen (mit Sicherheitsabfrage). Finger halten = Griffe zum Verschieben und Länger/Kürzer-Ziehen; im Monat auf anderen Tag schieben.
+- [x] **Kalender statt Termine** (seit 0.10.3; auf echtem iPad testen: Halten und Ziehen mit dem Finger): ein Kalender mit Terminen, Leihgaben, Rückgaben, Reservierungen und Geräteansicht (bisher Belegungskalender). Termin antippen = Detailkarte mit Route, Anrufen, E-Mail, Bearbeiten, Löschen (mit Sicherheitsabfrage). Finger halten = Griffe zum Verschieben und Länger/Kürzer-Ziehen; im Monat auf anderen Tag schieben.
 - [ ] **Willkommen und Rundtour** beim ersten Start, jederzeit wieder aufrufbar.
 - [ ] **Beispielkunden** erweitern, damit jede Funktion gezeigt wird.
 - [x] ~~Umstellung auf TypeScript~~ (erledigt in 0.9.0)

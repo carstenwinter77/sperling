@@ -789,3 +789,32 @@ dialog.dlg.dlg-produkt { width: min(680px, calc(100vw - 24px)); }
 
 /* Kontaktseite als Entwurf */
 .entwurf-warnung { background: #b3261e; color: #fff; border-radius: 10px; padding: .6rem .8rem; margin: .5rem 0; }
+
+/* ===== Kalender: Leihgaben, Griffe, Ziehen ===== */
+.k-leih { margin-left: auto; }
+.k-geraet { display: block; width: 100%; text-align: left; border: 0; border-left: 3px solid var(--tag-vw, var(--gruen)); background: color-mix(in srgb, var(--gruen) 12%, var(--karte)); color: var(--text); border-radius: 6px; padding: .1rem .35rem; font: inherit; font-size: .74rem; line-height: 1.25; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; }
+.k-geraet small { color: var(--text-2); }
+.k-geraet.ge-resvBeginn, .k-geraet.ge-resvEnde { border-left-style: dashed; }
+.k-geraet.ge-ueberfaellig { border-left-color: var(--rot); background: color-mix(in srgb, var(--rot) 14%, var(--karte)); }
+.k-ganztags { display: grid; grid-template-columns: 44px repeat(var(--spalten), minmax(90px, 1fr)); border-bottom: 1px solid var(--linie); padding: 2px 0; }
+.k-ganztags-titel { text-align: center; font-size: .9rem; }
+.k-ganztags-zelle { display: flex; flex-direction: column; gap: 2px; padding: 0 2px; border-left: 1px solid var(--linie); min-width: 0; }
+.k-eintrag, .k-block { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.k-block.gewaehlt { z-index: 4; touch-action: none; }
+.k-block.gewaehlt .k-eintrag { box-shadow: 0 0 0 2px var(--braun), 0 4px 14px rgba(0,0,0,.18); }
+.k-griff { position: absolute; left: 50%; transform: translateX(-50%); width: 44px; height: 22px; display: flex; align-items: center; justify-content: center; touch-action: none; cursor: ns-resize; z-index: 5; }
+.k-griff::before { content: ''; width: 28px; height: 6px; border-radius: 3px; background: var(--braun); box-shadow: 0 0 0 2px var(--karte); }
+.k-griff.oben { top: -11px; left: 35%; }
+.k-griff.unten { bottom: -11px; left: 35%; }
+.k-griff.mitte { top: 50%; left: auto; right: -8px; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: var(--braun); color: var(--auf-akzent, #fff); font-size: 1.1rem; cursor: grab; }
+.k-griff.mitte::before { display: none; }
+.k-zeitlabel { position: absolute; right: 2px; top: -1.4rem; background: var(--braun); color: var(--auf-akzent, #fff); font-size: .72rem; font-weight: 700; padding: .05rem .35rem; border-radius: 6px; white-space: nowrap; z-index: 6; }
+.k-zieht { cursor: grabbing; }
+.k-geist { position: fixed; z-index: 3000; pointer-events: none; opacity: .9; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+.k-tag.k-ziel { outline: 3px solid var(--braun); outline-offset: -2px; }
+.termin-text[data-aktion=karte] { cursor: pointer; }
+dialog.dlg.dlg-termin { width: min(560px, calc(100vw - 24px)); }
+.termin-karte .tk-zeit { font-size: 1.1rem; margin: .2rem 0; }
+.termin-karte .tk-notiz { white-space: normal; background: var(--feld); border-radius: 8px; padding: .5rem .6rem; }
+.tk-aktionen { flex-wrap: wrap; }
+.bk-unter { margin-top: -.25rem; }
