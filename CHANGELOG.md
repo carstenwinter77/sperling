@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.10.31 – 08.11.2026
+- Kontaktseite, Häufige Fragen: „Gibt es Fördermittel?“ deckt jetzt Photovoltaik (0 % Umsatzsteuer, KfW-Kredit, Einspeisevergütung im Wandel) und Wärmepumpe ab, mit Hinweis auf eigene Programme für Unternehmen und Landwirtschaft. Neue Frage „Passen Photovoltaik und Wärmepumpe zusammen?“.
+
 ## 0.10.30 – 07.11.2026
 - **Kontaktseite:** Neben dem Sperling-Logo steht jetzt dezent der volle Name „Jan Sperling“ mit „Berater für Photovoltaik und Wärmepumpe“, abgetrennt durch einen feinen Strich (Name aus `daten.js`). Auf dem Handy nur der Name. Die Datenschutzerklärung zeigt den Namen ebenfalls neben dem Logo. Hintergrund: Vorsicht wegen einer eingetragenen Marke mit „Sperling“ im Energiebereich; der volle Personenname macht klar, dass es um Jan als Person geht.
 

@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.30
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.10.31
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,10 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.30)
+## Erledigt (Version 0.10.31)
+
+### Neu in 0.10.31
+- [x] Kontaktseite: Förder-Frage für PV und Wärmepumpe, neue Frage zur Kombination.
 
 ### Neu in 0.10.30
 - [x] Kontaktseite und Datenschutzerklärung: neben dem Sperling-Logo dezent der volle Name „Jan Sperling“ (auf dem Handy ohne Zusatzzeile, in der Datenschutzerklärung auf schmalen Bildschirmen ausgeblendet). Grund: Markenvorsicht, das Logo soll als Personenname erkennbar sein.
