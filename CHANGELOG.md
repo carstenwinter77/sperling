@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.10.20 – 07.11.2026
+- Förderung: Rechner passt auf kleine Handys (320 px) ohne seitliches Scrollen (Fieldset und Raster mit `min-width: 0`, Reiterknöpfe dürfen umbrechen). Quellenlinks auf Touch-Geräten mit größerer Tippfläche (mindestens 24 px).
+
 ## 0.10.19 – 07.11.2026
 - Förderung: Zeitleiste „Was kommt wann“ startet eingeklappt; einmal geöffnet bleibt sie beim Filtern und bei „Noch einer“ offen.
 

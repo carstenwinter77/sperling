@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.20',
+    punkte: [
+      'Förderung: Der Rechner passt jetzt auch auf kleine Handys, und Quellenlinks lassen sich leichter antippen.',
+    ],
+  },
+  {
     version: '0.10.19',
     punkte: [
       'Förderung: „Was kommt wann“ ist jetzt zunächst eingeklappt. Antippen öffnet die Zeitleiste.',
