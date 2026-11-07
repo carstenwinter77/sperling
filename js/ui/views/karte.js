@@ -1,8 +1,8 @@
 // Karte: Satellit/Straße, farbige Pins je Status, Tippen setzt neuen Standort mit Adressvorschlag.
 import { esc, nowIso, isValidCoord } from '../../core/util.js';
-import { SPARTEN, SPARTEN_KEYS, STATUS, hauptStatus, kundenTitel, adresseEinzeilig, neuerKunde } from '../../core/model.js';
+import { SPARTEN, SPARTEN_KEYS, STATUS, hauptStatus, kundenTitel, kundenName, adresseEinzeilig, neuerKunde } from '../../core/model.js';
 import * as store from '../../storage/store.js';
-import { adresseZuKoordinate } from '../../services/geo.js';
+import { adresseZuKoordinate, adressenSuchen } from '../../services/geo.js';
 import { toast, maskottchen } from '../dom.js';
 import { statusChips } from '../parts.js';
 
@@ -40,6 +40,11 @@ export function render(el, params) {
 
   el.innerHTML = `
     <div class="karte-seite">
+      <form class="karte-suche" id="suche" role="search" autocomplete="off">
+        <input type="search" name="q" placeholder="Adresse oder Kunde suchen, z. B. Lindenweg 4 Hannover" enterkeyhint="search" aria-label="Adresse suchen">
+        <button class="btn klein primary" type="submit">Suchen</button>
+        <ul class="suchergebnisse" id="treffer" hidden></ul>
+      </form>
       <div class="karte-leiste">
         <div class="segment" role="group" aria-label="Kartenansicht">
           <button data-layer="satellit">Satellit</button><button data-layer="strasse">Karte</button>
@@ -111,14 +116,28 @@ export function render(el, params) {
   el.querySelector('#fSparte').addEventListener('change', (e) => { filter.sparte = e.target.value; zeichnen(); });
   el.querySelector('#fStatus').addEventListener('change', (e) => { filter.status = e.target.value; zeichnen(); });
 
-  el.querySelector('#ich').addEventListener('click', () => {
-    if (!navigator.geolocation) { toast('Standort nicht verfügbar.', 'error'); return; }
+  // Eigener Standort: blauer Punkt; beim Öffnen der Karte automatisch dorthin zoomen.
+  let ichPunkt = null;
+  const zuMirZoomen = ({ still = false, zoom = 18 } = {}) => {
+    if (!navigator.geolocation) { if (!still) toast('Standort nicht verfügbar.', 'error'); return; }
     navigator.geolocation.getCurrentPosition(
-      (p) => map.setView([p.coords.latitude, p.coords.longitude], 18),
-      () => toast('Standort konnte nicht ermittelt werden.', 'error'),
-      { enableHighAccuracy: true, timeout: 10000 },
+      (p) => {
+        if (entfernt) return; // Ansicht schon verlassen
+        const ll = [p.coords.latitude, p.coords.longitude];
+        if (!isValidCoord(ll[0], ll[1])) return;
+        if (ichPunkt) map.removeLayer(ichPunkt);
+        ichPunkt = L.circleMarker(ll, { radius: 8, color: '#ffffff', weight: 3, fillColor: '#2a7de1', fillOpacity: 1, interactive: false }).addTo(map);
+        if (still && nutzerHatBewegt) return; // nicht wegspringen, wenn schon selbst verschoben/gesucht
+        map.setView(ll, zoom);
+      },
+      () => { if (!still) toast('Standort konnte nicht ermittelt werden. Bitte Standortzugriff erlauben.', 'error', 5000); },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
     );
-  });
+  };
+  let nutzerHatBewegt = false;
+  let entfernt = false;
+  for (const typ of ['pointerdown', 'wheel', 'keydown']) map.getContainer().addEventListener(typ, () => { nutzerHatBewegt = true; }, { once: true, passive: true });
+  el.querySelector('#ich').addEventListener('click', () => zuMirZoomen());
 
   // Neuen Standort setzen: Langes Tippen (contextmenu) oder Rechtsklick.
   const neuerPunkt = (e) => {
@@ -148,6 +167,63 @@ export function render(el, params) {
   };
   map.on('contextmenu', neuerPunkt);
 
+  // ---------- Adresssuche ----------
+  // Datenschutz (R-EXTERN): Zuerst werden die eigenen Kunden lokal durchsucht. Passt der Suchtext
+  // auf einen Kundennamen, geht NICHTS an den Adressdienst – Namen verlassen nie das Gerät.
+  const suche = el.querySelector('#suche');
+  const trefferListe = el.querySelector('#treffer');
+  let suchMarker = null;
+  const listeZu = () => { trefferListe.hidden = true; trefferListe.innerHTML = ''; };
+  const hinfliegen = (t) => {
+    nutzerHatBewegt = true;
+    listeZu();
+    suche.querySelector('input').blur();
+    if (t.kundeId) {
+      map.setView([t.lat, t.lng], 19);
+      pins.eachLayer((m) => { const ll = m.getLatLng(); if (ll.lat === t.lat && ll.lng === t.lng) m.openPopup(); });
+      return;
+    }
+    map.setView([t.lat, t.lng], t.genau ? 19 : 17);
+    if (suchMarker) map.removeLayer(suchMarker);
+    suchMarker = L.circleMarker([t.lat, t.lng], { radius: 14, color: '#e8892c', weight: 3, fillOpacity: 0.15, interactive: false }).addTo(map);
+    neuerPunkt({ latlng: L.latLng(t.lat, t.lng) });
+  };
+  const zeigeTreffer = (liste) => {
+    trefferListe.innerHTML = liste.map((t, i) => `<li><button type="button" data-i="${i}">${t.kundeId ? '👤 ' : '📍 '}${esc(t.label)}</button></li>`).join('');
+    trefferListe.hidden = false;
+    trefferListe.onclick = (ev) => { const b = ev.target.closest('[data-i]'); if (b) hinfliegen(liste[Number(b.dataset.i)]); };
+  };
+  suche.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const q = suche.querySelector('input').value.trim();
+    listeZu();
+    if (q.length < 3) { toast('Bitte mindestens 3 Zeichen eingeben.', 'error'); return; }
+    const ql = q.toLocaleLowerCase('de');
+    const lokal = store.getData().kunden
+      .filter((k) => k.lat !== null && `${kundenTitel(k)} ${kundenName(k)} ${adresseEinzeilig(k)}`.toLocaleLowerCase('de').includes(ql))
+      .slice(0, 5)
+      .map((k) => ({ lat: k.lat, lng: k.lng, label: `${kundenTitel(k)} – ${adresseEinzeilig(k)}`, kundeId: k.id }));
+    const istName = store.getData().kunden.some((k) => kundenName(k) && kundenName(k).toLocaleLowerCase('de').includes(ql));
+    if (istName) {
+      if (lokal.length === 1) hinfliegen(lokal[0]); else if (lokal.length) zeigeTreffer(lokal); else toast('Kunde gefunden, aber ohne Standort.', 'error');
+      return;
+    }
+    const knopf = suche.querySelector('button[type=submit]');
+    knopf.disabled = true;
+    try {
+      const fern = await adressenSuchen(q, 5);
+      const alle = [...lokal, ...fern];
+      if (!alle.length) { toast('Keine Adresse gefunden. Mit Ort oder PLZ versuchen.', 'error'); return; }
+      if (alle.length === 1 || (!lokal.length && fern[0].genau && fern.length >= 1 && fern.filter((f) => f.genau).length === 1)) hinfliegen(alle[0]);
+      else zeigeTreffer(alle);
+    } catch (err) {
+      if (lokal.length) zeigeTreffer(lokal);
+      toast(store.isDemo() ? 'In dieser Vorschau ist die Adresssuche gesperrt – in der echten App funktioniert sie.' : err.message, 'error', 5000);
+    } finally { knopf.disabled = false; }
+  });
+  suche.querySelector('input').addEventListener('input', (e) => { if (!e.target.value) listeZu(); });
+  map.on('click', listeZu);
+
   // Kartenposition merken (ohne Speichervorgang auszulösen)
   map.on('moveend', () => {
     if (store.isDemo()) return;
@@ -156,6 +232,8 @@ export function render(el, params) {
   });
 
   const fokus = params.get('kunde');
+  // Beim Öffnen: zum aktuellen Standort, außer ein Kunde soll gezeigt werden (oder Demo).
+  if (!fokus && !store.isDemo()) zuMirZoomen({ still: true, zoom: 17 });
   if (fokus) {
     const k = store.findKunde(fokus);
     if (k && k.lat !== null) {
@@ -166,5 +244,5 @@ export function render(el, params) {
   // Größe nach Layout korrigieren (Leaflet misst beim Erzeugen evtl. 0px)
   setTimeout(() => map.invalidateSize(), 50);
 
-  return () => map.remove();
+  return () => { entfernt = true; map.remove(); };
 }

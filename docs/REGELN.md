@@ -28,7 +28,7 @@ Tests in `tests/core.test.mjs` sichern das ab. Diese Tests dürfen nie gelöscht
 
 **R-XSS** – Jeder Nutzertext, der in `innerHTML` landet, geht durch `esc()` aus `js/core/util.js`. Auch Attribute (`value="${esc(x)}"`). Neue Ansichten werden im E2E-Test mit einem `<img onerror>`-Namen geprüft.
 
-**R-EXTERN** – An Dritte gehen nur: Kartenausschnitte (Esri/OSM), Koordinaten oder eingegebene Adresse (Nominatim), die verschlüsselte Datei (Dropbox). Nie Namen, Telefonnummern oder Notizen.
+**R-EXTERN** – An Dritte gehen nur: Kartenausschnitte (Esri/OSM), Koordinaten oder eingegebene Adresse (Nominatim), die verschlüsselte Datei (Dropbox). Nie Namen, Telefonnummern oder Notizen. Die Adresssuche der Karte prüft deshalb zuerst lokal, ob der Suchtext ein Kundenname ist; dann geht keine Anfrage raus.
 
 **R-PASSWORT** – Mindestens 8 Zeichen. Keine Wiederherstellung, keine Hintertür.
 

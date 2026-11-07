@@ -368,3 +368,10 @@ body { --band-h: 0px; }
 .warnung-box { background: var(--tag-warn-bg); color: var(--text); border-radius: var(--radius); padding: .75rem 1rem; margin: 0 0 1rem; }
 .warnung-box a { font-weight: 600; }
 .tag-beispiel { background: var(--flaeche-2); color: var(--text-2); font-size: .7rem; font-weight: 600; vertical-align: middle; margin-left: .4rem; border: 1px dashed var(--linie); }
+/* Adresssuche auf der Karte */
+.karte-suche { position: relative; display: flex; gap: .4rem; padding: .5rem .5rem 0; background: var(--karte); }
+.karte-suche input { flex: 1; min-height: 44px; }
+.karte-suche .btn { min-height: 44px; }
+.suchergebnisse { position: absolute; left: .5rem; right: .5rem; top: calc(100% + .25rem); z-index: 1000; list-style: none; margin: 0; padding: .25rem; background: var(--karte); border: 1px solid var(--linie); border-radius: var(--radius); box-shadow: var(--schatten); max-height: 50vh; overflow: auto; }
+.suchergebnisse button { display: block; width: 100%; text-align: left; background: none; border: 0; color: var(--text); font: inherit; padding: .6rem .7rem; min-height: 44px; border-radius: 10px; cursor: pointer; }
+.suchergebnisse button:hover, .suchergebnisse button:focus { background: var(--flaeche-2); }

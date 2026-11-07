@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.5.0
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.6.0
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -15,7 +15,12 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.5.0)
+## Erledigt (Version 0.6.0)
+
+### Neu in 0.6.0
+- [x] **Adresssuche auf der Karte:** Suchfeld oben; Treffer aus den eigenen Kunden (👤) und vom Adressdienst (📍), bei eindeutigem Treffer direkt hineinzoomen (Hausnummer: Zoom 19) mit Popup „Als Potenzial markieren / Kunde anlegen“. Passt der Suchtext auf einen Kundennamen, wird nur lokal gesucht (R-EXTERN).
+- [x] **Standort beim Öffnen der Karte:** zoomt automatisch auf den eigenen Standort (blauer Punkt), außer ein Kunde wird gezeigt oder man hat die Karte schon selbst bewegt. Knopf ◎ springt jederzeit zurück.
+
 
 ### Neu in 0.5.0
 - [x] **Beispielkunden in der echten App:** Einstellungen → Beispielkunden → „Laden“ fügt die fünf Demo-Kunden mit Notizen, Gesprächen, Enpal-Doku, Terminen, Vorführgeräten und Verleih ein (markiert „Beispiel“). „Entfernen“ löscht sie wieder vollständig; echte Kunden bleiben, echte Termine bei Beispielkunden verlieren nur den Bezug, ein echt verliehenes Beispielgerät bleibt.

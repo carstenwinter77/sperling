@@ -66,6 +66,19 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.selectOption('[data-abschluss] [name=ausgang]', 'termin');
   await p.click('#gSpeichernKnopf');
   await p.waitForTimeout(500);
+  // Karte: Adresssuche (Adressdienst gemockt); Kundennamen dürfen nie an den Dienst gehen
+  const anfragen = [];
+  await p.route(/nominatim\.openstreetmap\.org/, (r) => { anfragen.push(r.request().url()); r.fulfill({ contentType: 'application/json', body: r.request().url().includes('/search') ? JSON.stringify([{ lat: '52.3768', lon: '9.7335', address: { road: 'Lindenweg', house_number: '4', postcode: '30159', city: 'Hannover' } }]) : '{}' }); });
+  await p.goto(BASE + '#/karte');
+  await p.waitForSelector('#suche input');
+  await p.fill('#suche input', 'Prüfer');
+  await p.click('#suche button[type=submit]');
+  await p.waitForTimeout(400);
+  if (anfragen.some((u) => u.includes('Pr%C3%BCfer'))) fail('Kundenname an Adressdienst gesendet!');
+  await p.fill('#suche input', 'Lindenweg 4 Hannover');
+  await p.click('#suche button[type=submit]');
+  await p.waitForSelector('#neuPopup');
+  await p.unroute(/nominatim\.openstreetmap\.org/);
   // Sperren und Neuladen
   await p.click('#sperren');
   await p.waitForSelector('#sperrForm');

@@ -12,7 +12,7 @@ import * as theme from '../theme.js';
 import { MAILPROGRAMME, gemerktesMailprogramm, mailprogrammMerken } from '../kontakt.js';
 import { maskottchen, toast, download, dateiWaehlen, dialog, bestaetigen, teilenOderSpeichern } from '../dom.js';
 
-export const APP_VERSION = '0.5.0';
+export const APP_VERSION = '0.6.0';
 
 export function render(el) {
   const e = store.getData().einstellungen;

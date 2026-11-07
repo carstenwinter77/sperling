@@ -51,3 +51,20 @@ export async function koordinateZuAdresse(text) {
   const lng = Number(r.lon);
   return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
 }
+
+/** Freitext-Adresssuche: bis zu `limit` Treffer [{lat, lng, label}] (für das Suchfeld der Karte). */
+export async function adressenSuchen(text, limit = 5) {
+  const q = String(text || '').trim().slice(0, 200);
+  if (q.length < 3) return [];
+  const j = await holen(`${BASE}/search?format=jsonv2&addressdetails=1&limit=${Math.min(Math.max(limit, 1), 10)}&countrycodes=de,at,ch&q=${encodeURIComponent(q)}`);
+  if (!Array.isArray(j)) return [];
+  return j.map((r) => {
+    const lat = Number(r.lat);
+    const lng = Number(r.lon);
+    const a = r.address || {};
+    const strasse = [a.road || a.pedestrian || '', a.house_number || ''].filter(Boolean).join(' ');
+    const ort = [a.postcode || '', a.city || a.town || a.village || a.municipality || ''].filter(Boolean).join(' ');
+    const label = [strasse, ort].filter(Boolean).join(', ') || String(r.display_name || '').split(',').slice(0, 3).join(',');
+    return { lat, lng, label, genau: Boolean(a.house_number) };
+  }).filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lng));
+}

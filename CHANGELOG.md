@@ -1,5 +1,9 @@
 # Änderungsverlauf
 
+## 0.6.0 – 07.11.2026
+- Karte: Adresssuche mit Hineinzoomen und Markieren; Kunden werden lokal gefunden, Namen gehen nie an den Adressdienst.
+- Karte zoomt beim Öffnen auf den eigenen Standort (blauer Punkt).
+
 ## 0.5.0 – 07.11.2026
 - Beispielkunden in der passwortgeschützten App laden und wieder entfernen (Einstellungen → Beispielkunden), in Listen als „Beispiel“ markiert.
 

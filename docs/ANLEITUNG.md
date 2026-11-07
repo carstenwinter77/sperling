@@ -32,6 +32,7 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 
 ## 4. Bedienung in Kürze
 
+- **Adresse finden:** Karte → oben Adresse eingeben (z. B. „Lindenweg 4 Hannover“) → Suchen. Die Karte zoomt hinein und bietet „Als Potenzial markieren“ / „Kunde anlegen“ an. Beim Öffnen springt die Karte auf deinen Standort (Standortzugriff erlauben).
 - **Haus markieren:** Karte → lange auf das Haus tippen (Laptop: Rechtsklick) → „Als Potenzial markieren“ oder „Kunde anlegen“. Die Adresse wird vorgeschlagen.
 - **Gesprächsnotiz:** Kunde → Notizen → Text, Sparten ankreuzen, Zeitpunkt bleibt „jetzt“ oder wird geändert. Häkchen „danach Wiedervorlage anlegen“ für einen separaten Termin (z. B. Vorwerk-Vorführung).
 - **Texte für Enpal bzw. Vorwerk:** Kunde → Texte → „In Zwischenablage kopieren“. Notizen erscheinen nur in dem Text, zu dessen Sparten sie ausschließlich gehören.
