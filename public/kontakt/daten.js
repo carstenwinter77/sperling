@@ -17,7 +17,7 @@ const KONTAKT = {
   // Zuständige Datenschutz-Aufsichtsbehörde = die des Bundeslands, in dem der Geschäftssitz liegt:
   aufsicht: 'die Datenschutz-Aufsichtsbehörde des Bundeslandes, in dem ich meinen Geschäftssitz habe', // Platzhalter
   aufsichtUrl: 'https://www.bfdi.bund.de/DE/Service/Anschriften/Laender/Laender-node.html',
-  // true, wenn Kundendaten in der Arbeits-App zusätzlich verschlüsselt bei Dropbox gesichert werden:
+  // true, wenn Kundendaten in der Arbeits-App zusätzlich als verschlüsselte Sicherungsdatei in iCloud Drive gesichert werden:
   cloudSicherung: true,
   datenschutzStand: 'November 2026',
 };
