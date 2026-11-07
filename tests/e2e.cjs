@@ -792,6 +792,8 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForTimeout(100);
   if (await p.evaluate(() => window.__xss)) fail('XSS in der Förderung-Suche ausgeführt!');
   await p.fill('#foeSuche', '');
+  if (await p.$eval('.foe-zeit', (d) => d.open)) fail('Förderung: Was kommt wann sollte eingeklappt starten');
+  await p.click('.foe-zeit > summary');
   await p.click('.foe-zeitleiste [data-springen=wp-gmodg]');
   await p.waitForSelector('#foe-wp-gmodg[open]');
   await p.click('#foe-wp-gmodg [data-kopieren]');

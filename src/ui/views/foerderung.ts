@@ -121,6 +121,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     const f = fakten.length ? fakten[wusstestNr % fakten.length] : null;
     const zeit = zeitleiste(heute).filter((t) => bereich === 'alle' || t.bereich === bereich || t.bereich === 'beide');
     const naechster = zeit.findIndex((t) => !t.vorbei);
+    const zeitOffen = (oben.querySelector('.foe-zeit') as HTMLDetailsElement | null)?.open ?? false; // standardmäßig eingeklappt
     oben.innerHTML = `
       ${f ? `<section class="karte-box foe-wusstest" aria-labelledby="foeWusstestTitel">
         ${maskottchen('sperling', 'foe-wusstest-bild')}
@@ -133,7 +134,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
           </div>
         </div>
       </section>` : ''}
-      <details class="karte-box foe-zeit" open>
+      <details class="karte-box foe-zeit"${zeitOffen ? ' open' : ''}>
         <summary><h2>Was kommt wann</h2></summary>
         <ol class="foe-zeitleiste">
           ${zeit.map((t, i) => `<li class="foe-zeit-${t.bereich}${t.vorbei ? ' vorbei' : ''}${t.sicher ? '' : ' unsicher'}${i === naechster ? ' naechster' : ''}">

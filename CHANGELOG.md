@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.10.19 – 07.11.2026
+- Förderung: Zeitleiste „Was kommt wann“ startet eingeklappt; einmal geöffnet bleibt sie beim Filtern und bei „Noch einer“ offen.
+
 ## 0.10.18 – 07.11.2026
 - **Rechner „Wann rechnet sich das?“** im Reiter Förderung (`src/core/amortisation.ts`, `src/ui/rechner.ts`): grobe Amortisation für Photovoltaik (Eigenverbrauch, Einspeisevergütung 20 Jahre, Ertragsverlust 0,5 %/Jahr, laufende Kosten) und Wärmepumpe (Vergleich mit Weiterheizen mit Gas/Öl, KfW-Zuschuss auf höchstens 28.000 €, „ohnehin fällig“ für eine sonst nötige neue Heizung). Alle Annahmen änderbar, deutsche Zahlen („15.000“, „7,7“), Grenzen je Feld.
 - Ergebnis: Eigenanteil, Vorteil im 1. Jahr, „bezahlt gemacht nach etwa … Jahren“, Stand am Ende, Säulendiagramm je Jahr (mit Textbeschreibung), Tabelle „Bei welcher Anschaffungssumme?“ (−30 % bis +30 %) und Höchstpreis für 15 Jahre. „📋 Kopieren“ mit allen Annahmen und dem Hinweis „ohne Gewähr“. Werte werden nicht gespeichert.

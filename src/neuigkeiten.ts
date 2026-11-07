@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.19',
+    punkte: [
+      'Förderung: „Was kommt wann“ ist jetzt zunächst eingeklappt. Antippen öffnet die Zeitleiste.',
+    ],
+  },
+  {
     version: '0.10.18',
     punkte: [
       'Förderung → „Wann rechnet sich das?“: grober Rechner für Photovoltaik und Wärmepumpe. Annahmen anpassen und sehen, nach wie vielen Jahren sich die Anlage bezahlt macht, auch für andere Anschaffungspreise. Ohne Gewähr.',
