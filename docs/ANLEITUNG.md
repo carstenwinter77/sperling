@@ -96,6 +96,10 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 
 - Ein Tipp neben ein Fenster (auf den abgedunkelten Hintergrund) oder Esc schließt es ohne Speichern. Hast du schon etwas eingetragen, fragt Sperling vorher nach.
 
+## Feiertage
+
+- Der Kalender zeigt die gesetzlichen Feiertage in Niedersachsen mit Namen (Monat, Woche, Tag, Liste und beim Anlegen eines Termins). Termine an Feiertagen sind trotzdem möglich.
+
 ## Wiedervorlage schnell setzen
 
 - Unter dem Datum einer Wiedervorlage stehen Knöpfe **In 1 Tag, 3 Tage, 1–4 Wochen, 3 Monate, ½ Jahr, 1 Jahr**. Antippen setzt das Datum ab heute; die schon eingestellte Uhrzeit bleibt, sonst 9:00 Uhr. Über das Kalenderfeld lässt sich jedes Datum weiter frei wählen.

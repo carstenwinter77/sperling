@@ -1,4 +1,5 @@
 // Sperling – wiederverwendbare UI-Bausteine.
+import { feiertag } from '../core/feiertage.ts';
 import * as schnellwahl from './schnellwahl.ts';
 import * as kundenwahl from './kundenwahl.ts';
 import { esc, isoToLocalInput, localInputToIso, formatDateTime, parseNumber } from '../core/util.ts';
@@ -49,13 +50,21 @@ export async function terminDialog({ termin = null as Termin | null, kundeId = '
       <label>Beginn <input type="datetime-local" name="beginn" value="${esc(isoToLocalInput(t.beginn))}" required></label>
       <label>Dauer (Min.) <input type="number" name="dauerMin" min="5" max="1440" step="5" value="${esc(t.dauerMin)}"></label>
     </div>
+    <p class="hinweis feiertag-hinweis" hidden></p>
     ${schnellwahl.html('beginn')}
     <label>Ort <input name="ort" value="${esc(t.ort)}" maxlength="500"></label>
     <label>Notiz <textarea name="notiz" rows="3" maxlength="5000">${esc(t.notiz)}</textarea></label>`;
   const res = await dialog({
     titel: termin ? 'Termin bearbeiten' : 'Neue Wiedervorlage / Termin',
     html,
-    onOpen: (dlg) => kundenwahl.verdrahten(dlg),
+    onOpen: (dlg) => {
+      kundenwahl.verdrahten(dlg);
+      // Feiertag nur anzeigen; Termine bleiben möglich
+      const feld = dlg.querySelector<HTMLInputElement>('[name=beginn]')!;
+      const hinweis = dlg.querySelector<HTMLElement>('.feiertag-hinweis')!;
+      const zeigen = () => { const ft = feld.value ? feiertag(feld.value.slice(0, 10)) : null; hinweis.hidden = !ft; hinweis.textContent = ft ? `🎉 Feiertag in Niedersachsen: ${ft}` : ''; };
+      feld.addEventListener('input', zeigen); feld.addEventListener('change', zeigen); zeigen();
+    },
     knoepfe: [{
       label: 'Speichern', primaer: true,
       pruefen: (dlg) => {
@@ -103,7 +112,7 @@ export function terminZeile(t, kunde) {
       <button class="haken" data-aktion="erledigt" aria-label="Erledigt umschalten">${t.erledigt ? '✓' : ''}</button>
       <div class="termin-text" data-aktion="karte" role="button" tabindex="0">
         <strong>${esc(t.titel || 'Termin')}</strong>
-        <small>${esc(formatDateTime(t.beginn))} · ${t.art === 'termin' ? 'Termin' : 'Wiedervorlage'}${t.sparte ? ` · ${esc(SPARTEN[t.sparte].label)}` : ''}${kunde ? ` · <a href="#/kunde/${esc(kunde.id)}">${esc(kundenTitel(kunde))}</a>` : ''}</small>
+        <small>${esc(formatDateTime(t.beginn))}${feiertag(new Date(t.beginn)) ? ` · <span class="tag tag-feiertag">Feiertag: ${esc(feiertag(new Date(t.beginn))!)}</span>` : ''} · ${t.art === 'termin' ? 'Termin' : 'Wiedervorlage'}${t.sparte ? ` · ${esc(SPARTEN[t.sparte].label)}` : ''}${kunde ? ` · <a href="#/kunde/${esc(kunde.id)}">${esc(kundenTitel(kunde))}</a>` : ''}</small>
       </div>
       ${kunde && t.art === 'termin' && !t.erledigt ? hinfahrenKnopf(kunde, 'btn klein ghost').replace('🚗 Hinfahren', '🚗') : ''}
       <button class="btn klein ghost" data-aktion="ics" title="In Kalender exportieren">📅</button>

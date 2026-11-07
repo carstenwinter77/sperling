@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.10
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.11
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,13 +14,16 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.10)
+## Erledigt (Version 0.10.11)
+
+### Neu in 0.10.11
+- [x] Feiertage (Niedersachsen) in Monat, Woche, Tag, Liste und Termin-Dialog (`src/core/feiertage.ts`).
 
 ### Neu in 0.10.10
 - [x] Verleihen/Verkaufen direkt aus der Kundenansicht, Verkauf als `geraet.verkauf` (`src/core/bestandkunde.ts`, `src/ui/bestandkunde.ts`).
 - [x] Alle Dialoge schließen per Hintergrund, mit Rückfrage bei geänderten Eingaben (`dialog()` in `src/ui/dom.ts`).
 - [x] Auswertung: Säulen nach Thema gestapelt (Farbe + Muster + Legende), Zeiträume 1/3/6 Monate gleitend, PDF immer eine Seite.
-- [ ] Offen: Feiertage im Kalender (Niedersachsen), Abgleich über iCloud Drive beim Start (entschieden 07.11.: Weg 1, Datei).
+- [ ] Offen: Abgleich über iCloud Drive beim Start (entschieden 07.11.: Weg 1, Datei).
 
 ### Neu in 0.10.9
 - [x] Schnellwahl für Wiedervorlagen (1 Tag bis 1 Jahr) in Termin-Dialog, Gesprächsabschluss und Enpal-Doku (`src/ui/schnellwahl.ts`).

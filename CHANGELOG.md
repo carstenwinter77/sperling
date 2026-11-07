@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.10.11 – 07.11.2026
+- **Feiertage im Kalender** (Niedersachsen, lokal berechnet, `src/core/feiertage.ts`): Neujahr, Karfreitag, Ostermontag, 1. Mai, Christi Himmelfahrt, Pfingstmontag, 3. Oktober, Reformationstag (ab 2018), 1. und 2. Weihnachtstag. Im Monat Name unter dem Datum und getönte Fläche, in Woche/Tag im Spaltenkopf, in der Liste beim Termin, im Termin-Dialog als Hinweis. Termine bleiben möglich.
+
 ## 0.10.10 – 07.11.2026
 - **Aus der Kundenansicht verleihen oder verkaufen:** Block „📦 Aus meinem Bestand“ in der Übersicht des Kunden (Leihgaben und gekaufte Geräte des Kunden, Knöpfe „Gerät verleihen“/„Gerät verkaufen“). Geräteauswahl mit Lage je Gerät (für den Kunden reserviert zuerst, belegte ausgegraut, nie Namen anderer Kunden). Verleihen öffnet den bekannten Dialog mit vorausgefülltem Kunden. Verkaufen: Datum, Preis (optional), Notiz, Häkchen „Vorwerk-Status auf Abschluss / Kunde“ vorausgewählt; Gerät verlässt den Bestand, `geraet.verkauf` hält Kunde/Datum/Preis, eine Leihgabe beim Kunden wird als „gekauft“ abgeschlossen, Reservierungen ab dem Verkaufstag fallen weg (Anzahl im Hinweis). „Verkaufen“ auch im Bestand, Liste „Verkauft“ dort (`src/core/bestandkunde.ts`, `src/ui/bestandkunde.ts`).
 - **Dialoge** schließen auch per Klick/Tipp auf den Hintergrund; sind Eingaben geändert (auch Unterschrift), fragt Sperling vorher „Eingaben verwerfen?“. Esc fragt ebenso.

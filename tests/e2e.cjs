@@ -296,6 +296,10 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   // Historie vorhanden
   await p.waitForTimeout(500);
   if (!(await p.$('#historie [data-i]'))) fail('Keine Versionshistorie');
+  // Feiertage: 1. Weihnachtstag im Monat sichtbar (Text, nicht nur Farbe)
+  await p.goto(BASE + '#/termine?ansicht=monat&datum=2026-12-10');
+  await p.waitForSelector('.k-monat');
+  if (!(await p.textContent('.k-tag.feiertag[data-tag="2026-12-25"]'))?.includes('1. Weihnachtstag')) fail('Feiertag im Monat fehlt');
   // Kalender: Woche, Fingertipp auf eine Uhrzeit legt Termin an
   await p.goto(BASE + '#/termine');
   await p.waitForSelector('.k-monat');

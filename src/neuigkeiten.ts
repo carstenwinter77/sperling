@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.11',
+    punkte: [
+      'Der Kalender zeigt die Feiertage in Niedersachsen mit Namen, zum Beispiel „1. Weihnachtstag“. Termine kannst du dort trotzdem eintragen.',
+    ],
+  },
+  {
     version: '0.10.10',
     punkte: [
       'Beim Kunden: „📦 Aus meinem Bestand“. Gerät verleihen oder verkaufen, der Kunde ist schon eingetragen. Verkaufte Geräte stehen beim Kunden und im Bestand.',

@@ -1180,3 +1180,22 @@ test('Aus der Kundenansicht: Geräteauswahl und Verkauf buchen', async () => {
   pk.wiederherstellen(data, data.papierkorb[0].id);
   assert.equal(beiA.verkauf.kundeId, a.id);
 });
+
+test('Feiertage Niedersachsen: fest, beweglich, Reformationstag ab 2018', async () => {
+  const f = await import('../src/core/feiertage.ts');
+  assert.deepEqual(f.ostersonntag(2026), [4, 5]);
+  assert.deepEqual(f.ostersonntag(2027), [3, 28]);
+  assert.deepEqual(f.ostersonntag(2025), [4, 20]);
+  assert.equal(f.feiertag('2026-04-03'), 'Karfreitag');
+  assert.equal(f.feiertag('2026-04-06'), 'Ostermontag');
+  assert.equal(f.feiertag('2026-05-14'), 'Christi Himmelfahrt');
+  assert.equal(f.feiertag('2026-05-25'), 'Pfingstmontag');
+  assert.equal(f.feiertag('2026-10-31'), 'Reformationstag');
+  assert.equal(f.feiertag('2017-10-31'), null, 'erst ab 2018 dauerhaft');
+  assert.equal(f.feiertag('2026-12-26T09:00'), '2. Weihnachtstag');
+  assert.equal(f.feiertag(new Date(2027, 0, 1, 15)), 'Neujahr');
+  assert.equal(f.feiertag('2026-06-04'), null, 'Fronleichnam gilt in Niedersachsen nicht');
+  assert.equal(f.feiertag('2026-11-07'), null);
+  assert.equal(f.feiertag('quatsch'), null);
+  assert.equal(f.feiertage(2026).size, 10);
+});

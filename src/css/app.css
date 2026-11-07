@@ -980,3 +980,13 @@ tr.li-gleich { opacity: .7; }
 .aw-legende li { display: flex; align-items: center; gap: .4rem; }
 .aw-legende .aw-teil { width: 18px; height: 14px; border-radius: 3px; }
 .aw-legende .aw-teil { flex: none; display: inline-block; }
+
+/* Feiertage (Niedersachsen) im Kalender: Name als Text, Fläche dezent getönt */
+.k-tag-kopf { display: flex; flex-wrap: wrap; align-items: center; gap: 0 .25rem; min-width: 0; }
+.k-feiertag { font-size: .68rem; font-weight: 700; line-height: 1.1; color: var(--rot); min-width: 0; hyphens: auto; padding-left: .2rem; }
+.k-tag.feiertag { background: color-mix(in srgb, var(--rot) 7%, var(--karte)); }
+.k-spaltenkopf .k-feiertag { display: block; font-weight: 600; }
+.k-spaltenkopf.feiertag { color: var(--rot); }
+.k-spalte.feiertag { background-color: color-mix(in srgb, var(--rot) 5%, transparent); }
+.tag-feiertag { color: var(--rot); }
+.feiertag-hinweis { color: var(--rot); margin: 0; }

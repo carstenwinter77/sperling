@@ -3,6 +3,7 @@
 // Termin anlegen: Fingertipp; in Woche/Tag auch Finger halten und ziehen für Beginn und Dauer.
 // Bestehender Termin: kurz antippen = Termin-Karte. Finger halten = Griffe: in der Mitte verschieben
 // (auch auf einen anderen Tag), oben/unten länger oder kürzer ziehen. Im Monat auf einen anderen Tag ziehen.
+import { feiertag } from '../core/feiertage.ts';
 import { esc } from '../core/util.ts';
 import { kundenTitel, type Termin } from '../core/model.ts';
 import { geraeteEintraege, GERAET_EINTRAG_TEXT, gezogen, aufTag, type GeraetEintrag } from '../core/kalender.ts';
@@ -78,8 +79,9 @@ function monatHtml(datum, d, heuteKey, ge: Map<string, GeraetEintrag[]>) {
     const liste = termineAm(d.termine, key);
     const g = ge.get(key) || [];
     const platz = Math.max(1, 4 - Math.min(g.length, 2));
-    return `<div class="k-tag ${tag.getMonth() !== datum.getMonth() ? 'fremd' : ''} ${key === heuteKey ? 'heute' : ''}" data-tag="${key}">
-        <button type="button" class="k-nr" data-zum-tag="${key}">${tag.getDate()}</button>
+    const ft = feiertag(key);
+    return `<div class="k-tag ${tag.getMonth() !== datum.getMonth() ? 'fremd' : ''} ${key === heuteKey ? 'heute' : ''}${ft ? ' feiertag' : ''}" data-tag="${key}"${ft ? ` title="Feiertag: ${esc(ft)}"` : ''}>
+        <div class="k-tag-kopf"><button type="button" class="k-nr" data-zum-tag="${key}">${tag.getDate()}</button>${ft ? `<span class="k-feiertag">${esc(ft)}</span>` : ''}</div>
         ${liste.slice(0, platz).map((t) => eintragHtml(t, d.kunden)).join('')}
         ${g.slice(0, 2).map(geraetHtml).join('')}
         ${liste.length > platz || g.length > 2 ? `<button type="button" class="k-mehr" data-zum-tag="${key}">+${Math.max(0, liste.length - platz) + Math.max(0, g.length - 2)} weitere</button>` : ''}
@@ -104,14 +106,14 @@ function rasterHtml(tage, d, heuteKey, ge: Map<string, GeraetEintrag[]>) {
   const keys = tage.map(tagKey);
   const ganztags = leihZeigen && keys.some((k) => (ge.get(k) || []).length);
   return `<div class="k-raster" style="--spalten:${tage.length};--slot:${SLOT_PX}px">
-    <div class="k-kopfzeile"><div></div>${tage.map((t) => { const key = tagKey(t); return `<button type="button" class="k-spaltenkopf ${key === heuteKey ? 'heute' : ''}" data-zum-tag="${key}">${WOCHENTAGE[(t.getDay() + 6) % 7]} ${t.getDate()}.${t.getMonth() + 1}.</button>`; }).join('')}</div>
+    <div class="k-kopfzeile"><div></div>${tage.map((t) => { const key = tagKey(t); return `<button type="button" class="k-spaltenkopf ${key === heuteKey ? 'heute' : ''}${feiertag(key) ? ' feiertag' : ''}" data-zum-tag="${key}">${WOCHENTAGE[(t.getDay() + 6) % 7]} ${t.getDate()}.${t.getMonth() + 1}.${feiertag(key) ? `<small class="k-feiertag">${esc(feiertag(key)!)}</small>` : ''}</button>`; }).join('')}</div>
     ${ganztags ? `<div class="k-ganztags"><div class="k-ganztags-titel" title="Leihgaben">📦</div>${keys.map((k) => `<div class="k-ganztags-zelle">${(ge.get(k) || []).map(geraetHtml).join('')}</div>`).join('')}</div>` : ''}
     <div class="k-koerper">
       <div class="k-zeiten">${Array.from({ length: ENDE_STUNDE - START_STUNDE }, (_, i) => `<div style="height:${SLOT_PX * (60 / SLOT_MIN)}px">${START_STUNDE + i}:00</div>`).join('')}</div>
       ${keys.map((key) => {
     const liste = termineAm(d.termine, key);
     const frueh = liste.filter((t) => { const h = new Date(t.beginn).getHours(); return h < START_STUNDE || h >= ENDE_STUNDE; });
-    return `<div class="k-spalte" data-tag="${key}" style="height:${slots * SLOT_PX}px">
+    return `<div class="k-spalte${feiertag(key) ? ' feiertag' : ''}" data-tag="${key}" style="height:${slots * SLOT_PX}px">
           ${frueh.length ? `<div class="k-ausserhalb">${frueh.map((t) => eintragHtml(t, d.kunden)).join('')}</div>` : ''}
           ${liste.filter((t) => !frueh.includes(t)).map((t) => blockHtml(t, d)).join('')}
           <div class="k-auswahl" hidden></div>
