@@ -25,8 +25,6 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/storage/
  │   ├─ db.ts ............ IndexedDB: vault (aktueller Umschlag), history (10), meta (Geräte-ID)
  │   ├─ store.ts ......... Datenzustand im Speicher, mutate(), Speicherkette, Demo-Modus
- │   ├─ dropbox.ts ....... OAuth PKCE, Download/Upload der verschlüsselten Datei
- │   ├─ sync.ts .......... Abgleich „neuester Stand gewinnt“
  │   └─ biometrie.ts ..... Face ID / Touch ID (Passkey + PRF)
  ├─ src/services/geo.ts ... Nominatim (Adresse ↔ Koordinate), gedrosselt
  ├─ src/ui/dom.ts ......... Toast, Dialog, Download, Zwischenablage
@@ -64,7 +62,7 @@ Kontaktseite: `public/kontakt/index.html` ist eine eigenständige öffentliche W
 2. **Entsperren:** `store.unlock(pw)` → `KeyRing.decrypt()` → `migrate()` → Daten im Arbeitsspeicher.
 3. **Ändern:** Ansichten rufen `store.mutate(fn)`. Danach nach 400 ms `persist()`.
 4. **Speichern:** Gesamter Bestand → JSON → AES-GCM → neuer Umschlag. Der alte Umschlag wandert in `history`. Alle Speichervorgänge laufen nacheinander über eine Promise-Kette.
-5. **Sync:** Nach dem Speichern (5 s verzögert), beim Entsperren, beim Zurückkehren zur App und beim Online-Gehen vergleicht `sync.ts` `updatedAt` lokal vs. Dropbox. Neuerer gewinnt: Upload oder `store.adoptEnvelope()`.
+5. **Sicherung:** Der aktuelle Umschlag wird als `.sperling`-Datei geteilt („In iCloud / Dateien sichern“) oder heruntergeladen. Einspielen übernimmt sie mit `store.adoptEnvelope()`. Einen automatischen Abgleich gibt es nicht (Dropbox wurde in 0.9.5 entfernt).
 6. **Sperren:** Offene Änderungen werden gespeichert, dann Passwort, Schlüssel und Klartext verworfen.
 
 ## Umschlag-Format (Datei `.sperling`)
@@ -77,14 +75,11 @@ Kontaktseite: `public/kontakt/index.html` ist eine eigenständige öffentliche W
   "iv": "base64 (12 Byte)", "ct": "base64 (AES-256-GCM)"
 }
 ```
-`app|format|updatedAt|deviceId` sind als AAD gebunden. Dieselbe Datei dient als lokaler Speicher, Backup und Dropbox-Datei.
+`app|format|updatedAt|deviceId` sind als AAD gebunden. Dieselbe Datei dient als lokaler Speicher und Sicherungsdatei (iCloud Drive).
 
-## Dropbox
+## Mehrere Salts
 
-- Eigene Dropbox-App mit Zugriff „App folder“ (nur der eigene Unterordner), PKCE-Flow ohne Client-Secret.
-- Refresh-Token liegt im verschlüsselten Datenbestand; Access-Token nur im Arbeitsspeicher.
-- Nach der Weiterleitung von Dropbox ist die App gesperrt: Der Code wird in `sessionStorage` geparkt und nach dem Entsperren eingelöst.
-- Unterschiedlicher Salt auf zwei Geräten ist kein Problem: `KeyRing` leitet pro Salt einen Schlüssel ab und übernimmt beim Laden den Salt der Datei.
+- Unterschiedlicher Salt auf zwei Geräten ist kein Problem: `KeyRing` leitet pro Salt einen Schlüssel ab und übernimmt beim Einspielen den Salt der Datei.
 
 ## Fehlerbehandlung
 

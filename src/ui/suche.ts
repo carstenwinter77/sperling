@@ -5,7 +5,6 @@ import { esc } from '../core/util.ts';
 import { kundenTitel, neuerKunde } from '../core/model.ts';
 import { index, suchen, ausschnitt, zuletztHinzu, zuletztAufloesen, AKTION_LABEL, type Aktion, type Eintrag, type Treffer, type Befehl } from '../core/suche.ts';
 import * as store from '../storage/store.ts';
-import * as sync from '../storage/sync.ts';
 import * as theme from './theme.ts';
 import { toast } from './dom.ts';
 import { anrufen, emailSchreiben } from './kontakt.ts';
@@ -221,14 +220,15 @@ function befehl(b: Befehl) {
     }
     case 'neuerTermin': terminDialog({}).then((t) => { if (t) neuZeichnen(); }); break;
     case 'geraetVerleihen': gehe('#/bestand'); break;
-    case 'sync':
-      if (!sync.istVerbunden()) { toast(store.isDemo() ? 'In der Demo wird nichts gespeichert.' : 'Dropbox ist noch nicht verbunden. Sichern geht unter Einstellungen.', 'info', 5000); if (!store.isDemo()) gehe('#/einstellungen'); break; }
-      toast('Abgleich läuft …');
-      sync.syncJetzt().then((r) => {
-        const text = r === 'fehler' ? 'Abgleich fehlgeschlagen – Details unter Einstellungen' : r === 'offline' ? 'Offline – Abgleich später' : 'Abgleich fertig';
-        toast(text, r === 'fehler' ? 'error' : 'ok');
-        neuZeichnen();
-      });
+    case 'sichern':
+      if (store.isDemo()) { toast('In der Demo wird nichts gespeichert.', 'info', 5000); break; }
+      // Das Teilen-Menü braucht einen eigenen Tipp (Safari), deshalb zum Knopf führen statt direkt zu sichern
+      gehe('#/einstellungen');
+      setTimeout(() => {
+        const b = document.getElementById('icloud');
+        b?.scrollIntoView({ block: 'center' });
+        b?.focus();
+      }, 150);
       break;
     case 'thema': theme.umschalten(); if (location.hash.startsWith('#/einstellungen')) neuZeichnen(); break;
     case 'sperren': document.getElementById('sperren')?.click(); break;

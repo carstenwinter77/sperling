@@ -139,7 +139,7 @@ Belegt ist ein Gerät, wenn sich der Zeitraum mit einer Reservierung oder einem 
 | `vorlagen.enpal`, `vorlagen.vorwerk` | Textvorlagen mit Platzhaltern |
 | `karte` | letzte Position, Zoom, Layer (`satellit`/`strasse`) |
 | `autoSperreMin` | 0–240, 0 = nie |
-| `dropbox` | `appKey`, `refreshToken`, `pfad`, `letzterSync` |
+| ~~`dropbox`~~ | bis 0.9.4; wird seit 0.9.5 beim Laden verworfen (kein Dropbox-Abgleich mehr) |
 | `empfaenger` | `{enpal, vorwerk}` – Vorbelegung für „Per E-Mail senden“ (ab Schema 2) |
 | `kartenApp` | `auto` \| `apple` \| `google` – Ziel für „Hinfahren“ (ab Schema 3) |
 | `kundenansicht` | `{kontakt, pv, wp, vorwerk, bemerkungen, status, geraete, termine, notizen}` je `boolean` – was die Kundenansicht zum Herzeigen zeigt (ab 0.9.0, Standard siehe `KUNDENANSICHT_TEILE`) |

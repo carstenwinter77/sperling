@@ -214,7 +214,7 @@ export async function currentEnvelope() {
 }
 
 /**
- * Fremden Umschlag übernehmen (Dropbox-Download oder Backup-Import).
+ * Fremden Umschlag übernehmen (Sicherung einspielen).
  * Entschlüsselt mit dem aktuellen Passwort, wenn keines übergeben wird.
  * Der bisherige Stand wandert automatisch in die lokale Historie.
  */

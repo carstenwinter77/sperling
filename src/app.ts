@@ -1,7 +1,5 @@
 // Sperling – Einstiegspunkt: Sperrbildschirm, Navigation, Router, Auto-Sperre, Fehlerbehandlung.
 import * as store from './storage/store.ts';
-import * as sync from './storage/sync.ts';
-import * as dbx from './storage/dropbox.ts';
 import { WrongPasswordError } from './core/crypto.ts';
 import { esc } from './core/util.ts';
 import { $, toast, maskottchen, logo, dialog, type Formular } from './ui/dom.ts';
@@ -179,14 +177,6 @@ async function nachEntsperren() {
     badgeSetzen(store.getData());
     setTimeout(() => update.wasIstNeu(APP_VERSION), 1200);
     navigator.storage?.persist?.().catch(() => {});
-    if (dbx.hasPendingAuthCode()) {
-      try {
-        const rt = await dbx.finishAuth(store.getData().einstellungen.dropbox.appKey);
-        store.mutate((d) => { d.einstellungen.dropbox.refreshToken = rt; });
-        toast('Dropbox verbunden', 'ok');
-      } catch (e) { toast((e as Error).message, 'error', 6000); }
-    }
-    sync.syncJetzt().then((r) => { if (r === 'heruntergeladen') route(); });
   }
   route();
 }
@@ -273,8 +263,8 @@ store.onSaved((ev) => { if (ev.fehler) toast(`Speichern fehlgeschlagen: ${ev.feh
 // ---------- Start ----------
 async function start() {
   try { hilfe.starten(); } catch (e) { console.error(e); }
-  try { dbx.captureAuthCode(); } catch (e) { console.error(e); }
-  sync.init();
+  // Reste der früheren Dropbox-Anmeldung entfernen (seit 0.9.5 gibt es keinen Dropbox-Abgleich mehr)
+  try { sessionStorage.removeItem('sperling.dbx.code'); sessionStorage.removeItem('sperling.dbx.verifier'); } catch { /* egal */ }
   // Browser bitten, die Daten nicht automatisch zu löschen (wichtig v. a. auf iPad/Android).
   if (document.documentElement.dataset.demo !== '1') navigator.storage?.persist?.().catch(() => {});
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost') && document.documentElement.dataset.demo !== '1') {

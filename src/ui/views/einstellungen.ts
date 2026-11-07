@@ -1,4 +1,4 @@
-// Einstellungen: Absender, Textvorlagen, Dropbox, Backup, Historie, Passwort, Datenschutz.
+// Einstellungen: Absender, Textvorlagen, Sicherung (iCloud), Historie, Passwort, Datenschutz.
 import { esc, formatDateTime, parseNumber } from '../../core/util.ts';
 import { DEFAULT_VORLAGEN, KUNDENANSICHT_TEILE, migrate, normalizeGeraet, type KundenansichtTeil } from '../../core/model.ts';
 import { demoDaten, beispielAnzahl, beispielEinfuegen, beispielEntfernen, beispielBestand, bestandAnzahl, bestandEinfuegen, bestandEntfernen } from '../../demo.ts';
@@ -6,8 +6,6 @@ import { PLATZHALTER } from '../../core/textgen.ts';
 import { validateEnvelope } from '../../core/crypto.ts';
 import * as store from '../../storage/store.ts';
 import * as db from '../../storage/db.ts';
-import * as dbx from '../../storage/dropbox.ts';
-import * as sync from '../../storage/sync.ts';
 import * as theme from '../theme.ts';
 import * as bio from '../../storage/biometrie.ts';
 import { KeyRing } from '../../core/crypto.ts';
@@ -23,7 +21,7 @@ export function render(el: HTMLElement) {
   const demo = store.isDemo();
   el.innerHTML = `
     <header class="seitenkopf"><h1>${maskottchen('einstellungen', 'titel-bild')} Einstellungen</h1></header>
-    ${demo ? '<p class="hinweis demo-hinweis">Demo-Modus: Änderungen werden nicht gespeichert. Backup, Dropbox und Passwort sind hier deaktiviert.</p>' : ''}
+    ${demo ? '<p class="hinweis demo-hinweis">Demo-Modus: Änderungen werden nicht gespeichert. Sicherung und Passwort sind hier deaktiviert.</p>' : ''}
 
     <section class="karte-box">
       <h2>Darstellung</h2>
@@ -108,22 +106,6 @@ export function render(el: HTMLElement) {
     </section>
 
     <section class="karte-box ${demo ? 'aus' : ''}">
-      <h2>Dropbox-Abgleich</h2>
-      <p class="hinweis">Es wird nur die verschlüsselte Datei abgelegt. Beim Öffnen holt die App den neuesten Stand, nach Änderungen lädt sie hoch. Der neueste Stand gewinnt.</p>
-      <div class="formgrid">
-        <label>Dropbox App-Key<input id="dbxKey" value="${esc(e.dropbox.appKey)}" autocomplete="off" ${demo ? 'disabled' : ''}></label>
-        <label>Dateipfad<input id="dbxPfad" value="${esc(e.dropbox.pfad)}" ${demo ? 'disabled' : ''}></label>
-      </div>
-      <p><small>Redirect-URI für die Dropbox-App: <code>${esc(dbx.redirectUri())}</code></small></p>
-      <p id="syncStatus" class="sync-status"></p>
-      <div class="knopfreihe">
-        ${e.dropbox.refreshToken
-    ? '<button class="btn primary" id="dbxSync">Jetzt abgleichen</button><button class="btn ghost" id="dbxTrennen">Trennen</button>'
-    : `<button class="btn primary" id="dbxVerbinden" ${demo ? 'disabled' : ''}>Mit Dropbox verbinden</button>`}
-      </div>
-    </section>
-
-    <section class="karte-box ${demo ? 'aus' : ''}">
       <h2>Datensicherung ${hilfe.knopf('sicherung')}</h2>
       <p class="hinweis">Die Sicherungsdatei ist mit deinem Master-Passwort verschlüsselt. <b>iCloud:</b> „In iCloud / Dateien sichern“ tippen, im Teilen-Menü „In Dateien sichern“ wählen und den Ordner in iCloud Drive aussuchen. Zum Zurückholen „Sicherung einspielen“ und die Datei aus iCloud Drive wählen.</p>
       <p id="letzteSicherung" class="hinweis"></p>
@@ -148,7 +130,7 @@ export function render(el: HTMLElement) {
 
     <section class="karte-box">
       <h2>Datenschutz</h2>
-      <p class="hinweis">Sperling speichert alle Kundendaten ausschließlich verschlüsselt auf diesem Gerät und – falls eingerichtet – als verschlüsselte Datei in deiner eigenen Dropbox. Es gibt keinen Sperling-Server. Für Kartenbilder werden Kartenausschnitte bei Esri bzw. OpenStreetMap geladen, für Adressvorschläge werden Koordinaten bzw. Adressen an OpenStreetMap Nominatim gesendet – niemals Namen oder Notizen. Kunden können auf Wunsch jederzeit vollständig gelöscht werden (Kunde öffnen → Kunde löschen).</p>
+      <p class="hinweis">Sperling speichert alle Kundendaten ausschließlich verschlüsselt auf diesem Gerät und – falls eingerichtet – als verschlüsselte Sicherungsdatei, die du selbst in iCloud Drive ablegst. Es gibt keinen Sperling-Server. Für Kartenbilder werden Kartenausschnitte bei Esri bzw. OpenStreetMap geladen, für Adressvorschläge werden Koordinaten bzw. Adressen an OpenStreetMap Nominatim gesendet – niemals Namen oder Notizen. Kunden können auf Wunsch jederzeit vollständig gelöscht werden (Kunde öffnen → Kunde löschen).</p>
       <p><small>Sperling ${APP_VERSION} · Kartenbibliothek Leaflet (BSD-2)</small></p>
     </section>`;
 
@@ -216,27 +198,6 @@ export function render(el: HTMLElement) {
   });
 
   if (demo) return;
-
-  sync.onStatus((s) => { const p = el.querySelector('#syncStatus'); if (p) { p.textContent = s.text; p.dataset.zustand = s.zustand; } });
-  el.querySelector('#dbxKey').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.dropbox.appKey = (ev.target as HTMLInputElement).value.trim(); }));
-  el.querySelector('#dbxPfad').addEventListener('change', (ev) => {
-    const v = (ev.target as HTMLInputElement).value.trim();
-    if (!/^\/[^\\]+$/.test(v)) { toast('Pfad muss mit / beginnen.', 'error'); return; }
-    speichere((d) => { d.einstellungen.dropbox.pfad = v; });
-  });
-  el.querySelector('#dbxVerbinden')?.addEventListener('click', async () => {
-    try {
-      await store.flush();
-      await dbx.startAuth(store.getData().einstellungen.dropbox.appKey);
-    } catch (err) { toast((err as Error).message, 'error'); }
-  });
-  el.querySelector('#dbxSync')?.addEventListener('click', () => sync.syncJetzt().then(() => render(el)));
-  el.querySelector('#dbxTrennen')?.addEventListener('click', async () => {
-    if (!(await bestaetigen('Dropbox trennen?', 'Die Datei in Dropbox bleibt erhalten, es wird nur nicht mehr abgeglichen.', 'Trennen'))) return;
-    dbx.vergessen();
-    speichere((d) => { d.einstellungen.dropbox.refreshToken = ''; });
-    render(el);
-  });
 
   const sicherungsName = () => `sperling-sicherung-${new Date().toISOString().slice(0, 10)}.sperling`;
   const letzteZeigen = () => {
@@ -397,7 +358,7 @@ export function render(el: HTMLElement) {
   el.querySelector('#reset').addEventListener('click', async () => {
     const ok = await dialog({
       titel: 'Wirklich ALLES löschen?',
-      html: '<p>Alle Kunden, Notizen, Termine und Versionen auf diesem Gerät werden gelöscht. Dropbox bleibt unberührt.</p><label>Zur Bestätigung LÖSCHEN eintippen<input name="b" autocomplete="off"></label>',
+      html: '<p>Alle Kunden, Notizen, Termine und Versionen auf diesem Gerät werden gelöscht. Sicherungsdateien in iCloud Drive bleiben unberührt.</p><label>Zur Bestätigung LÖSCHEN eintippen<input name="b" autocomplete="off"></label>',
       knoepfe: [{ label: 'Endgültig löschen', gefahr: true, pruefen: (dlg) => (dlg.querySelector('[name=b]').value === 'LÖSCHEN' ? null : 'Bitte LÖSCHEN eintippen.'), wert: true }],
     });
     if (!ok) return;

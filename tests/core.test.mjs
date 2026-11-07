@@ -644,3 +644,10 @@ test('Hilfe: Themen vollständig, Suche findet Anleitungen, Begriffe und Fragen'
   assert.ok(h.hilfeSuchen('passwort vergessen').some((x) => x.art === 'frage'));
   assert.ok(h.hilfeSuchen('Einwände').length > 0, 'Umlaute');
 });
+
+test('Dropbox entfernt: alte Zugangsdaten werden beim Laden verworfen', () => {
+  const d = migrate({ einstellungen: { absender: 'X', dropbox: { appKey: 'k', refreshToken: 'geheim', pfad: '/a.sperling' } } });
+  assert.equal('dropbox' in d.einstellungen, false);
+  assert.equal(d.einstellungen.absender, 'X');
+  assert.equal(JSON.stringify(d).includes('geheim'), false);
+});

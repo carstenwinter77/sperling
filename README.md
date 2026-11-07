@@ -4,7 +4,7 @@ Außendienst-App für einen Berater, der **Photovoltaik und Wärmepumpen (Enpal)
 
 - Läuft als installierbare Web-App (PWA) auf Tablet, iPhone, iPad, Android und im Laptop-Browser, auch offline.
 - Alle Daten liegen **verschlüsselt** auf dem Gerät (AES-256-GCM, Master-Passwort). Es gibt keinen Server.
-- Optionaler Abgleich als verschlüsselte Datei über die **eigene Dropbox** („neuester Stand gewinnt“).
+- Datensicherung als verschlüsselte Datei in **iCloud Drive** (über das Teilen-Menü).
 
 Geschrieben in TypeScript, gebaut mit Vite, ausgeliefert über GitHub Pages.
 
@@ -30,8 +30,8 @@ Demo mit Beispielkunden ohne Speicherung: `http://localhost:8765/?demo`
 |---|---|
 | [docs/STAND.md](docs/STAND.md) | Was erledigt ist, was offen ist, bekannte Einschränkungen |
 | [docs/REGELN.md](docs/REGELN.md) | Verbindliche Regeln und Konventionen für jede Änderung |
-| [docs/ARCHITEKTUR.md](docs/ARCHITEKTUR.md) | Aufbau, Module, Datenfluss, Sicherheit, Sync |
+| [docs/ARCHITEKTUR.md](docs/ARCHITEKTUR.md) | Aufbau, Module, Datenfluss, Sicherheit, Sicherung |
 | [docs/DATENMODELL.md](docs/DATENMODELL.md) | Alle Felder, Status-Werte, Migration |
-| [docs/ANLEITUNG.md](docs/ANLEITUNG.md) | Installation, Hosting, Dropbox einrichten, Bedienung |
+| [docs/ANLEITUNG.md](docs/ANLEITUNG.md) | Installation, Hosting, Bedienung, Datensicherung |
 | [docs/MASKOTTCHEN.md](docs/MASKOTTCHEN.md) | Welcher Sperling wofür steht |
 | [CHANGELOG.md](CHANGELOG.md) | Versionsverlauf |

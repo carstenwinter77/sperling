@@ -13,7 +13,7 @@ export const ENVELOPE_APP = 'sperling';
 export const ENVELOPE_FORMAT = 1;
 export const PBKDF2_ITERATIONS = 600000;
 
-/** Verschlüsselter Datenbestand, wie er in IndexedDB, Backup-Datei und Dropbox liegt. */
+/** Verschlüsselter Datenbestand, wie er in IndexedDB und in der Sicherungsdatei liegt. */
 export interface Umschlag {
   app: string;
   format: number;

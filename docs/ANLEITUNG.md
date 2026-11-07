@@ -16,21 +16,12 @@ Sperling ist eine statische Web-App. Gewählt: **GitHub Pages** (kostenlos, HTTP
 4. Empfehlung: Zwei-Faktor-Anmeldung für das GitHub-Konto einschalten (wer das Konto übernimmt, könnte den Code ändern).
 
 Andere Anbieter (z. B. Cloudflare Pages) gehen genauso: `npm run build` ausführen und den Ordner `dist/` hochladen.
-- HTTPS ist Pflicht (Verschlüsselung, Offline-Modus und Dropbox funktionieren nur damit).
+- HTTPS ist Pflicht (Verschlüsselung und Offline-Modus funktionieren nur damit).
 - Danach auf dem Tablet die Adresse öffnen und **„Zum Home-Bildschirm hinzufügen“** (iPad/iPhone: Teilen-Menü; Android/Chrome: Menü → App installieren). Ab dann startet Sperling wie eine normale App, auch offline.
 
 Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 
-## 3. Dropbox einrichten (einmalig)
-
-1. https://www.dropbox.com/developers/apps → **Create app** → „Scoped access“ → **„App folder“** → Name z. B. `Sperling-Sync`.
-2. Tab **Permissions**: `files.content.read` und `files.content.write` aktivieren → Submit.
-3. Tab **Settings** → **Redirect URIs**: die Adresse eintragen, die Sperling unter Einstellungen → Dropbox anzeigt (z. B. `https://…/sperling/`). Für jedes Gerät mit anderer Adresse ebenfalls.
-4. **App key** kopieren und in Sperling unter Einstellungen → Dropbox eintragen → „Mit Dropbox verbinden“.
-5. Nach der Anmeldung kehrt man zu Sperling zurück, entsperrt – fertig.
-6. Auf dem zweiten Gerät: **dasselbe Master-Passwort** einrichten, App-Key eintragen, verbinden. Sperling holt automatisch den neuesten Stand.
-
-## 4. Bedienung in Kürze
+## 3. Bedienung in Kürze
 
 - **Adresse finden:** Karte → oben Adresse eingeben (z. B. „Lindenweg 4 Hannover“) → Suchen. Die Karte zoomt hinein und bietet „Als Potenzial markieren“ / „Kunde anlegen“ an. Beim Öffnen springt die Karte auf deinen Standort (Standortzugriff erlauben).
 - **Haus markieren:** Karte → lange auf das Haus tippen (Laptop: Rechtsklick) → „Als Potenzial markieren“ oder „Kunde anlegen“. Die Adresse wird vorgeschlagen.
@@ -59,11 +50,12 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Auswertungen:** Bereich und Zeitraum wählen, mit ‹ › blättern, „PDF-Bericht“ zum Teilen.
 - **Hilfe:** ?-Knopf neben jeder Überschrift; alles unter Einstellungen → Hilfe (dort auch abschaltbar und die Installationsanleitung).
 
-## 5. Datensicherung
+## 4. Datensicherung
 
 - **iCloud (iPad/iPhone):** Einstellungen → **„In iCloud / Dateien sichern“** → „Jetzt sichern“ → im Teilen-Menü **„In Dateien sichern“** → iCloud Drive → Ordner (z. B. „Sperling“) → Sichern. Die Datei ist verschlüsselt.
 - **Zurückholen / neues Gerät:** Master-Passwort einrichten → Einstellungen → **„Sicherung einspielen“** → Datei in iCloud Drive wählen → Passwort der Sicherung eingeben.
-- Ohne Dropbox erinnert die Übersicht nach 7 Tagen an eine neue Sicherung.
+- Die Übersicht erinnert nach 7 Tagen an eine neue Sicherung.
+- **Zweites Gerät:** Es gibt keinen automatischen Abgleich. Auf dem einen Gerät sichern, auf dem anderen einspielen; am besten hauptsächlich auf einem Gerät arbeiten.
 - Am Laptop: **Sicherung herunterladen** erzeugt dieselbe verschlüsselte `.sperling`-Datei.
 - Einspielen fragt nach dem Passwort der Sicherung. Der vorherige Stand bleibt unter „Automatische Versionen“ erhalten.
 - **Passwort vergessen = Daten nicht wiederherstellbar.** Passwort sicher notieren.

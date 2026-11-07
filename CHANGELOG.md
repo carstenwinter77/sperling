@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.9.5 – 07.11.2026
+- **Dropbox entfernt:** Abgleich, Einstellungen-Abschnitt, Anmeldung und Statusanzeige sind raus. Gesichert wird nur noch als verschlüsselte Datei in iCloud Drive. Gespeicherte Dropbox-Zugangsdaten werden beim nächsten Speichern verworfen. Hilfe, Kommandozeile („Daten in iCloud sichern“), Anleitung, Regeln und Datenschutzerklärung der Kontaktseite angepasst.
+
 ## 0.9.4 – 07.11.2026
 - **Kontaktseite:** neues Zitat („Ich berate so, wie ich selbst beraten werden möchte …“), Versprechen positiv formuliert, Datenschutzerklärung `kontakt/datenschutz.html` (im Footer verlinkt), persönliche Daten zentral in `kontakt/daten.js`. Keine Fremd-Requests, keine Cookies, kein Storage.
 

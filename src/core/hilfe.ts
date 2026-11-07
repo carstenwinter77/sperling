@@ -114,9 +114,9 @@ export const THEMEN = {
   },
   einstellungen: {
     titel: 'Einstellungen',
-    kurz: 'Sicherung, Dropbox, Passwort und Face ID, Vorlagen, Kundenansicht, Darstellung und Hilfe.',
+    kurz: 'Sicherung, Passwort und Face ID, Vorlagen, Kundenansicht, Darstellung und Hilfe.',
     schritte: [
-      'Sicherung: regelmäßig „In iCloud / Dateien sichern“, falls Dropbox nicht verbunden ist.',
+      'Sicherung: regelmäßig „In iCloud / Dateien sichern“.',
       'Unter „Kundenansicht zum Herzeigen“ legst du fest, was ein Kunde sehen darf.',
       'Unter „Hilfe“ schaltest du die ?-Knöpfe aus und findest die Installationsanleitung.',
     ],
@@ -147,7 +147,7 @@ export const THEMEN = {
   },
   sicherung: {
     titel: 'Datensicherung',
-    kurz: 'Alle Daten liegen verschlüsselt auf dem Gerät. Sichere sie regelmäßig in iCloud oder verbinde Dropbox.',
+    kurz: 'Alle Daten liegen verschlüsselt auf dem Gerät. Sichere sie regelmäßig in iCloud.',
     schritte: [
       'Einstellungen → „In iCloud / Dateien sichern“ → im Teilen-Menü „In Dateien sichern“.',
       'Zurückholen: Einstellungen → „Sicherung einspielen“.',
@@ -172,11 +172,11 @@ export const BEGRIFFE: [string, string][] = [
 ];
 
 export const FRAGEN: [string, string][] = [
-  ['Wo liegen meine Daten?', 'Nur auf deinem Gerät, verschlüsselt mit deinem Master-Passwort. Mit Dropbox zusätzlich verschlüsselt in deiner Dropbox. Der Webserver kennt nur das Programm.'],
+  ['Wo liegen meine Daten?', 'Nur auf deinem Gerät, verschlüsselt mit deinem Master-Passwort. Sicherungen legst du selbst verschlüsselt in iCloud Drive ab. Der Webserver kennt nur das Programm.'],
   ['Ich habe das Master-Passwort vergessen.', 'Dann lassen sich die Daten leider nicht entschlüsseln. Deshalb das Passwort sicher notieren und regelmäßig sichern.'],
   ['Wie bekomme ich Sperling aufs Tablet?', 'Adresse im Browser öffnen und zum Home-Bildschirm hinzufügen. Die Hilfe-Seite zeigt die Schritte für dein Gerät.'],
-  ['Funktioniert Sperling ohne Internet?', 'Ja. Nur Karte, Adresssuche und Dropbox-Abgleich brauchen Netz.'],
-  ['Wie nutze ich zwei Geräte?', 'Auf beiden Dropbox verbinden und dasselbe Master-Passwort verwenden. Sperling gleicht dann automatisch ab.'],
+  ['Funktioniert Sperling ohne Internet?', 'Ja. Nur Karte und Adresssuche brauchen Netz.'],
+  ['Wie nutze ich zwei Geräte?', 'Auf dem einen Gerät „In iCloud / Dateien sichern“, auf dem anderen „Sicherung einspielen“ und die Datei aus iCloud Drive wählen. Es gibt keinen automatischen Abgleich, deshalb am besten hauptsächlich auf einem Gerät arbeiten.'],
   ['Ich habe einen Kunden gelöscht.', 'Kunden → ganz unten „Gelöscht“ → Wiederherstellen. Nichts verfällt von selbst.'],
   ['Warum fragt Sperling vor jedem Anruf nach?', 'Damit kein Anruf aus Versehen startet, etwa beim Scrollen. Am Tablet kannst du die Nummer auch kopieren.'],
   ['Landen Enpal- und Vorwerk-Notizen zusammen?', 'Nein. Sie werden immer getrennt gespeichert und nie in den Text der anderen Firma übernommen.'],

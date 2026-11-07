@@ -39,7 +39,7 @@ export const AKTION_LABEL: Record<Aktion, string> = {
   doku: '📋 Enpal-Doku', gespraech: '💬 Gespräch starten', verleihen: '📦 Verleihen', reservieren: '📌 Reservieren', zuruecknehmen: '↩️ Zurücknehmen',
 };
 
-export type Befehl = 'neuerKunde' | 'neuerTermin' | 'geraetVerleihen' | 'sync' | 'thema' | 'sperren';
+export type Befehl = 'neuerKunde' | 'neuerTermin' | 'geraetVerleihen' | 'sichern' | 'thema' | 'sperren';
 
 export interface Eintrag {
   art: Art;
@@ -73,7 +73,7 @@ const BEREICHE: [string, string, string][] = [
   ['Belegungskalender', '#/belegung', 'reservierungen frei belegt'],
   ['Auswertungen', '#/auswertung', 'statistik bericht zahlen'],
   ['Gelöschte Kunden', '#/geloescht', 'papierkorb wiederherstellen geloescht'],
-  ['Einstellungen', '#/einstellungen', 'optionen sicherung dropbox passwort vorlagen'],
+  ['Einstellungen', '#/einstellungen', 'optionen sicherung icloud passwort vorlagen'],
   ['Hilfe', '#/hilfe', 'anleitung fragen begriffe faq erklaerung'],
   ['App installieren', '#/hilfe?thema=installieren', 'installation home bildschirm homescreen dock einrichten'],
 ];
@@ -82,7 +82,7 @@ export const BEFEHLE: { befehl: Befehl; titel: string; such: string }[] = [
   { befehl: 'neuerKunde', titel: 'Neuer Kunde', such: 'anlegen kunde neu hinzufuegen' },
   { befehl: 'neuerTermin', titel: 'Neuer Termin', such: 'termin wiedervorlage anlegen neu' },
   { befehl: 'geraetVerleihen', titel: 'Gerät verleihen', such: 'vorfuehrgeraet leihen ausleihen' },
-  { befehl: 'sync', titel: 'Daten abgleichen und sichern', such: 'sync synchronisieren dropbox sicherung backup' },
+  { befehl: 'sichern', titel: 'Daten in iCloud sichern', such: 'sichern sicherung backup icloud dateien sync' },
   { befehl: 'thema', titel: 'Hell / Dunkel umschalten', such: 'dunkel hell theme nachtmodus farben' },
   { befehl: 'sperren', titel: 'Sperren', such: 'abmelden schliessen lock' },
 ];

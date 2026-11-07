@@ -226,8 +226,6 @@ body { --band-h: 0px; }
 .text-enpal textarea, .text-vorwerk textarea { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85rem; margin-bottom: .75rem; background: var(--feld); }
 .gefahrzone { display: flex; justify-content: space-between; align-items: center; gap: .75rem; flex-wrap: wrap; }
 .aus { opacity: .6; }
-.sync-status[data-zustand="fehler"] { color: var(--rot); font-weight: 600; }
-.sync-status[data-zustand="ok"] { color: var(--gruen); font-weight: 600; }
 
 .filterleiste { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-bottom: 1rem; }
 .filterleiste input { grid-column: 1 / -1; }

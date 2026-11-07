@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.4
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.5
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -10,12 +10,14 @@ Alle Funktionen der Demo laufen auch in der echten App (gleicher Code; die Demo 
 
 Was nur der Auftraggeber/Nutzer erledigen kann:
 - [x] **Hosting:** GitHub Pages ist seit 07.11.2026 live unter `https://carstenwinter77.github.io/sperling/` (Browser-Test gegen die Live-Seite grün, Kartenbilder und Adresssuche erreichbar)
-- [ ] **Dropbox-App anlegen** (nur wenn Dropbox-Abgleich gewünscht, Anleitung Abschnitt 3) – sonst iCloud-Sicherung nutzen
 - [ ] Auf dem Tablet „Zum Home-Bildschirm“ hinzufügen und Master-Passwort festlegen
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.9.4)
+## Erledigt (Version 0.9.5)
+
+### Neu in 0.9.5
+- [x] **Dropbox entfernt:** kein Dropbox-Abgleich mehr, Sicherung nur noch als verschlüsselte Datei in iCloud Drive. Alte Dropbox-Zugangsdaten werden beim nächsten Speichern aus dem Bestand gelöscht. Kommandozeile: „Daten in iCloud sichern“ führt zum Sicherungsknopf. Datenschutzerklärung der Kontaktseite angepasst.
 
 ### Neu in 0.9.4
 - [x] Kontaktseite: neues Zitat, positive Versprechen, Datenschutzerklärung (`public/kontakt/datenschutz.html`), Daten zentral in `public/kontakt/daten.js`.
@@ -77,7 +79,7 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 
 
 ### Neu in 0.4.0
-- [x] **iCloud-Sicherung (Stufe 1):** Einstellungen → „In iCloud / Dateien sichern“ öffnet das Teilen-Menü („In Dateien sichern“ → iCloud Drive); ohne Teilen-Menü (Laptop) wird heruntergeladen. Einspielen aus iCloud Drive über „Sicherung einspielen“ (Dateiauswahl ohne Filter, damit iOS `.sperling` nicht ausgraut). Anzeige „Letzte Sicherung“, Erinnerung auf der Übersicht nach 7 Tagen, wenn kein Dropbox-Abgleich läuft.
+- [x] **iCloud-Sicherung (Stufe 1):** Einstellungen → „In iCloud / Dateien sichern“ öffnet das Teilen-Menü („In Dateien sichern“ → iCloud Drive); ohne Teilen-Menü (Laptop) wird heruntergeladen. Einspielen aus iCloud Drive über „Sicherung einspielen“ (Dateiauswahl ohne Filter, damit iOS `.sperling` nicht ausgraut). Anzeige „Letzte Sicherung“, Erinnerung auf der Übersicht nach 7 Tagen.
 - [x] Browser wird um dauerhaften Speicher gebeten (`navigator.storage.persist`).
 - [x] Persönliche Angaben des Auftraggebers aus Code, Doku und Git-Historie entfernt (0.3.1).
 
@@ -116,7 +118,6 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 - [x] Nachbarn im Umkreis von 300 m beim Kunden
 - [x] Übersicht: fällige Aufgaben, Kennzahlen je Sparte, **Cross-Selling-Chancen** (aktiv in einer Sparte, andere noch offen)
 - [x] Zwei strikt getrennte Textgeneratoren (Enpal: PV+WP / Vorwerk) mit Kopier-Knopf und anpassbaren Vorlagen
-- [x] Dropbox-Abgleich (OAuth PKCE, nur verschlüsselte Datei, neuester Stand gewinnt)
 - [x] Backup herunterladen / einspielen, Versionen wiederherstellen, Passwort ändern, alles löschen
 - [x] Datenschutzhinweis in den Einstellungen
 - [x] Maskottchen: 10 freigestellte Sperlinge als Bereichssymbole, App-Icon (seit 0.9.0 ersetzt durch das Branding-Set)
@@ -158,7 +159,7 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 ## Bekannte Einschränkungen
 - **Letzter Stand gewinnt:** Wird auf zwei Geräten offline gearbeitet, überschreibt der spätere Stand den früheren. Der verdrängte Stand bleibt aber in der lokalen Versionshistorie und kann wiederhergestellt werden.
 - **Passwort vergessen = Daten weg.** Es gibt bewusst keine Hintertür.
-- **iOS:** Safari kann Website-Daten nach längerer Nichtnutzung löschen, wenn die App nicht zum Home-Bildschirm hinzugefügt ist. Deshalb: zum Home-Bildschirm hinzufügen und Dropbox-Sync oder regelmäßige Backups nutzen.
+- **iOS:** Safari kann Website-Daten nach längerer Nichtnutzung löschen, wenn die App nicht zum Home-Bildschirm hinzugefügt ist. Deshalb: zum Home-Bildschirm hinzufügen und regelmäßig in iCloud sichern.
 - **Demo-Link:** Im claude.ai-Artifact sind Kartenbilder und Adresssuche gesperrt (Sicherheitsregeln der Plattform). Die Demo zeigt deshalb vereinfachte Straßen. Anrufen und Mailprogramm öffnen kann dort ebenfalls blockiert sein; in der installierten App funktioniert es.
 - **mailto-Länge:** Manche Mailprogramme schneiden lange mailto-Links ab. Sperling übergibt dann einen gekürzten Text und legt den vollständigen in die Zwischenablage.
 - Kartenkacheln (Esri/OSM) und Adresssuche brauchen Internet. Nominatim erlaubt max. 1 Anfrage/Sekunde (in der App gedrosselt).

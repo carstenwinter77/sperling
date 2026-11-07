@@ -163,7 +163,6 @@ const STANDARD_EINSTELLUNGEN = {
   karte: { lat: 51.1657, lng: 10.4515, zoom: 6 },
   autoSperreMin: 15,
   // Empfänger für „Per E-Mail senden“ und Navigations-App (auto = Apple Karten auf Apple-Geräten) stehen in normalizeEinstellungen()
-  dropbox: { pfad: '/sperling-daten.sperling' },
 };
 
 export function neuerKunde(partial: Rec = {}) {
@@ -486,7 +485,6 @@ function normalizeEinstellungen(e: unknown) {
   const kLat = parseNumber(karte.lat);
   const kLng = parseNumber(karte.lng);
   const kZoom = parseNumber(karte.zoom);
-  const dbx = src.dropbox && typeof src.dropbox === 'object' ? src.dropbox : {};
   return {
     absender: str(src.absender, 500),
     vorlagen: {
@@ -500,12 +498,7 @@ function normalizeEinstellungen(e: unknown) {
       layer: (karte.layer === 'strasse' ? 'strasse' : 'satellit') as 'strasse' | 'satellit',
     },
     autoSperreMin: autoSperre !== null && autoSperre >= 0 && autoSperre <= 240 ? Math.round(autoSperre) : d.autoSperreMin,
-    dropbox: {
-      appKey: str(dbx.appKey, 100),
-      refreshToken: str(dbx.refreshToken, 2000),
-      pfad: typeof dbx.pfad === 'string' && dbx.pfad.startsWith('/') ? dbx.pfad as string : d.dropbox.pfad,
-      letzterSync: (isValidDate(dbx.letzterSync) ? dbx.letzterSync : null) as string | null,
-    },
+    // früheres Feld „dropbox“ (App-Key, Token) wird bewusst nicht übernommen und verschwindet beim nächsten Speichern
     empfaenger: {
       enpal: str(src.empfaenger?.enpal, 300),
       vorwerk: str(src.empfaenger?.vorwerk, 300),

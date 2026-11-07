@@ -32,7 +32,7 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
-  // Nur eigene GET-Anfragen bedienen; Dropbox, Karten, Nominatim gehen direkt ins Netz.
+  // Nur eigene GET-Anfragen bedienen; Karten, Nominatim gehen direkt ins Netz.
   if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
   e.respondWith(
     caches.match(e.request, { ignoreSearch: true })

@@ -82,9 +82,9 @@ export function render(el: HTMLElement) {
   sicherungErinnern(el.querySelector('#sicherungHinweis'), d);
 }
 
-/** Erinnert an eine Sicherung (iCloud/Datei), wenn kein Dropbox-Abgleich läuft und die letzte älter als 7 Tage ist. */
+/** Erinnert an eine Sicherung (iCloud/Datei), wenn die letzte älter als 7 Tage ist. */
 function sicherungErinnern(box, d) {
-  if (!box || store.isDemo() || d.einstellungen.dropbox.refreshToken || !d.kunden.length) return;
+  if (!box || store.isDemo() || !d.kunden.length) return;
   db.getMeta<string>('letzteSicherung').then((t) => {
     const alt = !t || Date.now() - new Date(t).getTime() > 7 * 24 * 3600 * 1000;
     if (!alt || !box.isConnected) return;
