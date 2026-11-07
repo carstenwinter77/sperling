@@ -433,3 +433,50 @@ body.ka-aktiv { overflow: hidden; }
 .k-ausserhalb { position: absolute; top: 0; left: 2px; right: 2px; z-index: 1; display: flex; flex-direction: column; gap: 1px; }
 .k-auswahl { position: absolute; left: 2px; right: 2px; z-index: 3; background: color-mix(in srgb, var(--gruen) 30%, transparent); border: 2px solid var(--gruen); border-radius: 6px; font-size: .78rem; font-weight: 700; padding: .1rem .3rem; pointer-events: none; color: var(--text); }
 @media (max-width: 600px) { .k-tag { min-height: 64px; } .k-tag .k-eintrag small { display: none; } }
+
+/* Zeitraum wählen (Monatskalender, Wischen) */
+.zr { user-select: none; -webkit-user-select: none; }
+.zr-kopf { display: flex; align-items: center; justify-content: space-between; margin-bottom: .3rem; }
+.zr-raster { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; touch-action: none; }
+.zr-wt { text-align: center; font-size: .75rem; font-weight: 700; color: var(--text-2); padding: .15rem 0; }
+.zr-tag { min-height: 40px; border: 1px solid transparent; border-radius: 8px; background: var(--karte); color: var(--text); font: inherit; font-weight: 600; cursor: pointer; -webkit-touch-callout: none; }
+.zr-tag.fremd { opacity: .45; }
+.zr-tag.heute { border-color: var(--braun); }
+.zr-tag.vorbei { opacity: .3; cursor: default; }
+.zr-tag.belegt { cursor: not-allowed; color: var(--text-2); text-decoration: line-through; background: repeating-linear-gradient(135deg, var(--karte) 0 5px, color-mix(in srgb, var(--rot) 22%, var(--karte)) 5px 9px); }
+.zr-tag.drin { background: color-mix(in srgb, var(--gruen) 25%, var(--karte)); border-radius: 0; }
+.zr-tag.start, .zr-tag.ende { background: var(--gruen); color: #fff; }
+.zr-tag.start { border-radius: 8px 0 0 8px; }
+.zr-tag.ende { border-radius: 0 8px 8px 0; }
+.zr-tag.start.ende { border-radius: 8px; }
+.zr-text { margin: .4rem 0 .2rem; font-weight: 600; font-size: .9rem; }
+.zr-tippen { margin: .3rem 0 .6rem; }
+.zr-tippen summary { cursor: pointer; color: var(--text-2); font-size: .9rem; }
+.ruetteln { animation: ruetteln .3s; }
+@keyframes ruetteln { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+
+/* Belegungskalender */
+.bk-leiste { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .75rem; }
+.bk-leiste select, .bk-leiste input { width: auto; }
+.bk-plan { overflow-x: auto; }
+.bk-zeile { display: grid; grid-template-columns: minmax(110px, 180px) minmax(420px, 1fr); border-bottom: 1px solid var(--linie); }
+.bk-name { padding: .4rem .5rem .4rem 0; display: flex; flex-direction: column; justify-content: center; font-size: .9rem; position: sticky; left: 0; background: var(--karte); z-index: 2; }
+.bk-name small { color: var(--text-2); }
+.bk-spur { position: relative; min-height: 46px; cursor: copy; }
+.bk-kopfzeile .bk-spur { min-height: 38px; cursor: default; }
+.bk-kopfzeile .bk-name { font-size: .78rem; color: var(--text-2); }
+.bk-kopf-zelle { position: absolute; top: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: .72rem; font-weight: 700; color: var(--text-2); border-left: 1px solid var(--linie); overflow: hidden; white-space: nowrap; }
+.bk-kopf-zelle small { font-weight: 400; }
+.bk-kopf-zelle.heute { color: var(--braun); }
+.bk-we { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--text-2) 8%, transparent); }
+.bk-heute { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--rot); z-index: 1; }
+.bk-bar { display: inline-block; border: 0; border-radius: 6px; padding: .2rem .4rem; font: inherit; font-size: .78rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; background: var(--braun); }
+.bk-spur .bk-bar { position: absolute; top: 9px; height: 28px; z-index: 1; text-align: left; }
+.bk-bar.art-verliehen { background: var(--braun); }
+.bk-bar.art-ueberfaellig { background: var(--rot); }
+.bk-bar.art-reserviert { background: repeating-linear-gradient(135deg, var(--orange) 0 8px, color-mix(in srgb, var(--orange) 80%, #000) 8px 12px); }
+.bk-bar.art-frueher { background: color-mix(in srgb, var(--text-2) 55%, var(--karte)); }
+.bk-bar.offen-l { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.bk-bar.offen-r { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.bk-legende { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.bk-legende .bk-bar { cursor: default; }

@@ -20,6 +20,7 @@ import * as vTermine from './ui/views/termine.ts';
 import * as vEinst from './ui/views/einstellungen.ts';
 import * as vBestand from './ui/views/bestand.ts';
 import * as vGespraech from './ui/views/gespraech.ts';
+import * as vBelegung from './ui/views/belegung.ts';
 
 interface Ansicht { render(el: HTMLElement, params: URLSearchParams, treffer: string[]): void | (() => void) }
 interface Route { muster: RegExp; view: Ansicht; nav: string }
@@ -31,6 +32,7 @@ const ROUTEN: Route[] = [
   { muster: /^\/termine$/, view: vTermine, nav: 'termine' },
   { muster: /^\/einstellungen$/, view: vEinst, nav: 'einstellungen' },
   { muster: /^\/bestand$/, view: vBestand, nav: 'bestand' },
+  { muster: /^\/belegung$/, view: vBelegung, nav: 'bestand' },
   { muster: /^\/gespraech$/, view: vGespraech, nav: 'gespraech' },
 ];
 

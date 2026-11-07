@@ -346,3 +346,38 @@ test('Gerätebelegung: Reservierungen und Verleihe, tageweise inklusive', async 
   const r = normalizeReservierung({ von: '2026-12-10', bis: '2026-12-01' });
   assert.equal(r.bis, r.von);
 });
+
+test('Belegungsplan: Balken, Sperren, freie Geräte, Liste nach Tagen', async () => {
+  const b = await import('../src/core/belegung.ts');
+  const { normalizeReservierung, neuerLeihvorgang, neuesGeraet } = await import('../src/core/model.ts');
+  assert.equal(b.plusTage('2026-12-31', 1), '2027-01-01');
+  assert.equal(b.wochenanfang('2026-11-08'), '2026-11-02');
+  assert.equal(b.kalenderwoche('2026-01-01'), 1);
+  assert.equal(b.kalenderwoche('2026-12-31'), 53);
+  assert.equal(b.tageZwischen('2026-11-01', '2026-11-08'), 7);
+  const data = emptyData();
+  data.geraete = [neuesGeraet({ id: 'g1', name: 'A' }), neuesGeraet({ id: 'g2', name: 'B' }), neuesGeraet({ id: 'g3', name: 'C', aktiv: false })];
+  const t = (s) => new Date(`${s}T10:00`).toISOString();
+  data.leihvorgaenge = [
+    neuerLeihvorgang({ id: 'l1', geraetId: 'g1', kundeId: 'k', ausgabe: t('2026-11-02'), rueckgabeGeplant: t('2026-11-05') }), // überfällig (heute 10.11.)
+    neuerLeihvorgang({ id: 'l2', geraetId: 'g2', ausgabe: t('2026-10-01'), rueckgabe: t('2026-10-08') }),
+  ];
+  data.reservierungen = [normalizeReservierung({ id: 'r1', geraetId: 'g2', kundeId: 'k2', von: t('2026-11-12'), bis: t('2026-11-14') })];
+  const heute = '2026-11-10';
+  const g1 = b.balkenFuer(data, 'g1', heute);
+  assert.equal(g1[0].art, 'ueberfaellig');
+  assert.equal(g1[0].bis, null);
+  assert.equal(b.istBelegt(g1, '2026-12-24'), true, 'überfällig bleibt belegt');
+  const g2 = b.balkenFuer(data, 'g2', heute);
+  assert.deepEqual(g2.map((x) => x.art), ['frueher', 'reserviert']);
+  assert.equal(b.istBelegt(g2, '2026-10-05'), false, 'früherer Verleih sperrt nicht');
+  const belegt = (tag) => b.istBelegt(g2, tag);
+  assert.equal(b.begrenzen('2026-11-10', '2026-11-20', belegt), '2026-11-11');
+  assert.equal(b.begrenzen('2026-11-12', '2026-11-20', belegt), null);
+  assert.equal(b.ersterFreierTag('2026-11-12', belegt), '2026-11-15');
+  assert.deepEqual(b.freieGeraete(data, '2026-11-10', '2026-11-11', heute).map((g) => g.id), ['g2']);
+  assert.deepEqual(b.freieGeraete(data, '2026-11-10', '2026-11-12', heute).map((g) => g.id), []);
+  const a = b.agenda(data, '2026-11-10', '2026-11-20', heute);
+  assert.deepEqual(a.ueberfaellig.map((l) => l.id), ['l1']);
+  assert.deepEqual(a.tage.map((x) => [x.tag, x.ereignisse.map((e) => e.art).join()]), [['2026-11-12', 'resvBeginn'], ['2026-11-14', 'resvEnde']]);
+});

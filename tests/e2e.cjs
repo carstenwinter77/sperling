@@ -144,9 +144,49 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('dialog button.primary');
   await p.waitForSelector('article.geraet [data-resv]');
   await karte.locator('[data-aktion=reservieren]').click();
+  // Kalender schlägt den ersten freien Tag vor; getippt auf den belegten Tag -> Ablehnung
+  const morgenTag = await p.evaluate(() => { const d = new Date(Date.now() + 86400000); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; });
+  if ((await p.inputValue('dialog [name=von]')) === morgenTag) fail('Belegter Tag als Beginn vorgeschlagen');
+  await p.click('dialog .zr-tippen summary');
+  await p.fill('dialog [name=von]', morgenTag);
+  await p.fill('dialog [name=bis]', morgenTag);
   await p.click('dialog button.primary');
   await p.waitForFunction(() => (document.querySelector('#toast')?.textContent || '').startsWith('Belegt'));
   await p.click('dialog .dlg-actions button.ghost');
+  // Belegungskalender: Zeitleiste, leere Stelle antippen, Zeitraum wischen, Liste und Freie finden
+  await p.goto(BASE + '#/belegung?ansicht=zeitleiste&zoom=28');
+  await p.waitForSelector('.bk-bar.art-reserviert');
+  const spur0 = await p.locator('.bk-zeile[data-geraet] .bk-spur').first().boundingBox();
+  await p.mouse.click(spur0.x + spur0.width * 0.97, spur0.y + spur0.height / 2);
+  await p.waitForSelector('dialog .zr-raster');
+  const frei3 = await p.$$eval('dialog .zr-tag', (els) => {
+    const ok = (e) => e && !/fremd|vorbei|belegt/.test(e.className);
+    for (let i = 0; i < els.length - 2; i++) if (ok(els[i]) && ok(els[i + 1]) && ok(els[i + 2])) return [els[i].dataset.tag, els[i + 2].dataset.tag];
+    return null;
+  });
+  if (!frei3) fail('Keine drei freien Tage im Zeitraum-Kalender');
+  else {
+    const boxA = await p.locator(`dialog .zr-tag[data-tag="${frei3[0]}"]`).boundingBox();
+    const boxB = await p.locator(`dialog .zr-tag[data-tag="${frei3[1]}"]`).boundingBox();
+    await p.mouse.move(boxA.x + boxA.width / 2, boxA.y + boxA.height / 2);
+    await p.mouse.down();
+    await p.mouse.move(boxB.x + boxB.width / 2, boxB.y + boxB.height / 2, { steps: 8 });
+    await p.mouse.up();
+    const felder = [await p.inputValue('dialog [name=von]'), await p.inputValue('dialog [name=bis]')];
+    if (felder[0] !== frei3[0] || felder[1] !== frei3[1]) fail('Wischen ergibt ' + felder.join('–') + ' statt ' + frei3.join('–'));
+    // gesperrter Tag lässt sich nicht als Beginn wählen
+    const gesperrt = p.locator('dialog .zr-tag.belegt:not(.fremd)').first();
+    if (await gesperrt.count()) {
+      await gesperrt.click();
+      if ((await p.inputValue('dialog [name=von]')) !== frei3[0]) fail('Gesperrter Tag wurde gewählt');
+    }
+    await p.click('dialog button.primary');
+    await p.waitForFunction(() => (document.querySelector('#toast')?.textContent || '').startsWith('Reserviert'));
+  }
+  await p.click('.tabs [data-ansicht=liste]');
+  await p.waitForFunction(() => /Reservierung/.test(document.querySelector('main')?.textContent || ''));
+  await p.click('.tabs [data-ansicht=frei]');
+  await p.waitForSelector('#bkFreie');
   await p.goto(BASE + '#/termine?ansicht=monat');
   await p.waitForSelector('.k-resv');
   await p.goto(BASE + '#/einstellungen');

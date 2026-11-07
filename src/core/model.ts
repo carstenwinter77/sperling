@@ -305,11 +305,11 @@ export function normalizeReservierung(r: unknown) {
   };
 }
 
-const TAG = (iso: string) => iso.slice(0, 10);
+/** Kalendertag in Ortszeit (wie im Belegungsplan, src/core/belegung.ts). */
+const TAG = (iso: string) => { const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 /** Überschneiden sich zwei Zeiträume (tageweise, inklusive)? Werte: ISO-Strings. */
 export function ueberschneidet(aVon: string, aBis: string | null | undefined, bVon: string, bBis: string | null | undefined): boolean {
-  return TAG(new Date(aVon).toISOString()) <= TAG(new Date(bBis || bVon).toISOString())
-    && TAG(new Date(bVon).toISOString()) <= TAG(new Date(aBis || aVon).toISOString());
+  return TAG(aVon) <= TAG(bBis || bVon) && TAG(bVon) <= TAG(aBis || aVon);
 }
 
 /**

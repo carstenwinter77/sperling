@@ -7,6 +7,8 @@ import { leer } from '../parts.ts';
 import { istBeispielGeraet } from '../../demo.ts';
 import { fotosHtml, fotosVerdrahten, unterschriftHtml, unterschriftVerdrahten } from '../belege.ts';
 import * as leihschein from '../leihschein.ts';
+import { zeitraumWahl } from '../zeitraum.ts';
+import { tagVon, plusTage, balkenFuer, istBelegt, ersterFreierTag, type Tag } from '../../core/belegung.ts';
 import { kundenName } from '../../core/model.ts';
 
 const TAG_MS = 86400000;
@@ -31,6 +33,23 @@ function vorwerkStatusAnheben(k: Kunde, ziel: StatusKey) {
   if (rang.indexOf(ziel) > rang.indexOf(k.status.vorwerk)) k.status.vorwerk = ziel;
 }
 
+/** Zeitraum-Kalender im Dialog an zwei Datumsfelder koppeln (die bleiben unter „Datum eintippen“ erreichbar). */
+function zeitraumAnbinden(dlg: ParentNode, vonName: string, bisName: string, opt: Parameters<typeof zeitraumWahl>[1]) {
+  const vonEl = dlg.querySelector(`[name=${vonName}]`);
+  const bisEl = dlg.querySelector(`[name=${bisName}]`);
+  const wahl = zeitraumWahl(dlg.querySelector<HTMLElement>('.zr-platz'), {
+    ...opt,
+    // Getippte, aber gesperrte Daten bleiben stehen; „Speichern“ meldet dann den Konflikt
+    onChange: (von, bis) => { if (von) { vonEl.value = von; bisEl.value = bis || von; } },
+  });
+  const ausFeldern = () => wahl.set(vonEl.value || null, bisEl.value || null);
+  vonEl.addEventListener('change', ausFeldern);
+  bisEl.addEventListener('change', ausFeldern);
+  const { von, bis } = wahl.get();
+  vonEl.value = von || ''; bisEl.value = bis || von || '';
+  return wahl;
+}
+
 export function verleihStatus(l: Leihvorgang): 'zurueck' | 'ueberfaellig' | 'verliehen' {
   if (l.rueckgabe) return 'zurueck';
   if (l.rueckgabeGeplant && l.rueckgabeGeplant < nowIso()) return 'ueberfaellig';
@@ -48,7 +67,7 @@ export function render(el: HTMLElement) {
   el.innerHTML = `
     <header class="seitenkopf">
       <h1>${maskottchen('vorwerk', 'titel-bild')} Vorführbestand</h1>
-      <button class="btn primary" id="neu">+ Gerät</button>
+      <div class="knopfreihe"><a class="btn ghost" href="#/belegung">📅 Belegungskalender</a><button class="btn primary" id="neu">+ Gerät</button></div>
     </header>
     <div class="zahlen">
       <span><b>${aktiv.length - offen.length}</b> im Auto</span>
@@ -189,16 +208,27 @@ export async function reservierenDialog(g: Geraet, vorgabe: { kundeId?: string; 
   const d = store.getData();
   const opts = [...d.kunden].sort((a, b) => kundenTitel(a).localeCompare(kundenTitel(b), 'de'))
     .map((k) => `<option value="${esc(k.id)}" ${vorgabe.kundeId === k.id ? 'selected' : ''}>${esc(kundenTitel(k))}</option>`).join('');
+  // Gesperrt: Verleihe und andere Reservierungen dieses Geräts
+  const heute = tagVon(new Date());
+  const balken = balkenFuer(d, g.id, heute);
+  const belegt = (t: Tag) => istBelegt(balken, t);
+  const info = (t: Tag) => { const b = balken.find((x) => x.art !== 'frueher' && x.von <= t && (x.bis === null || x.bis >= t)); const k = b ? d.kunden.find((y) => y.id === b.kundeId) : null; return b ? `${b.art === 'reserviert' ? 'reserviert' : 'verliehen'}${k ? ` – ${kundenTitel(k)}` : ''}` : ''; };
+  const start = ersterFreierTag(vorgabe.von ? tagVon(vorgabe.von) : plusTage(heute, 1), belegt);
+  if (!start) { toast('Das Gerät ist für das nächste Jahr durchgehend belegt.', 'error'); return false; }
   const morgen = datumInput(new Date(Date.now() + TAG_MS).toISOString());
   const res = await dialog({
     titel: `${g.name} reservieren`,
     html: `
       <label>Für Kunde (optional)<select name="kunde"><option value="">– ohne Kunde –</option>${opts}</select></label>
+      <div class="zr-platz"></div>
+      <details class="zr-tippen"><summary>Datum eintippen</summary>
       <div class="row2">
         <label>Von<input type="date" name="von" value="${vorgabe.von ? datumInput(vorgabe.von) : morgen}" required></label>
         <label>Bis<input type="date" name="bis" value="${vorgabe.bis ? datumInput(vorgabe.bis) : (vorgabe.von ? datumInput(vorgabe.von) : morgen)}" required></label>
       </div>
+      </details>
       <label>Notiz<input name="notiz" maxlength="2000" placeholder="z. B. Vorführung beim Hausbesuch"></label>`,
+    onOpen: (dlg) => { zeitraumAnbinden(dlg, 'von', 'bis', { von: start, bis: vorgabe.bis ? tagVon(vorgabe.bis) : start, belegt, info, min: heute, vorgabeTage: 1 }); },
     knoepfe: [{
       label: 'Reservieren', primaer: true,
       pruefen: (dlg) => {
@@ -221,7 +251,7 @@ export async function reservierenDialog(g: Geraet, vorgabe: { kundeId?: string; 
   return true;
 }
 
-async function verleihDialog(g: Geraet, reservierung: Reservierung | null = null): Promise<boolean> {
+export async function verleihDialog(g: Geraet, reservierung: Reservierung | null = null, vorgabeBis = ''): Promise<boolean> {
   const d = store.getData();
   if (!d.kunden.length) { toast('Bitte zuerst einen Kunden anlegen.', 'error'); return false; }
   const opts = [...d.kunden].sort((a, b) => kundenTitel(a).localeCompare(kundenTitel(b), 'de'))
@@ -232,10 +262,13 @@ async function verleihDialog(g: Geraet, reservierung: Reservierung | null = null
     titel: `${g.name} verleihen`,
     html: `
       <label>An Kunde<select name="kunde" required><option value="">– bitte wählen –</option>${opts}</select></label>
+      <div class="zr-platz"></div>
+      <details class="zr-tippen"><summary>Datum eintippen</summary>
       <div class="row2">
         <label>Ausgegeben am<input type="date" name="ab" value="${datumInput(nowIso())}" required></label>
-        <label>Zurück bis<input type="date" name="bis" value="${datumInput(reservierung ? reservierung.bis : new Date(Date.now() + 7 * TAG_MS).toISOString())}"></label>
+        <label>Zurück bis<input type="date" name="bis" value="${datumInput(reservierung ? reservierung.bis : (vorgabeBis || new Date(Date.now() + 7 * TAG_MS).toISOString()))}"></label>
       </div>
+      </details>
       <label class="check"><input type="checkbox" name="erinnern" checked> Erinnerung zum Nachfragen am Rückgabetag anlegen</label>
       <label>Notiz (Zustand, Absprache)<textarea name="notiz" rows="2" placeholder="z. B. neuwertig, Kunde testet auf Teppich und Fliesen"></textarea></label>
       ${fotosHtml('Fotos vom Zustand bei Übergabe')}
@@ -244,6 +277,16 @@ async function verleihDialog(g: Geraet, reservierung: Reservierung | null = null
       holeFotos = fotosVerdrahten(dlg);
       holeUnterschrift = unterschriftVerdrahten(dlg);
       const sel = dlg.querySelector('[name=kunde]');
+      // Gesperrt sind Reservierungen anderer Kunden (die eigene bzw. die erfüllte zählt nicht)
+      const heute = tagVon(new Date());
+      const sperren = () => {
+        const fremd = balkenFuer(store.getData(), g.id, heute).filter((b) => b.art === 'reserviert' && b.reservierung?.id !== reservierung?.id && b.kundeId !== sel.value);
+        const kn = (id: string) => { const k = store.getData().kunden.find((y) => y.id === id); return k ? kundenTitel(k) : ''; };
+        return { belegt: (t: Tag) => istBelegt(fremd, t), info: (t: Tag) => { const b = fremd.find((x) => x.von <= t && (x.bis === null || x.bis >= t)); return b ? `reserviert${kn(b.kundeId) ? ` – ${kn(b.kundeId)}` : ''}` : ''; } };
+      };
+      const f = dlg.querySelector('form');
+      const wahl = zeitraumAnbinden(dlg, 'ab', 'bis', { von: heute, bis: f.bis.value || plusTage(heute, 6), min: heute, vorgabeTage: 7, ...sperren() });
+      sel.addEventListener('change', () => { const s2 = sperren(); wahl.setBelegt(s2.belegt, s2.info); });
       sel.addEventListener('change', () => { const kk = store.getData().kunden.find((x) => x.id === sel.value); const n = dlg.querySelector('[name=unterschriftName]'); if (kk && !n.value) n.value = kundenName(kk); });
     },
     knoepfe: [{
