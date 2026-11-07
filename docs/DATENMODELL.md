@@ -14,6 +14,7 @@ Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Mensch
 | `leihvorgaenge` | Leihvorgang[] | Verleih an Kunden |
 | `reservierungen` | Reservierung[] | Vormerkungen für Vorführgeräte (ab Schema 3) |
 | `papierkorb` | Eintrag[] | Gelöschtes, bleibt bis zum endgültigen Löschen (ab Schema 3) |
+| `material` | Material[] | Verbrauchsmaterial (ab 0.10.14, ohne Schemawechsel, fehlt = leer) |
 
 ## Kunde
 
@@ -99,8 +100,23 @@ Typen: Zahlen sind `null`, wenn leer. Ja/Nein-Felder sind `true`/`false`/`null` 
 | Feld | Typ | Hinweis |
 |---|---|---|
 | `id`, `name`, `seriennummer`, `zubehoer`, `notiz` | String | |
+| `produktId` | String | ab 0.10.14: Bezug zur Produktübersicht (Vorwerk-Katalog), leer bei freier Eingabe |
 | `aktiv` | Boolean | `false` = verkauft/ausgemustert, bleibt für den Verlauf erhalten |
 | `verkauf` | Objekt oder `null` | ab 0.10.10 (ohne Schemawechsel, fehlt = `null`): `{kundeId, datum, preis, notiz}`; `preis` in Euro oder `null`. `kundeId` wird beim Löschen des Kunden geleert und beim Wiederherstellen zurückgesetzt (Papierkorb-`bezug.geraete`). |
+
+## Material (Verbrauchsmaterial)
+
+| Feld | Typ | Hinweis |
+|---|---|---|
+| `id`, `name`, `notiz` | String | |
+| `produktId` | String | Bezug zur Produktübersicht, leer bei freier Eingabe |
+| `einheit` | String | z. B. Stück, Packung, Flasche (Standard Stück) |
+| `bestand` | Zahl | ganze Zahl ≥ 0 |
+| `mindestbestand` | Zahl oder `null` | „Nachbestellen“, sobald `bestand <= mindestbestand`; `null` = kein Hinweis |
+| `aktiv` | Boolean | `false` = aus dem Bestand genommen, Verlauf bleibt |
+| `buchungen` | Buchung[] | jüngste zuerst, höchstens 300: `{id, zeitpunkt, menge (+/−), grund, kundeId, notiz}`; `grund` = muster, test, eigen, defekt, zugang, korrektur. `kundeId` wird beim Löschen des Kunden geleert und beim Wiederherstellen zurückgesetzt (Papierkorb-`bezug.material`). |
+
+Ein Abgang „muster“ oder „test“ mit Kunde legt beim Kunden zusätzlich eine Vorwerk-Notiz an.
 
 ## Leihvorgang
 

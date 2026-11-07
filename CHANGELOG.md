@@ -1,5 +1,12 @@
 # Änderungsverlauf
 
+## 0.10.14 – 07.11.2026
+- **Gerät aus dem Vorwerk-Katalog anlegen:** „+ Gerät“ hat eine Auswahl aus der Produktübersicht (nach Kategorie), die die Bezeichnung füllt; neues Feld `geraet.produktId`.
+- **Verbrauchsmaterial** (`src/core/material.ts`, `src/ui/material.ts`): Muster, Reinigungsmittel, Filtertüten usw. mit Anzahl und Einheit, auch aus dem Katalog. „− Verbrauch“ mit Grund (Muster an Kunde, beim Kunden getestet und entsorgt, selbst verbraucht, defekt/abgelaufen), „+ Zugang“, gezählter Bestand als Korrektur. Verlauf je Material.
+- **Mindestbestand:** Erreicht der Bestand den Mindestbestand, erscheint „Nachbestellen“ im Bestand und auf der Übersicht, zählt in der Zahl am App-Symbol und meldet sich direkt nach der Buchung.
+- **Kundenansicht:** „🧴 Muster mitgeben“ bucht den Abgang und schreibt eine Vorwerk-Notiz beim Kunden.
+- **Beratungs-Schutz:** Das 🛡 unten rechts erscheint nur noch, wenn ein Kunde geöffnet ist (oder der Schutz an ist).
+
 ## 0.10.13 – 07.11.2026
 - **Auswertungen: Fokus je Sparte** (`fokusBericht` in `src/core/auswertung.ts`): Bei „Alles zusammen“ zeigt ein Abschnitt den Anteil von Photovoltaik, Wärmepumpe und Vorwerk an Gesprächen, Notizen, Terminen und Wiedervorlagen, mit Veränderung in Punkten gegenüber dem Vorzeitraum. Dazu die Entwicklung über die letzten sechs Zeiträume (Tage, Wochen, Monate oder Jahre, je nach gewähltem Zeitraum) und ein Urteil (ausgeglichen, Schwerpunkt, sehr einseitig).
 - **Kurztipp:** Kommt eine Sparte zu kurz (unter 15 % oder um 15 Punkte oder mehr gesunken), nennt Sperling überfällige Wiedervorlagen und offene Kunden (Interesse, Termin, Angebot) bzw. Potenzial-Kunden dieser Sparte zum Gegensteuern. Sparten ohne Kunden und Aktivität werden nicht angemahnt.

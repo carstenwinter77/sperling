@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.13
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.14
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,12 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.13)
+## Erledigt (Version 0.10.14)
+
+### Neu in 0.10.14
+- [x] Gerät aus dem Vorwerk-Katalog anlegen.
+- [x] Verbrauchsmaterial mit Anzahl, Verbrauch/Zugang/Korrektur, Mindestbestand und Hinweis „Nachbestellen“ (Übersicht, Bestand, App-Symbol); Muster aus der Kundenansicht.
+- [x] 🛡-Knopf nur, wenn ein Kunde geöffnet oder der Schutz an ist.
 
 ### Neu in 0.10.13
 - [x] Auswertungen: Fokus je Sparte (Anteile, Veränderung, Entwicklung über 6 Zeiträume, Urteil, Kurztipp), auch im PDF.
@@ -25,7 +30,7 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 - [x] iPhone: Leiste mit 5 Tippflächen + „Mehr“; Überlauf nach rechts behoben (geprüft iPhone SE/13, iPad mini, Laptop).
 - [x] Beratungs-Schutz-Balken dezent.
 - [ ] Auf echtem iPhone prüfen: Drehen nicht mehr nötig, Abgleich-Leiste, Dateiauswahl aus iCloud Drive.
-- [ ] Geplant: Bestand mit Katalogauswahl, Verbrauchsmaterial mit Anzahl und Mindestbestand; Fotos beim Kunden je Sparte (verkleinert, verschlüsselt, Löschen ab Alter).
+- [ ] Geplant: Willkommen und Rund-Tour beim ersten Start; Fotos beim Kunden je Sparte (verkleinert, verschlüsselt, Vollansicht mit Zoom, Löschen ab Alter).
 
 ### Neu in 0.10.11
 - [x] Feiertage (Niedersachsen) in Monat, Woche, Tag, Liste und Termin-Dialog (`src/core/feiertage.ts`).

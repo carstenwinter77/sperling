@@ -61,6 +61,9 @@ export function zeigen() {
   document.body.classList.toggle('schutz-aktiv', !!k);
   const knopf = document.querySelector<HTMLButtonElement>('#schutzKnopf');
   if (knopf) {
+    // Nur zeigen, wenn es nutzbar ist: Schutz an oder ein Kunde geöffnet
+    const offen = kundeAusAdresse();
+    knopf.hidden = !k && !(offen && store.findKunde(offen));
     knopf.classList.toggle('an', !!k);
     knopf.setAttribute('aria-pressed', String(!!k));
     knopf.title = k ? 'Beratungs-Schutz an – Aufheben mit Passwort oder Face ID' : 'Beratungs-Schutz: nur diesen Kunden zeigen';
@@ -75,6 +78,7 @@ export function zeigen() {
 
 export function verdrahten() {
   document.querySelector('#schutzKnopf')?.addEventListener('click', () => (aktiv() ? ausschalten() : einschalten()));
+  window.addEventListener('hashchange', () => zeigen());
   zeigen();
 }
 

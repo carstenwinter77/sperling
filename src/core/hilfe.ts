@@ -94,6 +94,9 @@ export const THEMEN = {
       '„Verleihen“: Kunde, Rückgabedatum, Fotos und Unterschrift; danach Leihschein als PDF.',
       '„Reservieren“ hält ein Gerät für einen Zeitraum frei; belegte Tage sind gesperrt.',
       'Bei Rückgabe „Zurückgenommen“ oder „Kunde kauft es“.',
+      '„+ Gerät“: aus dem Vorwerk-Katalog wählen füllt die Bezeichnung aus, oder frei eingeben.',
+      'Verbrauchsmaterial (Muster, Reinigungsmittel, Filtertüten): mit Anzahl anlegen, „− Verbrauch“ bei Muster, Test beim Kunden oder Eigenverbrauch, „+ Zugang“ bei Lieferung.',
+      'Mit Mindestbestand erinnert Sperling ans Nachbestellen: auf der Übersicht, im Bestand und als Zahl am App-Symbol.',
     ],
   },
   belegung: {

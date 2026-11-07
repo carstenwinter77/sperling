@@ -1,5 +1,7 @@
 // Sperling – Zahl am App-Symbol: heute fällige/überfällige Termine und überfällige Leihgaben.
+// Dazu Verbrauchsmaterial, das den Mindestbestand erreicht hat (nachbestellen).
 // Nur eine Zahl, keine Inhalte. Geht nur in der installierten App (iOS/iPadOS 16.4+, Android, Mac).
+import { nachbestellListe } from '../core/material.ts';
 export function badgeZahl(data, jetzt = new Date()) {
   if (!data) return 0;
   const ende = new Date(jetzt); ende.setHours(23, 59, 59, 999);
@@ -7,7 +9,7 @@ export function badgeZahl(data, jetzt = new Date()) {
   const n = jetzt.toISOString();
   const termine = data.termine.filter((t) => !t.erledigt && t.beginn <= e).length;
   const leih = data.leihvorgaenge.filter((l) => !l.rueckgabe && l.rueckgabeGeplant && l.rueckgabeGeplant < n).length;
-  return termine + leih;
+  return termine + leih + nachbestellListe(data).length;
 }
 
 let letzte = -1;

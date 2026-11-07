@@ -7,6 +7,7 @@ import { maskottchen } from '../dom.ts';
 import { terminZeile, terminListeVerdrahten, statusChips } from '../parts.ts';
 import * as suche from '../suche.ts';
 import * as hilfe from '../hilfe.ts';
+import { nachbestellListe } from '../../core/material.ts';
 
 const AKTIV = ['interesse', 'termin', 'angebot', 'abschluss'];
 
@@ -38,6 +39,7 @@ export function render(el: HTMLElement) {
       ${maskottchen('sperling', 'hero-bild')}
       <div>
         <h1>${gruss}!</h1>
+        ${nachbestellListe(d).length ? `<p class="start-nachbestellen"><a href="#/bestand">🛒 Nachbestellen: ${nachbestellListe(d).map((m) => esc(m.name)).join(', ')}</a></p>` : ''}
         <p>${d.leihvorgaenge.some((l) => !l.rueckgabe) ? `<a href="#/bestand">${d.leihvorgaenge.filter((l) => !l.rueckgabe).length} Vorführgerät(e) verliehen</a> · ` : ''}${faellig.length ? `Heute ${faellig.length === 1 ? 'steht <b>1 Aufgabe</b>' : `stehen <b>${faellig.length} Aufgaben</b>`} an.` : 'Für heute ist nichts mehr offen.'}</p>
       </div>
     </section>

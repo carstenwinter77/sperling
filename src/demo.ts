@@ -91,6 +91,18 @@ export function demoDaten(): Rec {
     { id: 'l2', geraetId: 'g3', kundeId: 'demo-4', ausgabe: tageAb(-9, 9, 0), rueckgabeGeplant: tageAb(-2, 10, 0), kaufinteresse: 'offen', notiz: 'Für die Backstube ausprobieren.' },
     { id: 'l3', geraetId: 'g2', kundeId: 'demo-3', ausgabe: tageAb(-20, 11, 0), rueckgabeGeplant: tageAb(-13, 10, 0), rueckgabe: tageAb(-7, 11, 0), kaufinteresse: 'gekauft' },
   ];
+  d.material = [
+    { id: 'm1', name: 'Koboclean Universal (500 ml)', produktId: 'vorwerk-koboclean-universal-500ml', einheit: 'Flasche', bestand: 6, mindestbestand: 3,
+      buchungen: [
+        { id: 'mb3', zeitpunkt: tageAb(-2, 18, 40), menge: -1, grund: 'muster', kundeId: 'demo-1' },
+        { id: 'mb2', zeitpunkt: tageAb(-9, 9, 10), menge: -1, grund: 'test', kundeId: 'demo-4', notiz: 'Backstube, Fliesen' },
+        { id: 'mb1', zeitpunkt: tageAb(-30, 9, 0), menge: 8, grund: 'zugang' },
+      ] },
+    { id: 'm2', name: 'Kobold FP7 Premium-Filtertüten (12 Stk.)', produktId: 'vorwerk-fp7-filtertueten-set', einheit: 'Packung', bestand: 1, mindestbestand: 2,
+      buchungen: [{ id: 'mb5', zeitpunkt: tageAb(-5, 17, 0), menge: -2, grund: 'muster' }, { id: 'mb4', zeitpunkt: tageAb(-30, 9, 0), menge: 3, grund: 'zugang' }] },
+    { id: 'm3', name: 'airumo Duftchips „wild heart“ (6 Stk.)', produktId: 'vorwerk-airumo-wild-heart', einheit: 'Packung', bestand: 4, mindestbestand: null,
+      buchungen: [{ id: 'mb6', zeitpunkt: tageAb(-30, 9, 0), menge: 4, grund: 'zugang' }] },
+  ];
   d.termine.push({ id: 't6', kundeId: 'demo-4', sparte: 'vorwerk', art: 'wiedervorlage', titel: 'Nachfragen: Kobold SP7 Saugwischer bei Dieter Test (Bäckerei Test)', beginn: tageAb(-2, 10, 0), dauerMin: 60, notiz: 'Wie gefällt das Gerät? Kaufinteresse? Rückgabe abholen.' });
   // Viele weitere Kunden im Beratungsgebiet (Lengede, Raum Peine bis Salzgitter)
   gebietsKunden(d, tageAb);
@@ -111,7 +123,7 @@ const mitPraefix = (id) => (istBeispiel(id) ? id : `${BEISPIEL_PRAEFIX}${id}`);
 // Papierkorb, Einstellungen) mit dem Stand vorher und übernimmt das Ergebnis nur, wenn alles Echte
 // unverändert ist. Sonst bricht sie ab und es ändert sich gar nichts.
 
-const SAMMLUNGEN = ['kunden', 'termine', 'geraete', 'leihvorgaenge', 'reservierungen', 'papierkorb'] as const;
+const SAMMLUNGEN = ['kunden', 'termine', 'geraete', 'leihvorgaenge', 'reservierungen', 'papierkorb', 'material'] as const;
 const istBeispielId = (id) => istBeispiel(id) || (typeof id === 'string' && id.startsWith('demob-'));
 
 /** Echte Datensätze als Vergleichsabdruck. Bezüge auf Beispiele (kundeId/geraetId) zählen nicht als Inhalt. */
@@ -123,6 +135,7 @@ function echterAbdruck(data: Daten): Map<string, string> {
       const kopie: Rec = { ...x };
       if (istBeispielId(kopie.kundeId)) kopie.kundeId = '';
       if (kopie.verkauf && typeof kopie.verkauf === 'object' && istBeispielId((kopie.verkauf as Rec).kundeId)) kopie.verkauf = { ...(kopie.verkauf as Rec), kundeId: '' };
+      if (Array.isArray(kopie.buchungen)) kopie.buchungen = (kopie.buchungen as Rec[]).map((b) => (istBeispielId(b?.kundeId) ? { ...b, kundeId: '' } : b));
       const schluessel = `${s}:${x?.id}`;
       if (m.has(schluessel)) throw new Error(`Sicherheitsprüfung: doppelte ID ${schluessel}.`);
       m.set(schluessel, JSON.stringify(kopie));
@@ -183,6 +196,7 @@ export function beispielEntfernen(data: Daten) {
   data.leihvorgaenge = data.leihvorgaenge
     .filter((l) => !istBeispiel(l.id))
     .map((l) => (istBeispiel(l.kundeId) ? { ...l, kundeId: '' } : l));
+  data.material = (data.material || []).map((m) => (m.buchungen.some((b) => istBeispiel(b.kundeId)) ? { ...m, buchungen: m.buchungen.map((b) => (istBeispiel(b.kundeId) ? { ...b, kundeId: '' } : b)) } : m));
 }
 
 // ---------- Beispiel-Vorführbestand (nur Geräte, ohne Kunden) ----------

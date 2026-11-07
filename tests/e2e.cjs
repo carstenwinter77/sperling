@@ -267,9 +267,47 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.goto(BASE + '#/bestand');
   await p.waitForSelector('article.geraet');
   if (!(await p.textContent('main')).includes('Verkauft')) fail('Verkauf fehlt im Bestand');
+  // Verbrauchsmaterial: aus dem Katalog anlegen, Muster an Kunde buchen, Mindestbestand -> nachbestellen
+  await p.click('[data-material-neu]');
+  await p.selectOption('dialog [data-katalog]', 'vorwerk-koboclean-universal-500ml');
+  if (!(await p.inputValue('dialog [name=name]')).startsWith('Koboclean Universal')) fail('Katalogwahl füllt die Bezeichnung nicht');
+  await p.fill('dialog [name=bestand]', '3');
+  await p.fill('dialog [name=einheit]', 'Flasche');
+  await p.fill('dialog [name=mindest]', '2');
+  await p.click('dialog button.primary');
+  await p.waitForSelector('#material .material-zeile');
+  if (await p.$('#nachbestellen')) fail('Nachbestellen zu früh');
+  await p.click('#material [data-material-aktion=abgang]');
+  await p.waitForSelector('dialog .mengen-wahl');
+  await p.fill('dialog .kw-eingabe', 'Prüfer');
+  await p.click('dialog .kw-treffer [data-kw-id]:not(.kw-ohne)');
+  await p.click('dialog button.primary');
+  await p.waitForFunction(() => (document.querySelector('#toast')?.textContent || '').includes('bitte nachbestellen'));
+  await p.waitForSelector('#nachbestellen');
+  if (!(await p.textContent('#material .material-bestand')).includes('2 Flaschen')) fail('Bestand nicht verringert');
+  // zu viel abbuchen wird abgelehnt
+  await p.click('#material [data-material-aktion=abgang]');
+  await p.fill('dialog [name=menge]', '5');
+  await p.click('dialog button.primary');
+  await p.waitForFunction(() => (document.querySelector('#toast')?.textContent || '').includes('nur noch 2 Flaschen'));
+  await p.keyboard.press('Escape');
+  await p.waitForSelector('dialog h2:has-text("Eingaben verwerfen?")');
+  await p.click('dialog:has(h2:has-text("Eingaben verwerfen?")) button.gefahr, dialog:has(h2:has-text("Eingaben verwerfen?")) .dlg-actions button.danger');
+  await p.waitForFunction(() => !document.querySelector('dialog[open]'));
+  await p.goto(BASE + '#/');
+  await p.waitForSelector('.start-nachbestellen');
+  // Neues Gerät aus dem Katalog
+  await p.goto(BASE + '#/bestand');
+  await p.click('#neu');
+  await p.selectOption('dialog [data-katalog]', 'vorwerk-vm7');
+  if ((await p.inputValue('dialog [name=name]')) !== 'Kobold VM7 Akku-Handstaubsauger') fail('Gerät aus Katalog: Bezeichnung fehlt');
+  await p.click('dialog button.primary');
+  await p.waitForFunction(() => document.querySelector('.geraete')?.textContent.includes('Kobold VM7 Akku-Handstaubsauger'));
   // Verleihen aus der Kundenansicht: Kunde ist vorausgefüllt
   await p.goto(BASE + '#/kunden');
   await p.click('#liste a.zeile:has-text("Prüfer")');
+  await p.waitForSelector('#bestandKunde [data-bestand-kunde=muster]');
+  if (!(await p.textContent('main')).includes('Muster mitgegeben: 1 × Koboclean Universal')) fail('Muster-Notiz fehlt beim Kunden');
   await p.click('[data-bestand-kunde=verleihen]');
   await p.waitForSelector('dialog .gw-liste');
   await p.click('dialog button.primary');
@@ -506,6 +544,8 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForFunction(() => /^#\/kunde\/[\w-]+(\?|$)/.test(location.hash));
   // Beratungs-Schutz: nur der beratene Kunde, andere Seiten führen zu ihm zurück, Aufheben nur mit Passwort
   await p.goto(BASE + '#/kunden');
+  await p.waitForSelector('#liste .zeile');
+  if (await p.isVisible('#schutzKnopf')) fail('Schutz-Knopf ohne geöffneten Kunden sichtbar');
   await p.click('#liste .zeile');
   await p.waitForSelector('#kTitel');
   const beraten = await p.textContent('#kTitel');

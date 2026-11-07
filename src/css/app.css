@@ -1050,3 +1050,31 @@ tr.li-gleich { opacity: .7; }
   .aw-anteil-hinweis { grid-column: 1 / -1; grid-row: 3; margin-top: 0; }
   .aw-reihe li { grid-template-columns: 5.5rem minmax(0, 1fr) 2rem; }
 }
+
+/* Verbrauchsmaterial */
+.abschnitt-kopf { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+.abschnitt-kopf h2 { margin: 0; }
+.material-liste { list-style: none; margin: .6rem 0 0; padding: 0; display: grid; gap: .6rem; }
+.material-zeile { border: 1px solid var(--linie); border-radius: 12px; padding: .6rem .75rem; display: grid; gap: .35rem; }
+.material-zeile.knapp { border-color: var(--rot); background: color-mix(in srgb, var(--rot) 6%, var(--karte)); }
+.material-kopf { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; flex-wrap: wrap; }
+.material-name { display: flex; flex-direction: column; min-width: 0; }
+.material-name small { color: var(--text-2); }
+.material-bestand { white-space: nowrap; }
+.material-bestand b { font-size: 1.35rem; }
+.material-verlauf { list-style: none; margin: 0; padding: 0; font-size: .82rem; color: var(--text-2); }
+.nachbestellen { border-left: 4px solid var(--rot); }
+.nachbestellen h2 { margin: 0 0 .3rem; }
+.nachbestellen ul { margin: 0; padding-left: 1.1rem; }
+.start-nachbestellen { margin: 0 0 .3rem; font-weight: 600; }
+.start-nachbestellen a { color: var(--rot); }
+.mengen-wahl { display: flex; gap: .4rem; align-items: center; }
+.mengen-wahl input { width: 6rem; text-align: center; }
+.mengen-wahl .btn { min-width: 44px; min-height: 44px; font-size: 1.2rem; }
+.grund-wahl { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .4rem; }
+.grund-wahl legend { font-weight: 600; margin-bottom: .3rem; }
+.chip-radio { display: inline-flex !important; flex-direction: row !important; align-items: center; gap: .35rem; border: 1px solid var(--linie); border-radius: 999px; padding: .35rem .7rem; background: var(--feld); cursor: pointer; font-weight: 500; }
+.chip-radio input { width: auto !important; margin: 0; flex: none; }
+.chip-radio:has(input:checked) { border-color: var(--gruen); background: color-mix(in srgb, var(--gruen) 14%, var(--karte)); font-weight: 600; }
+.zwei-spalten { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+.schutz-knopf[hidden] { display: none; }

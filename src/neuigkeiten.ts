@@ -2,6 +2,16 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.14',
+    punkte: [
+      'Bestand → „+ Gerät“: Gerät direkt aus dem Vorwerk-Katalog wählen.',
+      'Neu: Verbrauchsmaterial mit Anzahl. Muster, Tests beim Kunden oder Eigenverbrauch abbuchen, Lieferungen zubuchen.',
+      'Mindestbestand festlegen: Sperling erinnert ans Nachbestellen, auf der Übersicht, im Bestand und am App-Symbol.',
+      'Beim Kunden: „Muster mitgeben“ bucht ab und vermerkt es in seinem Verlauf.',
+      'Das 🛡 unten rechts erscheint nur noch, wenn ein Kunde geöffnet ist.',
+    ],
+  },
+  {
     version: '0.10.13',
     punkte: [
       'Auswertungen → Alles zusammen → „Fokus je Sparte“: Wie viel Aufmerksamkeit bekamen PV, Wärmepumpe und Vorwerk, wie hat es sich entwickelt, und ist es im Gleichgewicht?',

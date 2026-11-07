@@ -14,6 +14,8 @@ import { zeitraumWahl } from '../zeitraum.ts';
 import { tagVon, plusTage, balkenFuer, istBelegt, ersterFreierTag, type Tag } from '../../core/belegung.ts';
 import { kundenName } from '../../core/model.ts';
 import * as suche from '../suche.ts';
+import * as material from '../material.ts';
+import { nachbestellListe } from '../../core/material.ts';
 
 const TAG_MS = 86400000;
 
@@ -66,13 +68,15 @@ export function render(el: HTMLElement, params: URLSearchParams = new URLSearchP
   el.innerHTML = `
     <header class="seitenkopf">
       <h1>${maskottchen('vorwerk', 'titel-bild')} Vorführbestand</h1>
-      <div class="knopfreihe"><a class="btn ghost" href="#/belegung">📅 Belegungskalender</a><button class="btn primary" id="neu">+ Gerät</button></div>
+      <div class="knopfreihe"><a class="btn ghost" href="#/belegung">📅 Belegungskalender</a><a class="btn ghost" href="#material">🧴 Material</a><button class="btn primary" id="neu">+ Gerät</button></div>
     </header>
     <div class="zahlen">
       <span><b>${aktiv.length - offen.length}</b> im Auto</span>
       <span><b>${offen.length}</b> verliehen</span>
       <span class="${ueberfaellig.length ? 'warn' : ''}"><b>${ueberfaellig.length}</b> überfällig</span>
+      ${nachbestellListe(d).length ? `<span class="warn"><b>${nachbestellListe(d).length}</b> nachbestellen</span>` : ''}
     </div>
+    ${material.nachbestellHtml()}
     ${aktiv.length ? `<div class="geraete">${aktiv.map((g) => {
     const l = offenerVerleih(d, g.id);
     const st = l ? verleihStatus(l) : 'frei';
@@ -109,6 +113,7 @@ export function render(el: HTMLElement, params: URLSearchParams = new URLSearchP
           </div>`}
       </article>`;
   }).join('')}</div>` : leer('vorwerk', 'Noch keine Vorführgeräte erfasst. Lege die Geräte aus deinem Auto an.')}
+    ${material.abschnittHtml()}
     ${verlauf.length ? `
     <section class="karte-box">
       <h2>Verlauf</h2>
@@ -132,6 +137,8 @@ export function render(el: HTMLElement, params: URLSearchParams = new URLSearchP
     requestAnimationFrame(() => karte.scrollIntoView({ block: 'center' }));
   }
   el.querySelector('#neu').addEventListener('click', async () => { if (await geraetDialog()) render(el); });
+  material.verdrahten(el, () => render(el, params));
+  el.querySelector('a[href="#material"]')?.addEventListener('click', (ev) => { ev.preventDefault(); el.querySelector('#material')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
   el.querySelectorAll('[data-beleg]').forEach((b) => b.addEventListener('click', () => leihschein.anbieten(b.dataset.beleg, b.dataset.art, dialog)));
 
   el.querySelectorAll('[data-kauf]').forEach((sel) => sel.addEventListener('change', () => {
@@ -178,10 +185,11 @@ export function render(el: HTMLElement, params: URLSearchParams = new URLSearchP
 }
 
 async function geraetDialog(g: Geraet | null = null): Promise<boolean> {
-  type Ergebnis = 'entfernen' | { name: string; seriennummer: string; zubehoer: string; notiz: string };
+  type Ergebnis = 'entfernen' | { name: string; produktId: string; seriennummer: string; zubehoer: string; notiz: string };
   const res = await dialog<Ergebnis>({
     titel: g ? 'Gerät bearbeiten' : 'Neues Vorführgerät',
     html: `
+      ${material.katalogAuswahl('geraet', g?.produktId || '')}
       <label>Bezeichnung<input name="name" value="${esc(g?.name || '')}" placeholder="z. B. Kobold VK7 Akku-Staubsauger" required maxlength="200"></label>
       <label>Seriennummer<input name="sn" value="${esc(g?.seriennummer || '')}" maxlength="100"></label>
       <label>Zubehör<input name="zub" value="${esc(g?.zubehoer || '')}" placeholder="z. B. Polsterdüse, Ladegerät" maxlength="1000"></label>
@@ -189,8 +197,9 @@ async function geraetDialog(g: Geraet | null = null): Promise<boolean> {
     knoepfe: [
       ...(g ? [{ label: 'Aus Bestand nehmen', gefahr: true, wert: 'entfernen' as const }] : []),
       { label: 'Speichern', primaer: true, pruefen: (dlg) => (dlg.querySelector('[name=name]').value.trim() ? null : 'Bitte eine Bezeichnung eingeben.'),
-        wert: (dlg) => ({ name: dlg.querySelector('[name=name]').value.trim(), seriennummer: dlg.querySelector('[name=sn]').value.trim(), zubehoer: dlg.querySelector('[name=zub]').value, notiz: dlg.querySelector('[name=notiz]').value }) },
+        wert: (dlg) => ({ name: dlg.querySelector('[name=name]').value.trim(), produktId: dlg.querySelector<HTMLSelectElement>('[name=katalog]')?.value || '', seriennummer: dlg.querySelector('[name=sn]').value.trim(), zubehoer: dlg.querySelector('[name=zub]').value, notiz: dlg.querySelector('[name=notiz]').value }) },
     ],
+    onOpen: (dlg) => material.katalogVerdrahten(dlg),
   });
   if (!res) return false;
   if (res === 'entfernen' && g) {

@@ -1264,3 +1264,45 @@ test('Fokus je Sparte: Anteile, Rückgang, Gleichgewicht, Kurztipp', async () =>
   assert.equal(a.periodenLabel('woche', a.zeitraum('woche', '2026-11-07')), 'KW 45');
   assert.equal(a.periodenLabel('m3', a.zeitraum('m3', '2026-11-07')), 'Aug–Nov 26');
 });
+
+test('Verbrauchsmaterial: Buchen, Mindestbestand, Notiz beim Kunden, Papierkorb, Beispiele', async () => {
+  const mat = await import('../src/core/material.ts');
+  const { neuesMaterial, normalizeKunde: nk } = await import('../src/core/model.ts');
+  const pk = await import('../src/core/papierkorb.ts');
+  const { badgeZahl } = await import('../src/ui/badge.ts');
+  const data = emptyData();
+  data.kunden = [nk({ id: 'k1', nachname: 'A' })];
+  data.material = [neuesMaterial({ id: 'm', name: 'Koboclean', einheit: 'Flasche', bestand: 4, mindestbestand: 2 })];
+  assert.equal(mat.nachbestellListe(data).length, 0);
+  let r = mat.materialBuchen(data, 'm', { grund: 'muster', menge: 1, kundeId: 'k1', notiz: 'Küche' }, '2026-11-07T10:00:00.000Z');
+  assert.deepEqual([r.nachher, r.knapp, r.neuKnapp], [3, false, false]);
+  assert.match(data.kunden[0].notizen[0].text, /^Muster mitgegeben: 1 × Koboclean \(Küche\)$/);
+  assert.deepEqual(data.kunden[0].notizen[0].sparten, ['vorwerk']);
+  r = mat.materialBuchen(data, 'm', { grund: 'test', menge: 1 });
+  assert.deepEqual([r.nachher, r.knapp, r.neuKnapp], [2, true, true], 'Mindestbestand erreicht');
+  r = mat.materialBuchen(data, 'm', { grund: 'eigen', menge: 1 });
+  assert.equal(r.neuKnapp, false, 'nur einmal melden');
+  assert.throws(() => mat.materialBuchen(data, 'm', { grund: 'defekt', menge: 5 }), /nur noch 1 Flasche da/);
+  assert.throws(() => mat.materialBuchen(data, 'm', { grund: 'muster', menge: 0 }), /gültige Anzahl/);
+  assert.equal(mat.nachbestellListe(data).length, 1);
+  assert.equal(badgeZahl(data), 1, 'nachbestellen zählt am App-Symbol');
+  mat.materialBuchen(data, 'm', { grund: 'zugang', menge: 6 });
+  assert.equal(data.material[0].bestand, 7);
+  mat.materialBuchen(data, 'm', { grund: 'korrektur', menge: 5 });
+  assert.equal(data.material[0].bestand, 5);
+  assert.equal(data.material[0].buchungen[0].menge, -2, 'Korrektur bucht die Differenz');
+  assert.equal(data.material[0].buchungen.length, 5);
+  // Laden übersteht alles, Unsinn wird repariert, Bezug auf fehlende Kunden fällt weg
+  const d2 = migrate({ ...data, material: [...data.material, { name: '', bestand: -3, mindestbestand: 'x', buchungen: [{ menge: 'a', grund: 'mond', kundeId: 'weg' }] }] });
+  assert.equal(d2.material[0].bestand, 5);
+  assert.equal(d2.material[1].bestand, 0);
+  assert.equal(d2.material[1].mindestbestand, null);
+  assert.equal(d2.material[1].buchungen[0].grund, 'korrektur');
+  assert.equal(d2.material[1].buchungen[0].kundeId, '');
+  assert.equal(migrate({}).material.length, 0, 'alte Daten ohne Material');
+  // Kunde löschen und wiederherstellen: Bezug der Buchung geht und kommt zurück
+  pk.kundeLoeschen(data, 'k1');
+  assert.equal(data.material[0].buchungen.at(-1).kundeId, '');
+  pk.wiederherstellen(data, data.papierkorb[0].id);
+  assert.equal(data.material[0].buchungen.at(-1).kundeId, 'k1');
+});

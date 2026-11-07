@@ -7,6 +7,7 @@ import * as store from '../storage/store.ts';
 import { dialog, toast } from './dom.ts';
 import * as kundenwahl from './kundenwahl.ts';
 import { verleihDialog } from './views/bestand.ts';
+import { buchenDialog } from './material.ts';
 
 type Art = 'verleihen' | 'verkaufen';
 
@@ -35,6 +36,7 @@ export function blockHtml(kundeId: string): string {
       <div class="knopfreihe">
         <button type="button" class="btn" data-bestand-kunde="verleihen">📦 Gerät verleihen</button>
         <button type="button" class="btn" data-bestand-kunde="verkaufen">🛒 Gerät verkaufen</button>
+        ${(d.material || []).some((m) => m.aktiv && m.bestand > 0) ? '<button type="button" class="btn" data-bestand-kunde="muster">🧴 Muster mitgeben</button>' : ''}
         ${offen.length ? '<a class="btn ghost" href="#/bestand">Zum Bestand</a>' : ''}
       </div>
     </section>`;
@@ -45,6 +47,7 @@ export function verdrahten(root: Element, kundeId: string, fertig: () => void) {
   root.querySelector('#bestandKunde')?.addEventListener('click', async (ev) => {
     const b = (ev.target as Element).closest<HTMLElement>('[data-bestand-kunde]');
     if (!b) return;
+    if (b.dataset.bestandKunde === 'muster') { if (await buchenDialog('abgang', null, kundeId)) fertig(); return; }
     if (await ausBestand(kundeId, b.dataset.bestandKunde as Art)) fertig();
   });
 }

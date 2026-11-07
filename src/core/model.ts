@@ -166,6 +166,8 @@ export function emptyData(): Daten {
     reservierungen: [],
     // Gelöschtes, bleibt bis zum endgültigen Löschen (ab Schema 3)
     papierkorb: [],
+    // Verbrauchsmaterial mit Anzahl und Mindestbestand (ab 0.10.14, ohne Schemawechsel ergänzt)
+    material: [],
   };
 }
 
@@ -303,6 +305,8 @@ export function normalizeGeraet(g: unknown) {
     id: typeof src.id === 'string' && src.id ? src.id : uid(),
     name: str(src.name, 200) || 'Unbenanntes Gerät',
     seriennummer: str(src.seriennummer, 100),
+    /** Bezug zur Produktübersicht (Vorwerk-Katalog), leer bei freier Eingabe */
+    produktId: str(src.produktId, 120),
     zubehoer: str(src.zubehoer, 1000),
     notiz: str(src.notiz, 5000),
     aktiv: src.aktiv !== false, // false = ausgemustert/verkauft, bleibt für die Historie erhalten
@@ -310,6 +314,62 @@ export function normalizeGeraet(g: unknown) {
     createdAt: (isValidDate(src.createdAt) ? src.createdAt : t) as string,
     updatedAt: (isValidDate(src.updatedAt) ? src.updatedAt : t) as string,
   };
+}
+
+/** Gründe für eine Bestandsbuchung beim Verbrauchsmaterial. `zugang` erhöht, `korrektur` setzt neu, alle anderen verringern. */
+export const MATERIAL_GRUND = {
+  muster: 'Muster an Kunde ausgegeben',
+  test: 'Beim Kunden getestet, entsorgt',
+  eigen: 'Selbst verbraucht',
+  defekt: 'Defekt oder abgelaufen',
+  zugang: 'Zugang (Lieferung)',
+  korrektur: 'Bestand gezählt (Korrektur)',
+};
+export type MaterialGrund = keyof typeof MATERIAL_GRUND;
+
+const ganzzahl = (v: unknown, min: number, max: number): number | null => {
+  const n = typeof v === 'number' ? v : parseNumber(v);
+  return n === null || !Number.isFinite(n) ? null : Math.min(max, Math.max(min, Math.round(n)));
+};
+
+export function normalizeMaterialBuchung(b: unknown) {
+  const src: Rec = b && typeof b === 'object' ? b : {};
+  return {
+    id: typeof src.id === 'string' && src.id ? src.id : uid(),
+    zeitpunkt: isValidDate(src.zeitpunkt) ? new Date(src.zeitpunkt).toISOString() : nowIso(),
+    /** Veränderung des Bestands (+ Zugang, − Abgang) */
+    menge: ganzzahl(src.menge, -100000, 100000) ?? 0,
+    grund: (src.grund in MATERIAL_GRUND ? src.grund : 'korrektur') as MaterialGrund,
+    kundeId: typeof src.kundeId === 'string' ? src.kundeId : '',
+    notiz: str(src.notiz, 1000),
+  };
+}
+
+/** Verbrauchsmaterial (Muster, Reinigungsmittel, Filtertüten …) mit Anzahl und Mindestbestand. */
+export function normalizeMaterial(m: unknown) {
+  const src: Rec = m && typeof m === 'object' ? m : {};
+  const t = nowIso();
+  return {
+    id: typeof src.id === 'string' && src.id ? src.id : uid(),
+    name: str(src.name, 200) || 'Unbenanntes Material',
+    /** Bezug zur Produktübersicht (Vorwerk-Katalog), leer bei freier Eingabe */
+    produktId: str(src.produktId, 120),
+    einheit: str(src.einheit, 30) || 'Stück',
+    bestand: ganzzahl(src.bestand, 0, 100000) ?? 0,
+    /** Hinweis „nachbestellen“, sobald der Bestand diesen Wert erreicht oder unterschreitet; null = kein Hinweis */
+    mindestbestand: src.mindestbestand === null || src.mindestbestand === '' || src.mindestbestand === undefined ? null : ganzzahl(src.mindestbestand, 0, 100000),
+    notiz: str(src.notiz, 2000),
+    aktiv: src.aktiv !== false,
+    /** jüngste zuerst, höchstens 300 */
+    buchungen: (Array.isArray(src.buchungen) ? src.buchungen.map(normalizeMaterialBuchung) : []).slice(0, 300),
+    createdAt: (isValidDate(src.createdAt) ? src.createdAt : t) as string,
+    updatedAt: (isValidDate(src.updatedAt) ? src.updatedAt : t) as string,
+  };
+}
+
+export function neuesMaterial(partial: Rec = {}) {
+  const t = nowIso();
+  return normalizeMaterial({ id: uid(), createdAt: t, updatedAt: t, ...partial });
 }
 
 /** Ein Verleih: Gerät an Kunde, mit geplanter und tatsächlicher Rückgabe. */
@@ -402,7 +462,7 @@ export function normalizePapierkorb(e: unknown) {
     kundeId: typeof src.kundeId === 'string' ? src.kundeId : '',
     geloeschtAm: isValidDate(src.geloeschtAm) ? new Date(src.geloeschtAm).toISOString() : nowIso(),
     // abhängige Daten eines gelöschten Kunden (Termine/Verleihe, deren Bezug gelöst wurde)
-    bezug: src.bezug && typeof src.bezug === 'object' ? { termine: arr(src.bezug.termine), leihvorgaenge: arr(src.bezug.leihvorgaenge), reservierungen: arr(src.bezug.reservierungen), geraete: arr(src.bezug.geraete) } : null,
+    bezug: src.bezug && typeof src.bezug === 'object' ? { termine: arr(src.bezug.termine), leihvorgaenge: arr(src.bezug.leihvorgaenge), reservierungen: arr(src.bezug.reservierungen), geraete: arr(src.bezug.geraete), material: arr(src.bezug.material) } : null,
   };
 }
 const arr = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x) => typeof x === 'string') : []);
@@ -613,6 +673,9 @@ export function migrate(input: unknown): Daten {
     papierkorb: Array.isArray(data.papierkorb)
       ? data.papierkorb.map(normalizePapierkorb).filter((e): e is PapierkorbEintrag => !!e)
       : [],
+    material: Array.isArray(data.material)
+      ? data.material.map(normalizeMaterial).map((m) => ({ ...m, buchungen: m.buchungen.map((b) => (b.kundeId === '' || kundenIds.has(b.kundeId) ? b : { ...b, kundeId: '' })) }))
+      : [],
   };
 }
 
@@ -626,6 +689,8 @@ export type Termin = ReturnType<typeof normalizeTermin>;
 export type Geraet = ReturnType<typeof normalizeGeraet>;
 export type Leihvorgang = ReturnType<typeof normalizeLeihvorgang>;
 export type Reservierung = ReturnType<typeof normalizeReservierung>;
+export type Material = ReturnType<typeof normalizeMaterial>;
+export type MaterialBuchung = ReturnType<typeof normalizeMaterialBuchung>;
 export type PapierkorbEintrag = NonNullable<ReturnType<typeof normalizePapierkorb>>;
 export type Einstellungen = ReturnType<typeof normalizeEinstellungen>;
 export interface Daten {
@@ -637,6 +702,7 @@ export interface Daten {
   leihvorgaenge: Leihvorgang[];
   reservierungen: Reservierung[];
   papierkorb: PapierkorbEintrag[];
+  material: Material[];
 }
 /** Adressfelder, wie sie Kunde und Formulare gemeinsam haben. */
 export type MitAdresse = Partial<Pick<Kunde, 'vorname' | 'nachname' | 'firma' | 'strasse' | 'plz' | 'ort'>>;
