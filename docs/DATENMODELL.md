@@ -100,6 +100,7 @@ Typen: Zahlen sind `null`, wenn leer. Ja/Nein-Felder sind `true`/`false`/`null` 
 |---|---|---|
 | `id`, `name`, `seriennummer`, `zubehoer`, `notiz` | String | |
 | `aktiv` | Boolean | `false` = verkauft/ausgemustert, bleibt für den Verlauf erhalten |
+| `verkauf` | Objekt oder `null` | ab 0.10.10 (ohne Schemawechsel, fehlt = `null`): `{kundeId, datum, preis, notiz}`; `preis` in Euro oder `null`. `kundeId` wird beim Löschen des Kunden geleert und beim Wiederherstellen zurückgesetzt (Papierkorb-`bezug.geraete`). |
 
 ## Leihvorgang
 

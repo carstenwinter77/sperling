@@ -52,7 +52,7 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Beratungs-Schutz:** Beim Kunden unten rechts 🛡 tippen – alle anderen Kunden sind ausgeblendet. Aufheben mit Face ID oder Master-Passwort.
 - **Letzter Kontakt:** Beim Kunden oben; antippen trägt einen Kontakt von Hand nach. Kundenliste: Filter „Kontakt älter als …“ und Sortierung „Längster Kontakt zuerst“.
 - **Belegungskalender:** Kalender → „Geräte“ (oder Bestand → „Belegungskalender“). Über freie Tage wischen reserviert direkt.
-- **Auswertungen:** Bereich und Zeitraum wählen, mit ‹ › blättern, „PDF-Bericht“ zum Teilen.
+- **Auswertungen:** Bereich und Zeitraum wählen (Tag, Woche, Monat, 1 Monat, 3 Monate, ½ Jahr, Kalenderjahr, 365 Tage), mit ‹ › blättern. Bei „Alles zusammen“ zeigen die Säulen die Themen in ihren Farben. „PDF-Bericht“ (immer eine Seite) zum Teilen.
 - **Hilfe:** ?-Knopf neben jeder Überschrift; alles unter Einstellungen → Hilfe (dort auch abschaltbar und die Installationsanleitung).
 
 ## Drei getrennte Texte
@@ -85,6 +85,16 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - Kunden → **„📄 PDF-Liste importieren“** und die PDF wählen. Sie wird nur auf dem Gerät gelesen.
 - Die Vorschau zeigt je Zeile **neu**, **geändert** (mit den Änderungen) oder **gleich**. Häkchen weg = Zeile wird nicht übernommen. Unten stehen Kunden, die nicht mehr in der Liste sind; gelöscht wird nichts.
 - Sperre, EWE, EWE-Datum und BNW stehen danach in eigenen Vorwerk-Feldern, Notizen als Vorwerk-Notiz. Neue Kunden bekommen Vorwerk „Potenzial“ und einen Kartenpunkt, wenn die Adresse gefunden wird.
+
+## Gerät verleihen oder verkaufen beim Kunden
+
+- In der Übersicht des Kunden steht **„📦 Aus meinem Bestand“**: seine Leihgaben und gekauften Geräte.
+- **Gerät verleihen**: Gerät antippen, „Weiter“, dann wie gewohnt Zeitraum, Fotos, Unterschrift. Für ihn reservierte Geräte stehen oben, belegte sind ausgegraut.
+- **Gerät verkaufen**: Gerät wählen, Datum und optional Preis eintragen. Das Häkchen setzt den Vorwerk-Status auf „Abschluss / Kunde“ und lässt sich abwählen. Das Gerät verlässt den Bestand; hatte der Kunde es geliehen, ist die Leihgabe damit erledigt.
+
+## Fenster schließen
+
+- Ein Tipp neben ein Fenster (auf den abgedunkelten Hintergrund) oder Esc schließt es ohne Speichern. Hast du schon etwas eingetragen, fragt Sperling vorher nach.
 
 ## Wiedervorlage schnell setzen
 

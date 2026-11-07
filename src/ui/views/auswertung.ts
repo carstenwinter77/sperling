@@ -1,7 +1,7 @@
 // Sperling – Auswertungen: je Bereich oder alles zusammen, als Tag, Woche, Monat, Kalenderjahr oder letzte 365 Tage.
 // Die Zahlen entstehen nur auf dem Gerät; der PDF-Bericht wird nur weitergegeben, wenn der Nutzer ihn teilt.
 import { esc } from '../../core/util.ts';
-import { AUSGANG } from '../../core/model.ts';
+import { AUSGANG, SPARTEN, SPARTEN_KEYS } from '../../core/model.ts';
 import { tagVon } from '../../core/belegung.ts';
 import {
   bericht, verschieben, veraenderung, prozent, BEREICHE, PERIODEN, PERIODEN_REIHE,
@@ -31,6 +31,28 @@ const ZAHLEN: Zahl[] = [
 const zahlenFuer = (bereich: Bereich) => ZAHLEN.filter((z) => !z.nurVorwerk || bereich === 'alle' || bereich === 'vorwerk');
 const anzeigen = (z: Zahl, k: Kennzahlen) => { const w = z.wert(k); return z.quote ? prozent(w) : String(w ?? 0); };
 
+const PERIODE_KURZ: Record<Periode, string> = { tag: 'Tag', woche: 'Woche', monat: 'Monat', m1: '1 Monat', m3: '3 Monate', m6: '½ Jahr', jahr: 'Kalenderjahr', '365': '365 Tage' };
+const THEMEN = [...SPARTEN_KEYS, 'ohne'] as const;
+const PDF_FARBE: Record<(typeof THEMEN)[number], [number, number, number]> = { pv: [224, 168, 0], wp: [47, 127, 214], vorwerk: [47, 154, 60], ohne: [140, 150, 145] };
+const themaLabel = (t: (typeof THEMEN)[number]) => (t === 'ohne' ? 'ohne Thema' : SPARTEN[t].label);
+
+/** Säulen; bei „Alles zusammen“ nach Thema gestapelt (Farbe + Muster + Legende, Werte im Tooltip). */
+function verlaufHtml(verlauf: Kennzahlen['verlauf'], bereich: Bereich, max: number): string {
+  const gestapelt = bereich === 'alle';
+  const summe = Object.fromEntries(THEMEN.map((t) => [t, verlauf.reduce((n, v) => n + v.je[t], 0)])) as Record<(typeof THEMEN)[number], number>;
+  const saeulen = verlauf.map((v) => {
+    const hoehe = Math.round((v.wert / max) * 100);
+    const nennungen = THEMEN.reduce((n, t) => n + v.je[t], 0);
+    const text = `${v.label}: ${v.wert} Gespräch${v.wert === 1 ? '' : 'e'}${gestapelt && v.wert ? ` (${THEMEN.filter((t) => v.je[t]).map((t) => `${themaLabel(t)} ${v.je[t]}`).join(', ')})` : ''}`;
+    const innen = gestapelt && nennungen
+      ? `<span class="aw-stapel" style="height:${hoehe}%">${THEMEN.filter((t) => v.je[t]).map((t) => `<i class="aw-teil aw-${t}" style="flex-grow:${v.je[t]}"></i>`).join('')}</span>`
+      : `<span style="height:${hoehe}%"></span>`;
+    return `<div class="aw-saeule" title="${esc(text)}" aria-label="${esc(text)}" role="img">${innen}<em>${esc(v.label)}</em></div>`;
+  }).join('');
+  const legende = gestapelt ? `<ul class="aw-legende">${THEMEN.filter((t) => t !== 'ohne' || summe.ohne).map((t) => `<li><i class="aw-teil aw-${t}"></i>${esc(themaLabel(t))} <b>${summe[t]}</b></li>`).join('')}</ul>${THEMEN.some((t) => t !== 'ohne') ? '<p class="hinweis klein">Ein Gespräch über zwei Themen zählt bei beiden; die Säule zeigt die Anzahl der Gespräche.</p>' : ''}` : '';
+  return `<div class="aw-verlauf bereich-${bereich}" style="--n:${verlauf.length}">${saeulen}</div>${legende}`;
+}
+
 export function render(el: HTMLElement, params: URLSearchParams) {
   const p = (n: string) => params.get(n) || '';
   const bereich: Bereich = p('bereich') in BEREICHE ? p('bereich') as Bereich : 'alle';
@@ -54,7 +76,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     </header>
     <nav class="tabs aw-bereiche" role="tablist">${(Object.keys(BEREICHE) as Bereich[]).map((b) => `<button type="button" data-bereich="${b}" class="bereich-${b}${b === bereich ? ' aktiv' : ''}">${BEREICHE[b]}</button>`).join('')}</nav>
     <div class="aw-leiste">
-      <div class="segment" role="group" aria-label="Zeitraum">${PERIODEN_REIHE.map((pe) => `<button type="button" data-periode="${pe}" class="${pe === periode ? 'aktiv' : ''}">${PERIODEN[pe]}</button>`).join('')}</div>
+      <div class="segment aw-perioden" role="group" aria-label="Zeitraum">${PERIODEN_REIHE.map((pe) => `<button type="button" data-periode="${pe}" class="${pe === periode ? 'aktiv' : ''}" title="${PERIODEN[pe]}" aria-pressed="${pe === periode}">${PERIODE_KURZ[pe]}</button>`).join('')}</div>
       <div class="k-nav"><button type="button" class="btn klein ghost" data-schritt="-1" aria-label="Voriger Zeitraum">‹</button><button type="button" class="btn klein ghost" data-schritt="0">Heute</button><button type="button" class="btn klein ghost" data-schritt="1" aria-label="Nächster Zeitraum">›</button></div>
       <input type="date" id="awDatum" value="${anker}" aria-label="Stichtag">
     </div>
@@ -73,8 +95,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
   }).join('')}</div>
     <section class="karte-box">
       <h2>Gespräche im Verlauf</h2>
-      ${jetzt.gespraeche ? `<div class="aw-verlauf bereich-${bereich}" style="--n:${jetzt.verlauf.length}">${jetzt.verlauf.map((v) => `<div class="aw-saeule" title="${esc(v.label)}: ${v.wert}"><span style="height:${Math.round((v.wert / max) * 100)}%"></span><em>${esc(v.label)}</em></div>`).join('')}</div>`
-    : '<p class="hinweis">In diesem Zeitraum gibt es keine Gespräche.</p>'}
+      ${jetzt.gespraeche ? verlaufHtml(jetzt.verlauf, bereich, max) : '<p class="hinweis">In diesem Zeitraum gibt es keine Gespräche.</p>'}
     </section>
     ${jetzt.topProdukte.length ? `<section class="karte-box">
       <h2>Meistgefragte Produkte</h2>
@@ -118,46 +139,82 @@ export async function berichtPdf(ber: Bericht): Promise<{ blob: Blob; dateiname:
   doc.text(`Vergleich: ${ber.vorzeitraum.titel} · erstellt am ${new Date().toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })}`, R, y); y += 10;
   doc.setTextColor(0);
 
-  const tabelle = (kopf: string[], zeilen: string[][]) => {
-    const sp = [R, R + 90, R + 125, R + 155];
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
-    kopf.forEach((t, i) => doc.text(t, sp[i]!, y));
-    y += 2; doc.setDrawColor(180); doc.line(R, y, B - R, y); y += 5;
-    doc.setFont('helvetica', 'normal');
-    for (const z of zeilen) {
-      if (y > 280) { doc.addPage(); y = 20; }
-      z.forEach((t, i) => doc.text(t, sp[i]!, y));
-      y += 6;
-    }
-    y += 4;
-  };
-  tabelle(['Kennzahl', 'Jetzt', 'Vorher', 'Veränderung'], zahlenFuer(ber.bereich).map((z) => [
+  // Immer genau eine Seite: Zeilenhöhe und Schrift schrumpfen, wenn es viele Zeilen sind.
+  const kennzahlZeilen = zahlenFuer(ber.bereich).map((z) => [
     z.titel, anzeigen(z, ber.jetzt), anzeigen(z, ber.vorher), veraenderung(z.wert(ber.jetzt), z.wert(ber.vorher), z.quote)?.text || '–',
-  ]));
+  ]);
   const erg = (Object.keys(AUSGANG) as Ausgang[]).filter((a) => ber.jetzt.ergebnisse[a] || ber.vorher.ergebnisse[a]);
-  if (erg.length) {
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.text('Ergebnisse der Gespräche', R, y); y += 7;
-    tabelle(['Ergebnis', 'Jetzt', 'Vorher', ''], erg.map((a) => [AUSGANG[a], String(ber.jetzt.ergebnisse[a]), String(ber.vorher.ergebnisse[a]), '']));
-  }
-  if (ber.jetzt.topProdukte.length) {
-    if (y > 240) { doc.addPage(); y = 20; }
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.text('Meistgefragte Produkte', R, y); y += 7;
-    tabelle(['Produkt', 'Interesse', '', ''], ber.jetzt.topProdukte.map((x) => [x.name.length > 55 ? `${x.name.slice(0, 54)}…` : x.name, String(x.anzahl), '', '']));
+  const top = ber.jetzt.topProdukte;
+  const unten = 287;
+  const diagramm = ber.jetzt.gespraeche ? 6 + 34 + 6 + (ber.bereich === 'alle' ? 6 : 0) : 0;
+  const zweiSpalten = Math.max(erg.length, top.length);
+  const zeilen = kennzahlZeilen.length + 1 + (zweiSpalten ? zweiSpalten + 1 : 0);
+  const fest = 6 + (zweiSpalten ? 7 + 6 : 0) + diagramm;
+  const zh = Math.max(3.6, Math.min(6, (unten - y - fest) / Math.max(1, zeilen)));
+  const fs = Math.max(7, Math.min(10, zh * 1.7));
+
+  const tabelle = (kopf: string[], reihe: string[][], sp: number[], bis: number) => {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(fs);
+    kopf.forEach((t, i) => { if (t) doc.text(t, sp[i]!, y); });
+    doc.setDrawColor(180); doc.line(sp[0]!, y + 1.5, bis, y + 1.5);
+    let yy = y + zh;
+    doc.setFont('helvetica', 'normal');
+    // Text auf die Spaltenbreite kürzen, damit nichts in die Nachbarspalte läuft
+    const passend = (t: string, breite: number) => {
+      if (doc.getTextWidth(t) <= breite) return t;
+      let x = t;
+      while (x.length > 1 && doc.getTextWidth(`${x}…`) > breite) x = x.slice(0, -1);
+      return `${x.trimEnd()}…`;
+    };
+    for (const z of reihe) { z.forEach((t, i) => { if (t) doc.text(passend(t, (sp[i + 1] ?? bis) - sp[i]! - 2), sp[i]!, yy); }); yy += zh; }
+    return yy;
+  };
+  y = tabelle(['Kennzahl', 'Jetzt', 'Vorher', 'Veränderung'], kennzahlZeilen, [R, R + 92, R + 118, R + 144], B - R) + 4;
+  if (zweiSpalten) {
+    const mitte = R + 90;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(Math.min(12, fs + 2));
+    if (erg.length) doc.text('Ergebnisse der Gespräche', R, y);
+    if (top.length) doc.text('Meistgefragte Produkte', mitte, y);
+    y += 6;
+    const y0 = y;
+    let yl = y; let yr = y;
+    if (erg.length) yl = tabelle(['Ergebnis', 'Jetzt', 'Vorher'], erg.map((a) => [AUSGANG[a], String(ber.jetzt.ergebnisse[a]), String(ber.vorher.ergebnisse[a])]), [R, R + 56, R + 72], mitte - 6);
+    y = y0;
+    if (top.length) yr = tabelle(['Produkt', 'Interesse'], top.map((x) => [x.name, String(x.anzahl)]), [mitte, B - R - 16], B - R);
+    y = Math.max(yl, yr) + 4;
   }
   // Verlauf als einfache Säulen
   if (ber.jetzt.gespraeche) {
-    if (y > 220) { doc.addPage(); y = 20; }
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.text('Gespräche im Verlauf', R, y); y += 6;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(Math.min(12, fs + 2)); doc.text('Gespräche im Verlauf', R, y); y += 4;
     const v = ber.jetzt.verlauf; const max = Math.max(1, ...v.map((x) => x.wert));
-    const breite = (B - 2 * R) / v.length; const hoehe = 40;
+    const breite = (B - 2 * R) / v.length; const hoehe = 34;
     doc.setFontSize(6); doc.setFont('helvetica', 'normal');
     v.forEach((x, i) => {
       const h = (x.wert / max) * hoehe;
-      doc.setFillColor(90, 140, 70);
-      if (h > 0) doc.rect(R + i * breite + breite * 0.15, y + hoehe - h, breite * 0.7, h, 'F');
+      const nenn = THEMEN.reduce((n, t) => n + x.je[t], 0);
+      if (h > 0 && ber.bereich === 'alle' && nenn) {
+        // gestapelt nach Thema, unten beginnend (Farben wie in der App)
+        let unten = y + hoehe;
+        for (const t of THEMEN) {
+          if (!x.je[t]) continue;
+          const teil = (h * x.je[t]) / nenn;
+          doc.setFillColor(...PDF_FARBE[t]);
+          doc.rect(R + i * breite + breite * 0.15, unten - teil, breite * 0.7, teil, 'F');
+          unten -= teil;
+        }
+      } else if (h > 0) { doc.setFillColor(90, 140, 70); doc.rect(R + i * breite + breite * 0.15, y + hoehe - h, breite * 0.7, h, 'F'); }
       if (v.length <= 14 || i % 2 === 0) doc.text(x.label, R + i * breite + breite / 2, y + hoehe + 4, { align: 'center' });
     });
     y += hoehe + 8;
+    if (ber.bereich === 'alle') {
+      doc.setFontSize(8);
+      let lx = R;
+      for (const t of THEMEN) {
+        doc.setFillColor(...PDF_FARBE[t]); doc.rect(lx, y - 3, 4, 3, 'F');
+        const txt = themaLabel(t); doc.text(txt, lx + 5.5, y - 0.5); lx += 9 + doc.getTextWidth(txt);
+      }
+      y += 6;
+    }
   }
   const blob = doc.output('blob');
   const datei = `auswertung-${ber.bereich}-${ber.periode}-${ber.zeitraum.von}_${ber.zeitraum.bis}.pdf`;

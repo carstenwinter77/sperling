@@ -1,5 +1,10 @@
 # Änderungsverlauf
 
+## 0.10.10 – 07.11.2026
+- **Aus der Kundenansicht verleihen oder verkaufen:** Block „📦 Aus meinem Bestand“ in der Übersicht des Kunden (Leihgaben und gekaufte Geräte des Kunden, Knöpfe „Gerät verleihen“/„Gerät verkaufen“). Geräteauswahl mit Lage je Gerät (für den Kunden reserviert zuerst, belegte ausgegraut, nie Namen anderer Kunden). Verleihen öffnet den bekannten Dialog mit vorausgefülltem Kunden. Verkaufen: Datum, Preis (optional), Notiz, Häkchen „Vorwerk-Status auf Abschluss / Kunde“ vorausgewählt; Gerät verlässt den Bestand, `geraet.verkauf` hält Kunde/Datum/Preis, eine Leihgabe beim Kunden wird als „gekauft“ abgeschlossen, Reservierungen ab dem Verkaufstag fallen weg (Anzahl im Hinweis). „Verkaufen“ auch im Bestand, Liste „Verkauft“ dort (`src/core/bestandkunde.ts`, `src/ui/bestandkunde.ts`).
+- **Dialoge** schließen auch per Klick/Tipp auf den Hintergrund; sind Eingaben geändert (auch Unterschrift), fragt Sperling vorher „Eingaben verwerfen?“. Esc fragt ebenso.
+- **Auswertungen:** Bei „Alles zusammen“ sind die Säulen „Gespräche im Verlauf“ nach Thema gestapelt (Photovoltaik gelb, Wärmepumpe blau gestreift, Vorwerk grün gepunktet), mit Legende und Werten im Tooltip; im PDF ebenso. Neue Zeiträume „1 Monat“, „3 Monate“ (Wochensäulen), „½ Jahr“, jeweils gleitend bis zum Stichtag. Der PDF-Bericht passt immer auf eine Seite (Zeilen und Schrift passen sich an, Ergebnisse und Produkte nebeneinander, lange Texte gekürzt).
+
 ## 0.10.9 – 07.11.2026
 - **Schnellwahl für Wiedervorlagen:** Unter jedem Wiedervorlage-Datum (Termin-Dialog, Gesprächsabschluss im Leitfaden und Gesprächsmodus, Enpal-Doku-Frist) Knöpfe „In 1 Tag, 3 Tage, 1–4 Wochen, 3 Monate, ½ Jahr, 1 Jahr“. Ab heute gerechnet; die eingestellte Uhrzeit bleibt, sonst 9:00. Monatsende wird gekappt (31.08. + ½ Jahr = 28.02.). Kalenderauswahl bleibt (`src/core/schnellwahl.ts`, `src/ui/schnellwahl.ts`).
 

@@ -1,4 +1,6 @@
 // Vorführbestand (Vorwerk-Geräte im Auto): verleihen, zurücknehmen, Erinnerung, Kaufinteresse.
+import { vorwerkStatusAnheben, euro } from '../../core/bestandkunde.ts';
+import { verkaufDialog } from '../bestandkunde.ts';
 import * as kundenwahl from '../kundenwahl.ts';
 import { esc, nowIso, formatDate, isValidDate } from '../../core/util.ts';
 import { KAUFINTERESSE, kundenTitel, adresseEinzeilig, neuesGeraet, neuerLeihvorgang, neueNotiz, neuerTermin, offenerVerleih, STATUS_KEYS, normalizeReservierung, geraetBelegung, type Geraet, type Kunde, type Leihvorgang, type Reservierung, type Belegung, type Daten, type StatusKey } from '../../core/model.ts';
@@ -28,12 +30,6 @@ function datumZuIso(v: string): string | null {
   return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
-/** Vorwerk-Status eines Kunden nur anheben, nie absenken. */
-function vorwerkStatusAnheben(k: Kunde, ziel: StatusKey) {
-  const rang = ['unbekannt', 'kein_interesse', 'potenzial', 'interesse', 'termin', 'angebot', 'abschluss'];
-  if (!STATUS_KEYS.includes(ziel)) return;
-  if (rang.indexOf(ziel) > rang.indexOf(k.status.vorwerk)) k.status.vorwerk = ziel;
-}
 
 /** Zeitraum-Kalender im Dialog an zwei Datumsfelder koppeln (die bleiben unter „Datum eintippen“ erreichbar). */
 function zeitraumAnbinden(dlg: ParentNode, vonName: string, bisName: string, opt: Parameters<typeof zeitraumWahl>[1]) {
@@ -64,6 +60,7 @@ export function render(el: HTMLElement, params: URLSearchParams = new URLSearchP
   const offen = d.leihvorgaenge.filter((l) => !l.rueckgabe);
   const ueberfaellig = offen.filter((l) => verleihStatus(l) === 'ueberfaellig');
   const kunde = (id) => d.kunden.find((k) => k.id === id);
+  const verkauft = d.geraete.filter((g) => g.verkauf).sort((a, b) => (a.verkauf!.datum < b.verkauf!.datum ? 1 : -1)).slice(0, 15);
   const verlauf = d.leihvorgaenge.filter((l) => l.rueckgabe).sort((a, b) => ((a.rueckgabe || '') < (b.rueckgabe || '') ? 1 : -1)).slice(0, 15);
 
   el.innerHTML = `
@@ -107,6 +104,7 @@ export function render(el: HTMLElement, params: URLSearchParams = new URLSearchP
           <div class="knopfreihe">
             <button class="btn primary klein" data-aktion="verleihen">Verleihen</button>
             <button class="btn ghost klein" data-aktion="reservieren">Reservieren</button>
+            <button class="btn ghost klein" data-aktion="verkaufen">Verkaufen</button>
             <button class="btn ghost klein" data-aktion="bearbeiten">Bearbeiten</button>
           </div>`}
       </article>`;
@@ -119,6 +117,11 @@ export function render(el: HTMLElement, params: URLSearchParams = new URLSearchP
     const k = kunde(l.kundeId);
     return `<li class="zeile"><span class="zeile-haupt"><strong>${esc(g?.name || 'Gerät')}</strong><small>${k ? esc(kundenTitel(k)) : '–'} · ${esc(formatDate(l.ausgabe))} bis ${esc(formatDate(l.rueckgabe))}</small></span><span class="pill pill-kauf-${l.kaufinteresse}">${esc(KAUFINTERESSE[l.kaufinteresse])}</span><button class="btn klein ghost" data-beleg="${esc(l.id)}" data-art="ausgabe" title="Leihschein">📄</button>${l.kaufinteresse !== 'gekauft' ? `<button class="btn klein ghost" data-beleg="${esc(l.id)}" data-art="rueckgabe" title="Rückgabeschein">↩️📄</button>` : ''}</li>`;
   }).join('')}</ul>
+    </section>` : ''}
+    ${verkauft.length ? `
+    <section class="karte-box">
+      <h2>Verkauft</h2>
+      <ul class="liste">${verkauft.map((g) => { const k = kunde(g.verkauf!.kundeId); return `<li class="zeile"><span class="zeile-haupt"><strong>${esc(g.name)}</strong><small>${k ? `<a href="#/kunde/${esc(k.id)}">${esc(kundenTitel(k))}</a>` : '–'} · ${esc(formatDate(g.verkauf!.datum))}${g.verkauf!.preis !== null ? ` · ${esc(euro(g.verkauf!.preis))}` : ''}</small></span><span class="pill pill-kauf-gekauft">Verkauft</span></li>`; }).join('')}</ul>
     </section>` : ''}`;
 
   const ziel = params.get('geraet');
@@ -164,6 +167,7 @@ export function render(el: HTMLElement, params: URLSearchParams = new URLSearchP
     let geaendert = false;
     if (aktion === 'verleihen') geaendert = await verleihDialog(g);
     else if (aktion === 'bearbeiten') geaendert = await geraetDialog(g);
+    else if (aktion === 'verkaufen') geaendert = await verkaufDialog(g);
     else if (aktion === 'zurueck') geaendert = await ruecknahme(g, false);
     else if (aktion === 'gekauft') geaendert = await ruecknahme(g, true);
     else if (aktion === 'erinnern') geaendert = await erinnerung(g);
@@ -258,7 +262,7 @@ export async function reservierenDialog(g: Geraet, vorgabe: { kundeId?: string; 
   return true;
 }
 
-export async function verleihDialog(g: Geraet, reservierung: Reservierung | null = null, vorgabeBis = ''): Promise<boolean> {
+export async function verleihDialog(g: Geraet, reservierung: Reservierung | null = null, vorgabeBis = '', vorgabeKunde = ''): Promise<boolean> {
   const d = store.getData();
   if (!d.kunden.length) { toast('Bitte zuerst einen Kunden anlegen.', 'error'); return false; }
   let holeFotos = (): string[] => [];
@@ -266,7 +270,7 @@ export async function verleihDialog(g: Geraet, reservierung: Reservierung | null
   const res = await dialog({
     titel: `${g.name} verleihen`,
     html: `
-      ${kundenwahl.html('kunde', 'An Kunde', reservierung?.kundeId || '', { leerErlaubt: false })}
+      ${kundenwahl.html('kunde', 'An Kunde', reservierung?.kundeId || vorgabeKunde, { leerErlaubt: false })}
       <div class="zr-platz"></div>
       <details class="zr-tippen"><summary>Datum eintippen</summary>
       <div class="row2">
@@ -277,7 +281,7 @@ export async function verleihDialog(g: Geraet, reservierung: Reservierung | null
       <label class="check"><input type="checkbox" name="erinnern" checked> Erinnerung zum Nachfragen am Rückgabetag anlegen</label>
       <label>Notiz (Zustand, Absprache)<textarea name="notiz" rows="2" placeholder="z. B. neuwertig, Kunde testet auf Teppich und Fliesen"></textarea></label>
       ${fotosHtml('Fotos vom Zustand bei Übergabe')}
-      ${unterschriftHtml(reservierung?.kundeId ? kundenName(d.kunden.find((x) => x.id === reservierung.kundeId) || {}) : '')}`,
+      ${unterschriftHtml((reservierung?.kundeId || vorgabeKunde) ? kundenName(d.kunden.find((x) => x.id === (reservierung?.kundeId || vorgabeKunde)) || {}) : '')}`,
     onOpen: (dlg) => {
       kundenwahl.verdrahten(dlg);
       holeFotos = fotosVerdrahten(dlg);
@@ -374,7 +378,7 @@ export async function ruecknahme(g: Geraet, gekauft: boolean): Promise<boolean> 
     x.nameRueckgabe = res.unterschrift.name;
     if (res.notiz) x.notiz = x.notiz ? `${x.notiz}\n${res.notiz}` : res.notiz;
     x.updatedAt = nowIso();
-    if (gekauft) { const gg = data.geraete.find((y) => y.id === g.id); if (gg) { gg.aktiv = false; gg.updatedAt = nowIso(); } }
+    if (gekauft) { const gg = data.geraete.find((y) => y.id === g.id); if (gg) { gg.aktiv = false; gg.verkauf = { kundeId: x.kundeId, datum: x.rueckgabe!, preis: null, notiz: '' }; gg.updatedAt = nowIso(); } }
     const kk = data.kunden.find((y) => y.id === x.kundeId);
     if (kk) {
       if (gekauft) vorwerkStatusAnheben(kk, 'abschluss');

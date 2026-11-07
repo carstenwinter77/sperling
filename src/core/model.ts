@@ -286,6 +286,15 @@ export function neuerLeihvorgang(partial: Rec = {}) {
   return normalizeLeihvorgang({ id: uid(), createdAt: t, updatedAt: t, ausgabe: t, ...partial });
 }
 
+/** Verkauf eines Bestandsgeräts an einen Kunden (ab 0.10.10, ohne Schemawechsel; fehlt = null). */
+function normalizeVerkauf(v: unknown): { kundeId: string; datum: string; preis: number | null; notiz: string } | null {
+  if (!v || typeof v !== 'object') return null;
+  const s = v as Rec;
+  if (!isValidDate(s.datum)) return null;
+  const preis = typeof s.preis === 'number' && Number.isFinite(s.preis) && s.preis >= 0 && s.preis < 1e7 ? s.preis : null;
+  return { kundeId: typeof s.kundeId === 'string' ? s.kundeId : '', datum: s.datum as string, preis, notiz: str(s.notiz, 2000) };
+}
+
 /** Vorführgerät aus dem Auto-Bestand (nur Vorwerk). */
 export function normalizeGeraet(g: unknown) {
   const src: Rec = g && typeof g === 'object' ? g : {};
@@ -297,6 +306,7 @@ export function normalizeGeraet(g: unknown) {
     zubehoer: str(src.zubehoer, 1000),
     notiz: str(src.notiz, 5000),
     aktiv: src.aktiv !== false, // false = ausgemustert/verkauft, bleibt für die Historie erhalten
+    verkauf: normalizeVerkauf(src.verkauf),
     createdAt: (isValidDate(src.createdAt) ? src.createdAt : t) as string,
     updatedAt: (isValidDate(src.updatedAt) ? src.updatedAt : t) as string,
   };
@@ -392,7 +402,7 @@ export function normalizePapierkorb(e: unknown) {
     kundeId: typeof src.kundeId === 'string' ? src.kundeId : '',
     geloeschtAm: isValidDate(src.geloeschtAm) ? new Date(src.geloeschtAm).toISOString() : nowIso(),
     // abhängige Daten eines gelöschten Kunden (Termine/Verleihe, deren Bezug gelöst wurde)
-    bezug: src.bezug && typeof src.bezug === 'object' ? { termine: arr(src.bezug.termine), leihvorgaenge: arr(src.bezug.leihvorgaenge), reservierungen: arr(src.bezug.reservierungen) } : null,
+    bezug: src.bezug && typeof src.bezug === 'object' ? { termine: arr(src.bezug.termine), leihvorgaenge: arr(src.bezug.leihvorgaenge), reservierungen: arr(src.bezug.reservierungen), geraete: arr(src.bezug.geraete) } : null,
   };
 }
 const arr = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x) => typeof x === 'string') : []);

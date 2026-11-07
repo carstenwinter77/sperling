@@ -14,10 +14,11 @@ function ablegen(data: Daten, typ: PapierkorbEintrag['typ'], objekt: object, kun
 export function kundeLoeschen(data: Daten, kundeId: string): boolean {
   const k = data.kunden.find((x) => x.id === kundeId);
   if (!k) return false;
-  const bezug: Bezug = { termine: [], leihvorgaenge: [], reservierungen: [] };
+  const bezug: Bezug = { termine: [], leihvorgaenge: [], reservierungen: [], geraete: [] };
   for (const t of data.termine) if (t.kundeId === kundeId) { t.kundeId = ''; bezug.termine.push(t.id); }
   for (const l of data.leihvorgaenge) if (l.kundeId === kundeId) { l.kundeId = ''; bezug.leihvorgaenge.push(l.id); }
   for (const r of data.reservierungen || []) if (r.kundeId === kundeId) { r.kundeId = ''; bezug.reservierungen.push(r.id); }
+  for (const g of data.geraete) if (g.verkauf?.kundeId === kundeId) { g.verkauf.kundeId = ''; bezug.geraete.push(g.id); }
   data.kunden = data.kunden.filter((x) => x.id !== kundeId);
   ablegen(data, 'kunde', k, kundeId, bezug);
   return true;
@@ -66,6 +67,7 @@ export function wiederherstellen(data: Daten, eintragId: string): string {
     for (const t of data.termine) if ((b.termine || []).includes(t.id) && !t.kundeId) t.kundeId = o.id;
     for (const l of data.leihvorgaenge) if ((b.leihvorgaenge || []).includes(l.id) && !l.kundeId) l.kundeId = o.id;
     for (const r of data.reservierungen || []) if ((b.reservierungen || []).includes(r.id) && !r.kundeId) r.kundeId = o.id;
+    for (const g of data.geraete) if ((b.geraete || []).includes(g.id) && g.verkauf && !g.verkauf.kundeId) g.verkauf.kundeId = o.id;
   } else if (e.typ === 'notiz' || e.typ === 'enpalKontakt') {
     const k = data.kunden.find((x) => x.id === e.kundeId);
     if (!k) throw new Error('Der Kunde dazu ist gelöscht. Bitte zuerst den Kunden wiederherstellen.');

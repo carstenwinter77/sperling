@@ -122,6 +122,7 @@ function echterAbdruck(data: Daten): Map<string, string> {
       if (istBeispielId(x?.id)) continue;
       const kopie: Rec = { ...x };
       if (istBeispielId(kopie.kundeId)) kopie.kundeId = '';
+      if (kopie.verkauf && typeof kopie.verkauf === 'object' && istBeispielId((kopie.verkauf as Rec).kundeId)) kopie.verkauf = { ...(kopie.verkauf as Rec), kundeId: '' };
       const schluessel = `${s}:${x?.id}`;
       if (m.has(schluessel)) throw new Error(`Sicherheitsprüfung: doppelte ID ${schluessel}.`);
       m.set(schluessel, JSON.stringify(kopie));
@@ -177,7 +178,8 @@ export function beispielEntfernen(data: Daten) {
   data.termine = data.termine.filter((t) => !istBeispiel(t.id)).map((t) => (istBeispiel(t.kundeId) ? { ...t, kundeId: '' } : t));
   // Ein Beispielgerät, das schon echt verliehen wurde, bleibt (sonst ginge ein echter Verleih verloren).
   const echtVerliehen = new Set(data.leihvorgaenge.filter((l) => !istBeispiel(l.id)).map((l) => l.geraetId));
-  data.geraete = data.geraete.filter((g) => !istBeispiel(g.id) || echtVerliehen.has(g.id));
+  data.geraete = data.geraete.filter((g) => !istBeispiel(g.id) || echtVerliehen.has(g.id))
+    .map((g) => (g.verkauf && istBeispiel(g.verkauf.kundeId) ? { ...g, verkauf: { ...g.verkauf, kundeId: '' } } : g));
   data.leihvorgaenge = data.leihvorgaenge
     .filter((l) => !istBeispiel(l.id))
     .map((l) => (istBeispiel(l.kundeId) ? { ...l, kundeId: '' } : l));

@@ -1,18 +1,20 @@
 // Sperling – Auswertungen (rein, ohne DOM, in Node testbar).
 // Berichte je Bereich (PV, WP, Vorwerk) oder für alles zusammen, als Tag, Woche, Monat, Kalenderjahr
 // oder letzte 365 Tage bis zum gewählten Tag. Jeder Bericht kennt den Vorzeitraum zum Vergleich.
-import { AUSGANG, type Daten, type Sparte } from './model.ts';
+import { AUSGANG, SPARTEN_KEYS, type Daten, type Sparte } from './model.ts';
 import { MARKIERUNG_KEYS, type Markierung } from './produkte.ts';
 import { tagVon, tagDatum, plusTage, wochenanfang, kalenderwoche, type Tag } from './belegung.ts';
 
 export type Bereich = 'alle' | Sparte;
-export type Periode = 'tag' | 'woche' | 'monat' | 'jahr' | '365';
+export type Periode = 'tag' | 'woche' | 'monat' | 'm1' | 'm3' | 'm6' | 'jahr' | '365';
 export type Ausgang = keyof typeof AUSGANG;
 
 export const BEREICHE: Record<Bereich, string> = { alle: 'Alles zusammen', pv: 'Photovoltaik', wp: 'Wärmepumpe', vorwerk: 'Vorwerk' };
-export const PERIODEN: Record<Periode, string> = { tag: 'Tag', woche: 'Woche', monat: 'Monat', jahr: 'Kalenderjahr', '365': 'Letzte 365 Tage' };
+export const PERIODEN: Record<Periode, string> = { tag: 'Tag', woche: 'Woche', monat: 'Monat', m1: 'Letzter Monat', m3: 'Letzte 3 Monate', m6: 'Letztes halbes Jahr', jahr: 'Kalenderjahr', '365': 'Letzte 365 Tage' };
+/** Gleitende Zeiträume in Monaten, die am Stichtag enden. */
+const GLEITEND: Partial<Record<Periode, number>> = { m1: 1, m3: 3, m6: 6 };
 /** Feste Reihenfolge (Object.keys sortiert '365' als Zahl nach vorn). */
-export const PERIODEN_REIHE: Periode[] = ['tag', 'woche', 'monat', 'jahr', '365'];
+export const PERIODEN_REIHE: Periode[] = ['tag', 'woche', 'monat', 'm1', 'm3', 'm6', 'jahr', '365'];
 
 const MONATE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
 const kurzDatum = (t: Tag) => tagDatum(t).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -36,6 +38,11 @@ export function zeitraum(periode: Periode, anker: Tag): Zeitraum {
     }
     case 'jahr':
       return { von: `${d.getFullYear()}-01-01`, bis: `${d.getFullYear()}-12-31`, titel: `Kalenderjahr ${d.getFullYear()}` };
+    case 'm1': case 'm3': case 'm6': {
+      // gleitend: endet am Stichtag, beginnt am Tag nach demselben Datum N Monate vorher
+      const von = plusTage(monateVerschieben(anker, -GLEITEND[periode]!), 1);
+      return { von, bis: anker, titel: `${PERIODEN[periode]} · ${kurzDatum(von)} – ${kurzDatum(anker)}` };
+    }
     case '365': {
       const von = plusTage(anker, -364);
       return { von, bis: anker, titel: `Letzte 365 Tage · ${kurzDatum(von)} – ${kurzDatum(anker)}` };
@@ -44,15 +51,17 @@ export function zeitraum(periode: Periode, anker: Tag): Zeitraum {
 }
 
 /** Anker um `n` Perioden verschieben (‹ ›). Monat/Jahr bleiben auf gültigen Tagen (31.03. − 1 Monat = 28./29.02.). */
-export function verschieben(periode: Periode, anker: Tag, n: number): Tag {
+function monateVerschieben(anker: Tag, monate: number): Tag {
   const d = tagDatum(anker);
-  if (periode === 'monat' || periode === 'jahr') {
-    const monate = periode === 'monat' ? n : 12 * n;
-    const ziel = new Date(d.getFullYear(), d.getMonth() + monate, 1);
-    const letzter = new Date(ziel.getFullYear(), ziel.getMonth() + 1, 0).getDate();
-    ziel.setDate(Math.min(d.getDate(), letzter));
-    return tagVon(ziel);
-  }
+  const ziel = new Date(d.getFullYear(), d.getMonth() + monate, 1);
+  const letzter = new Date(ziel.getFullYear(), ziel.getMonth() + 1, 0).getDate();
+  ziel.setDate(Math.min(d.getDate(), letzter));
+  return tagVon(ziel);
+}
+
+export function verschieben(periode: Periode, anker: Tag, n: number): Tag {
+  if (periode === 'monat' || periode === 'jahr') return monateVerschieben(anker, periode === 'monat' ? n : 12 * n);
+  if (GLEITEND[periode]) return monateVerschieben(anker, n * GLEITEND[periode]!);
   return plusTage(anker, n * (periode === 'tag' ? 1 : periode === 'woche' ? 7 : 365));
 }
 
@@ -88,10 +97,14 @@ export interface Kennzahlen {
   /** meistgefragte Produkte (Interesse) im Zeitraum, höchstens 5 */
   topProdukte: { name: string; anzahl: number }[];
   /** Gespräche je Abschnitt (Stunden-/Tages-/Monatsbalken) */
-  verlauf: { label: string; wert: number }[];
+  /** je Abschnitt: Anzahl Gespräche und Themen-Nennungen (ein Gespräch kann mehrere Themen haben; ohne Thema = ohne) */
+  verlauf: { label: string; wert: number; je: VerlaufJe }[];
 }
 
 const leereErgebnisse = () => Object.fromEntries(Object.keys(AUSGANG).map((k) => [k, 0])) as Record<Ausgang, number>;
+
+export type VerlaufJe = Record<Sparte | 'ohne', number>;
+const leerJe = (): VerlaufJe => ({ ...Object.fromEntries(SPARTEN_KEYS.map((x) => [x, 0])), ohne: 0 } as VerlaufJe);
 
 /** Kennzahlen für Bereich und Zeitraum [von, bis] (Tage inklusive). */
 export function kennzahlen(data: Daten, bereich: Bereich, von: Tag, bis: Tag, periode: Periode = 'monat'): Kennzahlen {
@@ -105,12 +118,16 @@ export function kennzahlen(data: Daten, bereich: Bereich, von: Tag, bis: Tag, pe
   };
   const interesse = new Map<string, number>();
   const abschnitte = verlaufAbschnitte(periode, von, bis);
-  const imVerlauf = (iso: string) => {
-    const i = abschnitte.findIndex((a) => a.passt(iso));
-    if (i >= 0) abschnitte[i]!.wert++;
+  const imVerlauf = (iso: string, sparten: readonly string[]) => {
+    const a = abschnitte.find((x) => x.passt(iso));
+    if (!a) return;
+    a.wert++;
+    const gueltig = sparten.filter((s): s is Sparte => (SPARTEN_KEYS as readonly string[]).includes(s));
+    if (!gueltig.length) a.je.ohne++;
+    for (const s of new Set(gueltig)) a.je[s]++;
   };
-  const gespraech = (iso: string, erreicht: boolean, ergebnis: Ausgang | '', art: string) => {
-    k.gespraeche++; imVerlauf(iso);
+  const gespraech = (iso: string, erreicht: boolean, ergebnis: Ausgang | '', art: string, sparten: readonly string[]) => {
+    k.gespraeche++; imVerlauf(iso, sparten);
     if (erreicht) k.erreicht++;
     if (art === 'telefon') k.telefon++; else if (art === 'hausbesuch') k.hausbesuch++;
     if (ergebnis) k.ergebnisse[ergebnis]++;
@@ -123,11 +140,11 @@ export function kennzahlen(data: Daten, bereich: Bereich, von: Tag, bis: Tag, pe
     for (const c of kd.enpalKontakte) {
       if (bereich === 'vorwerk' || !rein(c.zeitpunkt)) continue;
       if (bereich !== 'alle' && !c.themen.includes(bereich)) continue;
-      gespraech(c.zeitpunkt, c.erreicht, c.ergebnis, c.art);
+      gespraech(c.zeitpunkt, c.erreicht, c.ergebnis, c.art, c.themen);
     }
     for (const g of kd.gespraeche) {
       if (!rein(g.zeitpunkt) || !passt([g.sparte])) continue;
-      gespraech(g.zeitpunkt, true, g.ausgang, '');
+      gespraech(g.zeitpunkt, true, g.ausgang, '', g.sparte ? [g.sparte] : []);
     }
     // Produkte: jüngste Markierung je Produkt innerhalb des Zeitraums
     const letzte = new Map<string, { name: string; markierung: string; zeitpunkt: string }>();
@@ -158,21 +175,27 @@ export function kennzahlen(data: Daten, bereich: Bereich, von: Tag, bis: Tag, pe
     }
     k.kaufquote = k.verleihe ? k.kaeufe / k.verleihe : null;
   }
-  k.verlauf = abschnitte.map(({ label, wert }) => ({ label, wert }));
+  k.verlauf = abschnitte.map(({ label, wert, je }) => ({ label, wert, je }));
   return k;
 }
 
 /** Abschnitte für den Verlauf: Tag = Stunden 7–20 Uhr (Rand gesammelt), Woche/Monat = Tage, Jahr/365 = Monate. */
 function verlaufAbschnitte(periode: Periode, von: Tag, bis: Tag) {
-  const out: { label: string; wert: number; passt: (iso: string) => boolean }[] = [];
+  const out: { label: string; wert: number; je: VerlaufJe; passt: (iso: string) => boolean }[] = [];
   if (periode === 'tag') {
     for (let h = 7; h <= 20; h++) {
-      out.push({ label: `${h}`, wert: 0, passt: (iso) => { const s = new Date(iso).getHours(); return h === 7 ? s <= 7 : h === 20 ? s >= 20 : s === h; } });
+      out.push({ label: `${h}`, wert: 0, je: leerJe(), passt: (iso) => { const s = new Date(iso).getHours(); return h === 7 ? s <= 7 : h === 20 ? s >= 20 : s === h; } });
     }
-  } else if (periode === 'woche' || periode === 'monat') {
+  } else if (periode === 'm3') {
+    // Wochenbalken (KW), erste/letzte Woche angeschnitten
+    for (let t = wochenanfang(von); t <= bis; t = plusTage(t, 7)) {
+      const start = t; const ende = plusTage(t, 6);
+      out.push({ label: `KW ${kalenderwoche(t)}`, wert: 0, je: leerJe(), passt: (iso) => { const x = tagVon(iso); return x >= start && x <= ende; } });
+    }
+  } else if (periode === 'woche' || periode === 'monat' || periode === 'm1') {
     for (let t = von; t <= bis; t = plusTage(t, 1)) {
       const tag = t;
-      out.push({ label: periode === 'woche' ? tagDatum(tag).toLocaleDateString('de-DE', { weekday: 'short' }) : String(tagDatum(tag).getDate()), wert: 0, passt: (iso) => tagVon(iso) === tag });
+      out.push({ label: periode === 'woche' ? tagDatum(tag).toLocaleDateString('de-DE', { weekday: 'short' }) : periode === 'm1' && tagDatum(tag).getDate() === 1 ? `1.${tagDatum(tag).getMonth() + 1}.` : String(tagDatum(tag).getDate()), wert: 0, je: leerJe(), passt: (iso) => tagVon(iso) === tag });
     }
   } else {
     const start = tagDatum(von);
@@ -180,7 +203,7 @@ function verlaufAbschnitte(periode: Periode, von: Tag, bis: Tag) {
       const m = new Date(start.getFullYear(), start.getMonth() + i, 1);
       const schluessel = tagVon(m).slice(0, 7);
       if (`${schluessel}-01` > bis) break;
-      out.push({ label: MONATE[m.getMonth()]!.slice(0, 3), wert: 0, passt: (iso) => tagVon(iso).slice(0, 7) === schluessel });
+      out.push({ label: MONATE[m.getMonth()]!.slice(0, 3), wert: 0, je: leerJe(), passt: (iso) => tagVon(iso).slice(0, 7) === schluessel });
     }
   }
   return out;

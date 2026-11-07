@@ -66,7 +66,48 @@ export function dialog<T = any>({ titel, html = '', knoepfe = [{ label: 'OK', we
     dlg.addEventListener('close', () => { dlg.remove(); resolve(ergebnis); });
     dlg.showModal();
     try { onOpen?.(dlg); } catch (e) { console.error(e); }
+    schliessenErlauben(dlg);
   });
+}
+
+/** Stand aller Eingaben (ohne Suchfelder), um ungespeicherte Änderungen zu erkennen. */
+function eingabeStand(root: Element): string {
+  return Array.from(root.querySelectorAll<HTMLInputElement>('input, select, textarea'))
+    .filter((e) => e.type !== 'search')
+    .map((e) => (e.type === 'checkbox' || e.type === 'radio' ? String(e.checked) : e.value)).join('\u0001');
+}
+
+/**
+ * Dialog per Klick/Tipp auf den Hintergrund oder Esc schließen (= Abbrechen).
+ * Sind Eingaben geändert (auch Unterschrift gezeichnet), kommt vorher eine Rückfrage.
+ */
+function schliessenErlauben(dlg: HTMLDialogElement) {
+  const anfang = eingabeStand(dlg);
+  let gezeichnet = false;
+  let fragt = false;
+  dlg.addEventListener('pointerdown', (ev) => { if ((ev.target as Element).closest?.('canvas')) gezeichnet = true; });
+  const geaendert = () => gezeichnet || eingabeStand(dlg) !== anfang;
+  const abbrechen = async () => {
+    if (fragt || !dlg.open) return;
+    if (geaendert()) {
+      fragt = true;
+      const vorher = document.activeElement as HTMLElement | null;
+      const ok = await dialog<boolean>({ titel: 'Eingaben verwerfen?', html: '<p>Du hast hier schon etwas eingetragen. Ohne Speichern schließen?</p>', knoepfe: [{ label: 'Verwerfen', gefahr: true, wert: true }] });
+      fragt = false;
+      if (!ok) { (vorher && dlg.contains(vorher) ? vorher : dlg).focus?.(); return; }
+    }
+    if (dlg.open) dlg.close();
+  };
+  // Hintergrund: Druck und Loslassen beide außerhalb des Fensters (kein versehentliches Schließen beim Markieren)
+  const aussen = (ev: MouseEvent) => {
+    if (ev.target !== dlg) return false;
+    const r = dlg.getBoundingClientRect();
+    return ev.clientX < r.left || ev.clientX > r.right || ev.clientY < r.top || ev.clientY > r.bottom;
+  };
+  let druckAussen = false;
+  dlg.addEventListener('pointerdown', (ev) => { druckAussen = aussen(ev); });
+  dlg.addEventListener('click', (ev) => { if (druckAussen && aussen(ev)) { druckAussen = false; abbrechen(); } });
+  dlg.addEventListener('cancel', (ev) => { ev.preventDefault(); abbrechen(); });
 }
 
 export function bestaetigen(titel: string, text: string, label = 'Löschen'): Promise<boolean> {

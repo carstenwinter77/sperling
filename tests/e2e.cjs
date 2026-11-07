@@ -205,6 +205,49 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('dialog button.primary');
   await p.waitForFunction(() => (document.querySelector('#toast')?.textContent || '').startsWith('Belegt'));
   await p.click('dialog .dlg-actions button.ghost');
+  // Aus der Kundenansicht verkaufen: Gerät wählen, Preis, Verkauf landet beim Kunden
+  await p.goto(BASE + '#/kunden');
+  await p.click('#liste a.zeile:has-text("Prüfer")');
+  await p.waitForSelector('#bestandKunde');
+  await p.click('[data-bestand-kunde=verkaufen]');
+  await p.waitForSelector('dialog .gw-liste');
+  if (!(await p.textContent('dialog .gw-eintrag')).includes('für diesen Kunden reserviert')) fail('Reserviertes Gerät steht nicht oben');
+  // Hintergrund antippen ohne Eingaben: schließt sofort
+  await p.mouse.click(4, 4);
+  await p.waitForFunction(() => !document.querySelector('dialog'));
+  await p.click('[data-bestand-kunde=verkaufen]');
+  await p.waitForSelector('dialog .gw-liste');
+  const verkaufName = await p.locator('dialog .gw-eintrag:not(.gw-belegt)').last().locator('b').textContent();
+  await p.locator('dialog .gw-eintrag:not(.gw-belegt)').last().click();
+  await p.click('dialog button.primary');
+  await p.waitForSelector('dialog [name=preis]');
+  if (!(await p.isChecked('dialog [name=status]'))) fail('Status-Häkchen nicht vorausgewählt');
+  await p.fill('dialog [name=preis]', '799,00');
+  // Hintergrund mit Eingabe: Rückfrage, „Abbrechen“ lässt den Dialog offen, Esc fragt ebenso
+  await p.mouse.click(4, 4);
+  await p.waitForSelector('dialog h2:has-text("Eingaben verwerfen?")');
+  await p.click('dialog:has(h2:has-text("Eingaben verwerfen?")) .dlg-actions button.ghost');
+  await p.waitForFunction(() => document.querySelectorAll('dialog').length === 1);
+  if ((await p.inputValue('dialog [name=preis]')) !== '799,00') fail('Rückfrage hat Eingaben verworfen');
+  await p.keyboard.press('Escape');
+  await p.waitForSelector('dialog h2:has-text("Eingaben verwerfen?")');
+  await p.click('dialog:has(h2:has-text("Eingaben verwerfen?")) .dlg-actions button.ghost');
+  await p.click('dialog button.primary');
+  await p.waitForFunction(() => (document.querySelector('#toast')?.textContent || '').startsWith('Verkauf gebucht'));
+  await p.waitForFunction((n) => { const t = document.querySelector('#bestandKunde')?.textContent || ''; return t.includes(n) && t.includes('799,00 €'); }, verkaufName);
+  await p.goto(BASE + '#/bestand');
+  await p.waitForSelector('article.geraet');
+  if (!(await p.textContent('main')).includes('Verkauft')) fail('Verkauf fehlt im Bestand');
+  // Verleihen aus der Kundenansicht: Kunde ist vorausgefüllt
+  await p.goto(BASE + '#/kunden');
+  await p.click('#liste a.zeile:has-text("Prüfer")');
+  await p.click('[data-bestand-kunde=verleihen]');
+  await p.waitForSelector('dialog .gw-liste');
+  await p.click('dialog button.primary');
+  await p.waitForSelector('dialog [name=erinnern]');
+  if (!(await p.isVisible('dialog .kw-gewaehlt')) || !(await p.textContent('dialog .kw-gewaehlt')).includes('Prüfer')) fail('Kunde im Verleih nicht vorausgefüllt');
+  await p.click('dialog .dlg-actions button.ghost');
+  await p.waitForFunction(() => !document.querySelector('dialog'));
   // Belegungskalender: Zeitleiste, leere Stelle antippen, Zeitraum wischen, Liste und Freie finden
   await p.goto(BASE + '#/belegung?ansicht=zeitleiste&zoom=28');
   await p.waitForSelector('.bk-bar.art-reserviert');
@@ -492,6 +535,13 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   if (!(await p.textContent('.aw-kopf h2')).startsWith('Letzte 365 Tage')) fail('365-Tage-Bericht fehlt');
   await p.click('#awPdf');
   await p.waitForFunction(() => /auswertung-pv-365-.*\.pdf/.test(document.querySelector('dialog')?.textContent || ''));
+  await p.click('dialog .dlg-actions button.ghost');
+  // Alles zusammen: Säulen nach Thema gestapelt, mit Legende; PDF auch hier
+  await p.click('[data-bereich=alle]');
+  await p.waitForFunction(() => document.querySelector('.aw-kopf')?.textContent.includes('Alles zusammen'));
+  if (await p.$('.aw-verlauf') && (!(await p.$('.aw-legende')) || !(await p.$('.aw-stapel .aw-teil')))) fail('Gesprächssäulen nicht nach Thema gestapelt');
+  await p.click('#awPdf');
+  await p.waitForFunction(() => /auswertung-alle-365-.*\.pdf/.test(document.querySelector('dialog')?.textContent || ''));
   await p.click('dialog .dlg-actions button.ghost');
   // Kommandozeile: Feld auf der Übersicht, Enter öffnet, Zuletzt-Chip, ⌘K/Strg+K, „… anrufen“ erzeugt tel:-Link
   await p.goto(BASE + '#/');

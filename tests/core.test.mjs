@@ -424,6 +424,16 @@ test('Auswertungen: Zeiträume, Navigation, Kennzahlen je Bereich, Vergleich', a
   assert.deepEqual([a.zeitraum('jahr', '2026-07-01').von, a.zeitraum('jahr', '2026-07-01').bis], ['2026-01-01', '2026-12-31']);
   // 365 Tage enden am gewählten Tag, egal wo er liegt
   assert.deepEqual([a.zeitraum('365', '2026-03-15').von, a.zeitraum('365', '2026-03-15').bis], ['2025-03-16', '2026-03-15']);
+  // gleitende Zeiträume: letzter Monat, 3 Monate, halbes Jahr
+  assert.deepEqual([a.zeitraum('m1', '2026-11-07').von, a.zeitraum('m1', '2026-11-07').bis], ['2026-10-08', '2026-11-07']);
+  assert.equal(a.zeitraum('m3', '2026-11-07').von, '2026-08-08');
+  assert.equal(a.zeitraum('m6', '2026-11-07').von, '2026-05-08');
+  assert.equal(a.zeitraum('m1', '2026-03-31').von, '2026-03-01', 'Monatsende gekappt');
+  assert.equal(a.vorzeitraum('m3', '2026-11-07').bis, '2026-08-07', 'Vorzeitraum schließt direkt an');
+  assert.equal(a.kennzahlen(emptyData(), 'alle', '2026-10-08', '2026-11-07', 'm1').verlauf.length, 31);
+  assert.ok(a.kennzahlen(emptyData(), 'alle', '2026-08-08', '2026-11-07', 'm3').verlauf.every((v) => v.label.startsWith('KW')));
+  assert.equal(a.kennzahlen(emptyData(), 'alle', '2026-05-08', '2026-11-07', 'm6').verlauf.length, 7);
+  assert.equal(a.PERIODEN_REIHE.length, 8);
   assert.equal(a.verschieben('monat', '2026-03-31', -1), '2026-02-28');
   assert.equal(a.verschieben('jahr', '2028-02-29', 1), '2029-02-28');
   assert.equal(a.verschieben('woche', '2026-11-08', 1), '2026-11-15');
@@ -461,6 +471,8 @@ test('Auswertungen: Zeiträume, Navigation, Kennzahlen je Bereich, Vergleich', a
   assert.equal(alle.verleihe, 2); assert.equal(alle.rueckgaben, 1); assert.equal(alle.kaeufe, 1); assert.equal(alle.kaufquote, 0.5);
   assert.equal(alle.verlauf.length, 7);
   assert.equal(alle.verlauf.reduce((s, x) => s + x.wert, 0), 3);
+  for (const v of alle.verlauf) { const n = v.je.pv + v.je.wp + v.je.vorwerk + v.je.ohne; assert.ok(n >= v.wert && (v.wert > 0 || n === 0), 'Themen je Säule'); }
+  assert.ok(alle.verlauf.some((v) => v.je.pv > 0), 'PV-Gespräch im Stapel');
   const pv = a.kennzahlen(data, 'pv', '2026-11-02', '2026-11-08');
   assert.equal(pv.gespraeche, 2); assert.equal(pv.abschlussquote, 1); assert.equal(pv.neueKunden, 1); assert.equal(pv.notizen, 1); assert.equal(pv.termine, 1);
   assert.equal(pv.verleihe, 0); assert.equal(pv.kaufquote, null);
@@ -1123,4 +1135,48 @@ test('Schnellwahl Wiedervorlage: Tage, Wochen, Monate, Monatsende, Uhrzeit', asy
   assert.deepEqual(sw.uhrzeitAus('2026-11-07T08:45'), { h: 8, m: 45 });
   assert.equal(sw.uhrzeitAus(''), null);
   assert.equal(sw.SCHRITTE.length, 9);
+});
+
+test('Aus der Kundenansicht: Geräteauswahl und Verkauf buchen', async () => {
+  const { neuesGeraet, neuerLeihvorgang, normalizeReservierung, neuerTermin, normalizeGeraet } = await import('../src/core/model.ts');
+  const bk = await import('../src/core/bestandkunde.ts');
+  const pk = await import('../src/core/papierkorb.ts');
+  const data = emptyData();
+  const a = neuerKunde({ vorname: 'Anna', nachname: 'A' }); const b = neuerKunde({ vorname: 'Bert', nachname: 'B' });
+  data.kunden.push(a, b);
+  const frei = neuesGeraet({ name: 'Frei' }); const resA = neuesGeraet({ name: 'ResA' }); const beiB = neuesGeraet({ name: 'BeiB' }); const beiA = neuesGeraet({ name: 'BeiA' }); const alt = neuesGeraet({ name: 'Alt', aktiv: false });
+  data.geraete.push(frei, resA, beiB, beiA, alt);
+  data.leihvorgaenge.push(neuerLeihvorgang({ geraetId: beiB.id, kundeId: b.id }), neuerLeihvorgang({ geraetId: beiA.id, kundeId: a.id, ausgabe: '2026-11-01T10:00:00.000Z' }));
+  data.reservierungen = [normalizeReservierung({ geraetId: resA.id, kundeId: a.id, von: '2026-11-10', bis: '2026-11-12' }), normalizeReservierung({ geraetId: frei.id, kundeId: b.id, von: '2026-11-20', bis: '2026-11-21' })];
+  const liste = bk.geraeteFuerKunde(data, a.id, '2026-11-07');
+  assert.deepEqual(liste.map((x) => [x.g.name, x.lage]), [['ResA', 'reserviert'], ['BeiA', 'beimKunden'], ['Frei', 'fremdReserviert'], ['BeiB', 'verliehen']]);
+  assert.deepEqual(liste.filter(bk.verleihbar).map((x) => x.g.name), ['ResA', 'Frei']);
+  assert.deepEqual(liste.filter(bk.verkaufbar).map((x) => x.g.name), ['ResA', 'BeiA', 'Frei']);
+  // An andere verliehen: Verkauf an A abgelehnt, nichts geändert
+  assert.throws(() => bk.verkaufBuchen(data, beiB.id, { kundeId: a.id, datum: '2026-11-07T12:00:00.000Z', preis: 1, notiz: '', statusSetzen: true }, '2026-11-07T12:00:00.000Z'));
+  assert.equal(beiB.aktiv, true);
+  // Bei A verliehen -> Leihgabe wird „gekauft“, Erinnerung erledigt, Status nur mit Häkchen
+  data.termine.push(neuerTermin({ kundeId: a.id, titel: 'Nachfragen: BeiA bei Anna A', beginn: '2026-11-08T10:00:00.000Z' }));
+  bk.verkaufBuchen(data, beiA.id, { kundeId: a.id, datum: '2026-11-07T12:00:00.000Z', preis: 799, notiz: 'mit Zubehör', statusSetzen: false }, '2026-11-07T12:00:00.000Z');
+  assert.equal(beiA.aktiv, false);
+  assert.deepEqual(beiA.verkauf, { kundeId: a.id, datum: '2026-11-07T12:00:00.000Z', preis: 799, notiz: 'mit Zubehör' });
+  const l = data.leihvorgaenge.find((x) => x.geraetId === beiA.id);
+  assert.equal(l.kaufinteresse, 'gekauft'); assert.equal(l.rueckgabe, '2026-11-07T12:00:00.000Z');
+  assert.equal(data.termine[0].erledigt, true);
+  assert.notEqual(a.status.vorwerk, 'abschluss');
+  assert.match(a.notizen.at(-1).text, /Gekauft: BeiA für 799,00\s€\. mit Zubehör/);
+  // Freies Gerät mit fremder späterer Reservierung: Reservierung fällt weg, Status mit Häkchen
+  const weg = bk.verkaufBuchen(data, frei.id, { kundeId: a.id, datum: '2026-11-07T12:00:00.000Z', preis: null, notiz: '', statusSetzen: true }, '2026-11-07T12:00:00.000Z');
+  assert.equal(weg.length, 1); assert.equal(data.reservierungen.length, 1);
+  assert.equal(a.status.vorwerk, 'abschluss');
+  assert.deepEqual(bk.gekaufteGeraete(data, a.id).map((g) => g.name).sort(), ['BeiA', 'Frei']);
+  assert.throws(() => bk.verkaufBuchen(data, frei.id, { kundeId: a.id, datum: '', preis: null, notiz: '', statusSetzen: false }, '2026-11-07T12:00:00.000Z'), /nicht mehr im Bestand/);
+  // Normalisierung und Papierkorb
+  assert.equal(normalizeGeraet({ name: 'x' }).verkauf, null);
+  assert.equal(normalizeGeraet({ name: 'x', verkauf: { datum: 'kaputt' } }).verkauf, null);
+  assert.equal(normalizeGeraet({ name: 'x', verkauf: { datum: '2026-11-07T12:00:00.000Z', preis: -5 } }).verkauf.preis, null);
+  pk.kundeLoeschen(data, a.id);
+  assert.equal(beiA.verkauf.kundeId, '');
+  pk.wiederherstellen(data, data.papierkorb[0].id);
+  assert.equal(beiA.verkauf.kundeId, a.id);
 });

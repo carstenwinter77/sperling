@@ -957,3 +957,26 @@ tr.li-gleich { opacity: .7; }
 .chip-knopf { font: inherit; font-size: .85rem; min-height: 36px; padding: .25rem .7rem; border-radius: 999px; border: 1px solid var(--linie); background: var(--feld); color: var(--text); cursor: pointer; }
 .chip-knopf:hover { border-color: var(--gruen); }
 .chip-knopf[aria-pressed="true"] { background: var(--aktiv-bg); border-color: var(--gruen); font-weight: 700; }
+
+/* Gerät wählen (Verleihen/Verkaufen aus der Kundenansicht) */
+.gw-suche { width: 100%; }
+.gw-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; max-height: 55dvh; overflow: auto; }
+.gw-liste li[hidden] { display: none; }
+.dlg-body .gw-eintrag { display: flex; flex-direction: row; align-items: flex-start; gap: .6rem; padding: .6rem .75rem; border: 1px solid var(--linie); border-radius: 12px; background: var(--feld); cursor: pointer; min-height: 44px; }
+.gw-eintrag:has(input:checked) { border-color: var(--gruen); background: var(--aktiv-bg); }
+.dlg-body .gw-eintrag input { margin-top: .2rem; width: auto; flex: none; min-height: 0; }
+.gw-eintrag span { display: flex; flex-direction: column; gap: .1rem; flex: 1; text-align: left; }
+.gw-eintrag .gw-lage { color: var(--text-2); }
+.gw-eintrag.gw-belegt { opacity: .55; cursor: not-allowed; }
+
+/* Auswertung: Gespräche nach Thema gestapelt (Bereichsfarben + Muster, damit es nicht nur an der Farbe hängt) */
+.aw-stapel { display: flex !important; flex-direction: column-reverse; width: 100%; border-radius: 4px 4px 0 0; overflow: hidden; background: none !important; gap: 1px; }
+.aw-teil { display: block; flex-basis: 0; min-height: 2px; }
+.aw-pv { background: var(--pv); }
+.aw-wp { background: var(--wp) repeating-linear-gradient(45deg, rgba(255,255,255,.38) 0 2px, transparent 2px 6px); }
+.aw-vorwerk { background: radial-gradient(rgba(255,255,255,.55) 1.1px, transparent 1.5px) 0 0 / 5px 5px, var(--vw); }
+.aw-ohne { background: var(--text-2); }
+.aw-legende { list-style: none; display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin: 1.6rem 0 0; padding: 0; font-size: .9rem; }
+.aw-legende li { display: flex; align-items: center; gap: .4rem; }
+.aw-legende .aw-teil { width: 18px; height: 14px; border-radius: 3px; }
+.aw-legende .aw-teil { flex: none; display: inline-block; }

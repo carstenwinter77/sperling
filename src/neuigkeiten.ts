@@ -2,6 +2,14 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.10',
+    punkte: [
+      'Beim Kunden: „📦 Aus meinem Bestand“. Gerät verleihen oder verkaufen, der Kunde ist schon eingetragen. Verkaufte Geräte stehen beim Kunden und im Bestand.',
+      'Fenster schließen auch mit einem Tipp daneben. Hast du schon etwas eingetragen, fragt Sperling vorher nach.',
+      'Auswertungen: Bei „Alles zusammen“ zeigen die Säulen die Themen in ihren Farben. Neu sind 1 Monat, 3 Monate und ½ Jahr. Der PDF-Bericht passt immer auf eine Seite.',
+    ],
+  },
+  {
     version: '0.10.9',
     punkte: [
       'Wiedervorlage schneller setzen: Knöpfe „In 1 Tag“ bis „1 Jahr“ direkt unter dem Datum. Die Uhrzeit bleibt, sonst 9:00 Uhr.',

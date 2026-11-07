@@ -1,4 +1,5 @@
 // Kundendetail: Stammdaten, Spartenstatus, Gesprächsnotizen, Erfassungsbögen, Termine, Texte.
+import * as bestandKunde from '../bestandkunde.ts';
 import { esc, debounce, parseNumber, isoToLocalInput, localInputToIso, formatDateTime, distanceMeters, nowIso } from '../../core/util.ts';
 import { NACHBAR_RADIEN, radiusText, AUSGANG, SPARTEN, SPARTEN_KEYS, STATUS, kundenTitel, adresseEinzeilig, notizenSortiert, neueNotiz, normalizeNotiz } from '../../core/model.ts';
 import { ERGEBNIS } from '../../core/einwaende.ts';
@@ -204,6 +205,7 @@ function uebersicht(el, k, kopf) {
         <button class="btn ghost" id="geocode">📍 Standort aus Adresse ermitteln</button>
       </div>
     </section>
+    ${bestandKunde.blockHtml(k.id)}
     ${k.lat !== null ? `
     <section class="karte-box nachbarn-box">
       <header class="seitenkopf"><h2>${maskottchen('karte', 'titel-bild')} Nachbarn <small>(${nachbarn.length})</small></h2>
@@ -230,6 +232,7 @@ function uebersicht(el, k, kopf) {
     uebersicht(el, store.findKunde(k.id), kopf);
   });
 
+  bestandKunde.verdrahten(el, k.id, () => { kopf(); uebersicht(el, store.findKunde(k.id), kopf); });
   // Immer den aktuellen Stand nehmen (Felder speichern beim Tippen).
   el.querySelector('#anrufen').addEventListener('click', () => {
     const akt = store.findKunde(k.id);
