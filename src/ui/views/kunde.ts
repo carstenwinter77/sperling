@@ -12,7 +12,8 @@ import * as pk from '../../core/papierkorb.ts';
 import { hinfahrenKnopf } from '../navi.ts';
 import * as kundenansicht from '../kundenansicht.ts';
 import { istBeispiel } from '../../demo.ts';
-import { kundenVerlauf, type VerlaufEintrag } from '../../core/verlauf.ts';
+import { kundenVerlauf, letzterKontakt, tageSeit, seitText, type VerlaufEintrag } from '../../core/verlauf.ts';
+import { kontaktKlasse } from './kunden.ts';
 import * as ablauf from '../gespraechsablauf.ts';
 import { statusOptions, terminDialog, terminZeile, terminListeVerdrahten, icsExport, spartenIcon, statusChips } from '../parts.ts';
 
@@ -44,6 +45,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
       <h1 id="kTitel">${esc(kundenTitel(kunde))}</h1>${istBeispiel(kunde.id) ? '<span class="tag tag-beispiel">Beispiel</span>' : ''}
       <span id="kChips">${statusChips(kunde)}</span>
     </header>
+    <p class="kunde-kontakt"><button type="button" class="kontakt-alter-knopf" id="kKontakt" title="Letzten Kontakt von Hand setzen"></button></p>
     <div class="knopfreihe kunde-aktionen"><a class="btn klein primary" href="#/kunde/${esc(kunde.id)}/gespraech" id="gespraechStarten">${laeuft ? '▶ Gespräch fortsetzen' : '📞 Gespräch starten'}</a><a class="btn klein" href="#/kunde/${esc(kunde.id)}/gespraech?seite=leitfaden">💬 Gesprächsleitfaden</a><button class="btn klein" id="kundenansicht">👁 Kundenansicht zum Herzeigen</button></div>
     <nav class="tabs" role="tablist">
       ${TABS.map((t) => `<button role="tab" data-tab="${t.key}" class="${t.key === tab ? 'aktiv' : ''}">${esc(t.label)}</button>`).join('')}
@@ -54,9 +56,41 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
     kundenansicht.starten(kunde.id);
   });
   const inhalt = el.querySelector('#tabInhalt');
-  const kopfAktualisieren = () => {
+  const kontaktZeigen = () => {
     const k = store.findKunde(id);
     if (!k) return;
+    const iso = letzterKontakt(store.getData(), k);
+    const t = tageSeit(iso);
+    const b = el.querySelector('#kKontakt');
+    if (!b) return; // Ansicht schon verlassen
+    b.className = `kontakt-alter-knopf kontakt-alter ${kontaktKlasse(t)}`;
+    b.textContent = iso ? `Letzter Kontakt ${seitText(t)} · ${formatDateTime(iso).slice(0, 10)} ✎` : 'Noch kein Kontakt ✎';
+  };
+  kontaktZeigen();
+  el.querySelector('#kKontakt').addEventListener('click', async () => {
+    const k = store.findKunde(id);
+    if (!k) return;
+    const heute = new Date(); const z = (n: number) => String(n).padStart(2, '0');
+    const heuteStr = `${heute.getFullYear()}-${z(heute.getMonth() + 1)}-${z(heute.getDate())}`;
+    const res = await dialog({
+      titel: 'Letzter Kontakt',
+      html: `<p class="hinweis">Sperling ermittelt den letzten Kontakt selbst aus Gesprächen, Notizen, erledigten Terminen und Verleihen. Hier trägst du einen Kontakt nach, der sonst nirgends steht, z. B. ein kurzes Gespräch an der Haustür.</p>
+        <label>Kontakt am<input type="date" name="tag" value="${esc(k.letzterKontaktManuell ? k.letzterKontaktManuell.slice(0, 10) : heuteStr)}" max="${heuteStr}"></label>`,
+      knoepfe: [
+        ...(k.letzterKontaktManuell ? [{ label: 'Eintrag entfernen', wert: 'weg' }] : []),
+        { label: 'Speichern', primaer: true, wert: (dlg) => dlg.querySelector('[name=tag]').value || null },
+      ],
+    });
+    if (res === null || res === undefined) return;
+    const wert = res === 'weg' ? null : new Date(`${res}T12:00`).toISOString();
+    if (res !== 'weg' && Number.isNaN(Date.parse(wert || ''))) { toast('Ungültiges Datum.', 'error'); return; }
+    store.mutate((d) => { const x = d.kunden.find((y) => y.id === id); if (x) { x.letzterKontaktManuell = wert; x.updatedAt = nowIso(); } });
+    kontaktZeigen();
+  });
+  const kopfAktualisieren = () => {
+    const k = store.findKunde(id);
+    if (!k || !el.querySelector('#kTitel')) return;
+    kontaktZeigen();
     el.querySelector('#kTitel').textContent = kundenTitel(k);
     el.querySelector('#kChips').innerHTML = statusChips(k);
   };

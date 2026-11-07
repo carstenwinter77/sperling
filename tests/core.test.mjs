@@ -508,13 +508,44 @@ test('Kartenfilter: Mehrfachauswahl, Rest ausgeblendet', async () => {
   const c = k('kein_interesse', 'unbekannt', 'unbekannt');
   assert.ok([a, b, c].every((x) => f.passt(x, f.leererKartenFilter())));
   // PV + Vorwerk zeigen, WP ausschließen
-  const pvVw = { sparten: ['pv', 'vorwerk'], status: [] };
+  const pvVw = { sparten: ['pv', 'vorwerk'], status: [], kontakt: '' };
   assert.deepEqual([a, b, c].map((x) => f.passt(x, pvVw)), [true, true, false]);
   // nur bestimmte Status über alle Bereiche
-  const st = { sparten: [], status: ['termin', 'interesse'] };
+  const st = { sparten: [], status: ['termin', 'interesse'], kontakt: '' };
   assert.deepEqual([a, b, c].map((x) => f.passt(x, st)), [false, true, false]);
   // Kombination: WP mit Interesse oder Termin
-  assert.deepEqual([a, b, c].map((x) => f.passt(x, { sparten: ['wp'], status: ['termin'] })), [false, false, false]);
-  assert.equal(f.pinStatus(b, { sparten: ['wp'], status: [] }), 'interesse');
+  assert.deepEqual([a, b, c].map((x) => f.passt(x, { sparten: ['wp'], status: ['termin'], kontakt: '' })), [false, false, false]);
+  assert.equal(f.pinStatus(b, { sparten: ['wp'], status: [], kontakt: '' }), 'interesse');
   assert.equal(f.pinStatus(b, f.leererKartenFilter()), 'termin');
+});
+
+test('Letzter Kontakt: aus Verlauf oder von Hand, nichts aus der Zukunft; Kontakt-Filter', async () => {
+  const v = await import('../src/core/verlauf.ts');
+  const f = await import('../src/core/kartenfilter.ts');
+  const { normalizeTermin, neuerLeihvorgang } = await import('../src/core/model.ts');
+  const jetzt = '2026-11-07T12:00:00.000Z';
+  const data = emptyData();
+  const k = normalizeKunde({ id: 'k', notizen: [{ zeitpunkt: '2026-09-01T10:00:00.000Z', text: 'x' }] });
+  data.kunden = [k];
+  assert.equal(v.letzterKontakt(data, k, jetzt), '2026-09-01T10:00:00.000Z');
+  data.termine = [
+    normalizeTermin({ kundeId: 'k', beginn: '2026-10-01T10:00:00.000Z', erledigt: false }),
+    normalizeTermin({ kundeId: 'k', beginn: '2026-12-01T10:00:00.000Z', erledigt: true }),
+  ];
+  assert.equal(v.letzterKontakt(data, k, jetzt), '2026-09-01T10:00:00.000Z', 'offene und künftige Termine zählen nicht');
+  data.leihvorgaenge = [neuerLeihvorgang({ kundeId: 'k', geraetId: 'g', ausgabe: '2026-10-05T10:00:00.000Z' })];
+  assert.equal(v.letzterKontakt(data, k, jetzt), '2026-10-05T10:00:00.000Z');
+  k.letzterKontaktManuell = '2026-11-01T12:00:00.000Z';
+  assert.equal(v.letzterKontakt(data, k, jetzt), '2026-11-01T12:00:00.000Z');
+  assert.equal(normalizeKunde({ letzterKontaktManuell: 'quatsch' }).letzterKontaktManuell, null);
+  assert.equal(v.letzterKontakt(data, normalizeKunde({ id: 'leer' }), jetzt), null);
+  assert.equal(v.tageSeit('2026-11-01T12:00:00.000Z', new Date(jetzt)), 6);
+  assert.equal(v.seitText(null), 'noch nie');
+  assert.equal(v.seitText(0), 'heute');
+  assert.equal(v.seitText(6), 'vor 6 Tagen');
+  assert.equal(f.kontaktPasst(100, '90'), true);
+  assert.equal(f.kontaktPasst(30, '90'), false);
+  assert.equal(f.kontaktPasst(null, '90'), true, 'noch nie zählt als lange her');
+  assert.equal(f.kontaktPasst(5, 'nie'), false);
+  assert.equal(f.passt({ status: { pv: 'interesse', wp: 'unbekannt', vorwerk: 'unbekannt' } }, { sparten: ['pv'], status: [], kontakt: '90' }, 10), false);
 });

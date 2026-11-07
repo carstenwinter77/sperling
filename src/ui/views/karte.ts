@@ -5,8 +5,9 @@ import * as store from '../../storage/store.ts';
 import { adresseZuKoordinate, adressenSuchen } from '../../services/geo.ts';
 import { toast, maskottchen } from '../dom.ts';
 import { statusChips } from '../parts.ts';
-import { passt, pinStatus, leererKartenFilter, type KartenFilter } from '../../core/kartenfilter.ts';
-import type { Sparte, StatusKey } from '../../core/model.ts';
+import { passt, pinStatus, leererKartenFilter, filterAktiv, type KartenFilter } from '../../core/kartenfilter.ts';
+import { letzterKontakt, tageSeit, seitText } from '../../core/verlauf.ts';
+import { filterPanelHtml, filterPanelZeigen, filterPanelVerdrahten } from '../filterpanel.ts';
 import { hinfahrenKnopf } from '../navi.ts';
 
 const LAYER = {
@@ -58,12 +59,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
         <button type="button" class="btn klein" id="fKnopf" aria-expanded="false" aria-controls="fPanel">Filter <span id="fAnzahl"></span></button>
         <button class="btn klein" id="ich" title="Mein Standort">◎</button>
       </div>
-      <div class="karte-filter karte-box" id="fPanel" hidden>
-        <div class="kf-gruppe"><strong>Bereiche</strong>${SPARTEN_KEYS.map((s) => `<button type="button" class="chip-wahl tag-${s}" data-f-sparte="${s}" aria-pressed="false">${esc(SPARTEN[s].label)}</button>`).join('')}</div>
-        <div class="kf-gruppe"><strong>Status</strong>${Object.entries(STATUS).map(([k, v]) => `<button type="button" class="chip-wahl kf-status" data-f-status="${k}" style="--c:${v.farbe}" aria-pressed="false"><i></i>${esc(v.label)}</button>`).join('')}</div>
-        <p class="hinweis kf-text" id="fText"></p>
-        <button type="button" class="btn klein ghost" id="fAlle">Alle zeigen</button>
-      </div>
+      ${filterPanelHtml('fPanel')}
       <div id="map" class="map"></div>
       <div class="karte-hinweis" id="kHinweis">${maskottchen('karte', 'mini')} Tippe lange (oder Rechtsklick) auf ein Haus, um es zu markieren.</div>
       <div class="legende">${Object.entries(STATUS).map(([, v]) => `<span><i style="background:${v.farbe}"></i>${esc(v.label)}</span>`).join('')}</div>
@@ -112,24 +108,21 @@ export function render(el: HTMLElement, params: URLSearchParams) {
   const zeichnen = () => {
     pins.clearLayers();
     let gesamt = 0; let sichtbar = 0;
-    for (const k of store.getData().kunden) {
+    const daten = store.getData();
+    for (const k of daten.kunden) {
       if (k.lat === null || k.lng === null) continue;
       gesamt++;
-      if (!passt(k, filter)) continue;
+      if (!passt(k, filter, tageSeit(letzterKontakt(daten, k)))) continue;
       sichtbar++;
       const st = pinStatus(k, filter);
       const m = L.marker([k.lat, k.lng], { icon: pinIcon(L, STATUS[st].farbe), title: kundenTitel(k) });
-      m.bindPopup(() => `<div class="popup"><strong>${esc(kundenTitel(k))}</strong><br><small>${esc(adresseEinzeilig(k))}</small><br>${statusChips(k)}<br><a class="btn klein primary" href="#/kunde/${esc(k.id)}">Öffnen</a>${hinfahrenKnopf(k, 'btn klein')}</div>`);
+      m.bindPopup(() => `<div class="popup"><strong>${esc(kundenTitel(k))}</strong><br><small>${esc(adresseEinzeilig(k))}</small><br>${statusChips(k)}<br><small>Letzter Kontakt: ${esc(seitText(tageSeit(letzterKontakt(store.getData(), k))))}</small><br><a class="btn klein primary" href="#/kunde/${esc(k.id)}">Öffnen</a>${hinfahrenKnopf(k, 'btn klein')}</div>`);
       pins.addLayer(m);
     }
-    const aktiv = filter.sparten.length + filter.status.length;
+    const aktiv = filterAktiv(filter);
     el.querySelector('#fAnzahl').textContent = aktiv ? `· ${sichtbar} von ${gesamt}` : '';
     el.querySelector('#fKnopf').classList.toggle('primary', aktiv > 0);
-    el.querySelectorAll<HTMLElement>('[data-f-sparte]').forEach((b) => { const an = filter.sparten.includes(b.dataset.fSparte as Sparte); b.classList.toggle('aktiv', an); b.setAttribute('aria-pressed', String(an)); });
-    el.querySelectorAll<HTMLElement>('[data-f-status]').forEach((b) => { const an = filter.status.includes(b.dataset.fStatus as StatusKey); b.classList.toggle('aktiv', an); b.setAttribute('aria-pressed', String(an)); });
-    const sp = filter.sparten.length ? filter.sparten.map((s) => SPARTEN[s].label).join(', ') : 'alle Bereiche';
-    const st = filter.status.length ? filter.status.map((s) => STATUS[s].label).join(', ') : (filter.sparten.length ? 'mit Interesse' : 'jeder Status');
-    el.querySelector('#fText').textContent = aktiv ? `Gezeigt: ${sp} · ${st} – ${sichtbar} von ${gesamt} Kunden. Nicht Gewähltes ist ausgeblendet.` : 'Tippe Bereiche und Status an, die du sehen willst. Alles andere wird ausgeblendet.';
+    filterPanelZeigen(el.querySelector('#fPanel'), filter, sichtbar, gesamt, 'Kunden mit Standort');
   };
   zeichnen();
 
@@ -140,17 +133,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     (e.currentTarget as HTMLElement).setAttribute('aria-expanded', String(!panel.hidden));
     setTimeout(() => map.invalidateSize(), 0);
   });
-  el.querySelector('#fPanel').addEventListener('click', (e) => {
-    const t = e.target as Element;
-    const sp = t.closest<HTMLElement>('[data-f-sparte]');
-    const st = t.closest<HTMLElement>('[data-f-status]');
-    const umschalten = <T,>(liste: T[], x: T) => (liste.includes(x) ? liste.filter((y) => y !== x) : [...liste, x]);
-    if (sp) filter.sparten = umschalten(filter.sparten, sp.dataset.fSparte as Sparte);
-    else if (st) filter.status = umschalten(filter.status, st.dataset.fStatus as StatusKey);
-    else if (t.closest('#fAlle')) Object.assign(filter, leererKartenFilter());
-    else return;
-    zeichnen();
-  });
+  filterPanelVerdrahten(el.querySelector('#fPanel'), filter, zeichnen);
 
   // Eigener Standort: blauer Punkt; beim Öffnen der Karte automatisch dorthin zoomen.
   let ichPunkt: any = null; // eslint-disable-line @typescript-eslint/no-explicit-any

@@ -95,3 +95,36 @@ export function kundenVerlauf(data: Daten, k: Kunde, jetzt = new Date().toISOStr
   }
   return out.sort((a, b) => (a.zeitpunkt < b.zeitpunkt ? 1 : a.zeitpunkt > b.zeitpunkt ? -1 : 0));
 }
+
+/**
+ * Letzter Kontakt: jüngstes Gespräch, Enpal-Kontakt, Notiz, erledigter Termin, Ausgabe oder Rückgabe
+ * eines Geräts, oder der von Hand gesetzte Tag. Nichts in der Zukunft. null = noch nie.
+ */
+export function letzterKontakt(data: Pick<Daten, 'termine' | 'leihvorgaenge'>, k: Kunde, jetzt = new Date().toISOString()): string | null {
+  let best: string | null = null;
+  const nimm = (iso: string | null | undefined) => { if (iso && iso <= jetzt && (!best || iso > best)) best = iso; };
+  nimm(k.letzterKontaktManuell);
+  for (const g of k.gespraeche) nimm(g.zeitpunkt);
+  for (const c of k.enpalKontakte) nimm(c.zeitpunkt);
+  for (const n of k.notizen) nimm(n.zeitpunkt);
+  for (const t of data.termine) if (t.kundeId === k.id && t.erledigt) nimm(t.beginn);
+  for (const l of data.leihvorgaenge) if (l.kundeId === k.id) { nimm(l.ausgabe); nimm(l.rueckgabe); }
+  return best;
+}
+
+/** Ganze Tage seit dem letzten Kontakt (nach Kalendertagen), null = noch nie. */
+export function tageSeit(iso: string | null, jetzt = new Date()): number | null {
+  if (!iso) return null;
+  const a = new Date(iso); const b = new Date(jetzt);
+  a.setHours(0, 0, 0, 0); b.setHours(0, 0, 0, 0);
+  return Math.max(0, Math.round((b.getTime() - a.getTime()) / 86400000));
+}
+
+export function seitText(tage: number | null): string {
+  if (tage === null) return 'noch nie';
+  if (tage === 0) return 'heute';
+  if (tage === 1) return 'gestern';
+  if (tage < 60) return `vor ${tage} Tagen`;
+  if (tage < 730) return `vor ${Math.round(tage / 30.4)} Monaten`;
+  return `vor ${Math.floor(tage / 365)} Jahren`;
+}

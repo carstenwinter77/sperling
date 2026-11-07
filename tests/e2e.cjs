@@ -84,7 +84,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('[data-f-sparte=pv]');
   await p.click('[data-f-sparte=vorwerk]');
   if (!/von/.test(await p.textContent('#fAnzahl'))) fail('Kartenfilter zeigt keine Anzahl');
-  await p.click('#fAlle');
+  await p.click('#fPanel [data-f-alle]');
   if ((await p.textContent('#fAnzahl')).trim()) fail('Kartenfilter nicht zurückgesetzt');
   // Sperren und Neuladen
   await p.click('#sperren');
@@ -241,6 +241,17 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('dialog .dlg-actions button.ghost');
   await p.click('.tabs [data-ansicht=liste]');
   await p.waitForSelector('.terminliste');
+  // Kundenliste: Filter, Sortierung nach letztem Kontakt, Kontakt von Hand
+  await p.goto(BASE + '#/kunden');
+  await p.click('#fKnopf');
+  await p.click('#kFilter [data-f-kontakt=nie]');
+  if (!/von/.test(await p.textContent('#fAnzahl'))) fail('Kundenfilter zeigt keine Anzahl');
+  await p.click('#kFilter [data-f-alle]');
+  await p.selectOption('#sortierung', 'kontakt-alt');
+  await p.click('#liste .zeile');
+  await p.click('#kKontakt');
+  await p.click('dialog button.primary');
+  await p.waitForFunction(() => /heute/.test(document.querySelector('#kKontakt')?.textContent || ''));
   // Laufendes Gespräch: geteilte Ansicht, Leitfaden nahtlos, Abschluss landet im Verlauf
   await p.goto(BASE + '#/kunden');
   await p.click('#liste .zeile');

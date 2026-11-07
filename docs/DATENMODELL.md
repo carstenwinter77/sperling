@@ -29,6 +29,7 @@ Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Mensch
 | `notizen` | Notiz[] | Gesprächsnotizen |
 | `gespraeche` | Gespräch[] | Gespräche mit dem Leitfaden, je Sparte ein Eintrag |
 | `enpalKontakte` | EnpalKontakt[] | Gesprächsdokumentation für Enpal (ab Schema 2) |
+| `letzterKontaktManuell` | ISO-Datum \| null | von Hand nachgetragener Kontakt (ab 0.9.0). Angezeigt wird der jüngste aus diesem Feld, Gesprächen, Enpal-Kontakten, Notizen, erledigten Terminen und Verleihen (`letzterKontakt()` in `src/core/verlauf.ts`). |
 
 ### Status je Sparte
 `unbekannt` · `potenzial` (vermutet) · `interesse` · `termin` · `angebot` · `abschluss` · `kein_interesse`

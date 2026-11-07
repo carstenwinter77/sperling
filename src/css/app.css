@@ -581,3 +581,14 @@ body.ka-aktiv { overflow: hidden; }
 .kf-status.aktiv { border-color: var(--c); background: color-mix(in srgb, var(--c) 18%, var(--karte)); color: var(--text); }
 .kf-text { margin: 0; }
 .karte-filter #fAlle { justify-self: start; }
+
+/* Letzter Kontakt */
+.kontakt-alter { font-size: .78rem; font-weight: 600; white-space: nowrap; border-radius: 999px; padding: .1rem .5rem; flex-shrink: 0; }
+.kontakt-alter.frisch { color: var(--gruen); background: color-mix(in srgb, var(--gruen) 12%, transparent); }
+.kontakt-alter.mittel { color: var(--text-2); background: var(--flaeche-2); }
+.kontakt-alter.alt { color: var(--rot); background: color-mix(in srgb, var(--rot) 12%, transparent); }
+.kontakt-alter.nie { color: var(--text-2); border: 1px dashed var(--linie); }
+.kunde-kontakt { margin: -.25rem 0 .6rem; }
+.kontakt-alter-knopf { border: 0; font: inherit; cursor: pointer; padding: .3rem .7rem; font-size: .85rem; min-height: 32px; }
+.filterleiste #fKnopf { white-space: nowrap; }
+.filterleiste #sortierung { width: auto; }

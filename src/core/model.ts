@@ -424,6 +424,8 @@ export function normalizeKunde(k: unknown) {
     notizen: Array.isArray(src.notizen) ? src.notizen.map(normalizeNotiz) : [],
     gespraeche: Array.isArray(src.gespraeche) ? src.gespraeche.map(normalizeGespraech) : [],
     enpalKontakte: Array.isArray(src.enpalKontakte) ? src.enpalKontakte.map(normalizeEnpalKontakt) : [],
+    /** Von Hand gesetzter letzter Kontakt (ab 0.9.0); wirksam ist der jüngere aus Hand und Verlauf */
+    letzterKontaktManuell: (isValidDate(src.letzterKontaktManuell) ? new Date(src.letzterKontaktManuell).toISOString() : null) as string | null,
   };
 }
 
