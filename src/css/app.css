@@ -510,3 +510,5 @@ body.ka-aktiv { overflow: hidden; }
 .aw-tabelle { width: 100%; border-collapse: collapse; }
 .aw-tabelle th, .aw-tabelle td { text-align: left; padding: .45rem .3rem; border-bottom: 1px solid var(--linie); }
 .aw-tabelle td + td, .aw-tabelle th + th { text-align: right; font-variant-numeric: tabular-nums; width: 5rem; }
+.umkreis { display: flex; align-items: center; gap: .4rem; font-weight: 600; font-size: .9rem; }
+.umkreis select { width: auto; }

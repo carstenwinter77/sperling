@@ -446,3 +446,9 @@ test('Auswertungen: Zeiträume, Navigation, Kennzahlen je Bereich, Vergleich', a
   assert.equal(a.kennzahlen(emptyData(), 'alle', '2025-11-08', '2026-11-07', '365').verlauf.length, 13);
   assert.equal(a.kennzahlen(emptyData(), 'alle', '2026-11-07', '2026-11-07', 'tag').verlauf.length, 14);
 });
+
+test('Einstellungen: Nachbar-Umkreis nur in festen Stufen', () => {
+  assert.equal(migrate({ ...emptyData(), einstellungen: { nachbarRadiusM: 1000 } }).einstellungen.nachbarRadiusM, 1000);
+  assert.equal(migrate({ ...emptyData(), einstellungen: { nachbarRadiusM: 777 } }).einstellungen.nachbarRadiusM, 300);
+  assert.equal(emptyData().einstellungen.nachbarRadiusM, 300);
+});

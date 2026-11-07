@@ -1,6 +1,6 @@
 // Kundendetail: Stammdaten, Spartenstatus, Gesprächsnotizen, Erfassungsbögen, Termine, Texte.
 import { esc, debounce, parseNumber, isoToLocalInput, localInputToIso, formatDateTime, distanceMeters, nowIso } from '../../core/util.ts';
-import { AUSGANG, SPARTEN, SPARTEN_KEYS, STATUS, FELDER, kundenTitel, adresseEinzeilig, notizenSortiert, neueNotiz, normalizeNotiz } from '../../core/model.ts';
+import { NACHBAR_RADIEN, radiusText, AUSGANG, SPARTEN, SPARTEN_KEYS, STATUS, FELDER, kundenTitel, adresseEinzeilig, notizenSortiert, neueNotiz, normalizeNotiz } from '../../core/model.ts';
 import { ERGEBNIS } from '../../core/einwaende.ts';
 import { generiereText, ausgelasseneNotizen, GRUPPEN, notizErlaubt } from '../../core/textgen.ts';
 import * as store from '../../storage/store.ts';
@@ -25,7 +25,6 @@ const TABS = [
   { key: 'texte', label: 'Texte', bild: 'notizen' },
 ];
 
-const NACHBAR_RADIUS_M = 300;
 
 export function render(el: HTMLElement, params: URLSearchParams, [id = '']: string[]) {
   const kunde = store.findKunde(id);
@@ -142,11 +141,12 @@ function feldHtml(sparte, f, wert) {
 // ---------- Tabs ----------
 
 function uebersicht(el, k, kopf) {
+  const radius = store.getData().einstellungen.nachbarRadiusM;
   const nachbarn = k.lat !== null
     ? store.getData().kunden
       .filter((x) => x.id !== k.id && x.lat !== null && x.lng !== null)
       .map((x) => ({ x, m: distanceMeters(k.lat!, k.lng!, x.lat!, x.lng!) }))
-      .filter((n) => n.m <= NACHBAR_RADIUS_M)
+      .filter((n) => n.m <= radius)
       .sort((a, b) => a.m - b.m)
     : [];
   el.innerHTML = `
@@ -184,8 +184,9 @@ function uebersicht(el, k, kopf) {
     </section>
     ${k.lat !== null ? `
     <section class="karte-box">
-      <h2>${maskottchen('karte', 'titel-bild')} Nachbarn im Umkreis von ${NACHBAR_RADIUS_M} m</h2>
-      ${nachbarn.length ? `<ul class="liste">${nachbarn.map(({ x, m }) => `<li><a class="zeile" href="#/kunde/${esc(x.id)}"><span class="zeile-haupt"><strong>${esc(kundenTitel(x))}</strong><small>${Math.round(m)} m entfernt</small></span>${statusChips(x)}</a></li>`).join('')}</ul>` : '<p class="hinweis">Noch keine markierten Häuser in der Nähe. Auf der Karte kannst du Nachbarhäuser als Potenzial markieren.</p>'}
+      <header class="seitenkopf"><h2>${maskottchen('karte', 'titel-bild')} Nachbarn <small>(${nachbarn.length})</small></h2>
+        <label class="umkreis">Umkreis <select id="umkreis">${NACHBAR_RADIEN.map((r) => `<option value="${r}" ${r === radius ? 'selected' : ''}>${radiusText(r)}</option>`).join('')}</select></label></header>
+      ${nachbarn.length ? `<ul class="liste">${nachbarn.slice(0, 100).map(({ x, m }) => `<li><a class="zeile" href="#/kunde/${esc(x.id)}"><span class="zeile-haupt"><strong>${esc(kundenTitel(x))}</strong><small>${m >= 1000 ? `${(m / 1000).toLocaleString('de-DE', { maximumFractionDigits: 1 })} km` : `${Math.round(m)} m`} entfernt${x.ort && x.ort !== k.ort ? ` · ${esc(x.ort)}` : ''}</small></span>${statusChips(x)}</a></li>`).join('')}</ul>${nachbarn.length > 100 ? '<p class="hinweis">Die 100 nächsten werden gezeigt.</p>' : ''}` : `<p class="hinweis">Im Umkreis von ${radiusText(radius)} gibt es keine Kunden mit Standort. Wähle einen größeren Umkreis oder markiere Nachbarhäuser auf der Karte.</p>`}
     </section>` : ''}
     <section class="karte-box gefahrzone">
       <small>Angelegt ${esc(formatDateTime(k.createdAt))} · zuletzt geändert ${esc(formatDateTime(k.updatedAt))}</small>
@@ -199,6 +200,12 @@ function uebersicht(el, k, kopf) {
       const sel = el.querySelector(`[data-feld="${pfad}"]`);
       sel?.closest('.sparte-karte')?.style.setProperty('--c', STATUS[store.findKunde(k.id)?.status[s] ?? 'unbekannt'].farbe);
     }
+  });
+
+  el.querySelector('#umkreis')?.addEventListener('change', (e) => {
+    const r = Number((e.target as HTMLSelectElement).value);
+    store.mutate((d) => { d.einstellungen.nachbarRadiusM = r; });
+    uebersicht(el, store.findKunde(k.id), kopf);
   });
 
   // Immer den aktuellen Stand nehmen (Felder speichern beim Tippen).
