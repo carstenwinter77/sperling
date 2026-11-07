@@ -1,14 +1,15 @@
 // Sperling – Hilfe (Oberfläche): ?-Knöpfe mit Kurzhilfe, Installieren-Angebot des Browsers, Installationshinweis.
 // Gerätevorlieben in localStorage `sperling.hilfe` (keine Kundendaten, R-KRYPTO-Ausnahme):
-// { knoepfe: ?-Knöpfe zeigen, installiert: auf diesem Gerät schon installiert, hinweisWeg: Hinweis weggeklickt }.
+// { knoepfe: ?-Knöpfe zeigen, installiert: auf diesem Gerät schon installiert, hinweisWeg: Hinweis weggeklickt,
+//   tourGesehen: Willkommen/Rund-Tour schon gezeigt }.
 import { esc } from '../core/util.ts';
 import { THEMEN, type ThemaId } from '../core/hilfe.ts';
 import { erkennen, type Geraet, type Browser } from '../core/installieren.ts';
 import { dialog } from './dom.ts';
 
 const KEY = 'sperling.hilfe';
-interface Vorlieben { knoepfe: boolean; installiert: boolean; hinweisWeg: boolean }
-const STANDARD: Vorlieben = { knoepfe: true, installiert: false, hinweisWeg: false };
+interface Vorlieben { knoepfe: boolean; installiert: boolean; hinweisWeg: boolean; tourGesehen: boolean }
+const STANDARD: Vorlieben = { knoepfe: true, installiert: false, hinweisWeg: false, tourGesehen: false };
 
 export function vorlieben(): Vorlieben {
   try {
@@ -17,6 +18,7 @@ export function vorlieben(): Vorlieben {
       knoepfe: typeof v.knoepfe === 'boolean' ? v.knoepfe : STANDARD.knoepfe,
       installiert: v.installiert === true,
       hinweisWeg: v.hinweisWeg === true,
+      tourGesehen: v.tourGesehen === true,
     };
   } catch { return { ...STANDARD }; }
 }

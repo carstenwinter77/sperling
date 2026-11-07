@@ -1078,3 +1078,23 @@ tr.li-gleich { opacity: .7; }
 .chip-radio:has(input:checked) { border-color: var(--gruen); background: color-mix(in srgb, var(--gruen) 14%, var(--karte)); font-weight: 600; }
 .zwei-spalten { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
 .schutz-knopf[hidden] { display: none; }
+
+/* Willkommen und Rund-Tour */
+.tour { position: fixed; inset: 0; z-index: 3000; }
+.tour::before { content: ''; position: absolute; inset: 0; background: rgba(10, 20, 12, .55); }
+.tour:has(.tour-loch:not([hidden]))::before { display: none; }
+.tour-loch { position: fixed; border-radius: 14px; box-shadow: 0 0 0 9999px rgba(10, 20, 12, .55), 0 0 0 3px var(--gruen) inset; transition: all .25s ease; pointer-events: none; }
+.tour-karte { position: fixed; z-index: 1; background: var(--karte); color: var(--text); border-radius: 18px; box-shadow: 0 12px 40px rgba(0,0,0,.35); padding: 1.1rem 1.2rem 1rem; transition: top .25s ease, left .25s ease; max-height: calc(100vh - 32px); overflow: auto; }
+.tour-karte.mitte { left: 50% !important; top: 50% !important; transform: translate(-50%, -50%); width: min(420px, calc(100vw - 32px)) !important; text-align: center; }
+.tour-karte h2 { margin: 0 0 .4rem; font-size: 1.2rem; }
+.tour-karte p { margin: 0 0 .6rem; line-height: 1.45; }
+.tour-zaehler { font-size: .8rem; color: var(--text-2); margin: 0 0 .2rem !important; }
+.tour-bild { width: 96px; height: 96px; }
+.tour-willkommen { display: grid; place-items: center; margin-bottom: .3rem; }
+.tour-knoepfe { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; justify-content: flex-end; margin-top: .6rem; }
+.tour-karte.mitte .tour-knoepfe { justify-content: center; }
+.tour-luecke { flex: 1; }
+.tour-punkte { display: flex; gap: 5px; justify-content: center; margin: .2rem 0 0; }
+.tour-punkte i { width: 7px; height: 7px; border-radius: 50%; background: var(--linie); }
+.tour-punkte i.an { background: var(--gruen); }
+@media (prefers-reduced-motion: reduce) { .tour-loch, .tour-karte { transition: none; } }

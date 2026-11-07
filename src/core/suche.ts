@@ -66,6 +66,7 @@ const BEREICHE: [string, string, string][] = [
   ['Gelöschte Kunden', '#/geloescht', 'papierkorb wiederherstellen geloescht'],
   ['Einstellungen', '#/einstellungen', 'optionen sicherung icloud passwort vorlagen'],
   ['Hilfe', '#/hilfe', 'anleitung fragen begriffe faq erklaerung'],
+  ['Rund-Tour starten', '#/hilfe?tour=1', 'tour rundtour rundgang einfuehrung willkommen erklaerung'],
   ['App installieren', '#/hilfe?thema=installieren', 'installation home bildschirm homescreen dock einrichten'],
 ];
 

@@ -1,5 +1,9 @@
 # Änderungsverlauf
 
+## 0.10.15 – 07.11.2026
+- **Willkommen und Rund-Tour** (`src/ui/tour.ts`): Beim ersten Start auf einem Gerät (auch in der Demo) begrüßt Sperling mit „Tour starten“ oder „Später“. Die Tour hebt 13 Stationen nacheinander hervor (Übersicht, Suche, Kunden, Karte, Kalender, Gespräch, Bestand, Produkte, Auswertungen, Einstellungen, Sperren, Beratungs-Schutz, Abschluss), mit Weiter/Zurück, Pfeiltasten und Esc. Auf dem iPhone zeigt sie auf „Mehr“, wenn ein Bereich dort liegt. Wartet, bis andere Dialoge (z. B. Face ID einrichten) zu sind.
+- Wieder aufrufbar: Hilfe-Seite, Einstellungen → Hilfe, „Mehr“ auf dem iPhone, Suche („Tour“). Merker `tourGesehen` in `sperling.hilfe` (Gerätevorliebe).
+
 ## 0.10.14 – 07.11.2026
 - **Gerät aus dem Vorwerk-Katalog anlegen:** „+ Gerät“ hat eine Auswahl aus der Produktübersicht (nach Kategorie), die die Bezeichnung füllt; neues Feld `geraet.produktId`.
 - **Verbrauchsmaterial** (`src/core/material.ts`, `src/ui/material.ts`): Muster, Reinigungsmittel, Filtertüten usw. mit Anzahl und Einheit, auch aus dem Katalog. „− Verbrauch“ mit Grund (Muster an Kunde, beim Kunden getestet und entsorgt, selbst verbraucht, defekt/abgelaufen), „+ Zugang“, gezählter Bestand als Korrektur. Verlauf je Material.

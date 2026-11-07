@@ -5,6 +5,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
 async function lauf(mitPrf) {
   const b = await chromium.launch();
   const ctx = await b.newContext();
+  await ctx.addInitScript(() => { try { localStorage.setItem('sperling.hilfe', JSON.stringify({ tourGesehen: true })); } catch { /* egal */ } });
   const p = await ctx.newPage();
   const errs = [];
   p.on('pageerror', (e) => errs.push(e.message));

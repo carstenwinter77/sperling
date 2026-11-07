@@ -39,7 +39,7 @@ export function render(el: HTMLElement) {
     <section class="karte-box" id="hilfeEinstellungen">
       <h2>Hilfe</h2>
       <label class="check"><input type="checkbox" id="hilfeKnoepfe" ${hilfe.vorlieben().knoepfe ? 'checked' : ''}> ?-Knöpfe mit Kurzhilfe anzeigen</label>
-      <div class="knopfreihe"><a class="btn" href="#/hilfe">📖 Hilfe öffnen</a><a class="btn ghost" href="#/hilfe?thema=installieren">📲 App installieren</a></div>
+      <div class="knopfreihe"><button type="button" class="btn primary" data-tour-start>🧭 Rund-Tour starten</button><a class="btn" href="#/hilfe">📖 Hilfe öffnen</a><a class="btn ghost" href="#/hilfe?thema=installieren">📲 App installieren</a></div>
       <p class="hinweis">Die Hilfe-Seite bleibt auch ohne ?-Knöpfe erreichbar (hier und über die Suche).</p>
     </section>
     ${kontaktseite.abschnitt()}

@@ -15,6 +15,10 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.fill('input[name=pw2]', 'testpasswort');
   await p.click('#sperrForm button');
   await p.waitForSelector('.hauptnav');
+  // Willkommen beim ersten Start: „Später“ schließt und merkt es sich
+  await p.waitForSelector('#tour [data-tour=spaeter]');
+  await p.click('#tour [data-tour=spaeter]');
+  await p.waitForFunction(() => !document.querySelector('#tour') && /Hilfe/.test(document.querySelector('#toast')?.textContent || ''));
   // Abgleich-Leiste nach dem Start, schließbar
   await p.waitForSelector('#abgleichLeiste [data-abgleich=holen]');
   await p.click('#abgleichLeiste [data-abgleich=zu]');
@@ -211,6 +215,15 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForSelector('#liste .zeile');
   if (await p.$('#liste .tag-beispiel')) fail('Beispielkunden nicht entfernt');
   if (!(await p.textContent('#liste')).includes('Prüfer')) fail('Echter Kunde beim Entfernen verloren!');
+  await p.goto(BASE + '#/einstellungen');
+  // Rund-Tour aus den Einstellungen: startet bei 1, Weiter/Zurück, Esc beendet
+  await p.click('[data-tour-start]');
+  await p.waitForFunction(() => (document.querySelector('.tour-zaehler')?.textContent || '').startsWith('1 von'));
+  await p.click('#tour [data-tour=weiter]');
+  await p.waitForFunction(() => (document.querySelector('.tour-zaehler')?.textContent || '').startsWith('2 von'));
+  if (!(await p.isVisible('.tour-loch'))) fail('Tour hebt nichts hervor');
+  await p.keyboard.press('Escape');
+  await p.waitForFunction(() => !document.querySelector('#tour'));
   await p.goto(BASE + '#/einstellungen');
   // Beispiel-Vorführbestand
   await p.click('#bestandLaden');

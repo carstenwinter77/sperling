@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.15',
+    punkte: [
+      'Neu: Rund-Tour durch alle Bereiche. Starten unter Hilfe, in den Einstellungen, auf dem iPhone unter „Mehr“ oder über die Suche („Tour“).',
+    ],
+  },
+  {
     version: '0.10.14',
     punkte: [
       'Bestand → „+ Gerät“: Gerät direkt aus dem Vorwerk-Katalog wählen.',

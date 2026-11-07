@@ -2,6 +2,7 @@
 import { esc } from '../../core/util.ts';
 import { THEMEN, BEGRIFFE, FRAGEN, hilfeSuchen, type ThemaId } from '../../core/hilfe.ts';
 import { GERAETE, BROWSER_NAME, geraetName, wegeFuer, type Geraet } from '../../core/installieren.ts';
+import * as tour from '../tour.ts';
 import { maskottchen, toast } from '../dom.ts';
 import * as hilfe from '../hilfe.ts';
 
@@ -9,9 +10,11 @@ let gewaehlt: Geraet | null = null;
 
 export function render(el: HTMLElement, params: URLSearchParams) {
   const ziel = params.get('thema') || '';
+  if (params.get('tour') === '1') { history.replaceState(null, '', '#/hilfe'); setTimeout(() => tour.starten(), 50); }
   el.innerHTML = `
     <header class="seitenkopf">
       <h1>${maskottchen('sperling', 'titel-bild')} Hilfe</h1>
+      <button type="button" class="btn primary" data-tour-start>🧭 Rund-Tour starten</button>
     </header>
     <label class="hilfe-suche"><span class="sr-only">Hilfe durchsuchen</span><input type="search" id="hilfeSuche" placeholder="Hilfe durchsuchen, z. B. „sichern“ oder „Einwand“" autocomplete="off"></label>
     <div id="hilfeTreffer"></div>

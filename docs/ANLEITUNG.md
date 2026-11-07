@@ -94,6 +94,11 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Gerät verleihen**: Gerät antippen, „Weiter“, dann wie gewohnt Zeitraum, Fotos, Unterschrift. Für ihn reservierte Geräte stehen oben, belegte sind ausgegraut.
 - **Gerät verkaufen**: Gerät wählen, Datum und optional Preis eintragen. Das Häkchen setzt den Vorwerk-Status auf „Abschluss / Kunde“ und lässt sich abwählen. Das Gerät verlässt den Bestand; hatte der Kunde es geliehen, ist die Leihgabe damit erledigt.
 
+## Rund-Tour
+
+- Beim ersten Start fragt Sperling, ob du eine kurze Tour möchtest. Später startest du sie unter Hilfe („🧭 Rund-Tour starten“), in den Einstellungen unter Hilfe, auf dem iPhone unter „Mehr“ oder über die Suche („Tour“).
+- Weiter und Zurück mit den Knöpfen oder den Pfeiltasten, Esc oder „Beenden“ schließt.
+
 ## Zwischen Geräten wechseln (iPad, iPhone, Laptop)
 
 - **Erstes Mal auf einem weiteren Gerät:** Auf dem Startbildschirm „☁️ Vom anderen Gerät übernehmen (iCloud)“ tippen, die Sicherungsdatei aus iCloud Drive wählen und das bisherige Master-Passwort eingeben. Ein neues Passwort ist nicht nötig.

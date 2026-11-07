@@ -25,6 +25,7 @@ import * as vAuswertung from './ui/views/auswertung.ts';
 import * as vGeloescht from './ui/views/geloescht.ts';
 import * as vGespraechsmodus from './ui/views/gespraechsmodus.ts';
 import * as schutz from './ui/schutz.ts';
+import * as tour from './ui/tour.ts';
 import * as suche from './ui/suche.ts';
 import * as hilfe from './ui/hilfe.ts';
 import * as vHilfe from './ui/views/hilfe.ts';
@@ -73,6 +74,7 @@ function mehrMenue() {
     html: `<div class="mehr-raster">
       <button type="button" class="mehr-eintrag" data-mehr="suche"><span class="nav-lupe" aria-hidden="true">🔍</span><span>Suchen</span></button>
       ${eintraege.map((n) => `<a class="mehr-eintrag" href="${n.href}" data-mehr="link">${n.bild ? maskottchen(n.bild, 'nav-bild') : '<span class="nav-lupe" aria-hidden="true">🏷️</span>'}<span>${n.label}</span></a>`).join('')}
+      <button type="button" class="mehr-eintrag" data-mehr="tour"><span class="nav-lupe" aria-hidden="true">🧭</span><span>Rund-Tour</span></button>
       <button type="button" class="mehr-eintrag" data-mehr="sperren"><span class="nav-lupe" aria-hidden="true">🔒</span><span>Sperren</span></button>
     </div><p class="hinweis mehr-version">Version ${esc(APP_VERSION)}</p>`,
     knoepfe: [],
@@ -84,6 +86,7 @@ function mehrMenue() {
         dlg.close();
         if (e.dataset.mehr === 'suche') suche.oeffnen();
         else if (e.dataset.mehr === 'sperren') sperren();
+        else if (e.dataset.mehr === 'tour') tour.starten();
       });
     },
   });
@@ -223,6 +226,8 @@ async function nachEntsperren() {
     navigator.storage?.persist?.().catch(() => {});
   }
   route();
+  // Willkommen und Rund-Tour: einmal je Gerät (auch in der Demo)
+  setTimeout(() => tour.beimStart(), 400);
 }
 
 // ---------- App-Rahmen ----------
@@ -246,6 +251,10 @@ function shell() {
   suche.verdrahten();
   $('#navSuche').addEventListener('click', () => suche.oeffnen());
   $('#navMehr').addEventListener('click', mehrMenue);
+  if (!document.body.dataset.tourKlick) {
+    document.body.dataset.tourKlick = '1';
+    document.addEventListener('click', (ev) => { if ((ev.target as Element).closest?.('[data-tour-start]')) tour.starten(); });
+  }
   $('#sperren').addEventListener('click', sperren);
   $('#demoEnde')?.addEventListener('click', sperren);
 }

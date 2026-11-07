@@ -212,6 +212,7 @@ export const BEGRIFFE: [string, string][] = [
 ];
 
 export const FRAGEN: [string, string][] = [
+  ['Wo finde ich die Rund-Tour?', 'Oben auf dieser Hilfe-Seite („Rund-Tour starten“), in den Einstellungen unter Hilfe, auf dem iPhone unter „Mehr“ und über die Suche („Tour“). Beim ersten Start bietet Sperling sie einmal an.'],
   ['Wo liegen meine Daten?', 'Nur auf deinem Gerät, verschlüsselt mit deinem Master-Passwort. Sicherungen legst du selbst verschlüsselt in iCloud Drive ab. Der Webserver kennt nur das Programm.'],
   ['Ich habe das Master-Passwort vergessen.', 'Dann lassen sich die Daten leider nicht entschlüsseln. Deshalb das Passwort sicher notieren und regelmäßig sichern.'],
   ['Wie bekomme ich Sperling aufs Tablet?', 'Adresse im Browser öffnen und zum Home-Bildschirm hinzufügen. Die Hilfe-Seite zeigt die Schritte für dein Gerät.'],
