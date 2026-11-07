@@ -1,54 +1,60 @@
 /* Sperling – Stylesheet. Mobile zuerst; ab 900 px Tablet-/Laptop-Layout mit Seitenleiste. */
 :root {
-  --braun: #7a4e2d;
-  --braun-hell: #b9824f;
-  --creme: #f6f1e8;
-  --karte: #fffdf9;
-  --gruen: #3f7f2f;
+  /* Farben aus dem Branding (dunkelgrün/hellgrün). Die Namen --braun* sind historisch: --braun = Akzentfarbe. */
+  --braun: #0b4a2a;          /* Akzent: Dunkelgrün aus dem Logo */
+  --braun-hell: #6a9e2a;     /* Hellgrün aus dem Logo */
+  --creme: #f3f6ef;
+  --karte: #fdfefb;
+  --gruen: #3d8a2a;
   --orange: #e8892c;
   --rot: #c43d3d;
-  --text: #2b2118;
-  --text-2: #6d6257;
-  --linie: #e6dccd;
+  --text: #14261b;
+  --text-2: #56665b;
+  --linie: #dbe4d4;
   --radius: 14px;
-  --schatten: 0 1px 2px rgba(60, 40, 20, .06), 0 4px 14px rgba(60, 40, 20, .06);
+  --schatten: 0 1px 2px rgba(10, 40, 20, .06), 0 4px 14px rgba(10, 40, 20, .07);
   --nav-h: 68px;
   --feld: #ffffff;          /* Eingabefelder */
-  --flaeche-2: #f0e8da;     /* dezente Fläche (Code, Hover) */
-  --aktiv-bg: #f3e7d7;      /* aktiver Navigationspunkt */
-  --auf-akzent: #ffffff;    /* Text auf braunen Knöpfen */
+  --flaeche-2: #e9f0e3;     /* dezente Fläche (Code, Hover) */
+  --aktiv-bg: #e2eed8;      /* aktiver Navigationspunkt */
+  --auf-akzent: #ffffff;    /* Text auf Akzent-Knöpfen */
   --mix: #ffffff;           /* Basis für Farbmischungen (Chips, Spartenkarten) */
   --mix-text: #000000;
-  --toast-bg: #2b2118;
-  --overlay: rgba(255, 253, 249, .95);
+  --toast-bg: #14261b;
+  --overlay: rgba(253, 254, 251, .95);
+  --backdrop: rgba(10, 30, 18, .45);
+  /* Bereichsfarben: PV gelb (Sonne), WP blau, Vorwerk grün */
+  --pv: #e0a800; --wp: #2f7fd6; --vw: #2f9a3c;
   --tag-pv-bg: #fff1c2; --tag-pv: #7a5a00;
-  --tag-wp-bg: #ffe0cc; --tag-wp: #8a3d00;
-  --tag-vw-bg: #dcefd5; --tag-vw: #2d5e22;
+  --tag-wp-bg: #dceafd; --tag-wp: #1d4f8c;
+  --tag-vw-bg: #dcefd5; --tag-vw: #1f5e22;
   --tag-warn-bg: #fde2e2;
   --demo-karte: #dfe8d6;
   color-scheme: light;
 }
 /* Dunkles Farbschema: automatisch nach System (bzw. Theme des Gastgebers) oder manuell gewählt.
-   data-farbschema wird von js/ui/theme.js gesetzt: "hell", "dunkel" oder nicht gesetzt (= automatisch). */
+   data-farbschema wird von ui/theme.ts gesetzt: "hell", "dunkel" oder nicht gesetzt (= automatisch). */
 @media (prefers-color-scheme: dark) {
   :root:not([data-farbschema="hell"]):not([data-theme="light"]) {
-    --braun: #d39a66; --braun-hell: #a87346; --creme: #17130f; --karte: #231d18; --gruen: #5fae4c; --orange: #e8892c; --rot: #e06464;
-    --text: #f2e9dd; --text-2: #b8a996; --linie: #3a3028;
+    --braun: #a5d36a; --braun-hell: #5f8f2c; --creme: #0f1712; --karte: #17221b; --gruen: #6cc04f; --orange: #e8892c; --rot: #e06464;
+    --text: #e4efe0; --text-2: #a3b5a6; --linie: #2b3b30;
     --schatten: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
-    --feld: #2c251f; --flaeche-2: #322a23; --aktiv-bg: #3a2e24; --auf-akzent: #1a140f; --mix: #231d18; --mix-text: #ffffff;
-    --toast-bg: #f2e9dd; --overlay: rgba(35, 29, 24, .95);
-    --tag-pv-bg: #4a3d10; --tag-pv: #ffd96b; --tag-wp-bg: #4d2c14; --tag-wp: #ffb27a; --tag-vw-bg: #24401d; --tag-vw: #a6dc93; --tag-warn-bg: #4a2222;
+    --feld: #1e2b22; --flaeche-2: #223127; --aktiv-bg: #233a28; --auf-akzent: #0f1712; --mix: #17221b; --mix-text: #ffffff;
+    --toast-bg: #e4efe0; --overlay: rgba(23, 34, 27, .95); --backdrop: rgba(0, 0, 0, .6);
+    --pv: #ffd24a; --wp: #6aaeff; --vw: #6cc96f;
+    --tag-pv-bg: #4a3d10; --tag-pv: #ffd96b; --tag-wp-bg: #183456; --tag-wp: #a9cdff; --tag-vw-bg: #1f4220; --tag-vw: #a6dc93; --tag-warn-bg: #4a2222;
     --demo-karte: #2a3326;
     color-scheme: dark;
   }
 }
 :root[data-farbschema="dunkel"], :root[data-theme="dark"]:not([data-farbschema="hell"]) {
-  --braun: #d39a66; --braun-hell: #a87346; --creme: #17130f; --karte: #231d18; --gruen: #5fae4c; --orange: #e8892c; --rot: #e06464;
-  --text: #f2e9dd; --text-2: #b8a996; --linie: #3a3028;
+  --braun: #a5d36a; --braun-hell: #5f8f2c; --creme: #0f1712; --karte: #17221b; --gruen: #6cc04f; --orange: #e8892c; --rot: #e06464;
+  --text: #e4efe0; --text-2: #a3b5a6; --linie: #2b3b30;
   --schatten: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
-  --feld: #2c251f; --flaeche-2: #322a23; --aktiv-bg: #3a2e24; --auf-akzent: #1a140f; --mix: #231d18; --mix-text: #ffffff;
-  --toast-bg: #f2e9dd; --overlay: rgba(35, 29, 24, .95);
-  --tag-pv-bg: #4a3d10; --tag-pv: #ffd96b; --tag-wp-bg: #4d2c14; --tag-wp: #ffb27a; --tag-vw-bg: #24401d; --tag-vw: #a6dc93; --tag-warn-bg: #4a2222;
+  --feld: #1e2b22; --flaeche-2: #223127; --aktiv-bg: #233a28; --auf-akzent: #0f1712; --mix: #17221b; --mix-text: #ffffff;
+  --toast-bg: #e4efe0; --overlay: rgba(23, 34, 27, .95); --backdrop: rgba(0, 0, 0, .6);
+  --pv: #ffd24a; --wp: #6aaeff; --vw: #6cc96f;
+  --tag-pv-bg: #4a3d10; --tag-pv: #ffd96b; --tag-wp-bg: #183456; --tag-wp: #a9cdff; --tag-vw-bg: #1f4220; --tag-vw: #a6dc93; --tag-warn-bg: #4a2222;
   --demo-karte: #2a3326;
   color-scheme: dark;
 }
@@ -128,7 +134,7 @@ legend { font-size: .9rem; font-weight: 600; color: var(--text-2); padding: 0; m
 .toast.error { background: var(--rot); }
 
 dialog.dlg { background: var(--karte); color: var(--text); border: 0; border-radius: 18px; padding: 0; width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); box-shadow: 0 20px 60px rgba(0,0,0,.25); }
-dialog.dlg::backdrop { background: rgba(43, 33, 24, .45); }
+dialog.dlg::backdrop { background: var(--backdrop); }
 .dlg-inner { padding: 1.25rem; display: flex; flex-direction: column; gap: .75rem; }
 .dlg-body { display: flex; flex-direction: column; gap: .75rem; }
 .dlg-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
@@ -631,7 +637,7 @@ body.schutz-aktiv .nav-suche { display: none; }
 .zuletzt-chip:hover { border-color: var(--braun-hell); }
 dialog.such-dlg { background: var(--karte); color: var(--text); border: 0; padding: 0; border-radius: 18px; width: min(680px, calc(100vw - 24px)); max-height: min(78dvh, 720px); margin: 8dvh auto auto; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.3); overflow: hidden; }
 dialog.such-dlg:not([open]) { display: none; }
-dialog.such-dlg::backdrop { background: rgba(43, 33, 24, .45); }
+dialog.such-dlg::backdrop { background: var(--backdrop); }
 @media (max-width: 639px) {
   dialog.such-dlg { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; border-radius: 0; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
 }
@@ -674,3 +680,27 @@ body.hilfe-aus .hilfe-knopf { display: none; }
 .ok-box { color: var(--gruen); font-weight: 700; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .schutz-band .hilfe-knopf { width: 24px; height: 24px; font-size: .85rem; }
+
+/* ---------- Branding: Logo, Icons hell/dunkel, Bereichsfarben, Navigation ---------- */
+.ikon-dunkel { display: none !important; }
+:root[data-farbschema="dunkel"] .ikon-hell, :root[data-theme="dark"]:not([data-farbschema="hell"]) .ikon-hell { display: none !important; }
+:root[data-farbschema="dunkel"] .ikon-dunkel, :root[data-theme="dark"]:not([data-farbschema="hell"]) .ikon-dunkel { display: inline-block !important; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-farbschema="hell"]):not([data-theme="light"]) .ikon-hell { display: none !important; }
+  :root:not([data-farbschema="hell"]):not([data-theme="light"]) .ikon-dunkel { display: inline-block !important; }
+}
+.sperre-bild { width: 120px; height: 120px; border-radius: 26px; }
+.sperre-titel { margin: .4rem 0 0; line-height: 0; }
+.sperre-logo { width: min(280px, 70vw); height: auto; }
+.marke-logo { width: 150px; height: auto; }
+.kachel { border-top: 4px solid var(--k, var(--braun)); }
+.kachel-pv { --k: var(--pv); } .kachel-wp { --k: var(--wp); } .kachel-vorwerk { --k: var(--vw); }
+.hero-bild { border-radius: 22%; }
+.nav-version { display: block; font-size: .55rem; font-weight: 500; opacity: .75; }
+@media (min-width: 900px) {
+  /* unten links: Sperren, darunter Einstellungen mit der Programmversion */
+  .sperr-knopf { order: 50; }
+  .hauptnav .nav-einstellungen { order: 60; }
+  .hauptnav .nav-einstellungen > span { display: flex; flex-direction: column; line-height: 1.2; }
+  .nav-version { font-size: .75rem; }
+}

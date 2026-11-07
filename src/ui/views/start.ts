@@ -47,7 +47,7 @@ export function render(el: HTMLElement) {
 
     <section class="kacheln">
       ${['pv', 'wp', 'vorwerk'].map((s) => `
-        <a class="kachel" href="#/kunden?sparte=${s}">
+        <a class="kachel kachel-${s}" href="#/kunden?sparte=${s}">
           ${maskottchen(s === 'pv' ? 'photovoltaik' : s === 'wp' ? 'waermepumpe' : 'vorwerk', 'kachel-bild')}
           <span class="kachel-titel">${esc(SPARTEN[s].label)}</span>
           <span class="kachel-zahl">${zaehl(s, ['abschluss'])} <small>Kunden</small></span>

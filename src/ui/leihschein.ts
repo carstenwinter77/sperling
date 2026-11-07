@@ -25,7 +25,7 @@ export function jsPdfLaden() {
 
 export async function logo(): Promise<string> {
   try {
-    const r = await fetch('assets/maskottchen/sperling.png');
+    const r = await fetch('assets/marke/zeichen.png');
     const b = await r.blob();
     return await new Promise((ok) => { const fr = new FileReader(); fr.onload = () => ok(String(fr.result || '')); fr.onerror = () => ok(''); fr.readAsDataURL(b); });
   } catch { return ''; }

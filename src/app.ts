@@ -4,7 +4,7 @@ import * as sync from './storage/sync.ts';
 import * as dbx from './storage/dropbox.ts';
 import { WrongPasswordError } from './core/crypto.ts';
 import { esc } from './core/util.ts';
-import { $, toast, maskottchen, dialog, type Formular } from './ui/dom.ts';
+import { $, toast, maskottchen, logo, dialog, type Formular } from './ui/dom.ts';
 import { demoDaten } from './demo.ts';
 import * as theme from './ui/theme.ts';
 import * as bio from './storage/biometrie.ts';
@@ -85,8 +85,7 @@ async function zeigeSperre(fehler = '') {
   const mitBio = hatDaten && (await bio.eingerichtet());
   $('#app').innerHTML = `
     <main class="sperre">
-      ${maskottchen('sperling', 'sperre-bild', 'Sperling')}
-      <h1>Sperling</h1>
+      <h1 class="sperre-titel">${logo('sperre-logo')}</h1>
       <p class="untertitel">Dein Außendienst-Begleiter für Photovoltaik, Wärmepumpe und Vorwerk</p>
       <form id="sperrForm" class="sperre-form">
         ${hatDaten
@@ -196,13 +195,12 @@ async function nachEntsperren() {
 function shell() {
   document.body.classList.toggle('demo', store.isDemo());
   $('#app').innerHTML = `
-    ${store.isDemo() ? '<div class="demo-band">Demo<span class="band-lang">&nbsp;· Beispieldaten, nichts wird gespeichert</span> <button id="demoEnde">Beenden</button><button class="thema-knopf" id="themaBand" aria-label="Hell/Dunkel umschalten">◐</button></div>' : ''}
+    ${store.isDemo() ? '<div class="demo-band">Demo<span class="band-lang">&nbsp;· Beispieldaten, nichts wird gespeichert</span> <button id="demoEnde">Beenden</button></div>' : ''}
     <nav class="hauptnav" aria-label="Hauptnavigation">
-      <div class="marke">${maskottchen('sperling', 'marke-bild')}<span>Sperling</span></div>
+      <div class="marke">${logo('marke-logo')}</div>
       <button type="button" class="nav-suche" id="navSuche" title="Suchen (${suche.kuerzel()})"><span class="nav-bild nav-lupe" aria-hidden="true">🔍</span><span>Suchen</span></button>
-      ${NAV.map((n) => `<a href="${n.href}" data-nav="${n.key}">${maskottchen(n.bild, 'nav-bild')}<span>${n.label}</span></a>`).join('')}
-      <button class="sperr-knopf" id="thema" title="Hell/Dunkel umschalten">◐<span>Hell / Dunkel</span></button>
-      <button class="sperr-knopf" id="sperren" title="Sperren" style="margin-top:0">🔒<span>Sperren</span></button>
+      ${NAV.map((n) => `<a href="${n.href}" data-nav="${n.key}"${n.key === 'einstellungen' ? ' class="nav-einstellungen"' : ''}>${maskottchen(n.bild, 'nav-bild')}<span>${n.label}${n.key === 'einstellungen' ? `<small class="nav-version">Version ${esc(APP_VERSION)}</small>` : ''}</span></a>`).join('')}
+      <button class="sperr-knopf" id="sperren" title="Sperren">🔒<span>Sperren</span></button>
     </nav>
     <div class="schutz-band" id="schutzBand" role="status" hidden></div>
     <button type="button" class="schutz-knopf" id="schutzKnopf" aria-pressed="false" aria-label="Beratungs-Schutz">🛡</button>
@@ -212,9 +210,6 @@ function shell() {
   $('#navSuche').addEventListener('click', () => suche.oeffnen());
   $('#sperren').addEventListener('click', sperren);
   $('#demoEnde')?.addEventListener('click', sperren);
-  const umschalten = () => { theme.umschalten(); if (location.hash.startsWith('#/einstellungen')) route(); };
-  $('#thema').addEventListener('click', umschalten);
-  $('#themaBand')?.addEventListener('click', umschalten);
 }
 
 async function sperren() {

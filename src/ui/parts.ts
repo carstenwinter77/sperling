@@ -5,7 +5,7 @@ import { erzeugeIcs } from '../core/ics.ts';
 import * as store from '../storage/store.ts';
 import * as pk from '../core/papierkorb.ts';
 import { hinfahrenKnopf } from './navi.ts';
-import { dialog, download, toast } from './dom.ts';
+import { dialog, download, toast, maskottchen } from './dom.ts';
 
 export function statusChips(kunde) {
   return `<span class="chips">${SPARTEN_KEYS.map((s) => {
@@ -24,7 +24,7 @@ export function statusOptions(aktuell) {
 }
 
 export function leer(maskottchenName, text) {
-  return `<div class="leer"><img src="assets/maskottchen/${maskottchenName}.png" alt="" class="maskottchen gross"><p>${esc(text)}</p></div>`;
+  return `<div class="leer">${maskottchen(maskottchenName, 'gross')}<p>${esc(text)}</p></div>`;
 }
 
 /** Termin/Wiedervorlage anlegen oder bearbeiten. Gibt den gespeicherten Termin zurück oder null. */

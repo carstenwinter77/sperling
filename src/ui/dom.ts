@@ -141,6 +141,19 @@ export function dateiWaehlen(accept = ''): Promise<string | null> {
   });
 }
 
+/** Bereichs-Icons aus dem Branding (assets/marke/), je mit heller Fassung für das dunkle Farbschema. */
+const MARKE_ICONS = ['kunde-neu', 'karte', 'notizen', 'termine', 'vorwerk', 'waermepumpe', 'photovoltaik', 'statistik', 'einstellungen'];
+
+/** Icon bzw. Zeichen („sperling“ = App-Zeichen). Hell/Dunkel schaltet per CSS zwischen den Fassungen um. */
 export function maskottchen(name: string, klasse = '', alt = ''): string {
-  return `<img src="assets/maskottchen/${esc(name)}.png" class="maskottchen ${esc(klasse)}" alt="${esc(alt)}" loading="lazy" decoding="async">`;
+  const attr = `alt="${esc(alt)}" loading="lazy" decoding="async"`;
+  if (MARKE_ICONS.includes(name)) {
+    return `<img src="assets/marke/${esc(name)}.png" class="maskottchen ikon-hell ${esc(klasse)}" ${attr}><img src="assets/marke/${esc(name)}-hell.png" class="maskottchen ikon-dunkel ${esc(klasse)}" alt="" aria-hidden="true" loading="lazy" decoding="async">`;
+  }
+  return `<img src="assets/marke/zeichen.png" class="maskottchen ${esc(klasse)}" ${attr}>`; // „sperling“ und Unbekanntes
+}
+
+/** Schriftzug „Sperling“ (Logo) in heller und dunkler Fassung. */
+export function logo(klasse = ''): string {
+  return `<img src="assets/marke/logo.png" class="logo ikon-hell ${esc(klasse)}" alt="Sperling"><img src="assets/marke/logo-hell.png" class="logo ikon-dunkel ${esc(klasse)}" alt="" aria-hidden="true">`;
 }
