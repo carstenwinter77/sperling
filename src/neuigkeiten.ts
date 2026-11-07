@@ -2,6 +2,14 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.16',
+    punkte: [
+      'Neu beim Kunden: Reiter „Fotos“, getrennt nach Photovoltaik, Wärmepumpe und Vorwerk. Aufnehmen oder mehrere auf einmal auswählen.',
+      'Tipp aufs Foto öffnet die Vollansicht: mit zwei Fingern oder Doppeltipp hineinzoomen, wischen zum nächsten.',
+      'Fotos sind verschlüsselt und kommen mit in die iCloud-Sicherung (abschaltbar). Unter Einstellungen → Kundenfotos lassen sich alte Fotos löschen.',
+    ],
+  },
+  {
     version: '0.10.15',
     punkte: [
       'Neu: Rund-Tour durch alle Bereiche. Starten unter Hilfe, in den Einstellungen, auf dem iPhone unter „Mehr“ oder über die Suche („Tour“).',

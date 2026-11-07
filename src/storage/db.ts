@@ -2,7 +2,7 @@
 // und unkritische Metadaten (Geräte-ID). Klartext-Kundendaten landen hier nie.
 
 const DB_NAME = 'sperling';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // 2: Tabelle „fotos“ (verschlüsselte Kundenfotos, ab 0.10.16)
 const HISTORY_MAX = 10;
 
 import type { Umschlag } from '../core/crypto.ts';
@@ -37,6 +37,7 @@ export function openDb(): Promise<IDBDatabase> {
       if (!db.objectStoreNames.contains('vault')) db.createObjectStore('vault');
       if (!db.objectStoreNames.contains('history')) db.createObjectStore('history', { autoIncrement: true });
       if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta');
+      if (!db.objectStoreNames.contains('fotos')) db.createObjectStore('fotos', { keyPath: 'id' });
     };
     r.onsuccess = () => {
       const db = r.result;
@@ -99,9 +100,49 @@ export async function setMeta(key: string, value: unknown): Promise<void> {
 /** Alles löschen (Werkseinstellung). */
 export async function wipeAll() {
   const db = await openDb();
-  const tx = db.transaction(['vault', 'history', 'meta'], 'readwrite');
+  const tx = db.transaction(['vault', 'history', 'meta', 'fotos'], 'readwrite');
   tx.objectStore('vault').clear();
   tx.objectStore('history').clear();
   tx.objectStore('meta').clear();
+  tx.objectStore('fotos').clear();
+  await txDone(tx);
+}
+
+// ---------- Kundenfotos: nur verschlüsselte Bytes (AES-GCM), nie Klartext ----------
+
+export interface FotoDatensatz {
+  id: string;
+  /** ID des Fotoschlüssels im verschlüsselten Bestand */
+  schluessel: string;
+  iv: ArrayBuffer;
+  ct: ArrayBuffer;
+  /** Vorschaubild, ebenso verschlüsselt */
+  tiv: ArrayBuffer;
+  tct: ArrayBuffer;
+}
+
+export async function fotoSpeichern(...saetze: FotoDatensatz[]): Promise<void> {
+  if (!saetze.length) return;
+  const db = await openDb();
+  const tx = db.transaction('fotos', 'readwrite');
+  for (const s of saetze) tx.objectStore('fotos').put(s);
+  await txDone(tx);
+}
+
+export async function fotoLaden(id: string): Promise<FotoDatensatz | undefined> {
+  const db = await openDb();
+  return req2promise<FotoDatensatz | undefined>(db.transaction('fotos').objectStore('fotos').get(id));
+}
+
+export async function fotoIds(): Promise<string[]> {
+  const db = await openDb();
+  return (await req2promise(db.transaction('fotos').objectStore('fotos').getAllKeys())).map(String);
+}
+
+export async function fotoLoeschen(ids: string[]): Promise<void> {
+  if (!ids.length) return;
+  const db = await openDb();
+  const tx = db.transaction('fotos', 'readwrite');
+  for (const id of ids) tx.objectStore('fotos').delete(id);
   await txDone(tx);
 }

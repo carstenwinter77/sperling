@@ -14,6 +14,7 @@ Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Mensch
 | `leihvorgaenge` | Leihvorgang[] | Verleih an Kunden |
 | `reservierungen` | Reservierung[] | Vormerkungen für Vorführgeräte (ab Schema 3) |
 | `papierkorb` | Eintrag[] | Gelöschtes, bleibt bis zum endgültigen Löschen (ab Schema 3) |
+| `fotoSchluessel` | Objekt | ab 0.10.16: Schlüssel-ID → AES-256-Schlüssel (Base64) für die Kundenfotos. Beim Einspielen einer Sicherung bleiben vorhandene Schlüssel erhalten. |
 | `material` | Material[] | Verbrauchsmaterial (ab 0.10.14, ohne Schemawechsel, fehlt = leer) |
 
 ## Kunde
@@ -31,6 +32,7 @@ Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Mensch
 | `gespraeche` | Gespräch[] | Gespräche mit dem Leitfaden, je Sparte ein Eintrag |
 | `enpalKontakte` | EnpalKontakt[] | Gesprächsdokumentation für Enpal (ab Schema 2) |
 | `letzterKontaktManuell` | ISO-Datum \| null | von Hand nachgetragener Kontakt (ab 0.9.0). Angezeigt wird der jüngste aus diesem Feld, Gesprächen, Enpal-Kontakten, Notizen, erledigten Terminen und Verleihen (`letzterKontakt()` in `src/core/verlauf.ts`). |
+| `fotos` | KundenFoto[] | ab 0.10.16: `{id, sparte (pv/wp/vorwerk), zeitpunkt, notiz, bytes, breite, hoehe}`, höchstens 200. Nur die Beschreibung; die Bilder liegen verschlüsselt in der IndexedDB-Tabelle `fotos`. |
 | `produkte` | ProduktMarkierung[] | Produkte im Gespräch (ab Schema 5): Ereignisse `{id, produktId, name, bereich, markierung, zeitpunkt}`; `markierung` ist `interesse`, `spaeter`, `vorhanden`, `kein` oder `''` (aufgehoben). Es gilt das jüngste Ereignis je Produkt. Name und Bereich sind mitgespeichert, damit Verlauf und Texte auch ohne Katalogeintrag funktionieren. Höchstens 2000 Ereignisse je Kunde. |
 | `eigene` | Objekt | Werte der eigenen Felder (ab Schema 4): Schlüssel = Feld-ID aus `einstellungen.felder.eigene`, Wert = Text, Zahl oder `true`/`false`. Datum als `JJJJ-MM-TT`. Werte gelöschter Felder werden beim Löschen entfernt; ausgeblendete bleiben. |
 
@@ -156,6 +158,7 @@ Belegt ist ein Gerät, wenn sich der Zeitraum mit einer Reservierung oder einem 
 
 | Feld | Hinweis |
 |---|---|
+| `fotosMitsichern` | Boolean | ab 0.10.16, Standard `true`: Kundenfotos in die Sicherung/iCloud-Datei aufnehmen |
 | `absender` | Gruß unter den Texten |
 | `vorlagen.pv`, `vorlagen.wp`, `vorlagen.vorwerk` | Textvorlagen mit Platzhaltern, je Bereich (ab Schema 7; vorher `enpal` für PV + WP) |
 | `kalenderStart` | `liste`, `monat`, `woche`, `tag` oder `geraete` – Startansicht des Kalenders (ab Schema 7, Standard `monat`) |
@@ -188,6 +191,12 @@ Beispielkunden, -termine, -geräte und -verleihe in der echten App erkennt man a
 **Einstellungsdatei** (ab 0.10.5, `src/core/einstellungsdatei.ts`): `{art: 'sperling-einstellungen', schemaVersion, erstellt, einstellungen, geraet: {farbschema, mailprogramm}}`, ohne `zuletzt`, verschlüsselt im selben Umschlag wie die Sicherung (`deviceId: 'einstellungen'`). „Sicherung einspielen“ lehnt sie ab, damit keine Kunden verloren gehen.
 
 Schema 1 → 2: `enpalKontakte` und `einstellungen.empfaenger` kommen hinzu; die Normalisierung ergänzt sie leer. Schema 2 → 3: `reservierungen`, `papierkorb`, `einstellungen.kartenApp` und die Beleg-Felder am Leihvorgang kommen hinzu (leer). 0.9.0 bleibt bei Schema 3: die neuen Felder (`letzterKontaktManuell`, `kundenansicht`, `nachbarRadiusM`, `zuletzt`) ergänzt die Normalisierung mit Standardwerten. Schema 6 → 7 (drei Texte, Kalender-Start): `vorlagen` und `empfaenger` je Bereich; eine eigene frühere Enpal-Vorlage bzw. ein Enpal-Empfänger gilt für PV und WP, die unveränderte alte Standardvorlage wird durch die neuen ersetzt; `kalenderStart` kommt mit `monat` hinzu. Schema 5 → 6 (Textbausteine): `einstellungen.bausteine` kommt hinzu; fehlt ein Bereich, gilt die Startliste aus `src/core/bausteine.ts`. Schema 4 → 5 (Produkte im Gespräch): `kunde.produkte` kommt hinzu (leer). Schema 3 → 4 (Feldverwaltung): `kunde.eigene` und `einstellungen.felder` kommen hinzu (leer); das frühere `einstellungen.dropbox` wird verworfen. Künftige Versionen ergänzen schrittweise Blöcke `if (v < 5) { … }`.
+
+## Kundenfotos (IndexedDB-Tabelle `fotos`, ab Datenbank-Version 2)
+
+Je Foto ein Datensatz `{id, schluessel, iv, ct, tiv, tct}`: Vollbild (`ct`, 1600 px JPEG) und Vorschau (`tct`, 320 px), jeweils AES-GCM mit dem Fotoschlüssel `schluessel` und zusätzlichen Daten `sperling-foto|<id>|voll` bzw. `|vorschau`. Klartext gibt es nur als Blob-URL im Arbeitsspeicher, beim Sperren verworfen. Bilddaten, die kein Kunde (auch keiner im Papierkorb) mehr nennt, werden nach dem Start gelöscht.
+
+**Sicherungsdatei:** der Umschlag wie bisher, bei `einstellungen.fotosMitsichern` zusätzlich `fotos: [{id, schluessel, iv, ct, tiv, tct}]` (Base64, weiter verschlüsselt). Ältere Versionen ignorieren das Feld. Die automatischen Versionen auf dem Gerät enthalten keine Fotos.
 
 ## Gerätespeicher (nicht in der Sicherung)
 

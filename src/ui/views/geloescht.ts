@@ -2,6 +2,7 @@
 import { esc, formatDateTime } from '../../core/util.ts';
 import * as pk from '../../core/papierkorb.ts';
 import * as store from '../../storage/store.ts';
+import * as fotos from '../../storage/fotos.ts';
 import { maskottchen, toast, bestaetigen } from '../dom.ts';
 import { leer } from '../parts.ts';
 
@@ -46,6 +47,7 @@ export function render(el: HTMLElement) {
         const t = pk.eintragTitel(e, store.getData());
         if (!(await bestaetigen(`${t.art} endgültig löschen?`, `„${t.text}“ ist danach unwiderruflich weg und kann nicht mehr zurückgeholt werden.`, 'Endgültig löschen'))) return;
         store.mutate((x) => { pk.endgueltigLoeschen(x, e.id); });
+        await fotos.aufraeumen().catch(() => 0); // Fotos des Kunden mit löschen
         toast('Endgültig gelöscht', 'ok');
         render(el);
       }

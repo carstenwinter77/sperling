@@ -10,6 +10,7 @@ import { emptyData, migrate, type Daten, type Kunde } from '../core/model.ts';
 import { istEinstellungsPaket } from '../core/einstellungsdatei.ts';
 import { uid, nowIso, clone, type Rec } from '../core/util.ts';
 import * as db from './db.ts';
+import { ausDatei } from './fotodatei.ts';
 
 const SAVE_DELAY_MS = 400;
 
@@ -244,14 +245,25 @@ export async function adoptEnvelope(env: unknown, password: string | null = null
   // Eine Einstellungsdatei ist keine Sicherung: sie würde sonst alle Kunden ersetzen.
   if (istEinstellungsPaket(raw)) throw new Error('Das ist eine Einstellungsdatei. Bitte unter „Einstellungen übertragen“ einlesen.');
   const migrated = migrate(raw);
+  // Fotoschlüssel dieses Geräts behalten: Fotos, die nicht in der Datei sind, bleiben lesbar
+  const alteSchluessel = data?.fotoSchluessel || {};
+  const fehlend = Object.keys(alteSchluessel).filter((k) => !(k in migrated.fotoSchluessel));
+  for (const k of fehlend) migrated.fotoSchluessel[k] = alteSchluessel[k]!;
   await flush();
-  await db.saveEnvelope(env);
+  // Fotos aus der Datei (verschlüsselt) übernehmen
+  const fotos = ausDatei((env as Rec).fotos);
+  if (fotos.length && !demo) await db.fotoSpeichern(...fotos);
+  // ohne die Fotos speichern: die Historie hält nur den Bestand
+  const { fotos: _ohne, ...nurBestand } = env as Rec;
+  void _ohne;
+  await db.saveEnvelope(nurBestand as typeof env);
   kr.useSalt(env.kdf.salt, env.kdf.iterations);
   if (kr !== keyring) keyring?.wipe();
   keyring = kr;
   data = migrated;
   stand = env.updatedAt;
   dirty = false;
+  if (fehlend.length) { dirty = true; scheduleSave(); }
   notify();
 }
 

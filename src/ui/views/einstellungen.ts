@@ -7,6 +7,8 @@ import { PLATZHALTER } from '../../core/textgen.ts';
 import { validateEnvelope } from '../../core/crypto.ts';
 import * as store from '../../storage/store.ts';
 import * as db from '../../storage/db.ts';
+import * as fotos from '../../storage/fotos.ts';
+import { fotoStatistik, fotosAelterAls, groesseText } from '../../core/fotos.ts';
 import * as theme from '../theme.ts';
 import * as bio from '../../storage/biometrie.ts';
 import { KeyRing } from '../../core/crypto.ts';
@@ -141,6 +143,21 @@ export function render(el: HTMLElement) {
       <ul class="liste" id="historie"><li class="hinweis">${demo ? 'Im Demo-Modus nicht verfügbar.' : 'Wird geladen …'}</li></ul>
     </section>
 
+    <section class="karte-box" id="fotoEinstellungen">
+      <h2>📷 Kundenfotos</h2>
+      <p id="fotoStatistik"></p>
+      <label class="check"><input type="checkbox" id="fotosMitsichern" ${e.fotosMitsichern !== false ? 'checked' : ''}> Fotos in die iCloud-Sicherung aufnehmen (für den Wechsel zwischen iPad und iPhone)</label>
+      <h3>Alte Fotos löschen</h3>
+      <p class="hinweis">Damit der Speicher nicht vollläuft: Fotos löschen, die älter sind als …</p>
+      <div class="knopfreihe">
+        <select id="fotoAlter" aria-label="Alter der Fotos">
+          <option value="90">3 Monate</option><option value="182">6 Monate</option><option value="365" selected>1 Jahr</option><option value="730">2 Jahre</option><option value="1095">3 Jahre</option>
+        </select>
+        <button type="button" class="btn ghost" id="fotosAltLoeschen">Löschen …</button>
+      </div>
+      <p class="hinweis" id="fotoAlterInfo"></p>
+    </section>
+
     <section class="karte-box ${demo ? 'aus' : ''}">
       <h2>Sicherheit</h2>
       <p><button class="btn primary" id="jetztSperren">🔒 Jetzt sperren</button></p>
@@ -198,6 +215,36 @@ export function render(el: HTMLElement) {
     } catch (err) { toast(`Entfernen fehlgeschlagen: ${(err as Error).message}`, 'error'); }
   });
   kontaktseite.binden(el);
+  // Kundenfotos: Größe, mitsichern, alte löschen
+  const fotoAnzeige = () => {
+    const st = fotoStatistik(store.getData());
+    const p = el.querySelector('#fotoStatistik');
+    if (p) p.textContent = st.anzahl ? `${st.anzahl} Foto${st.anzahl === 1 ? '' : 's'} bei ${st.kunden} Kunde${st.kunden === 1 ? '' : 'n'}, zusammen etwa ${groesseText(st.bytes)}.` : 'Noch keine Kundenfotos.';
+    const tage = Number(el.querySelector<HTMLSelectElement>('#fotoAlter')?.value || 365);
+    const alt = fotosAelterAls(store.getData(), tage);
+    const i = el.querySelector('#fotoAlterInfo');
+    if (i) i.textContent = alt.length ? `Betrifft ${alt.length} Foto${alt.length === 1 ? '' : 's'} (${groesseText(alt.reduce((n, x) => n + x.bytes, 0))}).` : 'Keine Fotos in diesem Alter.';
+    const b = el.querySelector<HTMLButtonElement>('#fotosAltLoeschen');
+    if (b) b.disabled = !alt.length;
+  };
+  fotoAnzeige();
+  el.querySelector('#fotoAlter')?.addEventListener('change', fotoAnzeige);
+  el.querySelector('#fotosMitsichern')?.addEventListener('change', (ev) => {
+    const an = (ev.target as HTMLInputElement).checked;
+    store.mutate((d) => { d.einstellungen.fotosMitsichern = an; });
+    toast(an ? 'Fotos kommen mit in die Sicherung.' : 'Sicherungen ohne Fotos: die Fotos bleiben nur auf diesem Gerät.', 'ok', 4000);
+  });
+  el.querySelector('#fotosAltLoeschen')?.addEventListener('click', async () => {
+    const sel = el.querySelector<HTMLSelectElement>('#fotoAlter')!;
+    const alt = fotosAelterAls(store.getData(), Number(sel.value));
+    if (!alt.length) return;
+    if (!(await bestaetigen('Alte Fotos löschen?', `${alt.length} Foto${alt.length === 1 ? '' : 's'} älter als ${sel.selectedOptions[0]!.textContent} werden endgültig gelöscht. Notizen und Kundendaten bleiben.`, 'Endgültig löschen'))) return;
+    const weg = new Set(alt.map((x) => x.fotoId));
+    store.mutate((d) => { for (const k of d.kunden) if (k.fotos.some((f) => weg.has(f.id))) k.fotos = k.fotos.filter((f) => !weg.has(f.id)); });
+    await fotos.loeschen([...weg]).catch(() => {});
+    toast(`${weg.size} Foto${weg.size === 1 ? '' : 's'} gelöscht`, 'ok');
+    fotoAnzeige();
+  });
   el.querySelector('#hilfeKnoepfe')?.addEventListener('change', (ev) => { hilfe.vorliebeSetzen({ knoepfe: (ev.target as HTMLInputElement).checked }); toast('Gespeichert', 'ok'); });
   el.querySelector('#kalenderStart').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.kalenderStart = (ev.target as HTMLSelectElement).value as typeof d.einstellungen.kalenderStart; }));
   el.querySelector('#kartenApp').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.kartenApp = (ev.target as HTMLInputElement).value; }));
@@ -238,8 +285,8 @@ export function render(el: HTMLElement) {
   const merken = () => db.setMeta('letzteSicherung', new Date().toISOString()).then(() => db.setMeta('abgleichStand', store.getStand())).then(letzteZeigen).catch(() => {});
   el.querySelector('#backup').addEventListener('click', async () => {
     try {
-      const env = await store.currentEnvelope();
-      download(sicherungsName(), JSON.stringify(env), 'application/json');
+      const { text } = await fotos.sicherungsDatei();
+      download(sicherungsName(), text, 'application/json');
       merken();
     } catch (err) { toast(`Sicherung fehlgeschlagen: ${(err as Error).message}`, 'error'); }
   });

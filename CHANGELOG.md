@@ -1,5 +1,12 @@
 # Änderungsverlauf
 
+## 0.10.16 – 07.11.2026
+- **Kundenfotos** (`src/core/fotos.ts`, `src/storage/fotos.ts`, `src/ui/kundenfotos.ts`): neuer Reiter „Fotos“ beim Kunden, getrennt nach Photovoltaik, Wärmepumpe und Vorwerk. Aufnehmen oder mehrere aus den Fotos wählen; bis 200 Fotos je Kunde. Verkleinert auf 1600 px (JPEG) plus Vorschaubild, zusammen etwa 150 bis 300 KB je Foto.
+- **Vollansicht:** Tipp aufs Foto; Zoom mit zwei Fingern, Doppeltipp, Mausrad oder + und −; Wischen bzw. Pfeiltasten zum nächsten Foto; Löschen.
+- **Verschlüsselt:** Bilder liegen in einer eigenen IndexedDB-Tabelle `fotos` (Datenbank-Version 2), verschlüsselt mit einem zufälligen Fotoschlüssel (AES-GCM, 256 Bit). Der Schlüssel steht nur im verschlüsselten Bestand (`fotoSchluessel`), daher bleibt ein neues Master-Passwort ohne Folgen für die Fotos.
+- **Sicherung und Gerätewechsel:** Die iCloud-Sicherung enthält die Fotos (verschlüsselt), abschaltbar unter Einstellungen → Kundenfotos (`einstellungen.fotosMitsichern`). Beim Einspielen bleiben die Fotoschlüssel des Geräts erhalten.
+- **Einstellungen → Kundenfotos:** Anzahl und Größe, Fotos älter als 3 Monate bis 3 Jahre löschen. Endgültig gelöschte Kunden nehmen ihre Fotos mit; verwaiste Bilddaten räumt Sperling nach dem Start auf.
+
 ## 0.10.15 – 07.11.2026
 - **Willkommen und Rund-Tour** (`src/ui/tour.ts`): Beim ersten Start auf einem Gerät (auch in der Demo) begrüßt Sperling mit „Tour starten“ oder „Später“. Die Tour hebt 13 Stationen nacheinander hervor (Übersicht, Suche, Kunden, Karte, Kalender, Gespräch, Bestand, Produkte, Auswertungen, Einstellungen, Sperren, Beratungs-Schutz, Abschluss), mit Weiter/Zurück, Pfeiltasten und Esc. Auf dem iPhone zeigt sie auf „Mehr“, wenn ein Bereich dort liegt. Wartet, bis andere Dialoge (z. B. Face ID einrichten) zu sind.
 - Wieder aufrufbar: Hilfe-Seite, Einstellungen → Hilfe, „Mehr“ auf dem iPhone, Suche („Tour“). Merker `tourGesehen` in `sperling.hilfe` (Gerätevorliebe).

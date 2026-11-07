@@ -212,6 +212,7 @@ export const BEGRIFFE: [string, string][] = [
 ];
 
 export const FRAGEN: [string, string][] = [
+  ['Wie viele Fotos passen auf das Gerät?', 'Je Foto etwa 150 bis 300 KB, je Kunde bis 200 Fotos. Unter Einstellungen → Kundenfotos siehst du die Gesamtgröße und kannst alte Fotos löschen oder sie aus der iCloud-Sicherung herausnehmen.'],
   ['Wo finde ich die Rund-Tour?', 'Oben auf dieser Hilfe-Seite („Rund-Tour starten“), in den Einstellungen unter Hilfe, auf dem iPhone unter „Mehr“ und über die Suche („Tour“). Beim ersten Start bietet Sperling sie einmal an.'],
   ['Wo liegen meine Daten?', 'Nur auf deinem Gerät, verschlüsselt mit deinem Master-Passwort. Sicherungen legst du selbst verschlüsselt in iCloud Drive ab. Der Webserver kennt nur das Programm.'],
   ['Ich habe das Master-Passwort vergessen.', 'Dann lassen sich die Daten leider nicht entschlüsseln. Deshalb das Passwort sicher notieren und regelmäßig sichern.'],

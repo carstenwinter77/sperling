@@ -94,6 +94,12 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Gerät verleihen**: Gerät antippen, „Weiter“, dann wie gewohnt Zeitraum, Fotos, Unterschrift. Für ihn reservierte Geräte stehen oben, belegte sind ausgegraut.
 - **Gerät verkaufen**: Gerät wählen, Datum und optional Preis eintragen. Das Häkchen setzt den Vorwerk-Status auf „Abschluss / Kunde“ und lässt sich abwählen. Das Gerät verlässt den Bestand; hatte der Kunde es geliehen, ist die Leihgabe damit erledigt.
 
+## Kundenfotos
+
+- Kunde öffnen → Reiter **„Fotos“**. Je Sparte (Photovoltaik, Wärmepumpe, Vorwerk) „📷 Aufnehmen“ oder „🖼 Auswählen“ (mehrere auf einmal).
+- Tipp aufs Foto: Vollansicht. Mit zwei Fingern oder Doppeltipp zoomen, wischen zum nächsten Foto, 🗑 löscht.
+- Die Fotos werden verkleinert und verschlüsselt gespeichert und kommen mit in die iCloud-Sicherung. Abschalten und alte Fotos löschen: Einstellungen → Kundenfotos.
+
 ## Rund-Tour
 
 - Beim ersten Start fragt Sperling, ob du eine kurze Tour möchtest. Später startest du sie unter Hilfe („🧭 Rund-Tour starten“), in den Einstellungen unter Hilfe, auf dem iPhone unter „Mehr“ oder über die Suche („Tour“).

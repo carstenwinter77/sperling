@@ -6,6 +6,8 @@ import { validateEnvelope, WrongPasswordError } from '../core/crypto.ts';
 import { abgleichUrteil, beimStartFragen } from '../core/abgleich.ts';
 import * as store from '../storage/store.ts';
 import * as db from '../storage/db.ts';
+import * as fotos from '../storage/fotos.ts';
+import { groesseText } from '../core/fotos.ts';
 import { dialog, toast, dateiWaehlen, teilenOderSpeichern } from './dom.ts';
 
 let gefragt = false;
@@ -125,11 +127,12 @@ export async function holen(): Promise<boolean> {
 /** „In iCloud sichern“: Datei vorbereiten, zweiter Tipp öffnet das Teilen-Menü. */
 export async function sichern(nachher?: () => void): Promise<void> {
   let inhalt: string;
-  try { inhalt = JSON.stringify(await store.currentEnvelope()); } catch (err) { toast(`Sicherung fehlgeschlagen: ${(err as Error).message}`, 'error'); return; }
+  let anzahlFotos = 0;
+  try { const s = await fotos.sicherungsDatei(); inhalt = s.text; anzahlFotos = s.fotos; } catch (err) { toast(`Sicherung fehlgeschlagen: ${(err as Error).message}`, 'error'); return; }
   const name = sicherungsName();
   await dialog({
     titel: 'In iCloud sichern',
-    html: `<p>Die verschlüsselte Sicherung <b>${esc(name)}</b> ist bereit.</p><p class="hinweis">Im nächsten Schritt „In Dateien sichern“ wählen, dann „iCloud Drive“ und den Ordner „Sperling“. Eine gleichnamige Datei vom selben Tag ersetzen lassen.</p>`,
+    html: `<p>Die verschlüsselte Sicherung <b>${esc(name)}</b> ist bereit${anzahlFotos ? ` (mit ${anzahlFotos} Foto${anzahlFotos === 1 ? '' : 's'}, ${esc(groesseText(inhalt.length))})` : ''}.</p><p class="hinweis">Im nächsten Schritt „In Dateien sichern“ wählen, dann „iCloud Drive“ und den Ordner „Sperling“. Eine gleichnamige Datei vom selben Tag ersetzen lassen.</p>`,
     knoepfe: [{ label: 'Jetzt sichern', primaer: true, wert: null }],
     onOpen: (dlg) => {
       dlg.querySelectorAll('.dlg-actions button')[1]?.addEventListener('click', async (ev) => {

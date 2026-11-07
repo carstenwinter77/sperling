@@ -26,6 +26,7 @@ import * as vGeloescht from './ui/views/geloescht.ts';
 import * as vGespraechsmodus from './ui/views/gespraechsmodus.ts';
 import * as schutz from './ui/schutz.ts';
 import * as tour from './ui/tour.ts';
+import * as fotos from './storage/fotos.ts';
 import * as suche from './ui/suche.ts';
 import * as hilfe from './ui/hilfe.ts';
 import * as vHilfe from './ui/views/hilfe.ts';
@@ -223,6 +224,7 @@ async function nachEntsperren() {
     badgeSetzen(store.getData());
     setTimeout(() => update.wasIstNeu(APP_VERSION), 1200);
     abgleich.beimStart().catch(() => {});
+    setTimeout(() => fotos.aufraeumen().catch(() => 0), 5000); // verwaiste Fotodaten entfernen
     navigator.storage?.persist?.().catch(() => {});
   }
   route();

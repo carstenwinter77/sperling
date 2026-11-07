@@ -1306,3 +1306,34 @@ test('Verbrauchsmaterial: Buchen, Mindestbestand, Notiz beim Kunden, Papierkorb,
   pk.wiederherstellen(data, data.papierkorb[0].id);
   assert.equal(data.material[0].buchungen.at(-1).kundeId, 'k1');
 });
+
+test('Kundenfotos: Beschreibung, Schlüssel, Alter, benutzte Bilddaten auch im Papierkorb', async () => {
+  const f = await import('../src/core/fotos.ts');
+  const { normalizeKunde: nk } = await import('../src/core/model.ts');
+  const pk = await import('../src/core/papierkorb.ts');
+  const k = nk({ id: 'k1', nachname: 'A', fotos: [
+    { id: 'f-1', sparte: 'pv', zeitpunkt: '2025-01-01T10:00:00.000Z', bytes: 200000 },
+    { id: 'f-2', sparte: 'mond', zeitpunkt: '2026-11-01T10:00:00.000Z', bytes: 100000 },
+    { id: 'f-1', sparte: 'wp' }, { sparte: 'wp' }, 'quatsch',
+  ] });
+  assert.equal(k.fotos.length, 2, 'Doppelte und Kaputte fallen weg');
+  assert.equal(k.fotos[1].sparte, 'pv', 'unbekannte Sparte wird PV');
+  const data = emptyData();
+  data.kunden = [k, nk({ id: 'k2', fotos: [{ id: 'f-3', sparte: 'vorwerk', zeitpunkt: '2026-10-01T10:00:00.000Z', bytes: 50000 }] })];
+  assert.deepEqual(f.fotoStatistik(data), { anzahl: 3, bytes: 350000, kunden: 2 });
+  assert.deepEqual(f.fotosAelterAls(data, 365, new Date('2026-11-07T12:00:00Z')).map((x) => x.fotoId), ['f-1']);
+  assert.equal(f.fotosAelterAls(data, 30, new Date('2026-11-07T12:00:00Z')).length, 2);
+  pk.kundeLoeschen(data, 'k2');
+  assert.deepEqual([...f.benutzteFotoIds(data)].sort(), ['f-1', 'f-2', 'f-3'], 'Kunde im Papierkorb behält seine Fotos');
+  pk.endgueltigLoeschen(data, data.papierkorb[0].id);
+  assert.deepEqual([...f.benutzteFotoIds(data)].sort(), ['f-1', 'f-2']);
+  assert.equal(f.groesseText(150 * 1024), '150 KB');
+  assert.equal(f.groesseText(1.5 * 1024 * 1024), '1,5 MB');
+  // Fotoschlüssel: nur gültige 256-Bit-Schlüssel, alte Daten ohne Schlüssel
+  const gut = Buffer.alloc(32, 7).toString('base64');
+  const d = migrate({ fotoSchluessel: { 'k-1': gut, 'k-2': 'kurz', '../x': gut } });
+  assert.deepEqual(d.fotoSchluessel, { 'k-1': gut });
+  assert.deepEqual(migrate({}).fotoSchluessel, {});
+  assert.equal(migrate({}).einstellungen.fotosMitsichern, true, 'Standard: Fotos mitsichern');
+  assert.equal(migrate({ einstellungen: { fotosMitsichern: false } }).einstellungen.fotosMitsichern, false);
+});

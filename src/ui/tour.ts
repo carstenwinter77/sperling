@@ -19,7 +19,7 @@ const nav = (key: string) => [`.hauptnav [data-nav="${key}"]`, '#navMehr'];
 export const SCHRITTE: Schritt[] = [
   { ziel: nav('start'), titel: 'Übersicht', text: 'Dein Start in den Tag: was heute ansteht, überfällige Wiedervorlagen, Chancen in anderen Sparten und was nachbestellt werden muss.' },
   { ziel: ['.start-suche', '#navSuche'], titel: 'Suchen', text: 'Kunden, Termine, Geräte und Hilfe finden: Name, Straße oder Telefonnummer eintippen. Auch Befehle wie „Meier anrufen“ gehen.' },
-  { ziel: nav('kunden'), titel: 'Kunden', text: 'Deine Kartei mit Status je Sparte (PV, Wärmepumpe, Vorwerk), Notizen und den fertigen Texten für Enpal, GALVANY und Vorwerk. Hier importierst du auch die Vorwerk-Liste.' },
+  { ziel: nav('kunden'), titel: 'Kunden', text: 'Deine Kartei mit Status je Sparte (PV, Wärmepumpe, Vorwerk), Notizen, Fotos und den fertigen Texten für Enpal, GALVANY und Vorwerk. Hier importierst du auch die Vorwerk-Liste.' },
   { ziel: nav('karte'), titel: 'Karte', text: 'Alle Kunden auf der Karte oder im Satellitenbild, mit Nachbarn im Umkreis. Praktisch, um Touren zu planen.' },
   { ziel: nav('termine'), titel: 'Kalender', text: 'Termine und Wiedervorlagen in Monat, Woche oder Tag, mit Feiertagen. Unter „Geräte“ siehst du, wann welches Vorführgerät belegt ist.' },
   { ziel: nav('gespraech'), titel: 'Gespräch', text: 'Der Gesprächsleitfaden in sieben Phasen mit Einwandbehandlung. Ergebnis und Wiedervorlage landen direkt beim Kunden.', mehr: 'Auf dem iPhone unter „Mehr“.' },

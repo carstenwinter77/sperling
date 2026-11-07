@@ -1098,3 +1098,30 @@ tr.li-gleich { opacity: .7; }
 .tour-punkte i { width: 7px; height: 7px; border-radius: 50%; background: var(--linie); }
 .tour-punkte i.an { background: var(--gruen); }
 @media (prefers-reduced-motion: reduce) { .tour-loch, .tour-karte { transition: none; } }
+
+/* Kundenfotos */
+.foto-gruppe { border-top: 4px solid var(--linie); }
+.foto-gruppe.bereich-pv { border-top-color: var(--pv, #e0a800); }
+.foto-gruppe.bereich-wp { border-top-color: var(--wp, #2f7fd6); }
+.foto-gruppe.bereich-vorwerk { border-top-color: var(--gruen); }
+.foto-gruppe h2 small { color: var(--text-2); font-weight: 500; }
+.foto-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: .45rem; margin-top: .6rem; }
+.foto-kachel { aspect-ratio: 1; padding: 0; border: 1px solid var(--linie); border-radius: 10px; overflow: hidden; background: var(--feld); cursor: zoom-in; display: grid; place-items: center; }
+.foto-kachel img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.foto-laedt { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--linie); border-top-color: var(--gruen); animation: drehen 1s linear infinite; }
+.foto-fehlt { font-size: .75rem; color: var(--text-2); padding: .3rem; text-align: center; }
+@keyframes drehen { to { transform: rotate(360deg); } }
+.foto-voll { position: fixed; inset: 0; z-index: 3500; background: #000; color: #fff; display: flex; flex-direction: column; }
+.fv-kopf { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: calc(.4rem + env(safe-area-inset-top)) .6rem .4rem; background: rgba(0,0,0,.7); position: relative; z-index: 2; }
+.fv-titel { font-size: .85rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fv-knoepfe { display: flex; gap: .3rem; flex: none; }
+.fv-knoepfe button, .fv-pfeil { min-width: 44px; min-height: 44px; border-radius: 999px; border: 0; background: rgba(255,255,255,.16); color: #fff; font-size: 1.25rem; cursor: pointer; }
+.fv-buehne { flex: 1; position: relative; overflow: hidden; display: grid; place-items: center; touch-action: none; user-select: none; -webkit-user-select: none; }
+.fv-buehne img { max-width: 100%; max-height: 100%; object-fit: contain; transform-origin: center center; will-change: transform; -webkit-touch-callout: none; }
+.foto-voll.gezoomt .fv-buehne { cursor: grab; }
+.fv-laedt { position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); font-size: .85rem; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.foto-voll.laedt .fv-laedt { opacity: .8; }
+.fv-pfeil { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; font-size: 1.8rem; width: 48px; height: 64px; }
+.fv-zurueck { left: .4rem; } .fv-weiter { right: .4rem; }
+.foto-voll.gezoomt .fv-pfeil { display: none; }
+@media (hover: none) { .fv-pfeil { background: rgba(0,0,0,.35); } }

@@ -19,6 +19,7 @@ import { kundenVerlauf, letzterKontakt, tageSeit, seitText, type VerlaufEintrag 
 import { kontaktKlasse } from './kunden.ts';
 import * as ablauf from '../gespraechsablauf.ts';
 import * as suche from '../suche.ts';
+import * as kundenfotos from '../kundenfotos.ts';
 import { statusOptions, terminDialog, terminZeile, terminListeVerdrahten, icsExport, spartenIcon, statusChips } from '../parts.ts';
 
 const TABS = [
@@ -28,6 +29,7 @@ const TABS = [
   { key: 'doku', label: 'Enpal-Doku', bild: 'photovoltaik' },
   { key: 'wp', label: 'Wärmepumpe', bild: 'waermepumpe' },
   { key: 'vorwerk', label: 'Vorwerk', bild: 'vorwerk' },
+  { key: 'fotos', label: 'Fotos', bild: 'kunde-neu' },
   { key: 'verlauf', label: 'Verlauf', bild: 'notizen' },
   { key: 'termine', label: 'Termine', bild: 'termine' },
   { key: 'texte', label: 'Texte', bild: 'notizen' },
@@ -107,7 +109,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
     history.replaceState(null, '', `#/kunde/${id}?tab=${t}`);
     const k = store.findKunde(id);
     if (!k) { location.hash = '#/kunden'; return; }
-    ({ uebersicht, notizen, pv, wp, doku: enpalDoku.tab, vorwerk, verlauf, termine, texte })[t](inhalt, k, kopfAktualisieren);
+    ({ uebersicht, notizen, pv, wp, doku: enpalDoku.tab, vorwerk, fotos: kundenfotos.tab, verlauf, termine, texte })[t](inhalt, k, kopfAktualisieren);
   };
   el.querySelector('.tabs').addEventListener('click', (e) => {
     const b = (e.target as Element).closest('button[data-tab]');

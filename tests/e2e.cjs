@@ -113,6 +113,29 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForSelector('.doku-liste');
   if ((await p.locator('.doku-liste > li').count()) !== 2) fail('Enpal-Doku nach Neuladen nicht vollständig');
   if (await p.evaluate(() => window.__xss)) fail('XSS ausgeführt!');
+  // Kundenfotos: zwei Fotos zu Photovoltaik, Vorschau, Vollansicht mit Zoom
+  {
+    const fs = require('fs'); const os = require('os'); const path = require('path');
+    const bild1 = path.join(os.tmpdir(), 'sperling-test-1.png'); const bild2 = path.join(os.tmpdir(), 'sperling-test-2.png');
+    fs.writeFileSync(bild1, await p.screenshot({ clip: { x: 0, y: 0, width: 400, height: 300 } }));
+    fs.writeFileSync(bild2, await p.screenshot({ clip: { x: 100, y: 100, width: 300, height: 400 } }));
+    await p.click('button[data-tab=fotos]');
+    await p.waitForSelector('[data-foto-sparte=pv]');
+    await p.setInputFiles('input[data-foto-neu=pv][multiple]', [bild1, bild2]);
+    await p.waitForFunction(() => document.querySelectorAll('[data-foto-sparte=pv] .foto-kachel img').length === 2, null, { timeout: 15000 });
+    if (await p.$('[data-foto-sparte=wp] .foto-kachel')) fail('Foto in falscher Sparte');
+    await p.click('[data-foto-sparte=pv] .foto-kachel');
+    await p.waitForFunction(() => { const i = document.querySelector('#fotoVoll img'); return i && i.complete && i.naturalWidth > 0; });
+    await p.click('#fotoVoll [data-fv=ein]');
+    if (!(await p.getAttribute('#fotoVoll img', 'style')).includes('scale(1.5)')) fail('Zoom in der Vollansicht wirkt nicht');
+    await p.keyboard.press('ArrowRight');
+    await p.waitForFunction(() => document.querySelector('#fotoVoll .fv-titel')?.textContent.includes('2 von 2'));
+    await p.keyboard.press('Escape');
+    await p.waitForFunction(() => !document.querySelector('#fotoVoll'));
+    // Speicher: Klartext-Bild darf nicht in IndexedDB stehen (nur verschlüsselte Bytes)
+    const klar = await p.evaluate(() => new Promise((res) => { const r = indexedDB.open('sperling'); r.onsuccess = () => { const g = r.result.transaction('fotos').objectStore('fotos').getAll(); g.onsuccess = () => res(g.result.map((x) => new Uint8Array(x.ct).slice(0, 3).join(','))); }; }));
+    if (klar.length !== 2 || klar.some((x) => x === '255,216,255')) fail('Fotos nicht verschlüsselt gespeichert');
+  }
   // Backup herunterladen, Klartext darf nicht drin sein
   await p.goto(BASE + '#/einstellungen');
   const [bk] = await Promise.all([p.waitForEvent('download'), p.click('#backup')]);
@@ -125,6 +148,8 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   const icPfad = await ic.path();
   const icTxt = require('fs').readFileSync(icPfad, 'utf8');
   if (icTxt.includes('Prüfer') || icTxt.includes('Dach besichtigt')) fail('iCloud-Sicherung enthält Klartext!');
+  if ((JSON.parse(icTxt).fotos || []).length !== 2) fail('Fotos fehlen in der iCloud-Sicherung');
+  if (icTxt.includes('"ct":"/9j/')) fail('Foto in der Sicherung unverschlüsselt');
   await p.waitForFunction(() => document.querySelector('#letzteSicherung')?.textContent.includes('Letzte Sicherung'));
   // Sicherung wieder einspielen
   const [fc] = await Promise.all([p.waitForEvent('filechooser'), p.click('#import')]);
@@ -155,6 +180,10 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     await p2.goto(BASE + '#/kunden');
     await p2.waitForSelector('#liste');
     if (!(await p2.textContent('#liste')).includes('Prüfer')) fail('Übernahme auf zweitem Gerät ohne Kunden');
+    await p2.click('#liste a.zeile:has-text("Prüfer")');
+    await p2.click('button[data-tab=fotos]');
+    await p2.waitForFunction(() => [...document.querySelectorAll('[data-foto-sparte=pv] .foto-kachel img')].filter((i) => i.complete && i.naturalWidth > 0).length === 2, null, { timeout: 15000 })
+      .catch(() => fail('Fotos auf dem zweiten Gerät nicht lesbar'));
     await ctx2.close();
   }
   // Einstellungen sichern (ohne Kunden, verschlüsselt), ändern, wieder einlesen

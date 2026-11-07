@@ -61,6 +61,10 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/core/bestandkunde.ts  Geräte aus Sicht eines Kunden, Verkauf buchen (rein)
  ├─ src/ui/bestandkunde.ts  Block „Aus meinem Bestand“, Geräteauswahl, Verkaufsdialog
  ├─ src/core/feiertage.ts  Feiertage Niedersachsen (Ostern nach Gauß), nur Anzeige
+ ├─ src/core/fotos.ts  Kundenfotos: Beschreibung, Statistik, Alter, benutzte Bilddaten (rein)
+ ├─ src/storage/fotos.ts  Fotos verkleinern, mit Fotoschlüssel verschlüsseln, Tabelle „fotos“, Sicherung
+ ├─ src/storage/fotodatei.ts  Fotos aus der Sicherungsdatei lesen
+ ├─ src/ui/kundenfotos.ts  Reiter „Fotos“ und Vollansicht mit Zoom
  ├─ src/ui/tour.ts  Willkommen und Rund-Tour (Hervorhebung der Navigation, Merker tourGesehen)
  ├─ src/core/material.ts  Verbrauchsmaterial: buchen, Mindestbestand, Nachbestellliste (rein)
  ├─ src/ui/material.ts  Abschnitt im Bestand, Katalogauswahl, Buchungsdialog, „Muster mitgeben“

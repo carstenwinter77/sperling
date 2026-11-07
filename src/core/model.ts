@@ -6,6 +6,7 @@ import { type Rec, uid, nowIso, isValidDate, parseNumber, isValidCoord } from '.
 import { normalizeFeldEinstellungen, normalizeEigeneWerte } from './felder.ts';
 import { normalizeProduktMarkierung, type ProduktMarkierung } from './produkte.ts';
 import { normalizeBausteine } from './bausteine.ts';
+import { normalizeFotoListe } from './fotos.ts';
 
 export const SCHEMA_VERSION = 7;
 
@@ -168,6 +169,8 @@ export function emptyData(): Daten {
     papierkorb: [],
     // Verbrauchsmaterial mit Anzahl und Mindestbestand (ab 0.10.14, ohne Schemawechsel ergänzt)
     material: [],
+    // Schlüssel für die Kundenfotos (ab 0.10.16): ID -> AES-Schlüssel (Base64), nur im verschlüsselten Bestand
+    fotoSchluessel: {},
   };
 }
 
@@ -367,6 +370,14 @@ export function normalizeMaterial(m: unknown) {
   };
 }
 
+/** Fotoschlüssel: nur gültige 256-Bit-Schlüssel in Base64. */
+export function normalizeFotoSchluessel(v: unknown): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!v || typeof v !== 'object') return out;
+  for (const [k, w] of Object.entries(v as Rec)) if (/^[\w-]{1,40}$/.test(k) && typeof w === 'string' && /^[A-Za-z0-9+/]{43}=$/.test(w)) out[k] = w;
+  return out;
+}
+
 export function neuesMaterial(partial: Rec = {}) {
   const t = nowIso();
   return normalizeMaterial({ id: uid(), createdAt: t, updatedAt: t, ...partial });
@@ -546,6 +557,8 @@ export function normalizeKunde(k: unknown) {
     eigene: normalizeEigeneWerte(src.eigene),
     /** Produkte im Gespräch (ab Schema 5): Markierungs-Ereignisse, jüngstes je Produkt gilt */
     produkte: (Array.isArray(src.produkte) ? src.produkte.map(normalizeProduktMarkierung).filter((x): x is ProduktMarkierung => !!x) : []).slice(-2000),
+    /** Fotos je Sparte (ab 0.10.16): nur Beschreibung, die Bilder liegen verschlüsselt in der Tabelle „fotos“ */
+    fotos: normalizeFotoListe(src.fotos),
   };
 }
 
@@ -596,6 +609,8 @@ export function normalizeEinstellungen(e: unknown) {
   const kLng = parseNumber(karte.lng);
   const kZoom = parseNumber(karte.zoom);
   return {
+    /** Kundenfotos in die Sicherung/iCloud-Datei aufnehmen (ab 0.10.16, Standard an) */
+    fotosMitsichern: src.fotosMitsichern !== false,
     absender: str(src.absender, 500),
     // Ab Schema 7 je Bereich eine Vorlage. Eine eigene frühere Enpal-Vorlage gilt für PV und WP weiter.
     vorlagen: {
@@ -673,6 +688,7 @@ export function migrate(input: unknown): Daten {
     papierkorb: Array.isArray(data.papierkorb)
       ? data.papierkorb.map(normalizePapierkorb).filter((e): e is PapierkorbEintrag => !!e)
       : [],
+    fotoSchluessel: normalizeFotoSchluessel(data.fotoSchluessel),
     material: Array.isArray(data.material)
       ? data.material.map(normalizeMaterial).map((m) => ({ ...m, buchungen: m.buchungen.map((b) => (b.kundeId === '' || kundenIds.has(b.kundeId) ? b : { ...b, kundeId: '' })) }))
       : [],
@@ -703,6 +719,7 @@ export interface Daten {
   reservierungen: Reservierung[];
   papierkorb: PapierkorbEintrag[];
   material: Material[];
+  fotoSchluessel: Record<string, string>;
 }
 /** Adressfelder, wie sie Kunde und Formulare gemeinsam haben. */
 export type MitAdresse = Partial<Pick<Kunde, 'vorname' | 'nachname' | 'firma' | 'strasse' | 'plz' | 'ort'>>;
