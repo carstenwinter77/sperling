@@ -74,6 +74,11 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/abgleich.ts  Leiste beim Start, Datei holen, in iCloud sichern, Ersteinrichtung aus Sicherung
  ├─ src/core/schnellwahl.ts  Wiedervorlage-Schnellwahl: Zieldatum je Schritt (rein)
  ├─ src/ui/schnellwahl.ts  Knopfreihe unter datetime-Feldern, ein Klick-Handler am document
+ ├─ src/core/abhaken.ts  Abhaken mit Notiz und Folge-Wiedervorlage (rein)
+ ├─ src/ui/abhaken.ts  Fenster „Wie ging's aus?“ für Haken und Termin-Karte
+ ├─ src/core/naechstes.ts  „Als Nächstes“ auf der Übersicht: Auswahl und Zeittext (rein)
+ ├─ src/ui/schnellnotiz.ts  Notiz-Fenster ohne Kundenseite (Kundenliste, „+“)
+ ├─ src/ui/plusknopf.ts  schwebender „+“-Knopf: Notiz, Termin, neuer Kunde
  ├─ src/ui/kundenwahl.ts  Suchfeld mit Treffern; verstecktes Feld behält den alten Namen
  ├─ tests/testliste-pdf.cjs  erzeugt eine Beispiel-PDF mit erfundenen Daten für die Tests
  ├─ src/ui/produkte.ts ... Kacheln, Produktdetail, Markieren-Block (Kartei, Gesprächsmodus)

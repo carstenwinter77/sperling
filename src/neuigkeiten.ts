@@ -2,6 +2,15 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.28',
+    punkte: [
+      'Abhaken mit einem Tipp mehr: „Wie ging’s aus?“ notieren (mit Schnelltexten wie „Nicht erreicht“) und gleich die nächste Wiedervorlage setzen.',
+      'Übersicht: „Als Nächstes“ zeigt den laufenden oder nächsten Termin bzw. die älteste fällige Wiedervorlage, mit Anrufen, Hinfahren, Gespräch starten und Erledigt.',
+      'Kundenliste: 📞 🚗 📝 📅 direkt in jeder Zeile, ohne den Kunden zu öffnen. Bei fälligen Terminen gibt es jetzt auch 📞.',
+      'Neuer runder „+“-Knopf unten rechts: Notiz, Termin oder neuer Kunde von überall. Auf einer Kundenseite gehört alles automatisch zu diesem Kunden.',
+    ],
+  },
+  {
     version: '0.10.23',
     punkte: [
       'Filter bei Kunden und auf der Karte: Was gerade gewählt ist, ist jetzt farbig und mit ✓ markiert, auch bei „Kein Kontakt“ und „Produkte“.',

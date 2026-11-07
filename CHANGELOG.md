@@ -1,5 +1,13 @@
 # Änderungsverlauf
 
+## 0.10.28 – 07.11.2026
+- **Kürzere Wege** (aus dem Vorschlag „Weniger Klicks“, Punkte 1–4):
+  - **Abhaken mit Folgeschritt** (`src/core/abhaken.ts`, `src/ui/abhaken.ts`): Der Haken in Terminlisten und „✓ Erledigt“ in der Termin-Karte öffnen ein kleines Fenster „Wie ging's aus?“ mit Schnelltexten, Notiz (geht mit dem Bereich des Termins zum Kunden, R-TEXT) und Schnellwahl für die nächste Wiedervorlage (gleicher Kunde, Bereich und Titel, änderbar). Leer lassen = nur abhaken. Erledigtes wird mit einem Tipp wieder offen.
+  - **„Als Nächstes“ auf der Übersicht** (`src/core/naechstes.ts`): laufender oder heute noch beginnender Termin, sonst die älteste fällige Wiedervorlage; Knöpfe Anrufen, Hinfahren, Gespräch starten, Erledigt; Titel öffnet die Termin-Karte.
+  - **Schnellknöpfe** in der Kundenliste (📞 Anrufen mit Sicherheitsabfrage, 🚗 Hinfahren, 📝 Schnellnotiz, 📅 Termin) und 📞 in Terminlisten.
+  - **„+“-Knopf** (`src/ui/plusknopf.ts`) auf Übersicht, Kunden, Kundenseite und Kalender: Notiz (`src/ui/schnellnotiz.ts`, Kunde per Suche, optional Wiedervorlage), Termin/Wiedervorlage, neuer Kunde. Auf der Kundenseite automatisch diesem Kunden zugeordnet. Nicht im Beratungs-Schutz, Gesprächsmodus und auf der Karte.
+  - 3 neue Unit-Tests, Browser-Test erweitert. Kein Schemawechsel.
+
 ## 0.10.27 – 07.11.2026
 - Kontaktseite: Satz zum Vergleich positiver formuliert („Ich bin überzeugt: Ein gutes Angebot hält jedem Vergleich stand.“).
 

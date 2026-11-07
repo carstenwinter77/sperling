@@ -1434,3 +1434,70 @@ test('Rechner: Eingaben in deutscher Schreibweise, Grenzen, Kopiertext', () => {
   const t = rechnerText('pv', PV_STANDARD, rechnePv(PV_STANDARD));
   assert.ok(t.includes('ohne Gewähr') && t.includes('Annahmen:') && t.includes('Eigenverbrauch'));
 });
+
+test('Abhaken mit Folgeschritt: erledigt, Notiz im Bereich des Termins, nächste Wiedervorlage', async () => {
+  const { abhakenAnwenden, notizText } = await import('../src/core/abhaken.ts');
+  const { neuerTermin } = await import('../src/core/model.ts');
+  const k = neuerKunde({ vorname: 'Erika', nachname: 'Muster' });
+  const t = neuerTermin({ kundeId: k.id, sparte: 'vorwerk', titel: 'Nachfragen Kobold', beginn: '2026-11-07T09:00:00.000Z', dauerMin: 30, ort: 'Musterweg 1' });
+  const data = { kunden: [k], termine: [t] };
+  const folge = abhakenAnwenden(data, t.id, { text: '  Nicht erreicht ', folgeBeginn: '2026-11-10T09:00:00.000Z' }, '2026-11-07T10:00:00.000Z');
+  assert.equal(data.termine[0].erledigt, true);
+  assert.equal(k.notizen.length, 1);
+  assert.equal(k.notizen[0].text, 'Nachfragen Kobold erledigt: Nicht erreicht');
+  assert.deepEqual(k.notizen[0].sparten, ['vorwerk'], 'Notiz trägt nur den Bereich des Termins (R-TEXT)');
+  assert.ok(folge);
+  assert.equal(data.termine.length, 2);
+  assert.equal(folge.art, 'wiedervorlage');
+  assert.equal(folge.kundeId, k.id);
+  assert.equal(folge.sparte, 'vorwerk');
+  assert.equal(folge.titel, 'Nachfragen Kobold');
+  assert.equal(folge.beginn, '2026-11-10T09:00:00.000Z');
+  assert.equal(folge.erledigt, false);
+  assert.equal(notizText({ titel: '', art: 'termin' }, 'ok'), 'Termin erledigt: ok');
+});
+
+test('Abhaken ohne Eingaben: nur erledigt, keine Notiz, keine Wiedervorlage; ungültiges Datum wird ignoriert', async () => {
+  const { abhakenAnwenden } = await import('../src/core/abhaken.ts');
+  const { neuerTermin } = await import('../src/core/model.ts');
+  const k = neuerKunde({ vorname: 'Max' });
+  const t = neuerTermin({ kundeId: k.id, titel: 'Anruf' });
+  const data = { kunden: [k], termine: [t] };
+  assert.equal(abhakenAnwenden(data, t.id, { text: '   ', folgeBeginn: '' }), null);
+  assert.equal(t.erledigt, true);
+  assert.equal(k.notizen.length, 0);
+  assert.equal(data.termine.length, 1);
+  const t2 = neuerTermin({ titel: 'ohne Kunde' });
+  data.termine.push(t2);
+  assert.equal(abhakenAnwenden(data, t2.id, { text: 'Text', folgeBeginn: 'kaputt' }), null);
+  assert.equal(k.notizen.length, 0, 'ohne Kunde keine Notiz');
+  assert.equal(abhakenAnwenden(data, 'gibt-es-nicht', { text: '', folgeBeginn: '' }), null);
+});
+
+test('Als Nächstes: laufender Termin vor fälliger Wiedervorlage, sonst älteste fällige', async () => {
+  const { alsNaechstes, zeitText } = await import('../src/core/naechstes.ts');
+  const { neuerTermin } = await import('../src/core/model.ts');
+  const jetzt = new Date(2026, 10, 7, 10, 0);
+  const iso = (h, m = 0, tag = 7) => new Date(2026, 10, tag, h, m).toISOString();
+  const wvAlt = neuerTermin({ art: 'wiedervorlage', titel: 'alt', beginn: iso(9, 0, 4) });
+  const laeuft = neuerTermin({ art: 'termin', titel: 'läuft', beginn: iso(9, 30), dauerMin: 60 });
+  const spaeter = neuerTermin({ art: 'termin', titel: 'später', beginn: iso(15) });
+  const vorbei = neuerTermin({ art: 'termin', titel: 'vorbei', beginn: iso(8), dauerMin: 30 });
+  const erledigt = neuerTermin({ art: 'termin', titel: 'erledigt', beginn: iso(9, 45), erledigt: true });
+  let n = alsNaechstes([wvAlt, spaeter, laeuft, vorbei, erledigt], jetzt);
+  assert.equal(n.termin.titel, 'läuft');
+  assert.equal(n.lage, 'laeuft');
+  n = alsNaechstes([wvAlt, spaeter, vorbei], jetzt);
+  assert.equal(n.termin.titel, 'später');
+  assert.equal(n.lage, 'heute');
+  n = alsNaechstes([wvAlt, vorbei], jetzt);
+  assert.equal(n.termin.titel, 'alt', 'älteste fällige zuerst');
+  assert.equal(n.lage, 'ueberfaellig');
+  assert.equal(zeitText(n, jetzt), 'überfällig seit 3 Tagen');
+  const gleich = neuerTermin({ art: 'termin', titel: 'gleich', beginn: iso(10, 25) });
+  n = alsNaechstes([gleich], jetzt);
+  assert.equal(n.lage, 'gleich');
+  assert.equal(zeitText(n, jetzt), 'in 25 Min. (10:25 Uhr)');
+  assert.equal(alsNaechstes([neuerTermin({ art: 'termin', beginn: iso(10, 0, 8) })], jetzt), null, 'morgen ist nicht „als Nächstes“');
+  assert.equal(alsNaechstes([], jetzt), null);
+});

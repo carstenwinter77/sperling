@@ -10,7 +10,9 @@ export const THEMEN = {
     kurz: 'Dein Tag auf einen Blick: was heute fällig ist, Kunden je Bereich und Chancen in anderen Bereichen.',
     schritte: [
       'Oben suchst du alles: Kunden, Geräte, Termine, Notizen oder Befehle.',
-      'Ein Kreis vor einem Termin hakt ihn als erledigt ab.',
+      '„Als Nächstes“ zeigt den laufenden oder nächsten Termin bzw. die älteste fällige Wiedervorlage, mit Anrufen, Hinfahren, Gespräch starten und Erledigt.',
+      'Ein Kreis vor einem Termin hakt ihn ab. Dabei kannst du kurz notieren, wie es ausging, und gleich die nächste Wiedervorlage setzen. Leer lassen hakt nur ab.',
+      'Der runde „+“-Knopf unten rechts legt eine Notiz, einen Termin oder einen Kunden an. Auf einer Kundenseite gehört alles automatisch zu diesem Kunden.',
       '„Chancen in anderen Sparten“ zeigt Kunden, die in einem Bereich aktiv sind und im anderen noch offen.',
     ],
   },
@@ -32,6 +34,7 @@ export const THEMEN = {
       '„Filter“ wählt Bereiche, Status und Kontaktalter. Mehrere Haken zeigen alles, was zu einem davon passt.',
       'Sortieren nach Name, „Längster Kontakt zuerst“, „Letzter Kontakt zuerst“ oder „Zuletzt angelegt“.',
       'Grün: Kontakt in den letzten 30 Tagen, gelb: bis 90 Tage, rot: länger her oder noch nie.',
+      'Rechts in jeder Zeile: 📞 Anrufen, 🚗 Hinfahren, 📝 Notiz und 📅 Termin, ohne den Kunden zu öffnen.',
       'Ganz unten liegt die Liste der gelöschten Kunden.',
     ],
   },
