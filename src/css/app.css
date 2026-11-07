@@ -572,7 +572,9 @@ body.ka-aktiv { overflow: hidden; }
 .verlauf-eintrag.zukunft { opacity: .8; }
 .verlauf-eintrag.erledigt strong { text-decoration: line-through; text-decoration-color: var(--text-2); }
 .verlauf.kurz .verlauf-eintrag p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.karte-filter { display: grid; gap: .6rem; margin: 0 0 .5rem; }
+.karte-filter { display: grid; gap: .6rem; margin: 0; border-radius: 0; position: relative; z-index: 600; }
+.karte-filter[hidden] { display: none; }
+.filter-offen .karte-hinweis { display: none; }
 .kf-gruppe { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
 .kf-gruppe strong { min-width: 5.5rem; font-size: .9rem; }
 .kf-status i { display: inline-block; width: .7rem; height: .7rem; border-radius: 50%; background: var(--c); margin-right: .35rem; vertical-align: -1px; }

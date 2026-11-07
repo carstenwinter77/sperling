@@ -136,6 +136,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
   el.querySelector('#fKnopf').addEventListener('click', (e) => {
     const panel = el.querySelector('#fPanel');
     panel.hidden = !panel.hidden;
+    el.querySelector('.karte-seite')?.classList.toggle('filter-offen', !panel.hidden);
     (e.currentTarget as HTMLElement).setAttribute('aria-expanded', String(!panel.hidden));
     setTimeout(() => map.invalidateSize(), 0);
   });
