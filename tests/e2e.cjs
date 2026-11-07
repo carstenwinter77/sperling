@@ -234,6 +234,33 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('dialog .dlg-actions button.ghost');
   await p.click('.tabs [data-ansicht=liste]');
   await p.waitForSelector('.terminliste');
+  // Laufendes Gespräch: geteilte Ansicht, Leitfaden nahtlos, Abschluss landet im Verlauf
+  await p.goto(BASE + '#/kunden');
+  await p.click('#liste .zeile');
+  await p.click('#gespraechStarten');
+  await p.waitForSelector('.gm-teilung .gm-links [data-feld=telefon]');
+  await p.fill('textarea[data-gruppe] >> nth=0', 'E2E-Gesprächsnotiz Speicherwunsch');
+  await p.click('.gm-seiten [data-seite=leitfaden]');
+  await p.click('.gm-leitfaden .einwand >> nth=0');
+  await p.click('.gm-leitfaden [data-ergebnis=ueberzeugt]');
+  await p.click('.gm-seiten [data-seite=notizen]');
+  if ((await p.inputValue('textarea[data-gruppe] >> nth=0')) !== 'E2E-Gesprächsnotiz Speicherwunsch') fail('Notiz nach Leitfaden verloren');
+  await p.click('.gm-seiten [data-seite=abschluss]');
+  await p.selectOption('[data-abschluss] [name=ausgang] >> nth=0', 'wiedervorlage');
+  await p.click('#gmSpeichern');
+  await p.waitForSelector('.verlauf');
+  if (!(await p.textContent('.verlauf')).includes('E2E-Gesprächsnotiz')) fail('Gespräch fehlt im Verlauf');
+  if (!(await p.textContent('.verlauf')).includes('Wiedervorlage vereinbart')) fail('Ergebnis fehlt im Verlauf');
+  // Vom Leitfaden aus nahtlos in die geteilte Ansicht
+  await p.goto(BASE + '#/gespraech');
+  await p.selectOption('#gKunde', { index: 1 });
+  await p.click('#gInhalt .einwand >> nth=1');
+  await p.click('#gGeteilt');
+  await p.waitForSelector('.gm-leitfaden .einwand.e-offen');
+  await p.click('.gm-seiten [data-seite=abschluss]');
+  await p.click('#gmVerwerfen');
+  await p.click('dialog button.danger');
+  await p.waitForFunction(() => /^#\/kunde\/[\w-]+$/.test(location.hash));
   // Kundenansicht: nur Freigegebenes, Beenden nur mit Passwort
   await p.goto(BASE + '#/kunden');
   await p.click('#liste .zeile');

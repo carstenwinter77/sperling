@@ -23,6 +23,7 @@ import * as vGespraech from './ui/views/gespraech.ts';
 import * as vBelegung from './ui/views/belegung.ts';
 import * as vAuswertung from './ui/views/auswertung.ts';
 import * as vGeloescht from './ui/views/geloescht.ts';
+import * as vGespraechsmodus from './ui/views/gespraechsmodus.ts';
 
 interface Ansicht { render(el: HTMLElement, params: URLSearchParams, treffer: string[]): void | (() => void) }
 interface Route { muster: RegExp; view: Ansicht; nav: string }
@@ -30,6 +31,7 @@ const ROUTEN: Route[] = [
   { muster: /^\/?$/, view: vStart, nav: 'start' },
   { muster: /^\/kunden$/, view: vKunden, nav: 'kunden' },
   { muster: /^\/kunde\/([\w-]+)$/, view: vKunde, nav: 'kunden' },
+  { muster: /^\/kunde\/([\w-]+)\/gespraech$/, view: vGespraechsmodus, nav: 'kunden' },
   { muster: /^\/karte$/, view: vKarte, nav: 'karte' },
   { muster: /^\/termine$/, view: vTermine, nav: 'termine' },
   { muster: /^\/einstellungen$/, view: vEinst, nav: 'einstellungen' },

@@ -12,6 +12,8 @@ import * as pk from '../../core/papierkorb.ts';
 import { hinfahrenKnopf } from '../navi.ts';
 import * as kundenansicht from '../kundenansicht.ts';
 import { istBeispiel } from '../../demo.ts';
+import { kundenVerlauf, type VerlaufEintrag } from '../../core/verlauf.ts';
+import * as ablauf from '../gespraechsablauf.ts';
 import { statusOptions, terminDialog, terminZeile, terminListeVerdrahten, icsExport, spartenIcon, statusChips } from '../parts.ts';
 
 const TABS = [
@@ -20,7 +22,7 @@ const TABS = [
   { key: 'enpal', label: 'PV & Wärmepumpe', bild: 'photovoltaik' },
   { key: 'doku', label: 'Enpal-Doku', bild: 'photovoltaik' },
   { key: 'vorwerk', label: 'Vorwerk', bild: 'vorwerk' },
-  { key: 'gespraeche', label: 'Gespräche', bild: 'notizen' },
+  { key: 'verlauf', label: 'Verlauf', bild: 'notizen' },
   { key: 'termine', label: 'Termine', bild: 'termine' },
   { key: 'texte', label: 'Texte', bild: 'notizen' },
 ];
@@ -32,7 +34,9 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
     el.innerHTML = `<div class="leer">${maskottchen('sperling', 'gross')}<p>Diesen Kunden gibt es nicht (mehr).</p><a class="btn" href="#/kunden">Zur Kundenliste</a></div>`;
     return;
   }
-  let tab = TABS.some((t) => t.key === params.get('tab')) ? params.get('tab') : 'uebersicht';
+  const tabWunsch = params.get('tab') === 'gespraeche' ? 'verlauf' : params.get('tab');
+  let tab = TABS.some((t) => t.key === tabWunsch) ? tabWunsch : 'uebersicht';
+  const laeuft = ablauf.entwurf(id);
 
   el.innerHTML = `
     <header class="seitenkopf kunde-kopf">
@@ -40,7 +44,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
       <h1 id="kTitel">${esc(kundenTitel(kunde))}</h1>${istBeispiel(kunde.id) ? '<span class="tag tag-beispiel">Beispiel</span>' : ''}
       <span id="kChips">${statusChips(kunde)}</span>
     </header>
-    <div class="knopfreihe kunde-aktionen"><a class="btn klein" href="#/gespraech?kunde=${esc(kunde.id)}">💬 Gesprächsleitfaden</a><button class="btn klein" id="kundenansicht">👁 Kundenansicht zum Herzeigen</button></div>
+    <div class="knopfreihe kunde-aktionen"><a class="btn klein primary" href="#/kunde/${esc(kunde.id)}/gespraech" id="gespraechStarten">${laeuft ? '▶ Gespräch fortsetzen' : '📞 Gespräch starten'}</a><a class="btn klein" href="#/kunde/${esc(kunde.id)}/gespraech?seite=leitfaden">💬 Gesprächsleitfaden</a><button class="btn klein" id="kundenansicht">👁 Kundenansicht zum Herzeigen</button></div>
     <nav class="tabs" role="tablist">
       ${TABS.map((t) => `<button role="tab" data-tab="${t.key}" class="${t.key === tab ? 'aktiv' : ''}">${esc(t.label)}</button>`).join('')}
     </nav>
@@ -63,7 +67,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
     history.replaceState(null, '', `#/kunde/${id}?tab=${t}`);
     const k = store.findKunde(id);
     if (!k) { location.hash = '#/kunden'; return; }
-    ({ uebersicht, notizen, enpal, doku: enpalDoku.tab, vorwerk, gespraeche, termine, texte })[t](inhalt, k, kopfAktualisieren);
+    ({ uebersicht, notizen, enpal, doku: enpalDoku.tab, vorwerk, verlauf, termine, texte })[t](inhalt, k, kopfAktualisieren);
   };
   el.querySelector('.tabs').addEventListener('click', (e) => {
     const b = (e.target as Element).closest('button[data-tab]');
@@ -94,7 +98,7 @@ function setzePfad(obj, pfad, wert) {
   return true;
 }
 
-function bindeFelder(root, kundeId, nachher) {
+export function bindeFelder(root, kundeId, nachher) {
   const speichern = (input) => {
     const pfad = input.dataset.feld;
     const wert = feldwert(input);
@@ -120,7 +124,7 @@ function bindeFelder(root, kundeId, nachher) {
   });
 }
 
-function feldHtml(sparte, f, wert) {
+export function feldHtml(sparte, f, wert) {
   const pfad = `${sparte}.${f.key}`;
   const lbl = `${esc(f.label)}${f.unit ? ` <small>(${esc(f.unit)})</small>` : ''}`;
   if (f.type === 'select') {
@@ -149,7 +153,12 @@ function uebersicht(el, k, kopf) {
       .filter((n) => n.m <= radius)
       .sort((a, b) => a.m - b.m)
     : [];
+  const zuletzt = kundenVerlauf(store.getData(), k).filter((v) => v.art === 'gespraech' || v.art === 'notiz').slice(0, 3);
   el.innerHTML = `
+    <section class="karte-box">
+      <header class="seitenkopf"><h2>${maskottchen('notizen', 'titel-bild')} Letzte Gespräche</h2><a class="btn klein ghost" href="#/kunde/${esc(k.id)}?tab=verlauf">Ganzer Verlauf</a></header>
+      ${zuletzt.length ? `<ul class="verlauf kurz">${zuletzt.map(verlaufHtml).join('')}</ul>` : `<p class="hinweis">Noch keine Gespräche. Mit „📞 Gespräch starten“ schreibst du beim Telefonat mit und hast die Kundendaten daneben.</p>`}
+    </section>
     <section class="karte-box">
       <h2>Interesse je Sparte</h2>
       <div class="sparten-status">
@@ -409,21 +418,36 @@ function texte(el, k) {
   }));
 }
 
-function gespraeche(el, k) {
-  const liste = [...k.gespraeche].sort((a, b) => (a.zeitpunkt < b.zeitpunkt ? 1 : -1));
-  el.innerHTML = `
+const VERLAUF_FILTER = [['alle', 'Alles'], ['gespraech', 'Gespräche'], ['notiz', 'Notizen'], ['termin', 'Termine'], ['verleih', 'Geräte']] as const;
+const VERLAUF_SYMBOL: Record<VerlaufEintrag['art'], string> = { gespraech: '💬', notiz: '📝', termin: '📅', verleih: '📦' };
+
+function verlaufHtml(v: VerlaufEintrag) {
+  return `<li class="verlauf-eintrag art-${v.art}${v.zukunft ? ' zukunft' : ''}${v.erledigt ? ' erledigt' : ''}">
+    <span class="verlauf-symbol" aria-hidden="true">${VERLAUF_SYMBOL[v.art]}</span>
+    <div>
+      <div class="notiz-kopf"><time>${esc(formatDateTime(v.zeitpunkt))}</time><strong>${esc(v.titel)}</strong>
+        <span class="tags">${v.sparten.map((s) => `<span class="tag tag-${s}">${esc(SPARTEN[s].kurz)}</span>`).join('')}${v.zukunft ? '<span class="tag">geplant</span>' : ''}${v.erledigt ? '<span class="tag">erledigt</span>' : ''}</span></div>
+      ${v.zeilen.map((z) => `<p>${esc(z).replace(/\n/g, '<br>')}</p>`).join('')}
+    </div>
+  </li>`;
+}
+
+function verlauf(el, k) {
+  let filter = 'alle';
+  const zeichnen = () => {
+    const alle = kundenVerlauf(store.getData(), store.findKunde(k.id) || k);
+    const liste = filter === 'alle' ? alle : alle.filter((v) => v.art === filter);
+    el.innerHTML = `
     <section class="karte-box">
       <header class="seitenkopf">
-        <h2>${maskottchen('notizen', 'titel-bild')} Gespräche &amp; Ergebnisse</h2>
-        <a class="btn primary" href="#/gespraech?kunde=${esc(k.id)}">Neues Gespräch</a>
+        <h2>${maskottchen('notizen', 'titel-bild')} Gesprächshistorie</h2>
+        <a class="btn primary" href="#/kunde/${esc(k.id)}/gespraech">${ablauf.entwurf(k.id) ? '▶ Gespräch fortsetzen' : '📞 Gespräch starten'}</a>
       </header>
-      ${liste.length ? `<ul class="gespraechsliste">${liste.map((g) => `
-        <li>
-          <div class="notiz-kopf"><time>${esc(formatDateTime(g.zeitpunkt))}</time><span class="tags"><span class="tag tag-${g.sparte}">${esc(SPARTEN[g.sparte].label)}</span></span></div>
-          <p class="ausgang ausgang-${esc(g.ausgang)}">${esc(AUSGANG[g.ausgang] || 'Ohne Ergebnis')}</p>
-          ${g.naechsterSchritt ? `<p><b>Nächster Schritt:</b> ${esc(g.naechsterSchritt)}</p>` : ''}
-          ${g.einwaende.length ? `<ul class="einwand-ergebnisse">${g.einwaende.map((e) => `<li class="e-${esc(e.ergebnis)}">„${esc(e.text)}“ <small>${esc(ERGEBNIS[e.ergebnis])}</small></li>`).join('')}</ul>` : ''}
-          ${g.notiz ? `<p class="hinweis">${esc(g.notiz)}</p>` : ''}
-        </li>`).join('')}</ul>` : '<p class="hinweis">Noch keine Gespräche mit dem Leitfaden erfasst.</p>'}
+      <div class="chips-filter" role="group" aria-label="Filter">${VERLAUF_FILTER.map(([f, l]) => `<button type="button" data-filter="${f}" class="${f === filter ? 'aktiv' : ''}">${l} <small>${f === 'alle' ? alle.length : alle.filter((v) => v.art === f).length}</small></button>`).join('')}</div>
+      ${liste.length ? `<ul class="verlauf">${liste.map(verlaufHtml).join('')}</ul>` : '<p class="hinweis">Noch nichts im Verlauf.</p>'}
+      <p class="hinweis">Notizen bearbeitest du unter „Notizen“, die Enpal-Dokumentation unter „Enpal-Doku“.</p>
     </section>`;
+    el.querySelector('.chips-filter').addEventListener('click', (e) => { const b = (e.target as Element).closest('[data-filter]'); if (b) { filter = b.dataset.filter || 'alle'; zeichnen(); } });
+  };
+  zeichnen();
 }

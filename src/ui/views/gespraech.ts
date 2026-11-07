@@ -6,6 +6,7 @@ import { LEITFADEN, UEBERLEITUNG, ERGEBNIS, TECHNIKEN, gespraechsNotiz } from '.
 import * as store from '../../storage/store.ts';
 import { maskottchen, toast } from '../dom.ts';
 import { spartenIcon, statusOptions } from '../parts.ts';
+import * as ablauf from '../gespraechsablauf.ts';
 
 /** Letztes Ergebnis eines Einwands aus früheren Gesprächen dieser Sparte. */
 function frueher(k, sparte, einwandId) {
@@ -52,20 +53,25 @@ function bisherHtml(k, sparte) {
     ${x.einwaende.length ? `<br><small>${x.einwaende.map((e) => `„${esc(e.text)}“ → ${esc(ERGEBNIS[e.ergebnis])}`).join(' · ')}</small>` : ''}</div>`).join('')}</div>`;
 }
 
-export function render(el: HTMLElement, params: URLSearchParams) {
+/** Eingebettet im laufenden Gespräch: ohne Kopf, Kundenwahl und Abschluss; Einwände landen im Entwurf. */
+export interface Einbettung { kundeId: string; sparte: Sparte; verlauf: ablauf.Verlauf; onSparte?: (s: Sparte) => void; onEinwand?: () => void }
+
+export function render(el: HTMLElement, params: URLSearchParams, _teile: string[] = [], einb: Einbettung | null = null) {
   const d = store.getData();
   const p = (n: string) => params.get(n) || '';
   const zustand = {
-    kundeId: d.kunden.some((k) => k.id === p('kunde')) ? p('kunde') : '',
-    sparte: (p('sparte') in SPARTEN ? p('sparte') : 'pv') as Sparte,
+    kundeId: einb ? einb.kundeId : (d.kunden.some((k) => k.id === p('kunde')) ? p('kunde') : ''),
+    sparte: (einb ? einb.sparte : (p('sparte') in SPARTEN ? p('sparte') : 'pv')) as Sparte,
     // einwandId -> 'offen' | 'ueberzeugt' | 'bleibt'
-    verlauf: { pv: {}, wp: {}, vorwerk: {} } as Record<Sparte, Record<string, string>>,
+    verlauf: einb ? einb.verlauf : ablauf.leererVerlauf(),
     offenerEinwand: null as string | null,
   };
   const kundenOpts = [...d.kunden].sort((a, b) => kundenTitel(a).localeCompare(kundenTitel(b), 'de'))
     .map((k) => `<option value="${esc(k.id)}" ${k.id === zustand.kundeId ? 'selected' : ''}>${esc(kundenTitel(k))}</option>`).join('');
 
-  el.innerHTML = `
+  el.innerHTML = einb ? `
+    <nav class="tabs" id="gTabs">${SPARTEN_KEYS.map((s) => `<button data-sparte="${s}" class="${s === zustand.sparte ? 'aktiv' : ''}">${esc(SPARTEN[s].label)}</button>`).join('')}</nav>
+    <div id="gInhalt"></div>` : `
     <header class="seitenkopf">
       <h1>${maskottchen('notizen', 'titel-bild')} Gesprächsleitfaden</h1>
     </header>
@@ -121,6 +127,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
   };
 
   const speicherBereich = () => {
+    if (einb) return;
     const box = el.querySelector('#gSpeichern');
     const k = zustand.kundeId ? store.findKunde(zustand.kundeId) : null;
     if (!k) { box.innerHTML = '<p class="hinweis">Wähle oben einen Kunden, damit das Gespräch mit Ergebnis beim Kunden hinterlegt wird.</p>'; return; }
@@ -145,7 +152,14 @@ export function render(el: HTMLElement, params: URLSearchParams) {
         </fieldset>`;
   }).join('')}
       <div class="knopfreihe"><button class="btn primary" id="gSpeichernKnopf">Gespräch beim Kunden speichern</button>
+      <button class="btn" id="gGeteilt">📞 Mit Kundendaten weiter</button>
       <a class="btn ghost" href="#/kunde/${esc(k.id)}?tab=gespraeche">Alle Gespräche ansehen</a></div>`;
+    box.querySelector('#gGeteilt').addEventListener('click', () => {
+      // Nahtlos in die geteilte Ansicht: angetippte Einwände wandern in das laufende Gespräch
+      const mit = SPARTEN_KEYS.filter((s) => Object.keys(zustand.verlauf[s]).length);
+      ablauf.beginnen(k.id, { verlauf: zustand.verlauf, sparten: mit.length ? mit : [zustand.sparte], leitfadenSparte: zustand.sparte });
+      location.hash = `#/kunde/${k.id}/gespraech?seite=leitfaden`;
+    });
     box.querySelector('#gSpeichernKnopf').addEventListener('click', () => {
       const eintraege: { s: Sparte; ausgang: string; status: string; schritt: string; wv: string | null; notiz: string }[] = [];
       for (const fs of box.querySelectorAll('[data-abschluss]')) {
@@ -200,10 +214,11 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     });
   };
 
-  el.querySelector('#gKunde').addEventListener('change', (ev) => { zustand.kundeId = (ev.target as HTMLInputElement).value; zeichnen(); });
+  el.querySelector('#gKunde')?.addEventListener('change', (ev) => { zustand.kundeId = (ev.target as HTMLInputElement).value; zeichnen(); });
   const tabWechsel = (s) => {
     zustand.sparte = s;
     zustand.offenerEinwand = null;
+    einb?.onSparte?.(s);
     el.querySelectorAll('#gTabs button').forEach((b) => b.classList.toggle('aktiv', b.dataset.sparte === s));
     zeichnen();
   };
@@ -216,14 +231,16 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       const eid = ein.dataset.einwand || '';
       zustand.offenerEinwand = eid;
       if (!zustand.verlauf[zustand.sparte][eid]) zustand.verlauf[zustand.sparte][eid] = 'offen';
+      einb?.onEinwand?.();
       zeichnen();
       el.querySelector('#antwort')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } else if (erg && zustand.offenerEinwand) {
       zustand.verlauf[zustand.sparte][zustand.offenerEinwand] = erg.dataset.ergebnis || 'offen';
+      einb?.onEinwand?.();
       zeichnen();
     } else if (wech) {
       tabWechsel(wech.dataset.wechsel);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (einb) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); else window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   });
   zeichnen();

@@ -516,3 +516,59 @@ body.ka-aktiv { overflow: hidden; }
 .geloescht-hinweis a { color: var(--text-2); font-weight: 600; }
 .geloescht-liste .zeile { flex-wrap: wrap; gap: .4rem; }
 .danger-text { color: var(--rot); }
+
+/* Laufendes Gespräch: geteilte Ansicht */
+.gm-kopf h1 { display: flex; align-items: center; gap: .5rem; font-size: 1.25rem; }
+.gm-live { width: 10px; height: 10px; border-radius: 50%; background: var(--rot); box-shadow: 0 0 0 0 color-mix(in srgb, var(--rot) 60%, transparent); animation: gm-puls 2s infinite; }
+@keyframes gm-puls { 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+@media (prefers-reduced-motion: reduce) { .gm-live { animation: none; } }
+.gm-uhr { font-variant-numeric: tabular-nums; color: var(--text-2); font-weight: 600; }
+.gm-teilung { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+.gm-teilung .gm-links { display: none; }
+.gm-teilung.zeige-kunde .gm-links { display: block; }
+.gm-teilung.zeige-kunde .gm-rechts { display: none; }
+@media (min-width: 900px) {
+  .gm-handy { display: none; }
+  .gm-teilung { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: start; }
+  .gm-teilung .gm-links, .gm-teilung.zeige-kunde .gm-rechts { display: block; }
+  .gm-links, .gm-rechts { position: sticky; top: .5rem; max-height: calc(100dvh - 7rem); overflow-y: auto; overscroll-behavior: contain; padding-right: .25rem; }
+}
+.gm-links .formgrid { grid-template-columns: 1fr 1fr; }
+.gm-chips { margin-bottom: .6rem; }
+.gm-bogen summary { cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: .4rem; }
+.gm-bogen summary small { font-weight: 500; color: var(--text-2); margin-left: auto; }
+.gm-bogen[open] summary { margin-bottom: .6rem; }
+.gm-bisher { list-style: none; margin: 0 0 .5rem; padding: 0; }
+.gm-bisher li + li { border-top: 1px solid var(--linie); }
+.gm-bisher li { padding: .4rem 0; font-size: .9rem; }
+.gm-bisher p { margin: .2rem 0 0; color: var(--text-2); }
+.gm-art { margin-bottom: .6rem; display: inline-flex; border: 1px solid var(--linie); border-radius: 12px; overflow: hidden; }
+.gm-art button { border: 0; background: none; padding: .5rem .8rem; font: inherit; font-weight: 600; color: var(--text-2); min-height: 44px; cursor: pointer; }
+.gm-art button + button { border-left: 1px solid var(--linie); }
+.gm-art button.aktiv { background: var(--aktiv-bg); color: var(--text); }
+.gm-sparten { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin-top: .6rem; }
+.gm-sparten > span { font-weight: 600; color: var(--text-2); }
+.chip-wahl { border: 1px solid var(--linie); background: var(--karte); border-radius: 999px; padding: .45rem .85rem; font: inherit; font-weight: 600; min-height: 40px; cursor: pointer; color: var(--text-2); }
+.chip-wahl.aktiv.tag-pv { background: var(--tag-pv-bg); color: var(--tag-pv); border-color: var(--tag-pv); }
+.chip-wahl.aktiv.tag-wp { background: var(--tag-wp-bg); color: var(--tag-wp); border-color: var(--tag-wp); }
+.chip-wahl.aktiv.tag-vorwerk { background: var(--tag-vw-bg); color: var(--tag-vw); border-color: var(--tag-vw); }
+.gm-notiz textarea { font-size: 1.05rem; line-height: 1.45; }
+.gm-unten { margin-top: 1rem; }
+.feld-mit-knopf { display: flex; gap: .4rem; }
+.feld-mit-knopf input { flex: 1; min-width: 0; }
+
+/* Gesprächshistorie */
+.chips-filter { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .75rem; }
+.chips-filter button { border: 1px solid var(--linie); background: var(--karte); border-radius: 999px; padding: .35rem .75rem; font: inherit; font-weight: 600; color: var(--text-2); min-height: 36px; cursor: pointer; }
+.chips-filter button.aktiv { background: var(--braun); border-color: var(--braun); color: var(--auf-akzent); }
+.chips-filter small { opacity: .75; }
+.verlauf { list-style: none; margin: 0; padding: 0; position: relative; }
+.verlauf-eintrag { display: grid; grid-template-columns: 2rem 1fr; gap: .5rem; padding: .6rem 0; }
+.verlauf-eintrag + .verlauf-eintrag { border-top: 1px solid var(--linie); }
+.verlauf-symbol { font-size: 1.1rem; text-align: center; }
+.verlauf-eintrag .notiz-kopf { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem .6rem; }
+.verlauf-eintrag time { color: var(--text-2); font-size: .85rem; }
+.verlauf-eintrag p { margin: .3rem 0 0; white-space: normal; }
+.verlauf-eintrag.zukunft { opacity: .8; }
+.verlauf-eintrag.erledigt strong { text-decoration: line-through; text-decoration-color: var(--text-2); }
+.verlauf.kurz .verlauf-eintrag p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
