@@ -82,6 +82,7 @@ h1 { font-size: clamp(1.9rem, 4.6vw, 2.8rem); line-height: 1.15; margin: 0 0 1re
 .portrait img { width: min(300px, 70vw); height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 50%; box-shadow: var(--schatten); border: 6px solid var(--karte); display: block; }
 .portrait figcaption { margin-top: .9rem; font-weight: 700; font-size: 1.1rem; }
 .portrait figcaption span { display: block; font-weight: 400; color: var(--text-2); font-size: .92rem; }
+.portrait figcaption .titel-zwei { line-height: 1.4; margin-top: .15rem; }
 .portrait figcaption span:first-child { font-weight: 700; color: var(--text); font-size: 1.1rem; }
 
 /* Abschnitte */
@@ -256,7 +257,7 @@ a:focus-visible, button:focus-visible, .weg:focus-visible { outline: 3px solid v
       </div>
       <figure class="portrait auftritt" style="--i:2">
         <img src="foto.jpg" width="640" height="640" alt="" data-feld-alt="name">
-        <figcaption><span data-feld="name">Jan Sperling</span><span data-feld="titel">Selbständiger Berater für Photovoltaik und Wärmepumpe</span></figcaption>
+        <figcaption><span data-feld="name">Jan Sperling</span><span class="titel-zwei" data-feld="titel-zweizeilig">Selbständiger Berater<br>für Photovoltaik und Wärmepumpe</span></figcaption>
       </figure>
     </div>
   </div>
@@ -422,6 +423,12 @@ a:focus-visible, button:focus-visible, .weg:focus-visible { outline: 3px solid v
   // Texte setzen (textContent, nie innerHTML)
   $$('[data-feld="name"]').forEach((el) => { el.textContent = name; });
   $$('[data-feld="telefon"]').forEach((el) => { el.textContent = K.telefon; });
+  // Unter dem Foto zweizeilig: „Selbständiger Berater“ / „für Photovoltaik und Wärmepumpe“
+  $$('[data-feld="titel-zweizeilig"]').forEach((el) => {
+    const t = String(K.titel || ''); const i = t.indexOf(' für ');
+    el.textContent = i > 0 ? t.slice(0, i) : t;
+    if (i > 0) { el.appendChild(document.createElement('br')); el.appendChild(document.createTextNode(t.slice(i + 1))); }
+  });
   ['titel', 'strasse', 'plzOrt', 'ustId'].forEach((f) => $$('[data-feld="' + f + '"]').forEach((el) => { el.textContent = K[f] || ''; }));
   $$('[data-nur]').forEach((el) => { if (!K[el.dataset.nur]) el.parentNode.removeChild(el); });
   $$('[data-feld="email"]').forEach((el) => { el.textContent = K.email; });
