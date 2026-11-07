@@ -19,12 +19,12 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 
 ### Neu in 0.8.0 (Funktionen 1–7 und 9 aus der WASNWO-Liste, dazu Kalender)
 - [x] **Kalender** (Termine → Liste | Monat | Woche | Tag, Ansicht steht in der Adresse): Monat – Tag antippen legt Termin an (10:00, heute: nächste Stunde), Tageszahl öffnet die Tagesansicht. Woche/Tag – Raster 6–22 Uhr in halben Stunden; Antippen = 1 Stunde, Finger 0,35 s halten und ziehen (Maus: gleich ziehen) = Zeitraum. Termin antippen = bearbeiten/löschen. Reservierungen im Monat als 📌.
-- [x] **1 Hinfahren** (`js/ui/navi.js`): Apple Karten bzw. Google Maps, Wahl unter Einstellungen → Navigation (`kartenApp`).
-- [x] **2 Zahl am App-Symbol** (`js/ui/badge.js`): heute offene Termine + überfällige Leihgaben (wo `setAppBadge` unterstützt wird, iOS ab 16.4 als installierte App).
-- [x] **3 Update-Hinweis** (`js/ui/update.js`, `js/neuigkeiten.js`): neue Version wartet, Leiste „Jetzt aktualisieren“, danach „Was ist neu“.
-- [x] **4 Papierkorb** (`js/core/papierkorb.js`): Kunde (mit Rückverknüpfung von Terminen/Verleihen/Reservierungen), Notiz, Termin, Enpal-Eintrag; 30 Tage, dann automatisch weg.
-- [x] **5 Kundenansicht** (`js/ui/kundenansicht.js`): Vollbild ohne Notizen/Bemerkungen; Navigation gesperrt; Beenden mit Passwort oder Face ID.
-- [x] **6 Leihschein-PDF** (`js/ui/leihschein.js`, jsPDF lokal): Leihschein und Rückgabeschein mit Unterschrift, Teilen/Speichern.
+- [x] **1 Hinfahren** (`src/ui/navi.ts`): Apple Karten bzw. Google Maps, Wahl unter Einstellungen → Navigation (`kartenApp`).
+- [x] **2 Zahl am App-Symbol** (`src/ui/badge.ts`): heute offene Termine + überfällige Leihgaben (wo `setAppBadge` unterstützt wird, iOS ab 16.4 als installierte App).
+- [x] **3 Update-Hinweis** (`src/ui/update.ts`, `src/neuigkeiten.ts`): neue Version wartet, Leiste „Jetzt aktualisieren“, danach „Was ist neu“.
+- [x] **4 Papierkorb** (`src/core/papierkorb.ts`): Kunde (mit Rückverknüpfung von Terminen/Verleihen/Reservierungen), Notiz, Termin, Enpal-Eintrag; 30 Tage, dann automatisch weg.
+- [x] **5 Kundenansicht** (`src/ui/kundenansicht.ts`): Vollbild ohne Notizen/Bemerkungen; Navigation gesperrt; Beenden mit Passwort oder Face ID.
+- [x] **6 Leihschein-PDF** (`src/ui/leihschein.ts`, jsPDF lokal): Leihschein und Rückgabeschein mit Unterschrift, Teilen/Speichern.
 - [x] **7 Fotos** bei Übergabe und Rückgabe (max. 4, verkleinert auf 1280 px, verschlüsselt).
 - [x] **9 Reservieren** von Vorführgeräten mit Konfliktprüfung gegen Reservierungen und Verleihe.
 - [ ] Auf echtem iPad testen: Wischen im Kalender, Teilen-Menü für PDF, Zahl am App-Symbol
@@ -62,7 +62,7 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 - [x] Gesprächsleitfaden (`#/gespraech`, Knopf beim Kunden): Einstiegsfragen, Einwände je Sparte (PV 10, WP 10, Vorwerk 8, inkl. allgemeiner Einwände wie „muss ich überlegen“, „Partner fragen“, „Unterlagen schicken“, „kein Interesse“) nach Vier-Stufen-Methode: Auffangen → Isolieren → Argumentieren → Abschlussfrage, mit benannter Technik (Bumerang, Relativieren, Bedingungsfrage, Rückfrage, Referenz, Vorteil-Nachteil, Ausprobieren), Ergebnis je Einwand, Überleitungen zwischen den Sparten, Speichern als **getrennte Notiz je Sparte** + Status setzen
 - [x] **Gesprächsergebnisse beim Kunden**: Beim Abschluss je Sparte „Worauf lief es hinaus?“ (Termin, Testgerät, Angebot, Abschluss, Wiedervorlage, überlegen, kein Interesse), nächster Schritt, optional Wiedervorlage/Termin mit Datum, Status. Gespeichert als strukturierter Eintrag `kunde.gespraeche` + Notiz der Sparte. Neuer Tab „Gespräche“ beim Kunden.
 - [x] **Folgegespräch**: Bisherige Gespräche der Sparte werden oben angezeigt; früher genannte Einwände sind markiert („früher: …“). Tippt man einen schon bekannten Einwand an, erscheint „Schon einmal besprochen am …“ mit damaligem Ergebnis, Vereinbarung und einem Satz zum Erinnern; darunter folgt trotzdem die volle Einwandbehandlung.
-- [x] Inhalte in `js/core/einwaende.js` (ohne Preise/Förderquoten, R-LEITFADEN)
+- [x] Inhalte in `src/core/einwaende.ts` (ohne Preise/Förderquoten, R-LEITFADEN)
 
 ### Kern
 - [x] PWA-Grundgerüst: `index.html`, `manifest.webmanifest`, Service Worker (`sw.js`) für Offline-Betrieb

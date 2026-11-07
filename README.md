@@ -6,14 +6,18 @@ Außendienst-App für einen Berater, der **Photovoltaik und Wärmepumpen (Enpal)
 - Alle Daten liegen **verschlüsselt** auf dem Gerät (AES-256-GCM, Master-Passwort). Es gibt keinen Server.
 - Optionaler Abgleich als verschlüsselte Datei über die **eigene Dropbox** („neuester Stand gewinnt“).
 
-**Version:** 0.2.0 (Stand 07.11.2026)
+Geschrieben in TypeScript, gebaut mit Vite, ausgeliefert über GitHub Pages.
 
 ## Schnellstart
 
 ```bash
-npm start            # startet http://localhost:8765  (oder Doppelklick auf start.command am Mac)
-npm test             # Unit-Tests (Node ≥ 20)
-npm run test:e2e     # Browser-Test, Server muss laufen, Playwright nötig
+npm install          # einmalig
+npm run dev          # Entwicklung mit Neuladen, http://localhost:8765
+npm run check        # TypeScript-Prüfung
+npm test             # Unit-Tests (Node ≥ 22)
+npm run build        # baut dist/
+npm start            # stellt dist/ auf http://localhost:8765 bereit (Mac: Doppelklick auf start.command)
+npm run test:e2e     # Browser-Test gegen npm start, Playwright nötig
 ```
 
 Die App muss über `http://localhost` oder `https://` geöffnet werden, nicht per Doppelklick auf `index.html` (Verschlüsselung und Module funktionieren unter `file://` nicht).

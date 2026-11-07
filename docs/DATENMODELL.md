@@ -1,6 +1,6 @@
 # Datenmodell (Schema-Version 3)
 
-Quelle der Wahrheit: `js/core/model.js`. Diese Datei beschreibt sie für Menschen. Bei Abweichungen gilt der Code, und diese Datei wird nachgezogen.
+Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Menschen. Bei Abweichungen gilt der Code, und diese Datei wird nachgezogen.
 
 ## Gesamtbestand
 
@@ -144,7 +144,7 @@ Belegt ist ein Gerät, wenn sich der Zeitraum mit einer Reservierung oder einem 
 
 ## Beispieldaten
 
-Beispielkunden, -termine, -geräte und -verleihe in der echten App erkennt man am ID-Präfix `demo-` (Beispiel-Vorführbestand: `demob-`) (kein eigenes Feld, keine Schemaänderung). `beispielEntfernen()` in `js/demo.js` entfernt genau diese.
+Beispielkunden, -termine, -geräte und -verleihe in der echten App erkennt man am ID-Präfix `demo-` (Beispiel-Vorführbestand: `demob-`) (kein eigenes Feld, keine Schemaänderung). `beispielEntfernen()` in `src/demo.ts` entfernt genau diese.
 
 ## Migration
 

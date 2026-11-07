@@ -2,7 +2,7 @@
 
 ## 1. Lokal ausprobieren (Mac)
 
-1. Ordner `Sperling` öffnen, Doppelklick auf `start.command` (beim ersten Mal: Rechtsklick → Öffnen).
+1. Ordner `Sperling` öffnen, Doppelklick auf `start.command` (beim ersten Mal: Rechtsklick → Öffnen). Beim ersten Start werden die Werkzeuge installiert (Node.js nötig).
 2. Der Browser öffnet `http://localhost:8765`. Master-Passwort festlegen.
 3. Demo ohne Speicherung: `http://localhost:8765/?demo`
 
@@ -11,11 +11,11 @@
 Sperling ist eine statische Web-App. Gewählt: **GitHub Pages** (kostenlos, HTTPS, Updates kommen automatisch mit jedem Push).
 
 1. GitHub → Repo `sperling` → Settings → General → ganz unten „Change visibility“ → **Public** (mit kostenlosem Konto nötig; im Repo liegen keine Kundendaten).
-2. Settings → **Pages** → Source „Deploy from a branch“ → Branch `main`, Ordner `/ (root)` → Save.
-3. Nach 1–2 Minuten: `https://carstenwinter77.github.io/sperling/`
+2. Settings → **Pages** → Source **„GitHub Actions“** (seit 0.9.0; vorher „Deploy from a branch“). Bei jedem Push auf `main` prüft, testet und baut GitHub die App und stellt sie bereit (Reiter „Actions“ zeigt den Lauf).
+3. Nach 2–3 Minuten: `https://carstenwinter77.github.io/sperling/`
 4. Empfehlung: Zwei-Faktor-Anmeldung für das GitHub-Konto einschalten (wer das Konto übernimmt, könnte den Code ändern).
 
-Andere Anbieter (z. B. Cloudflare Pages) gehen genauso: den Ordner hochladen, `tests/`, `docs/`, `sperling-demo.html`, `start.command` werden nicht gebraucht.
+Andere Anbieter (z. B. Cloudflare Pages) gehen genauso: `npm run build` ausführen und den Ordner `dist/` hochladen.
 - HTTPS ist Pflicht (Verschlüsselung, Offline-Modus und Dropbox funktionieren nur damit).
 - Danach auf dem Tablet die Adresse öffnen und **„Zum Home-Bildschirm hinzufügen“** (iPad/iPhone: Teilen-Menü; Android/Chrome: Menü → App installieren). Ab dann startet Sperling wie eine normale App, auch offline.
 

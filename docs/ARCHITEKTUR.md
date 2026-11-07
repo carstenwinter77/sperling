@@ -4,48 +4,49 @@
 
 ```
 Browser (Tablet / Handy / Laptop)
- ├─ index.html + css/app.css + Leaflet (vendor/)
- ├─ js/app.js ............ Start, Sperrbildschirm, Router, Navigation, Auto-Sperre, Fehlerfang
- ├─ js/core/ ............. reine Logik, ohne DOM, in Node testbar
- │   ├─ util.js .......... Escaping, Datum, Zahlen, Entfernung
- │   ├─ crypto.js ........ KeyRing: PBKDF2 → AES-GCM, Umschlag-Format
- │   ├─ model.js ......... Sparten, Status, Feldkatalog, Normalisierung, Migration
- │   ├─ textgen.js ....... Enpal-/Vorwerk-Texte (strikt getrennt)
- │   ├─ ics.js ........... Kalenderexport (RFC 5545)
- │   ├─ einwaende.js ..... Gesprächsleitfaden: Einstiegsfragen, Einwände, Überleitungen
- │   └─ papierkorb.js .... Löschen in den Papierkorb, Wiederherstellen (30 Tage)
- ├─ js/storage/
- │   ├─ db.js ............ IndexedDB: vault (aktueller Umschlag), history (10), meta (Geräte-ID)
- │   ├─ store.js ......... Datenzustand im Speicher, mutate(), Speicherkette, Demo-Modus
- │   ├─ dropbox.js ....... OAuth PKCE, Download/Upload der verschlüsselten Datei
- │   ├─ sync.js .......... Abgleich „neuester Stand gewinnt“
- │   └─ biometrie.js ..... Face ID / Touch ID (Passkey + PRF)
- ├─ js/services/geo.js ... Nominatim (Adresse ↔ Koordinate), gedrosselt
- ├─ js/ui/dom.js ......... Toast, Dialog, Download, Zwischenablage
- ├─ js/ui/parts.js ....... Status-Chips, Termin-Dialog, Terminliste, ICS-Export
- ├─ js/ui/theme.js ...... Hell/Dunkel/Automatisch
- ├─ js/ui/kontakt.js .... Anrufen, E-Mail (Mailprogramm-Wahl)
- ├─ js/ui/enpaldoku.js .. Enpal-Gesprächsdokumentation
- ├─ js/ui/navi.js ....... „Hinfahren“ (Apple Karten / Google Maps)
- ├─ js/ui/badge.js ...... Zahl am App-Symbol
- ├─ js/ui/update.js ..... Update-Hinweis, „Was ist neu“ (Texte in js/neuigkeiten.js)
- ├─ js/ui/kalender.js ... Monats-/Wochen-/Tagesansicht, Termin per Fingertipp
- ├─ js/ui/kundenansicht.js  Vollbild zum Herzeigen, Beenden mit Passwort/Face ID
- ├─ js/ui/belege.js ..... Fotos (verkleinert) und Unterschriftsfeld
- ├─ js/ui/leihschein.js . Leihschein/Rückgabeschein als PDF (jsPDF aus vendor/)
- ├─ js/ui/views/ ......... start, kunden, kunde, karte, termine, gespraech, bestand, einstellungen
- └─ sw.js ................ Offline-Cache der App-Dateien (keine Kundendaten)
+ ├─ index.html + src/css/app.css + Leaflet/jsPDF (public/vendor/)
+ ├─ src/app.ts ............ Start, Sperrbildschirm, Router, Navigation, Auto-Sperre, Fehlerfang
+ ├─ src/core/ ............. reine Logik, ohne DOM, in Node testbar
+ │   ├─ util.ts .......... Escaping, Datum, Zahlen, Entfernung
+ │   ├─ crypto.ts ........ KeyRing: PBKDF2 → AES-GCM, Umschlag-Format
+ │   ├─ model.ts ......... Sparten, Status, Feldkatalog, Normalisierung, Migration
+ │   ├─ textgen.ts ....... Enpal-/Vorwerk-Texte (strikt getrennt)
+ │   ├─ ics.ts ........... Kalenderexport (RFC 5545)
+ │   ├─ einwaende.ts ..... Gesprächsleitfaden: Einstiegsfragen, Einwände, Überleitungen
+ │   └─ papierkorb.ts .... Löschen in den Papierkorb, Wiederherstellen (30 Tage)
+ ├─ src/storage/
+ │   ├─ db.ts ............ IndexedDB: vault (aktueller Umschlag), history (10), meta (Geräte-ID)
+ │   ├─ store.ts ......... Datenzustand im Speicher, mutate(), Speicherkette, Demo-Modus
+ │   ├─ dropbox.ts ....... OAuth PKCE, Download/Upload der verschlüsselten Datei
+ │   ├─ sync.ts .......... Abgleich „neuester Stand gewinnt“
+ │   └─ biometrie.ts ..... Face ID / Touch ID (Passkey + PRF)
+ ├─ src/services/geo.ts ... Nominatim (Adresse ↔ Koordinate), gedrosselt
+ ├─ src/ui/dom.ts ......... Toast, Dialog, Download, Zwischenablage
+ ├─ src/ui/parts.ts ....... Status-Chips, Termin-Dialog, Terminliste, ICS-Export
+ ├─ src/ui/theme.ts ...... Hell/Dunkel/Automatisch
+ ├─ src/ui/kontakt.ts .... Anrufen, E-Mail (Mailprogramm-Wahl)
+ ├─ src/ui/enpaldoku.ts .. Enpal-Gesprächsdokumentation
+ ├─ src/ui/navi.ts ....... „Hinfahren“ (Apple Karten / Google Maps)
+ ├─ src/ui/badge.ts ...... Zahl am App-Symbol
+ ├─ src/ui/update.ts ..... Update-Hinweis, „Was ist neu“ (Texte in src/neuigkeiten.ts)
+ ├─ src/ui/kalender.ts ... Monats-/Wochen-/Tagesansicht, Termin per Fingertipp
+ ├─ src/ui/kundenansicht.ts  Vollbild zum Herzeigen, Beenden mit Passwort/Face ID
+ ├─ src/ui/belege.ts ..... Fotos (verkleinert) und Unterschriftsfeld
+ ├─ src/ui/leihschein.ts . Leihschein/Rückgabeschein als PDF (jsPDF aus vendor/)
+ ├─ src/ui/views/ ......... start, kunden, kunde, karte, termine, gespraech, bestand, einstellungen
+ ├─ src/sw.ts ............. Offline-Cache der gebauten Dateien (keine Kundendaten)
+ └─ src/globals.d.ts ...... projektweite Typen (DOM-Abfragen, Build-Konstanten)
 ```
 
-Keine Build-Tools: Der Ordner wird so, wie er ist, auf einen statischen Webserver gelegt.
+Build: `npm run build` (Vite) erzeugt `dist/` mit gebündeltem, gehashtem JavaScript/CSS und dem Service Worker samt Dateiliste. `public/` (Icons, Maskottchen, Leaflet, jsPDF, Manifest) wird unverändert kopiert. GitHub Actions (`.github/workflows/pages.yml`) prüft, testet, baut und liefert `dist/` bei jedem Push auf `main` nach GitHub Pages aus. Typen: `npm run check` (TypeScript `strict`).
 
 ## Datenfluss
 
-1. **Start:** `app.js` prüft, ob ein Umschlag in IndexedDB liegt → Sperrbildschirm „Entsperren“ oder „Einrichten“.
+1. **Start:** `app.ts` prüft, ob ein Umschlag in IndexedDB liegt → Sperrbildschirm „Entsperren“ oder „Einrichten“.
 2. **Entsperren:** `store.unlock(pw)` → `KeyRing.decrypt()` → `migrate()` → Daten im Arbeitsspeicher.
 3. **Ändern:** Ansichten rufen `store.mutate(fn)`. Danach nach 400 ms `persist()`.
 4. **Speichern:** Gesamter Bestand → JSON → AES-GCM → neuer Umschlag. Der alte Umschlag wandert in `history`. Alle Speichervorgänge laufen nacheinander über eine Promise-Kette.
-5. **Sync:** Nach dem Speichern (5 s verzögert), beim Entsperren, beim Zurückkehren zur App und beim Online-Gehen vergleicht `sync.js` `updatedAt` lokal vs. Dropbox. Neuerer gewinnt: Upload oder `store.adoptEnvelope()`.
+5. **Sync:** Nach dem Speichern (5 s verzögert), beim Entsperren, beim Zurückkehren zur App und beim Online-Gehen vergleicht `sync.ts` `updatedAt` lokal vs. Dropbox. Neuerer gewinnt: Upload oder `store.adoptEnvelope()`.
 6. **Sperren:** Offene Änderungen werden gespeichert, dann Passwort, Schlüssel und Klartext verworfen.
 
 ## Umschlag-Format (Datei `.sperling`)

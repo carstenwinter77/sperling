@@ -1,5 +1,6 @@
 #!/bin/bash
-# Sperling lokal starten (macOS: Doppelklick). Öffnet http://localhost:8765
+# Sperling lokal starten (macOS: Doppelklick). Baut die App und öffnet http://localhost:8765
 cd "$(dirname "$0")"
-open "http://localhost:8765/" &
-python3 -m http.server 8765
+[ -d node_modules ] || npm install
+npm run build && (sleep 2; open "http://localhost:8765/") &
+npm start
