@@ -1276,3 +1276,40 @@ tr.li-gleich { opacity: .7; }
 .karte-filter .kf-produkt.markierung-vorhanden.aktiv { --m: var(--tag-wp); }
 .karte-filter .kf-produkt.markierung-kein.aktiv { --m: var(--rot); }
 .karte-filter .kf-produkt.aktiv { border-color: var(--m); background: color-mix(in srgb, var(--m) 18%, var(--karte)); color: var(--text); box-shadow: inset 0 0 0 1px var(--m); }
+
+/* ---------- Kürzere Wege (0.10.26): Als Nächstes, Schnellknöpfe, „+“-Knopf, Abhaken ---------- */
+.als-naechstes { margin-bottom: 1rem; }
+.als-naechstes .an-kopf { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; margin: 0 0 .25rem; }
+.als-naechstes .an-label { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-2); margin-right: .25rem; }
+.als-naechstes h2 { margin: .1rem 0 .2rem; font-size: 1.25rem; }
+.an-titel { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; min-height: 32px; }
+.an-titel:hover, .an-titel:focus-visible { text-decoration: underline; }
+.an-kunde { margin: 0 0 .6rem; overflow-wrap: anywhere; }
+.an-knoepfe .btn { min-height: 44px; }
+
+.liste li.kz { display: flex; align-items: center; gap: .25rem; }
+.liste li.kz > .zeile { flex: 1; min-width: 0; }
+.kz-aktionen { display: flex; gap: .2rem; flex-shrink: 0; }
+.kz-platz { width: 40px; }
+@media (pointer: coarse) { .kz-platz { width: 44px; } }
+@media (max-width: 639px) { .kz-platz { display: none; } }
+.kz-aktionen .btn.klein { min-width: 40px; min-height: 40px; padding: 0 .4rem; display: inline-grid; place-items: center; text-decoration: none; }
+@media (max-width: 639px) {
+  .liste li.kz { flex-wrap: wrap; }
+  .kz-aktionen { width: 100%; justify-content: flex-end; margin: -.4rem 0 .4rem; }
+}
+@media (pointer: coarse) { .kz-aktionen .btn.klein { min-width: 44px; min-height: 44px; } }
+
+.plus-knopf { position: fixed; bottom: calc(var(--nav-h) + 14px + env(safe-area-inset-bottom)); right: 14px; z-index: 1200; width: 56px; height: 56px; border-radius: 50%; border: 0; background: var(--braun); color: var(--auf-akzent); box-shadow: var(--schatten); font-size: 2rem; line-height: 1; cursor: pointer; display: grid; place-items: center; }
+.plus-knopf[hidden] { display: none; }
+.plus-knopf:focus-visible { outline: 3px solid var(--text); outline-offset: 2px; }
+body.plus-da .schutz-knopf { right: 80px; }
+body.schutz-aktiv .plus-knopf, body.ka-aktiv .plus-knopf { display: none; }
+@media (min-width: 900px) { .plus-knopf { bottom: 18px; right: 18px; } body.plus-da .schutz-knopf { right: 86px; } }
+.plus-menue { display: grid; gap: .5rem; }
+.plus-menue .btn { justify-content: flex-start; min-height: 52px; font-size: 1.05rem; text-align: left; }
+.plus-menue .btn small { font-weight: 400; margin-left: .3rem; opacity: .85; }
+
+.dlg-abhaken fieldset, .abhaken-folge { border: 1px solid var(--linie); border-radius: var(--radius); padding: .5rem .75rem .75rem; margin: 0 0 .75rem; }
+.dlg-abhaken textarea { width: 100%; }
+.abhaken-bausteine { margin: .25rem 0 .5rem; }

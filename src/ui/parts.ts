@@ -10,6 +10,8 @@ import * as pk from '../core/papierkorb.ts';
 import { hinfahrenKnopf } from './navi.ts';
 import { dialog, download, toast, maskottchen } from './dom.ts';
 import { terminKarte } from './terminkarte.ts';
+import { abhaken } from './abhaken.ts';
+import { anrufen } from './kontakt.ts';
 
 export function statusChips(kunde) {
   return `<span class="chips">${SPARTEN_KEYS.map((s) => {
@@ -114,6 +116,7 @@ export function terminZeile(t, kunde) {
         <button type="button" class="termin-titel" data-aktion="karte"><strong>${esc(t.titel || 'Termin')}</strong></button>
         <small>${esc(formatDateTime(t.beginn))}${feiertag(new Date(t.beginn)) ? ` · <span class="tag tag-feiertag">Feiertag: ${esc(feiertag(new Date(t.beginn))!)}</span>` : ''} · ${t.art === 'termin' ? 'Termin' : 'Wiedervorlage'}${t.sparte ? ` · ${esc(SPARTEN[t.sparte].label)}` : ''}${kunde ? ` · <a href="#/kunde/${esc(kunde.id)}">${esc(kundenTitel(kunde))}</a>` : ''}</small>
       </div>
+      ${kunde?.telefon && !t.erledigt ? `<button class="btn klein ghost" data-aktion="anrufen" title="Anrufen" aria-label="${esc(kundenTitel(kunde))} anrufen">📞</button>` : ''}
       ${kunde && t.art === 'termin' && !t.erledigt ? hinfahrenKnopf(kunde, 'btn klein ghost').replace('🚗 Hinfahren', '🚗') : ''}
       <button class="btn klein ghost" data-aktion="ics" title="In Kalender exportieren">📅</button>
       <button class="btn klein ghost" data-aktion="bearbeiten" title="Bearbeiten">✎</button>
@@ -130,8 +133,10 @@ export function terminListeVerdrahten(root, nachAenderung) {
     const t = store.getData().termine.find((x) => x.id === id);
     if (!t) return;
     if (btn.dataset.aktion === 'erledigt') {
-      store.mutate((d) => { const x = d.termine.find((y) => y.id === id); if (x) { x.erledigt = !x.erledigt; x.updatedAt = new Date().toISOString(); } });
-      nachAenderung();
+      if (await abhaken(t)) nachAenderung();
+    } else if (btn.dataset.aktion === 'anrufen') {
+      const k = store.getData().kunden.find((x) => x.id === t.kundeId);
+      if (k) anrufen(kundenTitel(k), k.telefon);
     } else if (btn.dataset.aktion === 'ics') {
       icsExport([t], `termin-${(t.titel || 'sperling').replace(/[^\wäöüÄÖÜß-]+/g, '_').slice(0, 40)}.ics`);
     } else if (btn.dataset.aktion === 'bearbeiten') {

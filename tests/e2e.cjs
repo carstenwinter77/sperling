@@ -917,6 +917,51 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     await p.click('dialog .dlg-actions button.ghost');
     await p.fill('#suche', '');
   }
+  // Kürzere Wege: Schnellnotiz aus der Liste, „Als Nächstes“, Abhaken mit Folge-Wiedervorlage, „+“-Knopf
+  {
+    await p.goto(BASE + '#/kunden');
+    await p.fill('#suche', 'Fricke');
+    await p.waitForSelector('#liste li.kz [data-schnell=notiz]');
+    const kid = await p.getAttribute('#liste li.kz', 'data-kunde');
+    await p.click('#liste li.kz [data-schnell=notiz]');
+    await p.fill('dialog textarea[name=text]', 'E2E-Schnellnotiz');
+    const heute = await p.evaluate(() => { const d = new Date(); d.setHours(0, 5, 0, 0); const z = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}T00:05`; });
+    await p.fill('dialog input[name=wv]', heute);
+    await p.click('dialog button.primary');
+    await p.waitForFunction(() => document.querySelector('#toast')?.textContent.includes('Notiz und Wiedervorlage gespeichert'));
+    await p.fill('#suche', '');
+    if (!(await p.isVisible('#plusKnopf'))) fail('„+“-Knopf fehlt in der Kundenliste');
+    await p.goto(BASE + '#/');
+    await p.waitForSelector('#alsNaechstes [data-an=erledigt]');
+    const zeile = p.locator('#faellig li.termin', { hasText: 'Nachfassen: E2E-Schnellnotiz' });
+    await zeile.locator('[data-aktion=erledigt]').click();
+    await p.waitForSelector('dialog.dlg-abhaken');
+    await p.click('dialog [data-baustein="Nicht erreicht"]');
+    await p.click('dialog [data-wv-schritt="3t"]');
+    await p.click('dialog .dlg-actions button.primary');
+    await p.waitForFunction(() => document.querySelector('#toast')?.textContent.includes('nächste Wiedervorlage'));
+    await p.goto(BASE + '#/kunde/' + kid + '?tab=notizen');
+    await p.waitForSelector('.notizliste');
+    const notizen = await p.textContent('.notizliste');
+    if (!notizen.includes('Nachfassen: E2E-Schnellnotiz erledigt: Nicht erreicht')) fail('Abhaken: Notiz fehlt beim Kunden');
+    await p.click('button[data-tab=termine]');
+    const offen = await p.locator('.terminliste li.termin:not(.erledigt)', { hasText: 'Nachfassen: E2E-Schnellnotiz' }).count();
+    if (offen !== 1) fail('Abhaken: Folge-Wiedervorlage fehlt (' + offen + ')');
+    // „+“ auf der Kundenseite: Termin gehört zum geöffneten Kunden
+    await p.click('#plusKnopf');
+    await p.waitForSelector('dialog.dlg-plus');
+    await p.click('dialog [data-plus=termin]');
+    await p.waitForSelector('dialog input[name=titel]');
+    if ((await p.inputValue('dialog input[name=kundeId]')) !== kid) fail('„+“: Termin nicht beim geöffneten Kunden');
+    await p.click('dialog .dlg-actions button.ghost');
+    await p.goto(BASE + '#/kunde/' + kid + '/gespraech');
+    await p.waitForTimeout(300);
+    if (await p.isVisible('#plusKnopf')) fail('„+“-Knopf im Gesprächsmodus sichtbar');
+    await p.goto(BASE + '#/karte');
+    await p.waitForTimeout(300);
+    if (await p.isVisible('#plusKnopf')) fail('„+“-Knopf auf der Karte sichtbar');
+    if (await p.evaluate(() => window.__xss)) fail('XSS bei den Schnellknöpfen ausgeführt!');
+  }
   // Unbekannte Route / unbekannter Kunde stürzen nicht ab
   await p.goto(BASE + '#/kunde/gibtsnicht');
   await p.waitForSelector('.leer');

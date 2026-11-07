@@ -8,6 +8,12 @@ import { terminZeile, terminListeVerdrahten, statusChips } from '../parts.ts';
 import * as suche from '../suche.ts';
 import * as hilfe from '../hilfe.ts';
 import { nachbestellListe } from '../../core/material.ts';
+import { alsNaechstes, zeitText } from '../../core/naechstes.ts';
+import { adresseEinzeilig } from '../../core/model.ts';
+import { hinfahrenKnopf } from '../navi.ts';
+import { anrufen } from '../kontakt.ts';
+import { abhaken } from '../abhaken.ts';
+import { terminKarte } from '../terminkarte.ts';
 
 const AKTIV = ['interesse', 'termin', 'angebot', 'abschluss'];
 
@@ -43,6 +49,7 @@ export function render(el: HTMLElement) {
         <p>${d.leihvorgaenge.some((l) => !l.rueckgabe) ? `<a href="#/bestand">${d.leihvorgaenge.filter((l) => !l.rueckgabe).length} Vorführgerät(e) verliehen</a> · ` : ''}${faellig.length ? `Heute ${faellig.length === 1 ? 'steht <b>1 Aufgabe</b>' : `stehen <b>${faellig.length} Aufgaben</b>`} an.` : 'Für heute ist nichts mehr offen.'}</p>
       </div>
     </section>
+    ${naechstesHtml(d, jetzt)}
     <div class="start-suche">${suche.feldHtml()}${suche.zuletztHtml()}</div>
     ${store.isDemo() ? '' : hilfe.hinweisHtml()}
     <div id="sicherungHinweis"></div>
@@ -79,6 +86,7 @@ export function render(el: HTMLElement) {
     const ul = el.querySelector(`#${id}`);
     if (ul) terminListeVerdrahten(ul, () => render(el));
   }
+  naechstesVerdrahten(el, () => render(el));
   hilfe.hinweisVerdrahten(el);
   el.querySelector('#startSuche')?.addEventListener('click', () => suche.oeffnen());
   sicherungErinnern(el.querySelector('#sicherungHinweis'), d);
@@ -92,4 +100,40 @@ function sicherungErinnern(box, d) {
     if (!alt || !box.isConnected) return;
     box.innerHTML = `<p class="hinweis warnung-box">☁️ ${t ? 'Die letzte Sicherung ist älter als eine Woche.' : 'Es gibt noch keine Sicherung.'} <a href="#/einstellungen">Jetzt in iCloud sichern</a></p>`;
   }).catch(() => {});
+}
+
+/** „Als Nächstes“: der laufende/nächste Termin oder die älteste fällige Wiedervorlage, mit den Knöpfen dafür. */
+function naechstesHtml(d, jetzt: Date): string {
+  const n = alsNaechstes(d.termine, jetzt);
+  if (!n) return '';
+  const t = n.termin;
+  const k: Kunde | undefined = d.kunden.find((x) => x.id === t.kundeId);
+  const dringend = n.lage === 'ueberfaellig' || n.lage === 'laeuft' || n.lage === 'gleich';
+  return `<section class="karte-box als-naechstes${t.sparte ? ` bereich-rand bereich-${t.sparte}` : ''}" id="alsNaechstes" data-id="${esc(t.id)}" aria-labelledby="anTitel">
+    <p class="an-kopf"><span class="an-label">Als Nächstes</span> <span class="tag${dringend ? ' warn' : ''}">${esc(zeitText(n, jetzt))}</span> <span class="tag">${t.art === 'termin' ? 'Termin' : 'Wiedervorlage'}</span>${t.sparte ? ` <span class="tag tag-${t.sparte}">${esc(SPARTEN[t.sparte].label)}</span>` : ''}</p>
+    <h2 id="anTitel"><button type="button" class="an-titel" data-an="karte">${esc(t.titel || 'Termin')}</button></h2>
+    ${k ? `<p class="an-kunde"><a href="#/kunde/${esc(k.id)}">${esc(kundenTitel(k))}</a>${adresseEinzeilig(k) ? ` · ${esc(adresseEinzeilig(k))}` : ''}</p>` : ''}
+    <div class="knopfreihe an-knoepfe">
+      ${k?.telefon ? '<button type="button" class="btn" data-an="anrufen">📞 Anrufen</button>' : ''}
+      ${k ? hinfahrenKnopf(t.ort ? { ort: t.ort } : k, 'btn') : t.ort ? hinfahrenKnopf({ ort: t.ort }, 'btn') : ''}
+      ${k ? `<a class="btn" href="#/kunde/${esc(k.id)}/gespraech">💬 Gespräch starten</a>` : ''}
+      <button type="button" class="btn primary" data-an="erledigt">✓ Erledigt</button>
+    </div>
+  </section>`;
+}
+
+function naechstesVerdrahten(el: HTMLElement, neu: () => void) {
+  const box = el.querySelector<HTMLElement>('#alsNaechstes');
+  if (!box) return;
+  box.addEventListener('click', async (ev) => {
+    const b = (ev.target as Element).closest<HTMLElement>('[data-an]');
+    if (!b) return;
+    const d = store.getData();
+    const t = d.termine.find((x) => x.id === box.dataset.id);
+    if (!t) return;
+    const k = d.kunden.find((x) => x.id === t.kundeId);
+    if (b.dataset.an === 'anrufen' && k) anrufen(kundenTitel(k), k.telefon);
+    else if (b.dataset.an === 'erledigt') { if (await abhaken(t)) neu(); }
+    else if (b.dataset.an === 'karte') { if (await terminKarte(t)) neu(); }
+  });
 }

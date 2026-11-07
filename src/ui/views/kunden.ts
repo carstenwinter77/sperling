@@ -7,7 +7,10 @@ import { filterPanelHtml, filterPanelZeigen, filterPanelVerdrahten } from '../fi
 import { istBeispiel } from '../../demo.ts';
 import * as store from '../../storage/store.ts';
 import { maskottchen } from '../dom.ts';
-import { statusChips, leer } from '../parts.ts';
+import { statusChips, leer, terminDialog } from '../parts.ts';
+import { naviLink } from '../navi.ts';
+import { anrufen } from '../kontakt.ts';
+import { schnellNotiz } from '../schnellnotiz.ts';
 
 export type Sortierung = 'name' | 'kontakt-alt' | 'kontakt-neu' | 'neu';
 const SORTIERUNG: [Sortierung, string][] = [['name', 'Name A–Z'], ['kontakt-alt', 'Längster Kontakt zuerst'], ['kontakt-neu', 'Letzter Kontakt zuerst'], ['neu', 'Zuletzt angelegt']];
@@ -69,15 +72,26 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     if (!alle.length) { liste.innerHTML = `<li>${leer('kunde-neu', 'Noch keine Kunden. Lege den ersten an oder setze einen Pin auf der Karte.')}</li>`; return; }
     if (!treffer.length) { liste.innerHTML = '<li class="hinweis">Keine Treffer.</li>'; return; }
     liste.innerHTML = treffer.map(({ k, kontakt, tage: t }) => `
-      <li><a class="zeile" href="#/kunde/${esc(k.id)}">
+      <li class="kz" data-kunde="${esc(k.id)}"><a class="zeile" href="#/kunde/${esc(k.id)}">
         <span class="zeile-haupt"><strong>${esc(kundenTitel(k))}${istBeispiel(k.id) ? ' <span class="tag tag-beispiel">Beispiel</span>' : ''}</strong><small>${esc(kundenName(k) ? adresseEinzeilig(k) : (k.telefon || ''))}</small></span>
         <span class="kontakt-alter ${kontaktKlasse(t)}" title="${kontakt ? `Letzter Kontakt ${esc(formatDate(kontakt))}` : 'Noch kein Kontakt'}">${esc(seitText(t))}</span>
         ${statusChips(k)}
-      </a></li>`).join('');
+      </a>${schnellKnoepfe(k)}</li>`).join('');
   };
   const kundenName = (k) => [k.vorname, k.nachname, k.firma].some(Boolean);
   zeichnen();
 
+  liste.addEventListener('click', async (ev) => {
+    const b = (ev.target as Element).closest<HTMLElement>('[data-schnell]');
+    const li = (ev.target as Element).closest<HTMLElement>('li[data-kunde]');
+    if (!b || !li) return;
+    const k = store.findKunde(li.dataset.kunde || '');
+    if (!k) return;
+    const a = b.dataset.schnell;
+    if (a === 'anrufen') anrufen(kundenTitel(k), k.telefon);
+    else if (a === 'notiz') { if (await schnellNotiz(k.id)) zeichnen(); }
+    else if (a === 'termin') { if (await terminDialog({ kundeId: k.id })) zeichnen(); }
+  });
   el.querySelector('#suche').addEventListener('input', (e) => { suche = (e.target as HTMLInputElement).value; zeichnen(); });
   el.querySelector('#sortierung').addEventListener('change', (e) => { sortierung = (e.target as HTMLSelectElement).value as Sortierung; zeichnen(); });
   el.querySelector('#fKnopf').addEventListener('click', (e) => {
@@ -98,3 +112,15 @@ export function render(el: HTMLElement, params: URLSearchParams) {
 
 /** Farbe nach Kontakt-Alter: frisch, mittel, lange her. */
 export const kontaktKlasse = (t: number | null) => (t === null ? 'nie' : t <= 30 ? 'frisch' : t <= 90 ? 'mittel' : 'alt');
+
+/** Schnellknöpfe je Zeile: Anrufen, Hinfahren, Notiz, Termin, ohne die Kundenseite zu öffnen. */
+export function schnellKnoepfe(k): string {
+  const name = esc(kundenTitel(k));
+  const route = naviLink(k);
+  return `<span class="kz-aktionen">
+    ${k.telefon ? `<button type="button" class="btn klein ghost" data-schnell="anrufen" aria-label="${name} anrufen" title="Anrufen">📞</button>` : '<span class="kz-platz" aria-hidden="true"></span>'}
+    ${route ? `<a class="btn klein ghost" href="${esc(route)}" target="_blank" rel="noopener" aria-label="Zu ${name} fahren" title="Hinfahren">🚗</a>` : '<span class="kz-platz" aria-hidden="true"></span>'}
+    <button type="button" class="btn klein ghost" data-schnell="notiz" aria-label="Notiz zu ${name}" title="Notiz">📝</button>
+    <button type="button" class="btn klein ghost" data-schnell="termin" aria-label="Termin oder Wiedervorlage für ${name}" title="Termin / Wiedervorlage">📅</button>
+  </span>`;
+}

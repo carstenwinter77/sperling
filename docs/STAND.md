@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.27
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.28
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,12 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.27)
+## Erledigt (Version 0.10.28)
+
+### Neu in 0.10.28
+- [x] Kürzere Wege: Abhaken mit „Wie ging's aus?“ und nächster Wiedervorlage, „Als Nächstes“ auf der Übersicht, Schnellknöpfe in der Kundenliste, „+“-Knopf für Notiz/Termin/Kunde.
+- [ ] Auf echtem iPad/iPhone prüfen: „+“-Knopf neben 🛡, Schnellknöpfe in der Kundenliste am Handy (eigene Zeile), Diktat in der Schnellnotiz.
+- [ ] Noch offen aus dem Vorschlag (mittlerer/kleiner Nutzen): Standort automatisch, Reiter merken/wischen, nach Gespräch in den Kalender, Leihgaben von der Übersicht zurücknehmen, Vorgaben im Termin-Fenster, Schnellfilter, Auswertung merkt sich Zeitraum.
 
 ### Neu in 0.10.27
 - [x] Kontaktseite: Satz zum Vergleich positiver formuliert.

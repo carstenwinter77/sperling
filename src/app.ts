@@ -25,6 +25,7 @@ import * as vAuswertung from './ui/views/auswertung.ts';
 import * as vGeloescht from './ui/views/geloescht.ts';
 import * as vGespraechsmodus from './ui/views/gespraechsmodus.ts';
 import * as schutz from './ui/schutz.ts';
+import * as plusknopf from './ui/plusknopf.ts';
 import * as tour from './ui/tour.ts';
 import * as fotos from './storage/fotos.ts';
 import * as suche from './ui/suche.ts';
@@ -251,8 +252,10 @@ function shell() {
     </nav>
     <div class="schutz-band" id="schutzBand" role="status" hidden></div>
     <button type="button" class="schutz-knopf" id="schutzKnopf" aria-pressed="false" aria-label="Beratungs-Schutz">🛡</button>
+    <button type="button" class="plus-knopf" id="plusKnopf" aria-label="Schnell anlegen: Notiz, Termin oder Kunde" title="Notiz, Termin oder Kunde anlegen" hidden><span aria-hidden="true">+</span></button>
     <main id="inhalt" class="inhalt" tabindex="-1"></main>`;
   schutz.verdrahten();
+  plusknopf.verdrahten();
   suche.verdrahten();
   $('#navSuche').addEventListener('click', () => suche.oeffnen());
   $('#navMehr').addEventListener('click', mehrMenue);
@@ -303,6 +306,7 @@ function route() {
     console.error(e);
     el.innerHTML = `<div class="leer">${maskottchen('sperling', 'gross')}<p>Diese Ansicht konnte nicht angezeigt werden.</p><p class="hinweis">${esc((e as Error).message)}</p><a class="btn" href="#/">Zur Übersicht</a></div>`;
   }
+  try { plusknopf.aktualisieren(); } catch (e) { console.error(e); }
   el.scrollTop = 0;
   window.scrollTo(0, 0);
 }

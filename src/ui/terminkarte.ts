@@ -8,6 +8,7 @@ import * as store from '../storage/store.ts';
 import { dialog, bestaetigen, toast } from './dom.ts';
 import { terminDialog, icsExport } from './parts.ts';
 import { naviLink } from './navi.ts';
+import { abhaken } from './abhaken.ts';
 import { anrufen, emailSchreiben } from './kontakt.ts';
 
 const uhr = (d: Date) => d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
@@ -70,9 +71,7 @@ export async function terminKarte(t0: Termin): Promise<boolean> {
   }
   if (a === 'ics') { icsExport([t], `termin-${(t.titel || 'sperling').replace(/[^\wäöüÄÖÜß-]+/g, '_').slice(0, 40)}.ics`); return false; }
   if (a === 'erledigt') {
-    store.mutate((data) => { const x = data.termine.find((y) => y.id === t.id); if (x) { x.erledigt = !x.erledigt; x.updatedAt = new Date().toISOString(); } });
-    toast(t.erledigt ? 'Wieder offen' : 'Erledigt', 'ok');
-    return true;
+    return abhaken(t);
   }
   if (a === 'bearbeiten') return !!(await terminDialog({ termin: t }));
   if (a === 'loeschen') {
