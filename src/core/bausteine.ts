@@ -78,3 +78,12 @@ export function bausteinAnhaengen(notiz: string, baustein: string): string {
   const basis = notiz.replace(/[ \t]+$/, '');
   return basis && !basis.endsWith('\n') ? `${basis}\n${t}` : `${basis}${t}`;
 }
+
+/** Eintrag von Position `von` nach `nach` verschieben (neue Liste; ungültige Positionen ändern nichts). */
+export function verschieben<T>(liste: T[], von: number, nach: number): T[] {
+  const l = [...liste];
+  if (!Number.isInteger(von) || !Number.isInteger(nach) || von < 0 || nach < 0 || von >= l.length || nach >= l.length) return l;
+  const [x] = l.splice(von, 1);
+  l.splice(nach, 0, x as T);
+  return l;
+}

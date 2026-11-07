@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.4
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.5
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,12 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.4)
+## Erledigt (Version 0.10.5)
+
+### Neu in 0.10.5
+- [x] Textbausteine per Griff sortieren (`src/ui/ziehsortieren.ts`).
+- [x] Einstellungen sichern/einlesen ohne Kunden (`src/core/einstellungsdatei.ts`). Offen: automatischer Abgleich zwischen Geräten (braucht einen Dienst, Entscheidung offen).
+- [x] Navigation: Waze. Produktdetail: Link kopieren.
 
 ### Neu in 0.10.4
 - [x] **Drei getrennte Texte** je Anbieter (PV/Enpal, WP/GALVANY, Vorwerk), Notizen und Reiter je Bereich, Schema 7.
@@ -77,7 +82,7 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 
 ### Neu in 0.8.0 (Funktionen 1–7 und 9 aus der WASNWO-Liste, dazu Kalender)
 - [x] **Kalender** (Termine → Liste | Monat | Woche | Tag, Ansicht steht in der Adresse): Monat – Tag antippen legt Termin an (10:00, heute: nächste Stunde), Tageszahl öffnet die Tagesansicht. Woche/Tag – Raster 6–22 Uhr in halben Stunden; Antippen = 1 Stunde, Finger 0,35 s halten und ziehen (Maus: gleich ziehen) = Zeitraum. Termin antippen = bearbeiten/löschen. Reservierungen im Monat als 📌.
-- [x] **1 Hinfahren** (`src/ui/navi.ts`): Apple Karten bzw. Google Maps, Wahl unter Einstellungen → Navigation (`kartenApp`).
+- [x] **1 Hinfahren** (`src/ui/navi.ts`): Apple Karten, Google Maps oder Waze (ab 0.10.5), Wahl unter Einstellungen → Navigation (`kartenApp`). Die in iOS gewählte Standard-Navi-App kann eine Web-App nicht direkt aufrufen.
 - [x] **2 Zahl am App-Symbol** (`src/ui/badge.ts`): heute offene Termine + überfällige Leihgaben (wo `setAppBadge` unterstützt wird, iOS ab 16.4 als installierte App).
 - [x] **3 Update-Hinweis** (`src/ui/update.ts`, `src/neuigkeiten.ts`): neue Version wartet, Leiste „Jetzt aktualisieren“, danach „Was ist neu“.
 - [x] **4 Papierkorb** (`src/core/papierkorb.ts`): Kunde (mit Rückverknüpfung von Terminen/Verleihen/Reservierungen), Notiz, Termin, Enpal-Eintrag; ab 0.9.0 ohne Verfall, Liste „Gelöscht“ unter Kunden (`#/geloescht`), endgültig nur einzeln mit Bestätigung.

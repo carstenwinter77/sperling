@@ -1,5 +1,11 @@
 # Änderungsverlauf
 
+## 0.10.5 – 07.11.2026
+- **Textbausteine per Griff sortieren** (Finger, Maus, Pfeiltasten auf dem Griff), Pfeilknöpfe bleiben.
+- **Einstellungen übertragen:** „Einstellungen sichern“/„Einstellungen einlesen“ unter Datensicherung. Verschlüsselte Datei ohne Kunden; „Sicherung einspielen“ lehnt sie ab.
+- **Navigation:** Waze als Ziel für „Hinfahren“; Hinweis, dass die iOS-Standard-Navi-App aus einer Web-App nicht erreichbar ist.
+- **Produktdetail:** „Link kopieren“ neben „Beim Hersteller ansehen“.
+
 ## 0.10.4 – 07.11.2026
 - **Drei getrennte Texte** (R-TEXT neu): Photovoltaik (Enpal), Wärmepumpe (GALVANY), Vorwerk. Vorlagen und Empfänger je Bereich, Gesprächsmodus mit einer Notiz je Bereich, Kartei-Reiter „Photovoltaik“ und „Wärmepumpe“ statt „PV & Wärmepumpe“ (alter Link `?tab=enpal` führt zu Photovoltaik). Alte PV+WP-Notizen stehen in beiden Texten. Enpal-Doku nur noch für Photovoltaik. Schema 7.
 - **Kalender** startet im Monat; Startansicht unter Einstellungen → Kalender (`einstellungen.kalenderStart`).

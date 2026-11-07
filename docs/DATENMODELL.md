@@ -146,7 +146,7 @@ Belegt ist ein Gerät, wenn sich der Zeitraum mit einer Reservierung oder einem 
 | `autoSperreMin` | 0–240, 0 = nie |
 | ~~`dropbox`~~ | bis 0.9.4; wird seit 0.9.5 beim Laden verworfen (kein Dropbox-Abgleich mehr) |
 | `empfaenger` | `{pv, wp, vorwerk}` – Vorbelegung für „Per E-Mail senden“ (ab Schema 2, je Bereich ab Schema 7) |
-| `kartenApp` | `auto` \| `apple` \| `google` – Ziel für „Hinfahren“ (ab Schema 3) |
+| `kartenApp` | `auto` \| `apple` \| `google` \| `waze` – Ziel für „Hinfahren“ (ab Schema 3, `waze` ab 0.10.5) |
 | `kundenansicht` | `{kontakt, pv, wp, vorwerk, bemerkungen, status, geraete, termine, notizen}` je `boolean` – was die Kundenansicht zum Herzeigen zeigt (ab 0.9.0, Standard siehe `KUNDENANSICHT_TEILE`) |
 | `nachbarRadiusM` | Zahl – Umkreis für „Nachbarn“ in Metern, eine der Stufen 100 … 50 000 (ab 0.9.0, Standard 300) |
 | `felder` | `{aus, eigene}` – Feldverwaltung (ab Schema 4). `aus`: Pfade ausgeblendeter Felder (`kontakt.firma`, `pv.neigung`, `eigene.<id>`). `eigene`: höchstens 100 eigene Felder `{id, kategorie: kontakt\|pv\|wp\|vorwerk, label, typ, einheit, optionen}`; `typ` ist `text`, `textarea`, `number` (mit `einheit`), `date`, `bool`, `select` (mit `optionen`), `tel`, `email` oder `url`. Logik in `src/core/felder.ts`. |
@@ -167,5 +167,7 @@ Beispielkunden, -termine, -geräte und -verleihe in der echten App erkennt man a
 - normalisiert jedes Objekt (fehlende Felder ergänzen, ungültige Werte zu `null`/Standard),
 - entfernt doppelte Kunden-IDs,
 - hängt verwaiste Termine vom Kunden ab, statt sie zu löschen.
+
+**Einstellungsdatei** (ab 0.10.5, `src/core/einstellungsdatei.ts`): `{art: 'sperling-einstellungen', schemaVersion, erstellt, einstellungen, geraet: {farbschema, mailprogramm}}`, ohne `zuletzt`, verschlüsselt im selben Umschlag wie die Sicherung (`deviceId: 'einstellungen'`). „Sicherung einspielen“ lehnt sie ab, damit keine Kunden verloren gehen.
 
 Schema 1 → 2: `enpalKontakte` und `einstellungen.empfaenger` kommen hinzu; die Normalisierung ergänzt sie leer. Schema 2 → 3: `reservierungen`, `papierkorb`, `einstellungen.kartenApp` und die Beleg-Felder am Leihvorgang kommen hinzu (leer). 0.9.0 bleibt bei Schema 3: die neuen Felder (`letzterKontaktManuell`, `kundenansicht`, `nachbarRadiusM`, `zuletzt`) ergänzt die Normalisierung mit Standardwerten. Schema 6 → 7 (drei Texte, Kalender-Start): `vorlagen` und `empfaenger` je Bereich; eine eigene frühere Enpal-Vorlage bzw. ein Enpal-Empfänger gilt für PV und WP, die unveränderte alte Standardvorlage wird durch die neuen ersetzt; `kalenderStart` kommt mit `monat` hinzu. Schema 5 → 6 (Textbausteine): `einstellungen.bausteine` kommt hinzu; fehlt ein Bereich, gilt die Startliste aus `src/core/bausteine.ts`. Schema 4 → 5 (Produkte im Gespräch): `kunde.produkte` kommt hinzu (leer). Schema 3 → 4 (Feldverwaltung): `kunde.eigene` und `einstellungen.felder` kommen hinzu (leer); das frühere `einstellungen.dropbox` wird verworfen. Künftige Versionen ergänzen schrittweise Blöcke `if (v < 5) { … }`.

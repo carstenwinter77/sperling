@@ -16,6 +16,7 @@ import * as kontaktseite from '../kontaktseite.ts';
 import * as feldverwaltung from '../feldverwaltung.ts';
 import * as bausteinverwaltung from '../bausteinverwaltung.ts';
 import { KALENDER_ANSICHTEN } from '../kalender.ts';
+import { einstellungenPaket, einstellungenAusPaket, geraeteWahl } from '../../core/einstellungsdatei.ts';
 
 export const APP_VERSION = __APP_VERSION__; // aus package.json (vite.config.ts)
 
@@ -78,8 +79,9 @@ export function render(el: HTMLElement) {
     <section class="karte-box">
       <h2>Navigation</h2>
       <label>„Hinfahren“ öffnet<select id="kartenApp">
-        ${[['auto', 'Automatisch (Apple Karten auf iPhone/iPad, sonst Google Maps)'], ['apple', 'Apple Karten'], ['google', 'Google Maps']].map(([k, v]) => `<option value="${k}" ${e.kartenApp === k ? 'selected' : ''}>${v}</option>`).join('')}
+        ${[['auto', 'Automatisch (Apple Karten auf iPhone/iPad, sonst Google Maps)'], ['apple', 'Apple Karten'], ['google', 'Google Maps'], ['waze', 'Waze']].map(([k, v]) => `<option value="${k}" ${e.kartenApp === k ? 'selected' : ''}>${v}</option>`).join('')}
       </select></label>
+      <p class="hinweis">Eine Web-App kann die in iOS gewählte Standard-Navigations-App nicht direkt aufrufen. Wähle hier die App, mit der du fährst; Google Maps und Waze öffnen sich, wenn sie installiert sind, sonst im Browser.</p>
     </section>
 
     ${feldverwaltung.html(e.felder)}
@@ -125,6 +127,12 @@ export function render(el: HTMLElement) {
         <button class="btn primary" id="icloud" ${demo ? 'disabled' : ''}>☁️ In iCloud / Dateien sichern</button>
         <button class="btn ghost" id="backup" ${demo ? 'disabled' : ''}>Sicherung herunterladen</button>
         <button class="btn ghost" id="import" ${demo ? 'disabled' : ''}>Sicherung einspielen</button>
+      </div>
+      <h3>Einstellungen übertragen</h3>
+      <p class="hinweis">Nur die Einstellungen, ohne Kunden: Vorlagen, Empfänger, Textbausteine, Felder, Kalender, Navigation, Kundenansicht, Farbschema und Mailprogramm. So richtest du alles einmal ein (z. B. auf dem iPad) und spielst es auf iPhone oder Laptop ein. Die Datei ist mit deinem Master-Passwort verschlüsselt. Die volle Sicherung oben enthält die Einstellungen ohnehin mit.</p>
+      <div class="knopfreihe">
+        <button class="btn ghost" id="einstExport" ${demo ? 'disabled' : ''}>⚙️ Einstellungen sichern</button>
+        <button class="btn ghost" id="einstImport" ${demo ? 'disabled' : ''}>Einstellungen einlesen</button>
       </div>
       <h3>Automatische Versionen auf diesem Gerät</h3>
       <ul class="liste" id="historie"><li class="hinweis">${demo ? 'Im Demo-Modus nicht verfügbar.' : 'Wird geladen …'}</li></ul>
@@ -252,6 +260,52 @@ export function render(el: HTMLElement) {
         });
       },
     });
+  });
+  el.querySelector('#einstExport').addEventListener('click', async () => {
+    let inhalt;
+    try {
+      const paket = einstellungenPaket(store.getData().einstellungen, { farbschema: theme.lesen(), mailprogramm: gemerktesMailprogramm() });
+      inhalt = JSON.stringify(await store.verschluesseln(paket));
+    } catch (err) { toast(`Einstellungen sichern fehlgeschlagen: ${(err as Error).message}`, 'error'); return; }
+    const name = `sperling-einstellungen-${new Date().toISOString().slice(0, 10)}.sperling`;
+    // Safari öffnet das Teilen-Menü nur direkt nach einem Tipp, deshalb zweiter Tipp im Dialog
+    await dialog({
+      titel: 'Einstellungen sichern',
+      html: `<p>Die verschlüsselte Datei <b>${esc(name)}</b> ist bereit.</p><p class="hinweis">Zum Beispiel „In Dateien sichern“ → iCloud Drive wählen. Auf dem anderen Gerät dann „Einstellungen einlesen“.</p>`,
+      knoepfe: [{ label: 'Jetzt sichern', primaer: true, wert: null }],
+      onOpen: (dlg) => {
+        dlg.querySelectorAll('.dlg-actions button')[1]?.addEventListener('click', async (ev) => {
+          ev.preventDefault();
+          const r = await teilenOderSpeichern(name, inhalt, 'application/json');
+          if (r === 'abgebrochen') { toast('Abgebrochen – nichts gesichert.', 'error'); return; }
+          toast(r === 'geteilt' ? 'Einstellungen übergeben' : 'Einstellungen heruntergeladen', 'ok', 4000);
+          dlg.close();
+        });
+      },
+    });
+  });
+  el.querySelector('#einstImport').addEventListener('click', async () => {
+    const txt = await dateiWaehlen();
+    if (!txt) return;
+    let env;
+    try { env = JSON.parse(txt); validateEnvelope(env); } catch (err) { toast((err as Error).message || 'Ungültige Datei.', 'error'); return; }
+    const pw = await dialog({
+      titel: 'Einstellungen einlesen',
+      html: `<p>Deine Einstellungen auf diesem Gerät werden durch die aus der Datei ersetzt. Kunden, Termine und Geräte bleiben unverändert.</p>
+             <label>Master-Passwort des Geräts, auf dem die Datei erstellt wurde<input type="password" name="pw" autocomplete="current-password" required></label>`,
+      knoepfe: [{ label: 'Einlesen', primaer: true, wert: (dlg) => dlg.querySelector('[name=pw]').value }],
+    });
+    if (!pw) return;
+    try {
+      const paket = await new KeyRing(pw).decrypt(env);
+      const neu = einstellungenAusPaket(paket, store.getData().einstellungen);
+      store.mutate((d) => { d.einstellungen = neu; });
+      const g = geraeteWahl(paket, { farbschema: Object.keys(theme.SCHEMATA), mailprogramm: Object.keys(MAILPROGRAMME) });
+      if (g.farbschema) theme.setzen(g.farbschema);
+      if (g.mailprogramm) mailprogrammMerken(g.mailprogramm);
+      toast('Einstellungen übernommen', 'ok');
+      render(el);
+    } catch (err) { toast((err as Error).message, 'error'); }
   });
   el.querySelector('#import').addEventListener('click', async () => {
     const txt = await dateiWaehlen(); // ohne Filter: iOS graut .sperling sonst aus; Inhalt wird unten geprüft

@@ -1,4 +1,4 @@
-// Sperling – „Hinfahren“: öffnet Apple Karten oder Google Maps mit der Kundenadresse als Ziel.
+// Sperling – „Hinfahren“: öffnet Apple Karten, Google Maps oder Waze mit der Kundenadresse als Ziel.
 // Kein eigener Dienst: nur ein Link. Es geht nur die Adresse raus (wie bei der Adresssuche), nie der Name.
 import { esc } from '../core/util.ts';
 import * as store from '../storage/store.ts';
@@ -18,6 +18,7 @@ export function naviLink(k) {
   const wahl = store.getData()?.einstellungen?.kartenApp || 'auto';
   const app = wahl === 'auto' ? (apfel() ? 'apple' : 'google') : wahl;
   const e = encodeURIComponent(z);
+  if (app === 'waze') return `https://waze.com/ul?q=${e}&navigate=yes`;
   return app === 'apple' ? `https://maps.apple.com/?daddr=${e}` : `https://www.google.com/maps/dir/?api=1&destination=${e}`;
 }
 

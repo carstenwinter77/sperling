@@ -2,10 +2,11 @@
 // und die Startliste wiederherstellen. Gespeichert verschlüsselt in einstellungen.bausteine.
 import { esc } from '../core/util.ts';
 import { SPARTEN, SPARTEN_KEYS, type Sparte } from '../core/model.ts';
-import { STANDARD_BAUSTEINE, MAX_BAUSTEINE, MAX_BAUSTEIN_LAENGE, bausteinListe, type Bausteine } from '../core/bausteine.ts';
+import { STANDARD_BAUSTEINE, MAX_BAUSTEINE, MAX_BAUSTEIN_LAENGE, bausteinListe, verschieben, type Bausteine } from '../core/bausteine.ts';
 import * as store from '../storage/store.ts';
 import { bestaetigen, toast } from './dom.ts';
 import * as hilfe from './hilfe.ts';
+import { ziehSortieren } from './ziehsortieren.ts';
 
 let offen: Sparte | null = null; // aufgeklappter Bereich überlebt das Neuzeichnen
 
@@ -13,10 +14,11 @@ export function html(bs: Bausteine): string {
   return `
     <section class="karte-box" id="bausteinEinstellungen">
       <h2>Textbausteine ${hilfe.knopf('bausteine')}</h2>
-      <p class="hinweis">Kurze Sätze, die du im Gesprächsmodus über dem Notizfeld antippst. Jeder Tipp hängt den Satz als neue Zeile an die Notiz an.</p>
+      <p class="hinweis">Kurze Sätze, die du im Gesprächsmodus über dem Notizfeld antippst. Jeder Tipp hängt den Satz als neue Zeile an die Notiz an. Reihenfolge ändern: am Griff ⠿ ziehen oder die Pfeile nutzen.</p>
       ${SPARTEN_KEYS.map((s) => `<details class="felder-kat" data-baustein-bereich="${s}" ${offen === s ? 'open' : ''}>
         <summary><b>${esc(SPARTEN[s].label)}</b> <small>${bs[s].length} Bausteine</small></summary>
         <ol class="baustein-liste">${bs[s].map((t, i) => `<li>
+          <button type="button" class="zieh-griff" data-bs-griff="${i}" aria-label="Baustein ${i + 1} verschieben (ziehen oder Pfeiltasten)" title="Ziehen zum Verschieben">⠿</button>
           <input value="${esc(t)}" maxlength="${MAX_BAUSTEIN_LAENGE}" data-bs-text="${i}" aria-label="Baustein ${i + 1}" autocomplete="off">
           <button type="button" class="btn klein ghost" data-bs-hoch="${i}" aria-label="Nach oben" ${i ? '' : 'disabled'}>↑</button>
           <button type="button" class="btn klein ghost" data-bs-runter="${i}" aria-label="Nach unten" ${i < bs[s].length - 1 ? '' : 'disabled'}>↓</button>
@@ -37,6 +39,13 @@ export function verdrahten(root: HTMLElement, neuZeichnen: () => void) {
     offen = s;
     neuZeichnen();
   };
+  box.querySelectorAll<HTMLElement>('.baustein-liste').forEach((ol) => {
+    const s = bereichVon(ol);
+    if (s) ziehSortieren(ol, '[data-bs-griff]', (von, nach) => {
+      aendern(s, (l) => verschieben(l, von, nach));
+      setTimeout(() => root.querySelector<HTMLElement>(`[data-baustein-bereich="${s}"] [data-bs-griff="${nach}"]`)?.focus(), 0);
+    });
+  });
   box.addEventListener('toggle', (ev) => {
     const d = ev.target as HTMLElement;
     const s = d.dataset?.bausteinBereich as Sparte | undefined;

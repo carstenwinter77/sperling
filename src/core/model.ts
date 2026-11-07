@@ -517,7 +517,7 @@ export function normalizeZuletzt(v: unknown): ZuletztEintrag[] {
 /** Eigene Vorlage (nicht leer, nicht die alte Standardvorlage) oder ''. */
 const vorlage = (v: unknown) => (typeof v === 'string' && v.trim() && v !== ENPAL_ALT ? v : '');
 
-function normalizeEinstellungen(e: unknown) {
+export function normalizeEinstellungen(e: unknown) {
   const d = STANDARD_EINSTELLUNGEN;
   const src: Rec = e && typeof e === 'object' ? e : {};
   const autoSperre = parseNumber(src.autoSperreMin);
@@ -546,7 +546,7 @@ function normalizeEinstellungen(e: unknown) {
       wp: str(src.empfaenger?.wp ?? src.empfaenger?.enpal, 300),
       vorwerk: str(src.empfaenger?.vorwerk, 300),
     },
-    kartenApp: (['auto', 'apple', 'google'].includes(src.kartenApp) ? src.kartenApp : 'auto') as 'auto' | 'apple' | 'google',
+    kartenApp: (['auto', 'apple', 'google', 'waze'].includes(src.kartenApp) ? src.kartenApp : 'auto') as 'auto' | 'apple' | 'google' | 'waze',
     kundenansicht: Object.fromEntries(Object.entries(KUNDENANSICHT_TEILE).map(([k, v]) => [k, typeof src.kundenansicht?.[k] === 'boolean' ? src.kundenansicht[k] : v.standard])) as Record<KundenansichtTeil, boolean>,
     /** Umkreis für „Nachbarn“ beim Kunden (Meter), eine der NACHBAR_RADIEN-Stufen */
     nachbarRadiusM: NACHBAR_RADIEN.includes(Number(src.nachbarRadiusM)) ? Number(src.nachbarRadiusM) : 300,

@@ -783,6 +783,11 @@ dialog.dlg.dlg-produkt { width: min(680px, calc(100vw - 24px)); }
 .baustein-liste { margin: .3rem 0 .5rem; padding-left: 1.6rem; display: flex; flex-direction: column; gap: .3rem; }
 .baustein-liste li { display: flex; gap: .25rem; align-items: center; }
 .baustein-liste input { flex: 1 1 auto; min-width: 0; }
+.baustein-liste { padding-left: 0; list-style: none; }
+.zieh-griff { touch-action: none; cursor: grab; border: 0; background: transparent; color: var(--text-2); font-size: 1.3rem; line-height: 1; min-width: 44px; min-height: 44px; padding: 0; border-radius: 8px; flex: 0 0 auto; }
+.zieh-griff:focus-visible { outline: 2px solid var(--orange); }
+li.zieht { opacity: .85; box-shadow: 0 4px 14px rgba(0,0,0,.25); border-radius: 8px; background: var(--karte); position: relative; z-index: 2; }
+li.zieht .zieh-griff { cursor: grabbing; }
 .baustein-neu { display: flex; gap: .4rem; margin: .3rem 0 .5rem; }
 .baustein-neu input { flex: 1 1 auto; min-width: 0; }
 .baustein-neu .btn { white-space: nowrap; }

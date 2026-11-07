@@ -64,7 +64,7 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - Im Gesprächsmodus stehen über dem Notizfeld kurze Sätze je Bereich. Antippen hängt den Satz als neue Zeile an die Notiz an; danach frei weiterschreiben.
 - Enpal und Vorwerk haben getrennte Notizen, ein Baustein landet nur in der Notiz seines Bereichs.
 - Diktieren: ins Notizfeld tippen und auf der iPad-Tastatur das Mikrofon antippen.
-- **Einstellungen → Textbausteine:** je Bereich hinzufügen, umschreiben (Feld ändern), mit ↑ ↓ sortieren, löschen, Startliste wiederherstellen.
+- **Einstellungen → Textbausteine:** je Bereich hinzufügen, umschreiben (Feld ändern), am Griff ⠿ ziehen oder mit ↑ ↓ sortieren (auf dem Griff gehen auch die Pfeiltasten), löschen, Startliste wiederherstellen.
 
 ## Produkte
 
@@ -83,6 +83,7 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **iCloud (iPad/iPhone):** Einstellungen → **„In iCloud / Dateien sichern“** → „Jetzt sichern“ → im Teilen-Menü **„In Dateien sichern“** → iCloud Drive → Ordner (z. B. „Sperling“) → Sichern. Die Datei ist verschlüsselt.
 - **Zurückholen / neues Gerät:** Master-Passwort einrichten → Einstellungen → **„Sicherung einspielen“** → Datei in iCloud Drive wählen → Passwort der Sicherung eingeben.
 - Die Übersicht erinnert nach 7 Tagen an eine neue Sicherung.
+- **Nur Einstellungen übertragen:** Einstellungen → Datensicherung → „Einstellungen sichern“ (verschlüsselt, ohne Kunden) und auf dem anderen Gerät „Einstellungen einlesen“. Übernimmt Vorlagen, Empfänger, Textbausteine, Felder, Kalender, Navigation, Kundenansicht, Farbschema und Mailprogramm.
 - **Zweites Gerät:** Es gibt keinen automatischen Abgleich. Auf dem einen Gerät sichern, auf dem anderen einspielen; am besten hauptsächlich auf einem Gerät arbeiten.
 - Am Laptop: **Sicherung herunterladen** erzeugt dieselbe verschlüsselte `.sperling`-Datei.
 - Einspielen fragt nach dem Passwort der Sicherung. Der vorherige Stand bleibt unter „Automatische Versionen“ erhalten.

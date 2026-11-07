@@ -6,7 +6,7 @@ import { esc } from '../core/util.ts';
 import { SPARTEN, type Sparte } from '../core/model.ts';
 import { katalogPruefen, produkteFuer, kategorienIn, preisText, standText, aktuelleMarkierungen, markierungSetzen, markierungenText, KATEGORIEN, MARKIERUNGEN, MARKIERUNG_KEYS, type Katalog, type Produkt, type Markierung } from '../core/produkte.ts';
 import * as store from '../storage/store.ts';
-import { dialog, maskottchen, toast } from './dom.ts';
+import { dialog, kopieren, maskottchen, toast } from './dom.ts';
 
 let kat: Katalog | null = null;
 export function katalog(): Katalog {
@@ -63,7 +63,7 @@ export function detailHtml(p: Produkt): string {
       ${p.technischeDaten.length ? `<dl class="ka-daten">${p.technischeDaten.map((t) => `<dt>${esc(t.bezeichnung)}</dt><dd>${esc(t.wert)}</dd>`).join('')}</dl>` : ''}
       <p class="produkt-preis">${preis ? esc(preis) : 'Kein Preis veröffentlicht'}${p.preis?.uvp ? ` <small>(statt ${esc(p.preis.uvp.toLocaleString('de-DE', { minimumFractionDigits: 2 }))} €)</small>` : ''}</p>
       <p class="hinweis">Stand ${esc(standText(p.stand))}, laut Hersteller-Website. Vor dem Nennen beim Kunden auf der Quellseite prüfen.${p.hinweise ? ` ${esc(p.hinweise)}` : ''}</p>
-      ${p.quelleUrl ? `<p><a class="btn ghost" href="${esc(p.quelleUrl)}" target="_blank" rel="noopener noreferrer">Beim Hersteller ansehen ↗</a></p>` : ''}
+      ${p.quelleUrl ? `<p class="knopfreihe"><a class="btn ghost" href="${esc(p.quelleUrl)}" target="_blank" rel="noopener noreferrer">Beim Hersteller ansehen ↗</a> <button type="button" class="btn ghost" data-link-kopieren>🔗 Link kopieren</button></p>` : ''}
       ${passt.length ? `<h3>Passt dazu</h3><div class="produkt-passt">${passt.map((x) => `<button type="button" class="chip-wahl" data-produkt="${esc(x.id)}">${esc(x.name)}</button>`).join('')}</div>` : ''}
     </div>`;
 }
@@ -80,6 +80,10 @@ export function detailZeigen(id: string) {
       dlg.classList.add('dlg-produkt');
       dlg.querySelector<HTMLElement>('.dlg-actions button.ghost')?.style.setProperty('display', 'none');
       bildFehlerAbfangen(dlg);
+      dlg.querySelector('[data-link-kopieren]')?.addEventListener('click', async () => {
+        const ok = p.quelleUrl ? await kopieren(p.quelleUrl) : false;
+        toast(ok ? 'Link kopiert' : 'Kopieren nicht möglich', ok ? 'ok' : 'error');
+      });
       dlg.querySelector('.produkt-passt')?.addEventListener('click', (ev) => {
         const b = (ev.target as Element).closest<HTMLElement>('[data-produkt]');
         if (!b) return;

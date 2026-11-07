@@ -124,6 +124,32 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.fill('dialog [name=pw]', 'testpasswort');
   await p.click('dialog button.primary');
   await p.waitForFunction(() => document.querySelector('#toast')?.textContent.includes('eingespielt'));
+  // Einstellungen sichern (ohne Kunden, verschlüsselt), ändern, wieder einlesen
+  await p.goto(BASE + '#/einstellungen');
+  await p.selectOption('#kalenderStart', 'woche');
+  await p.click('#einstExport');
+  await p.waitForSelector('dialog');
+  const [es] = await Promise.all([p.waitForEvent('download'), p.click('dialog button.primary')]);
+  const esPfad = await es.path();
+  const esTxt = require('fs').readFileSync(esPfad, 'utf8');
+  if (esTxt.includes('Prüfer') || esTxt.includes('woche') || !esTxt.includes('"ct"')) fail('Einstellungsdatei nicht verschlüsselt');
+  await p.selectOption('#kalenderStart', 'tag');
+  const [efc] = await Promise.all([p.waitForEvent('filechooser'), p.click('#einstImport')]);
+  await efc.setFiles(esPfad);
+  await p.fill('dialog [name=pw]', 'testpasswort');
+  await p.click('dialog button.primary');
+  await p.waitForFunction(() => document.querySelector('#toast')?.textContent.includes('Einstellungen übernommen'));
+  if ((await p.inputValue('#kalenderStart')) !== 'woche') fail('Einstellungen nicht übernommen');
+  // Einstellungsdatei als Sicherung einspielen wird abgelehnt (würde sonst Kunden ersetzen)
+  const [efc2] = await Promise.all([p.waitForEvent('filechooser'), p.click('#import')]);
+  await efc2.setFiles(esPfad);
+  await p.fill('dialog [name=pw]', 'testpasswort');
+  await p.click('dialog button.primary');
+  await p.waitForFunction(() => document.querySelector('#toast')?.textContent.includes('Einstellungsdatei'));
+  await p.goto(BASE + '#/kunden');
+  if (!(await p.locator('#liste .zeile').count())) fail('Kunden nach Einstellungsdatei-Versuch weg');
+  await p.goto(BASE + '#/einstellungen');
+  await p.selectOption('#kalenderStart', 'monat');
   // Beispielkunden laden und entfernen
   await p.click('#beispielLaden');
   await p.waitForFunction(() => document.querySelector('#beispielInfo')?.textContent.includes('5 Beispielkunden'));
@@ -511,6 +537,11 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await vk[0].click();
   await p.waitForSelector('dialog .produkt-detail');
   if (!(await p.textContent('dialog .produkt-detail')).includes('Stand')) fail('Produktdetail ohne Stand-Datum');
+  await ctx.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: new URL(BASE).origin });
+  await p.click('dialog [data-link-kopieren]');
+  await p.waitForFunction(() => document.querySelector('#toast')?.textContent.includes('Link kopiert'));
+  const kopiert = await p.evaluate(() => navigator.clipboard.readText());
+  if (kopiert !== (await p.getAttribute('dialog .produkt-detail a.btn', 'href'))) fail('Produktlink nicht kopiert');
   await p.click('dialog .dlg-actions button.primary');
   await p.fill('#pSuche', '');
   // Produkte im Gespräch markieren: beim Kunden, dann Verlauf, Text und Filter
@@ -541,6 +572,26 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('[data-bs-neu=vorwerk] button');
   await p.waitForSelector('#bausteinEinstellungen details[data-baustein-bereich=vorwerk][open] [data-bs-text]');
   if (!(await p.$$eval('[data-baustein-bereich=vorwerk] [data-bs-text]', (l) => l.some((i) => i.value === 'E2E-Baustein Rückruf abends')))) fail('Baustein nicht gespeichert');
+  // per Griff zwei Plätze nach oben ziehen, dann per Tastatur einen zurück
+  {
+    const wert = (i) => p.$eval(`[data-baustein-bereich=vorwerk] [data-bs-text="${i}"]`, (x) => x.value).catch(() => '');
+    const griffe = await p.$$('[data-baustein-bereich=vorwerk] [data-bs-griff]');
+    const n = griffe.length;
+    await griffe[n - 1].scrollIntoViewIfNeeded();
+    const von = await griffe[n - 1].boundingBox();
+    const nach = await griffe[n - 3].boundingBox();
+    await p.mouse.move(von.x + von.width / 2, von.y + von.height / 2);
+    await p.mouse.down();
+    await p.mouse.move(nach.x + nach.width / 2, nach.y + 5, { steps: 8 });
+    await p.mouse.move(nach.x + nach.width / 2, nach.y + 2, { steps: 2 });
+    await p.mouse.up();
+    await p.waitForTimeout(300);
+    if ((await wert(n - 3)) !== 'E2E-Baustein Rückruf abends') fail(`Baustein per Griff nicht verschoben (n=${n}, an n-3: ${await wert(n - 3)}, an n-1: ${await wert(n - 1)})`);
+    await p.focus(`[data-baustein-bereich=vorwerk] [data-bs-griff="${n - 3}"]`);
+    await p.keyboard.press('ArrowDown');
+    await p.waitForTimeout(300);
+    if ((await wert(n - 2)) !== 'E2E-Baustein Rückruf abends') fail('Baustein per Pfeiltaste am Griff nicht verschoben');
+  }
   await p.goto(BASE + '#/kunden');
   await p.click('#liste .zeile');
   await p.click('#gespraechStarten');

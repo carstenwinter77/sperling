@@ -20,7 +20,8 @@ Browser (Tablet / Handy / Laptop)
  │   ├─ gespraech.ts ..... Gesprächsmodus speichern (je Bereich, Notiz je Firma, R-TEXT)
  │   ├─ verlauf.ts ....... Gesprächshistorie, letzter Kontakt
  │   ├─ kartenfilter.ts .. Mehrfachfilter für Karte und Kundenliste (auch eigene Ja/Nein- und Auswahlfelder)
- │   ├─ bausteine.ts ..... Textbausteine: Startliste, prüfen, an Notiz anhängen
+ │   ├─ bausteine.ts ..... Textbausteine: Startliste, prüfen, an Notiz anhängen, verschieben
+ │   ├─ einstellungsdatei.ts  Einstellungen ohne Kunden übertragen (Paket bauen/prüfen)
  │   ├─ produkte.ts ...... Produktkatalog prüfen, filtern, suchen; Markierungen „Produkte im Gespräch“
  │   ├─ felder.ts ........ Feldverwaltung: Kontaktfelder, eigene Felder, sichtbare Felder, Anzeige je Typ
  │   ├─ suche.ts ......... Kommandozeile: Normalisierung, Bewertung, Gruppen, Verben, Zuletzt
@@ -51,6 +52,7 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/gespraechsablauf.ts  laufendes Gespräch im Arbeitsspeicher
  ├─ src/ui/filterpanel.ts  Filterfeld für Karte und Kundenliste
  ├─ src/ui/bausteinverwaltung.ts  Einstellungen → Textbausteine
+ ├─ src/ui/ziehsortieren.ts  Listen per Griff umsortieren (Zeiger + Pfeiltasten)
  ├─ src/ui/produkte.ts ... Kacheln, Produktdetail, Markieren-Block (Kartei, Gesprächsmodus)
  ├─ src/ui/views/produkte.ts  Produktübersicht #/produkte (auch im Beratungs-Schutz)
  ├─ src/data/produkte.json  Produktkatalog (statisch, im Paket)

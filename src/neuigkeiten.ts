@@ -2,6 +2,14 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.5',
+    punkte: [
+      'Textbausteine lassen sich am Griff ⠿ verschieben.',
+      'Einstellungen sichern und einlesen: alles einmal einrichten und auf iPhone oder Laptop übernehmen, ohne Kunden, verschlüsselt.',
+      'Navigation auch mit Waze. In der Produktübersicht gibt es „Link kopieren“.',
+    ],
+  },
+  {
     version: '0.10.4',
     punkte: [
       'Drei getrennte Texte: Photovoltaik (Enpal), Wärmepumpe (GALVANY) und Vorwerk, jeder mit eigener Vorlage und eigenem Empfänger. Auch im Gesprächsmodus hat jedes Thema sein eigenes Notizfeld.',

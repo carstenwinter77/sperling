@@ -858,6 +858,9 @@ test('Textbausteine: Startliste, Normalisierung, Anhängen', () => {
   assert.equal(bs.bausteinListe(['y'.repeat(999)])[0].length, bs.MAX_BAUSTEIN_LAENGE);
   // Anhängen: jede Bausteinzeile eigene Zeile
   assert.equal(bs.bausteinAnhaengen('', 'Speicher gewünscht'), 'Speicher gewünscht');
+  assert.deepEqual(bs.verschieben(['a', 'b', 'c'], 2, 0), ['c', 'a', 'b']);
+  assert.deepEqual(bs.verschieben(['a', 'b', 'c'], 0, 2), ['b', 'c', 'a']);
+  assert.deepEqual(bs.verschieben(['a', 'b'], 5, 0), ['a', 'b']);
   assert.equal(bs.bausteinAnhaengen('Hallo', 'B'), 'Hallo\nB');
   assert.equal(bs.bausteinAnhaengen('Hallo\n', 'B'), 'Hallo\nB');
   assert.equal(bs.bausteinAnhaengen('Hallo  ', 'B'), 'Hallo\nB');
@@ -906,4 +909,35 @@ test('Kalender: Leihgaben je Tag, Termine ziehen und verschieben', () => {
   // Monat: auf anderen Tag, Uhrzeit bleibt
   assert.equal(lokal(kal.aufTag(b, '2026-11-20')), '20. 10:00');
   assert.equal(kal.aufTag(b, 'quatsch'), b);
+});
+
+test('Einstellungsdatei: ohne Kunden und „zuletzt“, verschlüsselt übertragbar, alte Dateien werden angehoben', async () => {
+  const ed = await import('../src/core/einstellungsdatei.ts');
+  const d = migrate({ einstellungen: { absender: 'Außendienst', kalenderStart: 'woche', kartenApp: 'waze', bausteine: { pv: ['A'], wp: [], vorwerk: ['V'] }, zuletzt: [{ art: 'kunde', id: 'k1' }] } });
+  d.kunden.push(neuerKunde({ nachname: 'GEHEIM-KUNDE' }));
+  const paket = ed.einstellungenPaket(d.einstellungen, { farbschema: 'dunkel', mailprogramm: 'gmail' }, '2026-11-07T10:00:00.000Z');
+  const json = JSON.stringify(paket);
+  assert.ok(!json.includes('GEHEIM-KUNDE'));
+  assert.equal(paket.einstellungen.zuletzt, undefined);
+  // verschlüsselt hin und zurück
+  const kr = new KeyRing('passwort123', 100000);
+  const env = await kr.encrypt(paket, { updatedAt: paket.erstellt, deviceId: 'einstellungen' });
+  const zurueck = await new KeyRing('passwort123', 100000).decrypt(env);
+  const ziel = migrate({ einstellungen: { zuletzt: [{ art: 'kunde', id: 'hier' }] } });
+  const neu = ed.einstellungenAusPaket(zurueck, ziel.einstellungen);
+  assert.equal(neu.absender, 'Außendienst');
+  assert.equal(neu.kalenderStart, 'woche');
+  assert.equal(neu.kartenApp, 'waze');
+  assert.deepEqual(neu.bausteine, { pv: ['A'], wp: [], vorwerk: ['V'] });
+  assert.deepEqual(neu.zuletzt, ziel.einstellungen.zuletzt, '„zuletzt“ bleibt vom Gerät');
+  assert.deepEqual(ed.geraeteWahl(zurueck, { farbschema: ['auto', 'hell', 'dunkel'], mailprogramm: ['standard', 'gmail'] }), { farbschema: 'dunkel', mailprogramm: 'gmail' });
+  assert.deepEqual(ed.geraeteWahl({ ...zurueck, geraet: { farbschema: '<b>', mailprogramm: 1 } }, { farbschema: ['auto'], mailprogramm: ['gmail'] }), { farbschema: undefined, mailprogramm: undefined });
+  // Ältere Datei (Schema 6, eine Enpal-Vorlage) wird angehoben
+  const alt = ed.einstellungenAusPaket({ art: 'sperling-einstellungen', einstellungen: { vorlagen: { enpal: 'E {{daten}}' }, empfaenger: { enpal: 'x@y.de' } } }, ziel.einstellungen);
+  assert.equal(alt.vorlagen.wp, 'E {{daten}}');
+  assert.equal(alt.empfaenger.pv, 'x@y.de');
+  // Fremdes wird abgelehnt
+  assert.throws(() => ed.einstellungenAusPaket(emptyData(), ziel.einstellungen), /keine Sperling-Einstellungsdatei/);
+  assert.throws(() => ed.einstellungenAusPaket(null, ziel.einstellungen));
+  assert.equal(ed.istEinstellungsPaket(emptyData()), false);
 });

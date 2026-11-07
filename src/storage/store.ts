@@ -7,6 +7,7 @@
 
 import { KeyRing, validateEnvelope } from '../core/crypto.ts';
 import { emptyData, migrate, type Daten, type Kunde } from '../core/model.ts';
+import { istEinstellungsPaket } from '../core/einstellungsdatei.ts';
 import { uid, nowIso, clone, type Rec } from '../core/util.ts';
 import * as db from './db.ts';
 
@@ -213,6 +214,12 @@ export async function currentEnvelope() {
   return db.loadEnvelope();
 }
 
+/** Beliebigen Inhalt (z. B. die Einstellungsdatei) mit dem Master-Passwort verschlüsseln. */
+export async function verschluesseln(inhalt: unknown) {
+  if (!keyring) throw new Error('Gesperrt.');
+  return keyring.encrypt(inhalt, { updatedAt: nowIso(), deviceId: 'einstellungen' });
+}
+
 /**
  * Fremden Umschlag übernehmen (Sicherung einspielen).
  * Entschlüsselt mit dem aktuellen Passwort, wenn keines übergeben wird.
@@ -223,6 +230,8 @@ export async function adoptEnvelope(env: unknown, password: string | null = null
   const kr = password ? new KeyRing(password) : keyring;
   if (!kr) throw new Error('Gesperrt.');
   const raw = await kr.decrypt(env);
+  // Eine Einstellungsdatei ist keine Sicherung: sie würde sonst alle Kunden ersetzen.
+  if (istEinstellungsPaket(raw)) throw new Error('Das ist eine Einstellungsdatei. Bitte unter „Einstellungen übertragen“ einlesen.');
   const migrated = migrate(raw);
   await flush();
   await db.saveEnvelope(env);
