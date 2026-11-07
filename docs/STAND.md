@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.5
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.6
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,10 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.9.5)
+## Erledigt (Version 0.9.6)
+
+### Neu in 0.9.6
+- [x] Auswertungs-PDF „Alles zusammen“ heißt „Gesamtauswertung“.
 
 ### Neu in 0.9.5
 - [x] **Dropbox entfernt:** kein Dropbox-Abgleich mehr, Sicherung nur noch als verschlüsselte Datei in iCloud Drive. Alte Dropbox-Zugangsdaten werden beim nächsten Speichern aus dem Bestand gelöscht. Kommandozeile: „Daten in iCloud sichern“ führt zum Sicherungsknopf. Datenschutzerklärung der Kontaktseite angepasst.

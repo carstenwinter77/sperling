@@ -1,6 +1,7 @@
 // Sperling – „Was ist neu“: kurze, verständliche Liste je Version (neueste zuerst).
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
+  { version: '0.9.6', punkte: ['Der PDF-Bericht über alle Bereiche heißt jetzt „Gesamtauswertung“.'] },
   { version: '0.9.5', punkte: ['Dropbox ist entfernt. Gesichert wird nur noch verschlüsselt in iCloud (Einstellungen → „In iCloud / Dateien sichern“).'] },
   { version: '0.9.4', punkte: ['Kontaktseite: neues Zitat, positiv formulierte Versprechen und eine vollständige Datenschutzerklärung.'] },
   { version: '0.9.3', punkte: ['Kontaktseite: echter Name und neuer Abschnitt „Beratung ohne Druck“ – unverbindlich, ohne Zeitdruck, ehrlich beraten.'] },

@@ -104,7 +104,7 @@ export async function berichtPdf(ber: Bericht): Promise<{ blob: Blob; dateiname:
   const lg = await logo();
   if (lg) doc.addImage(lg, 'PNG', B - R - 20, 12, 20, 20);
   doc.setFont('helvetica', 'bold'); doc.setFontSize(18);
-  doc.text(`Auswertung ${BEREICHE[ber.bereich]}`, R, y); y += 8;
+  doc.text(ber.bereich === 'alle' ? 'Gesamtauswertung' : `Auswertung ${BEREICHE[ber.bereich]}`, R, y); y += 8;
   doc.setFont('helvetica', 'normal'); doc.setFontSize(11);
   doc.text(ber.zeitraum.titel, R, y); y += 6;
   doc.setFontSize(9); doc.setTextColor(110);

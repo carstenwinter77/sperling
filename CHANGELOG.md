@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.9.6 – 07.11.2026
+- Auswertungs-PDF über alle Bereiche trägt den Titel „Gesamtauswertung“.
+
 ## 0.9.5 – 07.11.2026
 - **Dropbox entfernt:** Abgleich, Einstellungen-Abschnitt, Anmeldung und Statusanzeige sind raus. Gesichert wird nur noch als verschlüsselte Datei in iCloud Drive. Gespeicherte Dropbox-Zugangsdaten werden beim nächsten Speichern verworfen. Hilfe, Kommandozeile („Daten in iCloud sichern“), Anleitung, Regeln und Datenschutzerklärung der Kontaktseite angepasst.
 
