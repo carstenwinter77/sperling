@@ -1,6 +1,7 @@
 // Sperling – „Was ist neu“: kurze, verständliche Liste je Version (neueste zuerst).
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
+  { version: '0.9.9', punkte: ['Kontaktseite: Titel unter dem Foto zweizeilig „Selbständiger Berater / für Photovoltaik und Wärmepumpe“.'] },
   {
     version: '0.9.8',
     punkte: [

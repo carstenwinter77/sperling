@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.8
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.9
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
