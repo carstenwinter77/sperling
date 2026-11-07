@@ -14,6 +14,7 @@ import { KeyRing } from '../../core/crypto.ts';
 import { MAILPROGRAMME, gemerktesMailprogramm, mailprogrammMerken } from '../kontakt.ts';
 import { maskottchen, toast, download, dateiWaehlen, dialog, bestaetigen, teilenOderSpeichern } from '../dom.ts';
 import * as hilfe from '../hilfe.ts';
+import * as kontaktseite from '../kontaktseite.ts';
 
 export const APP_VERSION = __APP_VERSION__; // aus package.json (vite.config.ts)
 
@@ -38,6 +39,7 @@ export function render(el: HTMLElement) {
       <div class="knopfreihe"><a class="btn" href="#/hilfe">📖 Hilfe öffnen</a><a class="btn ghost" href="#/hilfe?thema=installieren">📲 App installieren</a></div>
       <p class="hinweis">Die Hilfe-Seite bleibt auch ohne ?-Knöpfe erreichbar (hier und über die Suche).</p>
     </section>
+    ${kontaktseite.abschnitt()}
 
     <section class="karte-box">
       <h2>Allgemein</h2>
@@ -189,6 +191,7 @@ export function render(el: HTMLElement) {
       render(el);
     } catch (err) { toast(`Entfernen fehlgeschlagen: ${(err as Error).message}`, 'error'); }
   });
+  kontaktseite.binden(el);
   el.querySelector('#hilfeKnoepfe')?.addEventListener('change', (ev) => { hilfe.vorliebeSetzen({ knoepfe: (ev.target as HTMLInputElement).checked }); toast('Gespeichert', 'ok'); });
   el.querySelector('#kartenApp').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.kartenApp = (ev.target as HTMLInputElement).value; }));
   el.querySelector('#kaEinstellungen').addEventListener('change', (ev) => {

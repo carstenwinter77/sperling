@@ -41,6 +41,7 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/kundenansicht.ts  Vollbild zum Herzeigen, Beenden mit Passwort/Face ID
  ├─ src/ui/belege.ts ..... Fotos (verkleinert) und Unterschriftsfeld
  ├─ src/ui/leihschein.ts . Leihschein/Rückgabeschein als PDF (jsPDF aus vendor/)
+ ├─ src/ui/kontaktseite.ts  „Meine Kontaktseite“ in den Einstellungen: Link, Teilen, QR-Code (qrcode-generator aus vendor/)
  ├─ src/ui/schutz.ts ..... Beratungs-Schutz: Knopf, Band, Routen-Wächter (Sicht in store.getData())
  ├─ src/ui/suche.ts ...... Kommandozeile (⌘K): Dialog, Aktionen, Zuletzt geöffnet
  ├─ src/ui/hilfe.ts ...... ?-Knöpfe, Installieren-Angebot, Installationshinweis
@@ -53,7 +54,9 @@ Browser (Tablet / Handy / Laptop)
  └─ src/globals.d.ts ...... projektweite Typen (DOM-Abfragen, Build-Konstanten)
 ```
 
-Build: `npm run build` (Vite) erzeugt `dist/` mit gebündeltem, gehashtem JavaScript/CSS und dem Service Worker samt Dateiliste. `public/` (Icons, Maskottchen, Leaflet, jsPDF, Manifest) wird unverändert kopiert. GitHub Actions (`.github/workflows/pages.yml`) prüft, testet, baut und liefert `dist/` bei jedem Push auf `main` nach GitHub Pages aus. Typen: `npm run check` (TypeScript `strict`).
+Build: `npm run build` (Vite) erzeugt `dist/` mit gebündeltem, gehashtem JavaScript/CSS und dem Service Worker samt Dateiliste. `public/` (Icons, Maskottchen, Leaflet, jsPDF, qrcode-generator, Manifest, Kontaktseite) wird unverändert kopiert.
+
+Kontaktseite: `public/kontakt/index.html` ist eine eigenständige öffentliche Werbe- und Kontaktseite (Photovoltaik und Wärmepumpe, ohne Anbieternamen, ohne Vorwerk). Sie nutzt keinen App-Code, keine Kundendaten, keine Cookies, kein Tracking und keine externen Schriften. Alle Kontaktdaten stehen nur im Block `KONTAKT` am Ende der Datei; Texte werden per `textContent` gesetzt. Der Rückrufwunsch wird nirgends gespeichert, sondern als vorbereitete WhatsApp-Nachricht oder E-Mail übergeben. Stand: Konzept mit Platzhalterdaten; Impressum (§ 5 DDG), Datenschutzerklärung und eigenes Hosting folgen. GitHub Actions (`.github/workflows/pages.yml`) prüft, testet, baut und liefert `dist/` bei jedem Push auf `main` nach GitHub Pages aus. Typen: `npm run check` (TypeScript `strict`).
 
 ## Datenfluss
 

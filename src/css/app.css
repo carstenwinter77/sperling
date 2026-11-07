@@ -704,3 +704,8 @@ body.hilfe-aus .hilfe-knopf { display: none; }
   .hauptnav .nav-einstellungen > span { display: flex; flex-direction: column; line-height: 1.2; }
   .nav-version { font-size: .75rem; }
 }
+
+/* Meine Kontaktseite (Einstellungen) */
+.kontaktseite-url code { word-break: break-all; background: var(--flaeche-2); padding: .2rem .45rem; border-radius: 6px; font-size: .85rem; }
+.qr-gross { display: flex; justify-content: center; }
+.qr-gross canvas { width: min(320px, 72vw); height: auto; border-radius: 12px; background: #fff; }

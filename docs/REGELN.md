@@ -45,7 +45,7 @@ Tests in `tests/core.test.mjs` sichern das ab. Diese Tests dürfen nie gelöscht
 - Eingaben werden validiert (`parseNumber`, `localInputToIso`, `isValidCoord`), ungültige Werte werden `null`, nie `NaN`.
 - Speicherfehler setzen `dirty` zurück auf `true`, damit nichts verloren geht.
 
-**R-KEINE-ABHÄNGIGKEITEN** – Kein Framework. TypeScript mit Build-Schritt (Vite) seit 0.9.0; zur Laufzeit nur eigener Code. Entwicklungs-Abhängigkeiten: `vite`, `typescript`, `@types/node`. Laufzeit-Bibliotheken: Leaflet 1.9.4 (Karte) und jsPDF 4.2.1 (PDF, nur bei Bedarf nachgeladen), beide lokal in `public/vendor/` (offline-fähig, MIT-Lizenz). Neue Bibliotheken nur lokal einbinden und hier begründen.
+**R-KEINE-ABHÄNGIGKEITEN** – Kein Framework. TypeScript mit Build-Schritt (Vite) seit 0.9.0; zur Laufzeit nur eigener Code. Entwicklungs-Abhängigkeiten: `vite`, `typescript`, `@types/node`. Laufzeit-Bibliotheken: Leaflet 1.9.4 (Karte), jsPDF 4.2.1 (PDF, nur bei Bedarf nachgeladen) und qrcode-generator 1.4.4 (QR-Code für „Meine Kontaktseite“, offline erzeugt, nur bei Bedarf nachgeladen; klein, ohne eigene Abhängigkeiten), alle lokal in `public/vendor/` (offline-fähig, MIT-Lizenz). Neue Bibliotheken nur lokal einbinden und hier begründen.
 
 **R-TYPEN** – `npm run check` muss 0 Fehler zeigen (`strict`). Datentypen werden aus den `normalize…()`-Funktionen abgeleitet (`Kunde`, `Termin` … in `src/core/model.ts`), nie doppelt gepflegt. `querySelector` liefert projektweit Eingabefelder statt `null` (`src/globals.d.ts`): nur für Elemente, die die Ansicht gerade selbst gerendert hat; was fehlen kann, mit `?.`. `any` nur mit Begründung im Kommentar.
 
