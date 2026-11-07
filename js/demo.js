@@ -129,3 +129,38 @@ export function beispielEntfernen(data) {
     .filter((l) => !istBeispiel(l.id))
     .map((l) => (istBeispiel(l.kundeId) ? { ...l, kundeId: '' } : l));
 }
+
+// ---------- Beispiel-Vorführbestand (nur Geräte, ohne Kunden) ----------
+// Eigener Präfix "demob-", damit „Beispielkunden entfernen“ und „Beispielbestand entfernen“ unabhängig sind.
+export const BESTAND_PRAEFIX = 'demob-';
+export const istBeispielGeraet = (id) => typeof id === 'string' && (id.startsWith(BESTAND_PRAEFIX) || id.startsWith(BEISPIEL_PRAEFIX));
+
+/** Realistischer Kobold-Vorführbestand (Seriennummern frei erfunden). */
+export function beispielBestand() {
+  return [
+    { id: 'demob-1', name: 'Kobold VK7 Akku-Staubsauger', seriennummer: 'BSP-VK7-0001', zubehoer: 'Elektrobürste EB7, Polsterdüse, Fugendüse, Ladestation, 2 Filtertüten', notiz: 'Vorführgerät 1, voll geladen ins Auto.' },
+    { id: 'demob-2', name: 'Kobold VK7 Akku-Staubsauger', seriennummer: 'BSP-VK7-0002', zubehoer: 'Elektrobürste EB7, Ladestation', notiz: 'Zweitgerät zum Verleihen.' },
+    { id: 'demob-3', name: 'Kobold VR7 Saugroboter', seriennummer: 'BSP-VR7-0001', zubehoer: 'Ladestation, Ersatzfilter', notiz: 'App-Kopplung vor Ort zeigen.' },
+    { id: 'demob-4', name: 'Kobold SP7 Saugwischer', seriennummer: 'BSP-SP7-0001', zubehoer: 'Wischpads (4), Reinigungsmittel, Ladestation' },
+    { id: 'demob-5', name: 'Kobold VB100 Akku-Handstaubsauger', seriennummer: 'BSP-VB100-0001', zubehoer: 'Ladekabel, Fugendüse' },
+    { id: 'demob-6', name: 'Kobold Polsterboy PB7', seriennummer: 'BSP-PB7-0001', zubehoer: 'Milbenaufsatz' },
+    { id: 'demob-7', name: 'Kobold Zubehör-Koffer (Vorführung)', seriennummer: '', zubehoer: 'Teppichfrischer, Duftkonzentrat, Filtertüten, Hartbodendüse', notiz: 'Verbrauchsmaterial zum Zeigen.' },
+  ];
+}
+
+export function bestandAnzahl(data) {
+  return data.geraete.filter((g) => g.id.startsWith(BESTAND_PRAEFIX)).length;
+}
+
+/** Fügt den Beispielbestand ein (vorhandene Beispielgeräte vorher entfernen, außer sie sind verliehen). `geraete` = normalisierte Geräte. */
+export function bestandEinfuegen(data, geraete) {
+  bestandEntfernen(data);
+  const vorhanden = new Set(data.geraete.map((g) => g.id));
+  data.geraete.push(...geraete.filter((g) => !vorhanden.has(g.id)));
+}
+
+/** Entfernt Beispielgeräte. Geräte mit Verleih-Verlauf bleiben (sonst ginge echter Verlauf verloren, R-LOESCH). */
+export function bestandEntfernen(data) {
+  const mitVerlauf = new Set(data.leihvorgaenge.map((l) => l.geraetId));
+  data.geraete = data.geraete.filter((g) => !g.id.startsWith(BESTAND_PRAEFIX) || mitVerlauf.has(g.id));
+}

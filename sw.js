@@ -1,7 +1,7 @@
 // Sperling – Service Worker: App-Dateien offline verfügbar machen.
 // REGEL: Bei jeder Änderung an App-Dateien CACHE_VERSION erhöhen (siehe docs/REGELN.md).
 // Kundendaten werden hier NIE gecacht (die liegen verschlüsselt in IndexedDB).
-const CACHE_VERSION = 'sperling-v0.6.0';
+const CACHE_VERSION = 'sperling-v0.7.0';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
   'vendor/leaflet/leaflet.js', 'vendor/leaflet/leaflet.css',
@@ -11,7 +11,7 @@ const SHELL = [
   'js/core/util.js', 'js/core/crypto.js', 'js/core/model.js', 'js/core/textgen.js', 'js/core/ics.js',
   'js/storage/db.js', 'js/storage/store.js', 'js/storage/sync.js', 'js/storage/dropbox.js',
   'js/services/geo.js',
-  'js/ui/dom.js', 'js/ui/parts.js', 'js/ui/theme.js', 'js/ui/kontakt.js', 'js/ui/enpaldoku.js',
+  'js/ui/dom.js', 'js/ui/parts.js', 'js/ui/theme.js', 'js/ui/kontakt.js', 'js/ui/enpaldoku.js', 'js/storage/biometrie.js',
   'js/ui/views/start.js', 'js/ui/views/kunden.js', 'js/ui/views/kunde.js', 'js/ui/views/karte.js', 'js/ui/views/termine.js', 'js/ui/views/einstellungen.js', 'js/ui/views/bestand.js', 'js/ui/views/gespraech.js', 'js/core/einwaende.js',
   'assets/icon-192.png', 'assets/icon-512.png', 'assets/apple-touch-icon.png',
   ...['sperling', 'vorwerk', 'waermepumpe', 'photovoltaik', 'kunde-neu', 'karte', 'notizen', 'termine', 'einstellungen', 'statistik'].map((n) => `assets/maskottchen/${n}.png`),

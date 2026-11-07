@@ -4,6 +4,7 @@ import { KAUFINTERESSE, kundenTitel, adresseEinzeilig, neuesGeraet, neuerLeihvor
 import * as store from '../../storage/store.js';
 import { maskottchen, toast, dialog, bestaetigen } from '../dom.js';
 import { leer } from '../parts.js';
+import { istBeispielGeraet } from '../../demo.js';
 
 const TAG_MS = 86400000;
 
@@ -58,7 +59,7 @@ export function render(el) {
     return `
       <article class="karte-box geraet geraet-${st}" data-id="${esc(g.id)}">
         <div class="geraet-kopf">
-          <div><strong>${esc(g.name)}</strong>${g.seriennummer ? `<br><small>SN ${esc(g.seriennummer)}</small>` : ''}</div>
+          <div><strong>${esc(g.name)}</strong>${istBeispielGeraet(g.id) ? ' <span class="tag tag-beispiel">Beispiel</span>' : ''}${g.seriennummer ? `<br><small>SN ${esc(g.seriennummer)}</small>` : ''}</div>
           <span class="pill pill-${st}">${st === 'frei' ? 'Im Auto' : st === 'ueberfaellig' ? 'Überfällig' : 'Verliehen'}</span>
         </div>
         ${l ? `

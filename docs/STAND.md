@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.6.0
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.7.0
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -15,7 +15,13 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.6.0)
+## Erledigt (Version 0.7.0)
+
+### Neu in 0.7.0
+- [x] **Entsperren mit Face ID / Touch ID** (iPhone, iPad, Mac; Android: Fingerabdruck): Passkey mit PRF-Erweiterung, daraus abgeleiteter Schlüssel verschlüsselt das Master-Passwort auf dem Gerät. Angebot nach dem ersten Entsperren, Ein/Aus unter Einstellungen → Sicherheit. Passwort bleibt immer gültig. Passwortwechsel schaltet Face ID ab (neu einrichten). Ohne PRF (vor iOS/iPadOS 18) wird Face ID nicht angeboten. Browser-Test mit virtuellem Authenticator (mit und ohne PRF).
+- [x] **Beispiel-Vorführbestand (Vorwerk):** Einstellungen → Beispieldaten → „Beispielbestand laden“: sieben Kobold-Geräte/Zubehör ohne Kunden, markiert „Beispiel“, Seriennummern „BSP-…“. Entfernen lässt Geräte mit Verleih-Verlauf stehen.
+- [ ] Auf echtem iPhone/iPad testen (Face ID braucht die installierte App über https, iOS 18+)
+
 
 ### Neu in 0.6.0
 - [x] **Adresssuche auf der Karte:** Suchfeld oben; Treffer aus den eigenen Kunden (👤) und vom Adressdienst (📍), bei eindeutigem Treffer direkt hineinzoomen (Hausnummer: Zoom 19) mit Popup „Als Potenzial markieren / Kunde anlegen“. Passt der Suchtext auf einen Kundennamen, wird nur lokal gesucht (R-EXTERN).

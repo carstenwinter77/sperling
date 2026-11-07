@@ -30,7 +30,7 @@ Tests in `tests/core.test.mjs` sichern das ab. Diese Tests dürfen nie gelöscht
 
 **R-EXTERN** – An Dritte gehen nur: Kartenausschnitte (Esri/OSM), Koordinaten oder eingegebene Adresse (Nominatim), die verschlüsselte Datei (Dropbox). Nie Namen, Telefonnummern oder Notizen. Die Adresssuche der Karte prüft deshalb zuerst lokal, ob der Suchtext ein Kundenname ist; dann geht keine Anfrage raus.
 
-**R-PASSWORT** – Mindestens 8 Zeichen. Keine Wiederherstellung, keine Hintertür.
+**R-PASSWORT** – Mindestens 8 Zeichen. Keine Wiederherstellung, keine Hintertür. Face ID/Touch ID ist nur eine Abkürzung: Das Passwort liegt dafür AES-verschlüsselt mit einem Schlüssel aus der Passkey-PRF-Erweiterung in IndexedDB (`meta.biometrie`), nie im Klartext. Ohne PRF kein Face ID. Passwortwechsel löscht diesen Eintrag.
 
 ## Technik
 

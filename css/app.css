@@ -375,3 +375,4 @@ body { --band-h: 0px; }
 .suchergebnisse { position: absolute; left: .5rem; right: .5rem; top: calc(100% + .25rem); z-index: 1000; list-style: none; margin: 0; padding: .25rem; background: var(--karte); border: 1px solid var(--linie); border-radius: var(--radius); box-shadow: var(--schatten); max-height: 50vh; overflow: auto; }
 .suchergebnisse button { display: block; width: 100%; text-align: left; background: none; border: 0; color: var(--text); font: inherit; padding: .6rem .7rem; min-height: 44px; border-radius: 10px; cursor: pointer; }
 .suchergebnisse button:hover, .suchergebnisse button:focus { background: var(--flaeche-2); }
+.bio-knopf { width: 100%; max-width: 360px; min-height: 52px; font-size: 1.05rem; margin-top: .5rem; }

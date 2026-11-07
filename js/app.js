@@ -4,9 +4,11 @@ import * as sync from './storage/sync.js';
 import * as dbx from './storage/dropbox.js';
 import { WrongPasswordError } from './core/crypto.js';
 import { esc } from './core/util.js';
-import { $, toast, maskottchen } from './ui/dom.js';
+import { $, toast, maskottchen, dialog } from './ui/dom.js';
 import { demoDaten } from './demo.js';
 import * as theme from './ui/theme.js';
+import * as bio from './storage/biometrie.js';
+import * as db from './storage/db.js';
 import * as vStart from './ui/views/start.js';
 import * as vKunden from './ui/views/kunden.js';
 import * as vKunde from './ui/views/kunde.js';
@@ -57,6 +59,7 @@ async function zeigeSperre(fehler = '') {
   document.body.classList.add('gesperrt');
   document.body.classList.remove('demo');
   const hatDaten = await store.hasVault().catch(() => false);
+  const mitBio = hatDaten && (await bio.eingerichtet());
   $('#app').innerHTML = `
     <main class="sperre">
       ${maskottchen('sperling', 'sperre-bild', 'Sperling')}
@@ -71,6 +74,7 @@ async function zeigeSperre(fehler = '') {
            <button class="btn primary">Einrichten</button>`}
         <p class="fehler" id="sperrFehler">${esc(fehler)}</p>
       </form>
+      ${mitBio ? `<button class="btn primary bio-knopf" id="bioEntsperren">🔓 Mit ${esc(bio.bezeichnung())} entsperren</button>` : ''}
       <button class="btn ghost" id="demo">Demo mit Beispielkunden ansehen</button>
     </main>`;
   const form = $('#sperrForm');
@@ -82,10 +86,12 @@ async function zeigeSperre(fehler = '') {
     try {
       if (hatDaten) {
         await store.unlock(form.pw.value);
+        bioAnbieten(form.pw.value);
       } else {
         if (form.pw.value.length < 8) throw new Error('Mindestens 8 Zeichen.');
         if (form.pw.value !== form.pw2.value) throw new Error('Passwörter stimmen nicht überein.');
         await store.setup(form.pw.value);
+        bioAnbieten(form.pw.value);
       }
       form.reset();
       await nachEntsperren();
@@ -96,6 +102,52 @@ async function zeigeSperre(fehler = '') {
     }
   });
   $('#demo').addEventListener('click', () => { store.startDemo(demoDaten()); nachEntsperren(); });
+  $('#bioEntsperren')?.addEventListener('click', async (ev) => {
+    const b = ev.currentTarget;
+    b.disabled = true;
+    try {
+      const pw = await bio.passwortHolen();
+      try {
+        await store.unlock(pw);
+      } catch (err) {
+        if (err instanceof WrongPasswordError) {
+          await bio.ausschalten(); // Passwort wurde inzwischen geändert (z. B. auf anderem Gerät)
+          throw new Error('Das Passwort wurde geändert. Bitte einmal mit Passwort entsperren, danach kannst du Face ID neu einrichten.');
+        }
+        throw err;
+      }
+      await nachEntsperren();
+    } catch (err) {
+      $('#sperrFehler').textContent = bio.fehlerText(err);
+      b.disabled = false;
+    }
+  });
+}
+
+/**
+ * Nach dem Entsperren mit Passwort einmalig Face ID anbieten (wenn verfügbar und noch nicht gefragt).
+ * Das Einrichten startet direkt im Tipp auf „Einrichten“ (Safari verlangt eine Nutzeraktion).
+ */
+async function bioAnbieten(passwort) {
+  try {
+    if (!(await bio.verfuegbar()) || (await bio.eingerichtet()) || (await db.getMeta('biometrieGefragt'))) return;
+    await db.setMeta('biometrieGefragt', true);
+  } catch { return; }
+  setTimeout(() => {
+    dialog({
+      titel: `${bio.bezeichnung()} verwenden?`,
+      html: `<p>Sperling kann sich künftig mit ${bio.bezeichnung()} entsperren lassen. Das Master-Passwort bleibt gültig und wird weiterhin gebraucht, wenn ${bio.bezeichnung()} nicht klappt.</p><p class="hinweis">Jederzeit änderbar unter Einstellungen → Sicherheit.</p>`,
+      knoepfe: [{ label: 'Einrichten', primaer: true, wert: null }],
+      onOpen: (dlg) => {
+        dlg.querySelectorAll('.dlg-actions button')[1]?.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          bio.einrichten(passwort)
+            .then(() => { toast(`${bio.bezeichnung()} eingerichtet`, 'ok'); dlg.close(); })
+            .catch((err) => { toast(bio.fehlerText(err), 'error', 6000); dlg.close(); });
+        });
+      },
+    });
+  }, 600);
 }
 
 async function nachEntsperren() {

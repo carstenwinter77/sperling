@@ -132,6 +132,15 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   if (await p.$('#liste .tag-beispiel')) fail('Beispielkunden nicht entfernt');
   if (!(await p.textContent('#liste')).includes('Prüfer')) fail('Echter Kunde beim Entfernen verloren!');
   await p.goto(BASE + '#/einstellungen');
+  // Beispiel-Vorführbestand
+  await p.click('#bestandLaden');
+  await p.waitForFunction(() => /\d+ Beispielgeräte/.test(document.querySelector('#bestandInfo')?.textContent || ''));
+  await p.goto(BASE + '#/bestand');
+  await p.waitForSelector('.tag-beispiel');
+  await p.goto(BASE + '#/einstellungen');
+  await p.click('#bestandWeg');
+  await p.click('dialog button.danger');
+  await p.waitForFunction(() => (document.querySelector('#bestandInfo')?.textContent || '').includes('Kein Beispielbestand'));
   // Historie vorhanden
   await p.waitForTimeout(500);
   if (!(await p.$('#historie [data-i]'))) fail('Keine Versionshistorie');

@@ -248,3 +248,17 @@ test('Beispielkunden laden und vollständig entfernen, echte Daten bleiben', () 
   assert.deepEqual(d.geraete.map((g) => g.id), ['demo-g2'], 'echt verliehenes Beispielgerät bleibt');
   assert.deepEqual(d.leihvorgaenge.map((l) => l.id), ['le']);
 });
+
+test('Beispiel-Vorführbestand laden/entfernen, verliehene Geräte bleiben', async () => {
+  const { beispielBestand, bestandEinfuegen, bestandEntfernen, bestandAnzahl } = await import('../js/demo.js');
+  const { normalizeGeraet } = await import('../js/core/model.js');
+  const d = migrate({ schemaVersion: 2, geraete: [{ id: 'echt-g', name: 'Eigenes Gerät' }] });
+  bestandEinfuegen(d, beispielBestand().map(normalizeGeraet));
+  const n = bestandAnzahl(d);
+  assert.ok(n >= 5);
+  bestandEinfuegen(d, beispielBestand().map(normalizeGeraet));
+  assert.equal(bestandAnzahl(d), n, 'kein Doppeln');
+  d.leihvorgaenge.push({ id: 'l', geraetId: 'demob-1', kundeId: '' });
+  bestandEntfernen(d);
+  assert.deepEqual(d.geraete.map((g) => g.id).sort(), ['demob-1', 'echt-g']);
+});

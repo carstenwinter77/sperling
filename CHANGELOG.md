@@ -1,5 +1,9 @@
 # Änderungsverlauf
 
+## 0.7.0 – 07.11.2026
+- Entsperren mit Face ID / Touch ID (Passkey mit PRF; Master-Passwort bleibt gültig).
+- Beispiel-Vorführbestand (Kobold-Geräte) separat laden und entfernen.
+
 ## 0.6.0 – 07.11.2026
 - Karte: Adresssuche mit Hineinzoomen und Markieren; Kunden werden lokal gefunden, Namen gehen nie an den Adressdienst.
 - Karte zoomt beim Öffnen auf den eigenen Standort (blauer Punkt).

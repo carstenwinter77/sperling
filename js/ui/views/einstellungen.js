@@ -1,7 +1,7 @@
 // Einstellungen: Absender, Textvorlagen, Dropbox, Backup, Historie, Passwort, Datenschutz.
 import { esc, formatDateTime, parseNumber } from '../../core/util.js';
-import { DEFAULT_VORLAGEN, migrate } from '../../core/model.js';
-import { demoDaten, beispielAnzahl, beispielEinfuegen, beispielEntfernen } from '../../demo.js';
+import { DEFAULT_VORLAGEN, migrate, normalizeGeraet } from '../../core/model.js';
+import { demoDaten, beispielAnzahl, beispielEinfuegen, beispielEntfernen, beispielBestand, bestandAnzahl, bestandEinfuegen, bestandEntfernen } from '../../demo.js';
 import { PLATZHALTER } from '../../core/textgen.js';
 import { validateEnvelope } from '../../core/crypto.js';
 import * as store from '../../storage/store.js';
@@ -9,10 +9,12 @@ import * as db from '../../storage/db.js';
 import * as dbx from '../../storage/dropbox.js';
 import * as sync from '../../storage/sync.js';
 import * as theme from '../theme.js';
+import * as bio from '../../storage/biometrie.js';
+import { KeyRing } from '../../core/crypto.js';
 import { MAILPROGRAMME, gemerktesMailprogramm, mailprogrammMerken } from '../kontakt.js';
 import { maskottchen, toast, download, dateiWaehlen, dialog, bestaetigen, teilenOderSpeichern } from '../dom.js';
 
-export const APP_VERSION = '0.6.0';
+export const APP_VERSION = '0.7.0';
 
 export function render(el) {
   const e = store.getData().einstellungen;
@@ -38,12 +40,20 @@ export function render(el) {
     </section>
 
     <section class="karte-box ${demo ? 'aus' : ''}">
-      <h2>Beispielkunden</h2>
+      <h2>Beispieldaten</h2>
+      <h3>Beispielkunden</h3>
       <p class="hinweis">Lädt fünf erfundene Kunden mit Notizen, Gesprächen, Enpal-Doku, Terminen und Vorführgeräten – zum Zeigen und Üben. Sie sind mit „Beispiel“ markiert und lassen sich mit einem Tipp wieder vollständig entfernen. Deine echten Kunden bleiben unberührt.</p>
       <p id="beispielInfo" class="hinweis">${demo ? '' : (beispielAnzahl(store.getData()) ? `<b>${beispielAnzahl(store.getData())} Beispielkunden</b> sind geladen.` : 'Keine Beispielkunden geladen.')}</p>
       <div class="knopfreihe">
         <button class="btn ghost" id="beispielLaden" ${demo ? 'disabled' : ''}>Beispielkunden laden</button>
         <button class="btn danger" id="beispielWeg" ${demo || !beispielAnzahl(store.getData()) ? 'disabled' : ''}>Beispielkunden entfernen</button>
+      </div>
+      <h3>Beispiel-Vorführbestand (Vorwerk)</h3>
+      <p class="hinweis">Lädt einen typischen Kobold-Vorführbestand (VK7, VR7, SP7, VB100, Polsterboy, Zubehör-Koffer) ohne Kunden – zum Ausprobieren von Verleih, Erinnerung und Kaufinteresse. Erfundene Seriennummern beginnen mit „BSP“.</p>
+      <p id="bestandInfo" class="hinweis">${demo ? '' : (bestandAnzahl(store.getData()) ? `<b>${bestandAnzahl(store.getData())} Beispielgeräte</b> sind im Bestand.` : 'Kein Beispielbestand geladen.')}</p>
+      <div class="knopfreihe">
+        <button class="btn ghost" id="bestandLaden" ${demo ? 'disabled' : ''}>Beispielbestand laden</button>
+        <button class="btn danger" id="bestandWeg" ${demo || !bestandAnzahl(store.getData()) ? 'disabled' : ''}>Beispielbestand entfernen</button>
       </div>
     </section>
 
@@ -99,7 +109,9 @@ export function render(el) {
 
     <section class="karte-box ${demo ? 'aus' : ''}">
       <h2>Sicherheit</h2>
+      <p class="hinweis" id="bioInfo"></p>
       <div class="knopfreihe">
+        <button class="btn ghost" id="bio" hidden></button>
         <button class="btn ghost" id="pw" ${demo ? 'disabled' : ''}>Master-Passwort ändern</button>
         <button class="btn danger" id="reset" ${demo ? 'disabled' : ''}>Alle Daten auf diesem Gerät löschen</button>
       </div>
@@ -125,6 +137,22 @@ export function render(el) {
       toast('Beispielkunden geladen – siehe Kunden', 'ok');
       render(el);
     } catch (err) { toast(`Laden fehlgeschlagen: ${err.message}`, 'error'); }
+  });
+  el.querySelector('#bestandLaden').addEventListener('click', async () => {
+    try {
+      const geraete = beispielBestand().map(normalizeGeraet);
+      await store.mutate((d) => bestandEinfuegen(d, geraete));
+      toast('Beispielbestand geladen – siehe Bestand', 'ok');
+      render(el);
+    } catch (err) { toast(`Laden fehlgeschlagen: ${err.message}`, 'error'); }
+  });
+  el.querySelector('#bestandWeg').addEventListener('click', async () => {
+    if (!(await bestaetigen('Beispielbestand entfernen?', 'Die Beispielgeräte werden aus dem Bestand gelöscht. Geräte, die schon verliehen waren, bleiben wegen des Verlaufs erhalten.', 'Entfernen'))) return;
+    try {
+      await store.mutate((d) => bestandEntfernen(d));
+      toast(bestandAnzahl(store.getData()) ? 'Entfernt – verliehene Beispielgeräte bleiben wegen des Verlaufs' : 'Beispielbestand entfernt', 'ok', 5000);
+      render(el);
+    } catch (err) { toast(`Entfernen fehlgeschlagen: ${err.message}`, 'error'); }
   });
   el.querySelector('#beispielWeg').addEventListener('click', async () => {
     if (!(await bestaetigen('Beispielkunden entfernen?', 'Alle Beispielkunden samt ihrer Notizen, Termine und Beispielgeräte werden gelöscht. Echte Kunden bleiben unberührt.', 'Entfernen'))) return;
@@ -265,7 +293,69 @@ export function render(el) {
       }],
     });
     if (!res) return;
-    try { await store.changePassword(res.alt, res.neu); toast('Passwort geändert. Auf anderen Geräten ab jetzt das neue verwenden.', 'ok', 6000); } catch (err) { toast(err.message, 'error'); }
+    try {
+      await store.changePassword(res.alt, res.neu);
+      const hatteBio = await bio.eingerichtet();
+      if (hatteBio) await bio.ausschalten(); // gespeichertes Passwort ist veraltet
+      toast(`Passwort geändert. Auf anderen Geräten ab jetzt das neue verwenden.${hatteBio ? ` ${bio.bezeichnung()} bitte neu einrichten.` : ''}`, 'ok', 7000);
+      bioZeigen();
+    } catch (err) { toast(err.message, 'error'); }
+  });
+
+  // Face ID / Touch ID
+  const bioZeigen = async () => {
+    const knopf = el.querySelector('#bio');
+    const info = el.querySelector('#bioInfo');
+    if (!knopf || demo) return;
+    const name = bio.bezeichnung();
+    if (await bio.eingerichtet()) {
+      knopf.hidden = false; knopf.textContent = `${name} ausschalten`; knopf.dataset.an = '1';
+      info.textContent = `Entsperren mit ${name} ist eingeschaltet. Das Master-Passwort funktioniert weiterhin.`;
+    } else if (await bio.verfuegbar()) {
+      knopf.hidden = false; knopf.textContent = `${name} einrichten`; knopf.dataset.an = '';
+      info.textContent = `Statt des Passworts mit ${name} entsperren (iPhone/iPad ab iOS 18, installierte App).`;
+    } else {
+      knopf.hidden = true;
+      info.textContent = 'Entsperren per Face ID ist auf diesem Gerät bzw. in diesem Browser nicht verfügbar.';
+    }
+  };
+  bioZeigen();
+  el.querySelector('#bio').addEventListener('click', async (ev) => {
+    if (ev.currentTarget.dataset.an) {
+      await bio.ausschalten();
+      toast(`${bio.bezeichnung()} ausgeschaltet`, 'ok');
+      bioZeigen();
+      return;
+    }
+    // Erst Passwort prüfen, dann im zweiten Tipp einrichten (Safari verlangt dafür einen direkten Tipp).
+    let passwort = null;
+    await dialog({
+      titel: `${bio.bezeichnung()} einrichten`,
+      html: `<label>Master-Passwort zur Bestätigung<input type="password" name="pw" autocomplete="current-password" required></label>
+             <p class="hinweis" id="bioSchritt">Nach der Prüfung erscheint die Face-ID-Abfrage des Geräts.</p>`,
+      knoepfe: [{ label: 'Weiter', primaer: true, wert: null }],
+      onOpen: (dlg) => {
+        const k = dlg.querySelectorAll('.dlg-actions button')[1];
+        k?.addEventListener('click', async (e) => {
+          e.preventDefault();
+          if (passwort) {
+            // zweiter Tipp: Einrichten direkt aus dem Tipp heraus
+            bio.einrichten(passwort)
+              .then(() => { toast(`${bio.bezeichnung()} eingerichtet`, 'ok'); dlg.close(); bioZeigen(); })
+              .catch((err) => toast(bio.fehlerText(err), 'error', 6000));
+            return;
+          }
+          const pw = dlg.querySelector('[name=pw]').value;
+          try {
+            await new KeyRing(pw).decrypt(await db.loadEnvelope());
+          } catch { toast('Falsches Passwort.', 'error'); return; }
+          passwort = pw;
+          dlg.querySelector('[name=pw]').disabled = true;
+          dlg.querySelector('#bioSchritt').textContent = `Passwort stimmt. Jetzt „${bio.bezeichnung()} einrichten“ tippen.`;
+          k.textContent = `${bio.bezeichnung()} einrichten`;
+        });
+      },
+    });
   });
 
   el.querySelector('#reset').addEventListener('click', async () => {
