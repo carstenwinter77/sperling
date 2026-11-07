@@ -1,6 +1,7 @@
 // Sperling – laufendes Gespräch mit einem Kunden in geteilter Ansicht:
 // links die Kundendaten (weiter bearbeitbar), rechts Notizen, Leitfaden und Abschluss.
 // Am Handy werden daraus Reiter. Der Entwurf bleibt im Arbeitsspeicher, bis gespeichert oder verworfen wird.
+import * as schnellwahl from '../schnellwahl.ts';
 import { esc, formatDateTime, localInputToIso } from '../../core/util.ts';
 import { SPARTEN, SPARTEN_KEYS, STATUS, AUSGANG, KONTAKTART, kundenTitel, adresseEinzeilig, type Sparte } from '../../core/model.ts';
 import { kundenVerlauf } from '../../core/verlauf.ts';
@@ -191,7 +192,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
             <label>Ergebnis<select name="ausgang"><option value="">${e.erreicht ? '– bitte wählen –' : '– keins –'}</option>${Object.entries(AUSGANG).map(([key, v]) => `<option value="${key}">${esc(v)}</option>`).join('')}</select></label>
             <label>Status<select name="status">${statusOptions(k.status[s])}</select></label>
             <label>Nächster Schritt<input name="schritt" maxlength="1000" placeholder="z. B. Angebot rechnen lassen"></label>
-            <label>Wiedervorlage / Termin am<input type="datetime-local" name="wv"></label>
+            <div class="wv-feld"><label>Wiedervorlage / Termin am<input type="datetime-local" name="wv"></label>${schnellwahl.html('wv')}</div>
           </div>
         </fieldset>`).join('')}
         <div class="knopfreihe">

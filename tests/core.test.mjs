@@ -1106,3 +1106,21 @@ test('Kundenauswahl: Suche statt Liste, gleiche Namen unterscheidbar, zuletzt be
   const viele = migrate({ kunden: Array.from({ length: 500 }, (_, i) => ({ id: `k${i}`, nachname: `Kunde${i}` })) });
   assert.equal(kw.kundenSuchen(viele, 'kunde').length, 8, 'nie endlose Liste');
 });
+
+test('Schnellwahl Wiedervorlage: Tage, Wochen, Monate, Monatsende, Uhrzeit', async () => {
+  const sw = await import('../src/core/schnellwahl.ts');
+  const f = (d) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}`;
+  const heute = new Date(2026, 10, 7, 18, 30);
+  assert.equal(f(sw.schrittDatum(heute, '1t')), '2026-11-8 9:0', 'leer: 9:00');
+  assert.equal(f(sw.schrittDatum(heute, '3t', { h: 14, m: 15 })), '2026-11-10 14:15', 'Uhrzeit bleibt');
+  assert.equal(f(sw.schrittDatum(heute, '4w')), '2026-12-5 9:0');
+  assert.equal(f(sw.schrittDatum(heute, '3m')), '2027-2-7 9:0', 'über den Jahreswechsel');
+  assert.equal(f(sw.schrittDatum(heute, '12m')), '2027-11-7 9:0');
+  assert.equal(f(sw.schrittDatum(new Date(2026, 7, 31), '6m')), '2027-2-28 9:0', 'Monatsende gekappt');
+  assert.equal(f(sw.schrittDatum(new Date(2026, 10, 30), '3m')), '2027-2-28 9:0');
+  assert.equal(sw.schrittDatum(heute, 'quatsch'), null);
+  assert.equal(f(sw.schrittDatum(heute, '1w', { h: 99, m: 0 })), '2026-11-14 9:0', 'ungültige Uhrzeit -> 9:00');
+  assert.deepEqual(sw.uhrzeitAus('2026-11-07T08:45'), { h: 8, m: 45 });
+  assert.equal(sw.uhrzeitAus(''), null);
+  assert.equal(sw.SCHRITTE.length, 9);
+});

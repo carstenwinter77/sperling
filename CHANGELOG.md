@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.10.9 – 07.11.2026
+- **Schnellwahl für Wiedervorlagen:** Unter jedem Wiedervorlage-Datum (Termin-Dialog, Gesprächsabschluss im Leitfaden und Gesprächsmodus, Enpal-Doku-Frist) Knöpfe „In 1 Tag, 3 Tage, 1–4 Wochen, 3 Monate, ½ Jahr, 1 Jahr“. Ab heute gerechnet; die eingestellte Uhrzeit bleibt, sonst 9:00. Monatsende wird gekappt (31.08. + ½ Jahr = 28.02.). Kalenderauswahl bleibt (`src/core/schnellwahl.ts`, `src/ui/schnellwahl.ts`).
+
 ## 0.10.8 – 07.11.2026
 - **Vorwerk-Liste als PDF importieren** (Kunden → „📄 PDF-Liste importieren“): Die Tabelle (Name, Straße, PLZ/Ort, Telefon, Sperre, EWE, EWE-Datum, BNW, Notizen) wird mit pdf.js auf dem Gerät gelesen (`src/core/listenimport.ts`, `src/ui/listenimport.ts`). Vorschau mit Neu/Geändert/Gleich, Auswahl je Zeile, Liste der Kunden, die nicht mehr in der Liste stehen (es wird nichts gelöscht). Doppelte Zeilen werden zusammengeführt; gleiche Telefonnummer und Adresse mit anderem Namen gilt als Haushalt. Sperre/EWE/EWE-Datum/BNW landen in eigenen Vorwerk-Feldern (`vwliste-*`), neue Kunden bekommen Vorwerk „Potenzial“ und eine Notiz. Standorte werden nur über die Adresse gesucht. Test mit selbst erzeugter Beispiel-PDF (`tests/testliste-pdf.cjs`, erfundene Daten).
 - **Kundenauswahl per Suche** überall (Termin, Reservieren, Verleihen, Gesprächsleitfaden): Suchfeld nach Name, Straße, Ort oder Telefon, ohne Eingabe die zuletzt benutzten Kunden; gleichnamige Kunden sind markiert und über Adresse/Telefon unterscheidbar (`src/core/kundenwahl.ts`, `src/ui/kundenwahl.ts`).

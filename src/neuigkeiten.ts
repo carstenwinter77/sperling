@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.9',
+    punkte: [
+      'Wiedervorlage schneller setzen: Knöpfe „In 1 Tag“ bis „1 Jahr“ direkt unter dem Datum. Die Uhrzeit bleibt, sonst 9:00 Uhr.',
+    ],
+  },
+  {
     version: '0.10.8',
     punkte: [
       'Kunden: „📄 PDF-Liste importieren“ liest die Vorwerk-Liste ein. Du siehst vorher, wer neu ist und was sich geändert hat, und wählst selbst aus.',

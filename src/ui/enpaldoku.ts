@@ -2,6 +2,7 @@
 // Enpal verlangt eine Dokumentation je Kontakt (Telefon, später Hausbesuch). Sperling
 // speichert sie beim Kunden und liefert einen kopierfertigen Text für die Enpal-App.
 // Nur PV/WP – Vorwerk kommt hier nie vor (R-TEXT).
+import * as schnellwahl from './schnellwahl.ts';
 import { esc, nowIso, isoToLocalInput, localInputToIso, formatDateTime } from '../core/util.ts';
 import { AUSGANG, KONTAKTART, SPARTEN, kundenName, kundenTitel, adresseEinzeilig, normalizeEnpalKontakt, neuerTermin } from '../core/model.ts';
 import { enpalDokuText, enpalVerlaufText } from '../core/textgen.ts';
@@ -28,7 +29,7 @@ export async function kontaktDialog(kundeId: string, { kontaktId = null as strin
         </fieldset>
         <label>Ergebnis<select name="ergebnis"><option value="">– bitte wählen –</option>${Object.entries(AUSGANG).filter(([key]) => key !== 'test').map(([key, v]) => `<option value="${key}" ${key === c.ergebnis ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
         <label>Nächster Schritt<input name="schritt" value="${esc(c.naechsterSchritt)}" maxlength="1000" placeholder="z. B. Hausbesuch, Angebot rechnen"></label>
-        <label>Frist / Wiedervorlage<input type="datetime-local" name="frist" value="${esc(c.frist ? isoToLocalInput(c.frist) : '')}"></label>
+        <div class="wv-feld"><label>Frist / Wiedervorlage<input type="datetime-local" name="frist" value="${esc(c.frist ? isoToLocalInput(c.frist) : '')}"></label>${schnellwahl.html('frist')}</div>
         ${alt ? '' : '<label class="check"><input type="checkbox" name="termin" checked> Frist als Wiedervorlage in Termine</label>'}
         <label class="breit">Gesprächsinhalt<textarea name="notiz" rows="6" placeholder="Was wurde besprochen? Wünsche, Bedenken, Absprachen">${esc(c.notiz)}</textarea></label>
       </div>`,

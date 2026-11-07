@@ -949,3 +949,11 @@ tr.li-gleich { opacity: .7; }
 .kw-treffer li[data-kw-id]:hover { background: var(--aktiv-bg); }
 .kw-treffer li.kw-kopf { cursor: default; min-height: 0; font-size: .75rem; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: .04em; }
 .kw-treffer .chip { align-self: flex-start; font-size: .7rem; }
+
+/* Schnellwahl Wiedervorlage (1 Tag … 1 Jahr) */
+.wv-feld { display: flex; flex-direction: column; gap: .35rem; min-width: 0; }
+.wv-schnell { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; }
+.wv-schnell-label { font-size: .8rem; color: var(--text-2); margin-right: .1rem; }
+.chip-knopf { font: inherit; font-size: .85rem; min-height: 36px; padding: .25rem .7rem; border-radius: 999px; border: 1px solid var(--linie); background: var(--feld); color: var(--text); cursor: pointer; }
+.chip-knopf:hover { border-color: var(--gruen); }
+.chip-knopf[aria-pressed="true"] { background: var(--aktiv-bg); border-color: var(--gruen); font-weight: 700; }

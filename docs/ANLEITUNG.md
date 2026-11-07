@@ -86,6 +86,10 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - Die Vorschau zeigt je Zeile **neu**, **geändert** (mit den Änderungen) oder **gleich**. Häkchen weg = Zeile wird nicht übernommen. Unten stehen Kunden, die nicht mehr in der Liste sind; gelöscht wird nichts.
 - Sperre, EWE, EWE-Datum und BNW stehen danach in eigenen Vorwerk-Feldern, Notizen als Vorwerk-Notiz. Neue Kunden bekommen Vorwerk „Potenzial“ und einen Kartenpunkt, wenn die Adresse gefunden wird.
 
+## Wiedervorlage schnell setzen
+
+- Unter dem Datum einer Wiedervorlage stehen Knöpfe **In 1 Tag, 3 Tage, 1–4 Wochen, 3 Monate, ½ Jahr, 1 Jahr**. Antippen setzt das Datum ab heute; die schon eingestellte Uhrzeit bleibt, sonst 9:00 Uhr. Über das Kalenderfeld lässt sich jedes Datum weiter frei wählen.
+
 ## Kunden auswählen
 
 - Bei Termin, Reservieren, Verleihen und im Gesprächsleitfaden: Name, Straße, Ort oder Telefon eintippen und den Treffer antippen. Ohne Eingabe stehen die zuletzt benutzten Kunden oben. „gleicher Name“ zeigt Namensvettern; Adresse und Telefon stehen darunter. „Ändern“ wählt neu.

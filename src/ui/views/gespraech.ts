@@ -1,5 +1,6 @@
 // Gesprächsleitfaden: Einstiegsfragen, Einwände anklicken → Gegenargumente, Überleitungen.
 // Gespeichert wird je Sparte eine EIGENE Notiz (R-TEXT: nie Sparten mischen).
+import * as schnellwahl from '../schnellwahl.ts';
 import * as kundenwahl from '../kundenwahl.ts';
 import { esc, nowIso, formatDateTime, localInputToIso } from '../../core/util.ts';
 import { SPARTEN, SPARTEN_KEYS, kundenTitel, neueNotiz, neuerTermin, normalizeGespraech, normalizeEnpalKontakt, KONTAKTART, kundenName, adresseEinzeilig, STATUS, AUSGANG, type Sparte, type StatusKey, type Kunde } from '../../core/model.ts';
@@ -319,7 +320,7 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
             <label>Worauf lief es hinaus?<select name="ausgang"><option value="">– bitte wählen –</option>${Object.entries(AUSGANG).map(([key, v]) => `<option value="${key}">${esc(v)}</option>`).join('')}</select></label>
             <label>Status ${esc(SPARTEN[s].label)}<select name="status">${statusOptions(k.status[s])}</select></label>
             <label>Nächster Schritt<input name="schritt" placeholder="z. B. Angebot rechnen lassen" maxlength="1000"></label>
-            <label>Wiedervorlage / Termin am<input type="datetime-local" name="wv"></label>
+            <div class="wv-feld"><label>Wiedervorlage / Termin am<input type="datetime-local" name="wv"></label>${schnellwahl.html('wv')}</div>
             <label class="breit">Notiz<textarea name="notiz" rows="2" placeholder="Was war wichtig?"></textarea></label>
           </div>
         </fieldset>`;

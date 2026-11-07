@@ -58,6 +58,8 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/core/listenimport.ts  Vorwerk-PDF-Liste: Zeilen aus Textstücken, Abgleich, Übernahme (rein, in Node getestet)
  ├─ src/ui/listenimport.ts  PDF wählen, mit pdf.js lesen (lazy geladen), Vorschau-Dialog
  ├─ src/core/kundenwahl.ts  Kundensuche und „zuletzt benutzt“ für Auswahlfelder (rein)
+ ├─ src/core/schnellwahl.ts  Wiedervorlage-Schnellwahl: Zieldatum je Schritt (rein)
+ ├─ src/ui/schnellwahl.ts  Knopfreihe unter datetime-Feldern, ein Klick-Handler am document
  ├─ src/ui/kundenwahl.ts  Suchfeld mit Treffern; verstecktes Feld behält den alten Namen
  ├─ tests/testliste-pdf.cjs  erzeugt eine Beispiel-PDF mit erfundenen Daten für die Tests
  ├─ src/ui/produkte.ts ... Kacheln, Produktdetail, Markieren-Block (Kartei, Gesprächsmodus)

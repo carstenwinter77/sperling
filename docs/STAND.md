@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.8
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.9
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,10 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.8)
+## Erledigt (Version 0.10.9)
+
+### Neu in 0.10.9
+- [x] Schnellwahl für Wiedervorlagen (1 Tag bis 1 Jahr) in Termin-Dialog, Gesprächsabschluss und Enpal-Doku (`src/ui/schnellwahl.ts`).
 
 ### Neu in 0.10.8
 - [x] Vorwerk-Liste als PDF importieren (`src/core/listenimport.ts`, `src/ui/listenimport.ts`, pdf.js lokal). Vorschau mit Auswahl, Abgleich gegen den Bestand, nichts wird gelöscht. Getestet mit erzeugter Beispiel-PDF (`tests/testliste-pdf.cjs`).

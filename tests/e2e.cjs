@@ -264,6 +264,13 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForSelector('dialog [name=titel]');
   if ((await p.inputValue('dialog [name=beginn]')).slice(11) !== '10:00') fail('Beginn aus Kalender falsch: ' + await p.inputValue('dialog [name=beginn]'));
   if ((await p.inputValue('dialog [name=dauerMin]')) !== '60') fail('Dauer aus Kalender falsch');
+  // Schnellwahl Wiedervorlage: „1 Woche“ = heute + 7 Tage, Uhrzeit bleibt
+  const beginnVorher = await p.inputValue('dialog [name=beginn]');
+  await p.click('dialog [data-wv-schritt="1w"]');
+  const erwartetWoche = await p.evaluate(() => { const d = new Date(); d.setDate(d.getDate() + 7); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T10:00`; });
+  if ((await p.inputValue('dialog [name=beginn]')) !== erwartetWoche) fail('Schnellwahl 1 Woche falsch: ' + await p.inputValue('dialog [name=beginn]'));
+  if ((await p.getAttribute('dialog [data-wv-schritt="1w"]', 'aria-pressed')) !== 'true') fail('Schnellwahl nicht markiert');
+  await p.fill('dialog [name=beginn]', beginnVorher);
   await p.fill('dialog [name=titel]', 'Kalendertermin');
   await p.click('dialog button.primary');
   await p.waitForFunction(() => [...document.querySelectorAll('.k-block .k-eintrag')].some((x) => x.textContent.includes('Kalendertermin')));

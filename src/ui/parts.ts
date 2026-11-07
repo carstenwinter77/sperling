@@ -1,4 +1,5 @@
 // Sperling – wiederverwendbare UI-Bausteine.
+import * as schnellwahl from './schnellwahl.ts';
 import * as kundenwahl from './kundenwahl.ts';
 import { esc, isoToLocalInput, localInputToIso, formatDateTime, parseNumber } from '../core/util.ts';
 import { SPARTEN, SPARTEN_KEYS, STATUS, kundenTitel, adresseEinzeilig, neuerTermin, normalizeTermin, type Termin } from '../core/model.ts';
@@ -48,6 +49,7 @@ export async function terminDialog({ termin = null as Termin | null, kundeId = '
       <label>Beginn <input type="datetime-local" name="beginn" value="${esc(isoToLocalInput(t.beginn))}" required></label>
       <label>Dauer (Min.) <input type="number" name="dauerMin" min="5" max="1440" step="5" value="${esc(t.dauerMin)}"></label>
     </div>
+    ${schnellwahl.html('beginn')}
     <label>Ort <input name="ort" value="${esc(t.ort)}" maxlength="500"></label>
     <label>Notiz <textarea name="notiz" rows="3" maxlength="5000">${esc(t.notiz)}</textarea></label>`;
   const res = await dialog({

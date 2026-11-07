@@ -1,4 +1,5 @@
 // Sperling – Einstiegspunkt: Sperrbildschirm, Navigation, Router, Auto-Sperre, Fehlerbehandlung.
+import * as schnellwahl from './ui/schnellwahl.ts';
 import * as store from './storage/store.ts';
 import { WrongPasswordError } from './core/crypto.ts';
 import { esc } from './core/util.ts';
@@ -267,6 +268,7 @@ store.onSaved((ev) => { if (ev.fehler) toast(`Speichern fehlgeschlagen: ${ev.feh
 
 // ---------- Start ----------
 async function start() {
+  try { schnellwahl.aktivieren(); } catch (e) { console.error(e); }
   try { hilfe.starten(); } catch (e) { console.error(e); }
   // Reste der früheren Dropbox-Anmeldung entfernen (seit 0.9.5 gibt es keinen Dropbox-Abgleich mehr)
   try { sessionStorage.removeItem('sperling.dbx.code'); sessionStorage.removeItem('sperling.dbx.verifier'); } catch { /* egal */ }
