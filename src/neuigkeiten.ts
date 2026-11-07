@@ -2,6 +2,15 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.12',
+    punkte: [
+      'Zwischen iPad und iPhone wechseln: Beim Öffnen fragt Sperling, ob ein neuerer Stand aus iCloud geholt werden soll. Übernommen wird nur, was neuer ist.',
+      'Neues Gerät einrichten: „Vom anderen Gerät übernehmen“ holt die Sicherung, dein bisheriges Passwort gilt weiter.',
+      'iPhone: größere Knöpfe unten, der Rest steht unter „Mehr“. Nichts wird mehr rechts abgeschnitten.',
+      'Der Balken im Beratungs-Schutz ist jetzt schmal und unauffällig.',
+    ],
+  },
+  {
     version: '0.10.11',
     punkte: [
       'Der Kalender zeigt die Feiertage in Niedersachsen mit Namen, zum Beispiel „1. Weihnachtstag“. Termine kannst du dort trotzdem eintragen.',

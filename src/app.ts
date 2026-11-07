@@ -1,4 +1,5 @@
 // Sperling – Einstiegspunkt: Sperrbildschirm, Navigation, Router, Auto-Sperre, Fehlerbehandlung.
+import * as abgleich from './ui/abgleich.ts';
 import * as schnellwahl from './ui/schnellwahl.ts';
 import * as store from './storage/store.ts';
 import { WrongPasswordError } from './core/crypto.ts';
@@ -61,6 +62,33 @@ const NAV = [
   { key: 'einstellungen', href: '#/einstellungen', label: 'Einstellungen', bild: 'einstellungen' },
 ];
 
+/** Auf dem Handy stehen diese Bereiche unter „Mehr“, damit die Leiste unten große Tippflächen behält. */
+const NEBEN = ['gespraech', 'bestand', 'auswertung', 'einstellungen'];
+
+/** „Mehr“-Menü (Handy): übrige Bereiche, Suchen, Sperren. */
+function mehrMenue() {
+  const eintraege = NAV.filter((n) => NEBEN.includes(n.key) || n.key === 'produkte');
+  dialog({
+    titel: 'Mehr',
+    html: `<div class="mehr-raster">
+      <button type="button" class="mehr-eintrag" data-mehr="suche"><span class="nav-lupe" aria-hidden="true">🔍</span><span>Suchen</span></button>
+      ${eintraege.map((n) => `<a class="mehr-eintrag" href="${n.href}" data-mehr="link">${n.bild ? maskottchen(n.bild, 'nav-bild') : '<span class="nav-lupe" aria-hidden="true">🏷️</span>'}<span>${n.label}</span></a>`).join('')}
+      <button type="button" class="mehr-eintrag" data-mehr="sperren"><span class="nav-lupe" aria-hidden="true">🔒</span><span>Sperren</span></button>
+    </div><p class="hinweis mehr-version">Version ${esc(APP_VERSION)}</p>`,
+    knoepfe: [],
+    onOpen: (dlg) => {
+      dlg.classList.add('dlg-mehr');
+      dlg.addEventListener('click', (ev) => {
+        const e = (ev.target as Element).closest<HTMLElement>('[data-mehr]');
+        if (!e) return;
+        dlg.close();
+        if (e.dataset.mehr === 'suche') suche.oeffnen();
+        else if (e.dataset.mehr === 'sperren') sperren();
+      });
+    },
+  });
+}
+
 let aufraeumen: (() => void) | null = null;
 
 theme.anwenden();
@@ -98,6 +126,11 @@ async function zeigeSperre(fehler = '') {
            <button class="btn primary">Einrichten</button>`}
         <p class="fehler" id="sperrFehler">${esc(fehler)}</p>
       </form>
+      ${hatDaten ? '' : `<div class="sperre-uebernehmen">
+        <p>Sperling läuft schon auf deinem iPad oder iPhone?</p>
+        <button type="button" class="btn" id="ausSicherung">☁️ Vom anderen Gerät übernehmen (iCloud)</button>
+        <p class="hinweis">Sicherungsdatei aus iCloud Drive wählen und das bisherige Passwort eingeben. Ein neues Passwort ist dann nicht nötig.</p>
+      </div>`}
       ${mitBio ? `<button class="btn primary bio-knopf" id="bioEntsperren">🔓 Mit ${esc(bio.bezeichnung())} entsperren</button>` : ''}
       <button class="btn ghost" id="demo">Demo mit Beispielkunden ansehen</button>
     </main>`;
@@ -126,6 +159,12 @@ async function zeigeSperre(fehler = '') {
     }
   });
   $('#demo').addEventListener('click', () => { store.startDemo(demoDaten()); nachEntsperren(); });
+  $('#ausSicherung')?.addEventListener('click', async () => {
+    const pw = await abgleich.einrichtenAusDatei();
+    if (!pw) return;
+    await nachEntsperren();
+    bioAnbieten(pw);
+  });
   $('#bioEntsperren')?.addEventListener('click', async (ev) => {
     const b = ev.currentTarget as HTMLButtonElement;
     b.disabled = true;
@@ -180,6 +219,7 @@ async function nachEntsperren() {
   if (!store.isDemo()) {
     badgeSetzen(store.getData());
     setTimeout(() => update.wasIstNeu(APP_VERSION), 1200);
+    abgleich.beimStart().catch(() => {});
     navigator.storage?.persist?.().catch(() => {});
   }
   route();
@@ -196,7 +236,8 @@ function shell() {
         <button class="sperr-knopf" id="sperren" title="Sperren" aria-label="Sperling sperren"><span aria-hidden="true">🔒</span><small>Sperren</small></button>
       </div>
       <button type="button" class="nav-suche" id="navSuche" title="Suchen (${suche.kuerzel()})"><span class="nav-bild nav-lupe" aria-hidden="true">🔍</span><span>Suchen</span></button>
-      ${NAV.map((n) => `<a href="${n.href}" data-nav="${n.key}"${n.key === 'einstellungen' ? ' class="nav-einstellungen"' : n.key === 'produkte' ? ' class="nav-produkte"' : ''}>${n.bild ? maskottchen(n.bild, 'nav-bild') : '<span class="nav-bild nav-lupe" aria-hidden="true">🏷️</span>'}<span>${n.label}${n.key === 'einstellungen' ? `<small class="nav-version">Version ${esc(APP_VERSION)}</small>` : ''}</span></a>`).join('')}
+      ${NAV.map((n) => `<a href="${n.href}" data-nav="${n.key}"${NEBEN.includes(n.key) ? ' data-neben' : ''}${n.key === 'einstellungen' ? ' class="nav-einstellungen"' : n.key === 'produkte' ? ' class="nav-produkte"' : ''}>${n.bild ? maskottchen(n.bild, 'nav-bild') : '<span class="nav-bild nav-lupe" aria-hidden="true">🏷️</span>'}<span>${n.label}${n.key === 'einstellungen' ? `<small class="nav-version">Version ${esc(APP_VERSION)}</small>` : ''}</span></a>`).join('')}
+      <button type="button" class="nav-mehr" id="navMehr" aria-haspopup="dialog"><span class="nav-bild nav-lupe" aria-hidden="true">☰</span><span>Mehr</span></button>
     </nav>
     <div class="schutz-band" id="schutzBand" role="status" hidden></div>
     <button type="button" class="schutz-knopf" id="schutzKnopf" aria-pressed="false" aria-label="Beratungs-Schutz">🛡</button>
@@ -204,11 +245,13 @@ function shell() {
   schutz.verdrahten();
   suche.verdrahten();
   $('#navSuche').addEventListener('click', () => suche.oeffnen());
+  $('#navMehr').addEventListener('click', mehrMenue);
   $('#sperren').addEventListener('click', sperren);
   $('#demoEnde')?.addEventListener('click', sperren);
 }
 
 async function sperren() {
+  abgleich.leisteEntfernen();
   try {
     await store.lock();
     location.hash = '#/';
@@ -234,6 +277,7 @@ function route() {
   const el = $('#inhalt');
   if (!el) return;
   document.querySelectorAll('[data-nav]').forEach((a) => a.classList.toggle('aktiv', a.dataset.nav === r.nav));
+  document.querySelector('#navMehr')?.classList.toggle('aktiv', NEBEN.includes(r.nav) || r.nav === 'produkte');
   el.className = `inhalt seite-${r.nav}`;
   try {
     const res = r.view.render(el, params, treffer);

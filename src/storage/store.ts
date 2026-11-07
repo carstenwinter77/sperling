@@ -107,6 +107,13 @@ export async function setup(password: string) {
   notify();
 }
 
+/** Erstes Einrichten aus einer Sicherung (zweites Gerät): kein neues Passwort, es gilt das der Sicherung. */
+export async function einrichtenAusSicherung(env: unknown, password: string) {
+  if (await hasVault()) throw new Error('Es gibt bereits einen Datenbestand auf diesem Gerät.');
+  if (!password) throw new Error('Bitte das Passwort eingeben.');
+  await adoptEnvelope(env, password);
+}
+
 /** Entsperren. Wirft WrongPasswordError bei falschem Passwort. */
 export async function unlock(password: string) {
   const env = await db.loadEnvelope();

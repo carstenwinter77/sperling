@@ -1,4 +1,5 @@
 // Einstellungen: Absender, Textvorlagen, Sicherung (iCloud), Historie, Passwort, Datenschutz.
+import * as abgleich from '../abgleich.ts';
 import { esc, formatDateTime, parseNumber } from '../../core/util.ts';
 import { DEFAULT_VORLAGEN, KUNDENANSICHT_TEILE, SPARTEN, SPARTEN_KEYS, migrate, normalizeGeraet, type KundenansichtTeil, type Sparte } from '../../core/model.ts';
 import { demoDaten, beispielAnzahl, beispielEinfuegen, beispielEntfernen, beispielBestand, bestandAnzahl, bestandEinfuegen, bestandEntfernen, beispielSicher } from '../../demo.ts';
@@ -121,13 +122,15 @@ export function render(el: HTMLElement) {
 
     <section class="karte-box ${demo ? 'aus' : ''}">
       <h2>Datensicherung ${hilfe.knopf('sicherung')}</h2>
-      <p class="hinweis">Die Sicherungsdatei ist mit deinem Master-Passwort verschlüsselt. <b>iCloud:</b> „In iCloud / Dateien sichern“ tippen, im Teilen-Menü „In Dateien sichern“ wählen und den Ordner in iCloud Drive aussuchen. Zum Zurückholen „Sicherung einspielen“ und die Datei aus iCloud Drive wählen.</p>
+      <p class="hinweis">Die Sicherungsdatei ist mit deinem Master-Passwort verschlüsselt. <b>iCloud:</b> „In iCloud / Dateien sichern“ tippen, im Teilen-Menü „In Dateien sichern“ wählen und den Ordner in iCloud Drive aussuchen. <b>Zwischen Geräten wechseln:</b> auf dem einen Gerät sichern, auf dem anderen „Neueren Stand holen“. Übernommen wird nur, was neuer ist.</p>
       <p id="letzteSicherung" class="hinweis"></p>
       <div class="knopfreihe">
         <button class="btn primary" id="icloud" ${demo ? 'disabled' : ''}>☁️ In iCloud / Dateien sichern</button>
+        <button class="btn" id="abgleichHolen" ${demo ? 'disabled' : ''}>☁️ Neueren Stand holen</button>
         <button class="btn ghost" id="backup" ${demo ? 'disabled' : ''}>Sicherung herunterladen</button>
         <button class="btn ghost" id="import" ${demo ? 'disabled' : ''}>Sicherung einspielen</button>
       </div>
+      <label class="check"><input type="checkbox" id="abgleichFragen" ${demo ? 'disabled' : ''}> Beim Start fragen, ob ein neuerer Stand aus iCloud geholt werden soll</label>
       <h3>Einstellungen übertragen</h3>
       <p class="hinweis">Nur die Einstellungen, ohne Kunden: Vorlagen, Empfänger, Textbausteine, Felder, Kalender, Navigation, Kundenansicht, Farbschema und Mailprogramm. So richtest du alles einmal ein (z. B. auf dem iPad) und spielst es auf iPhone oder Laptop ein. Die Datei ist mit deinem Master-Passwort verschlüsselt. Die volle Sicherung oben enthält die Einstellungen ohnehin mit.</p>
       <div class="knopfreihe">
@@ -232,7 +235,7 @@ export function render(el: HTMLElement) {
     }).catch(() => {});
   };
   if (!demo) letzteZeigen();
-  const merken = () => db.setMeta('letzteSicherung', new Date().toISOString()).then(letzteZeigen).catch(() => {});
+  const merken = () => db.setMeta('letzteSicherung', new Date().toISOString()).then(() => db.setMeta('abgleichStand', store.getStand())).then(letzteZeigen).catch(() => {});
   el.querySelector('#backup').addEventListener('click', async () => {
     try {
       const env = await store.currentEnvelope();
@@ -242,26 +245,11 @@ export function render(el: HTMLElement) {
   });
   // iCloud: Safari erlaubt das Teilen-Menü nur direkt nach einem Tipp. Deshalb erst die
   // Datei vorbereiten, dann ein zweiter Tipp auf „Jetzt sichern“ öffnet das Teilen-Menü.
-  el.querySelector('#icloud').addEventListener('click', async () => {
-    let inhalt;
-    try { inhalt = JSON.stringify(await store.currentEnvelope()); } catch (err) { toast(`Sicherung fehlgeschlagen: ${(err as Error).message}`, 'error'); return; }
-    const name = sicherungsName();
-    await dialog({
-      titel: 'In iCloud sichern',
-      html: `<p>Die verschlüsselte Sicherung <b>${esc(name)}</b> ist bereit.</p><p class="hinweis">Im nächsten Schritt „In Dateien sichern“ wählen, dann „iCloud Drive“ und einen Ordner (z. B. „Sperling“).</p>`,
-      knoepfe: [{ label: 'Jetzt sichern', primaer: true, wert: null }],
-      onOpen: (dlg) => {
-        dlg.querySelectorAll('.dlg-actions button')[1]?.addEventListener('click', async (ev) => {
-          ev.preventDefault();
-          const r = await teilenOderSpeichern(name, inhalt, 'application/json');
-          if (r === 'abgebrochen') { toast('Abgebrochen – nichts gesichert.', 'error'); return; }
-          merken();
-          toast(r === 'geteilt' ? 'Sicherung übergeben' : 'Sicherung heruntergeladen (Ordner „Downloads“ bzw. Dateien-App)', 'ok', 5000);
-          dlg.close();
-        });
-      },
-    });
-  });
+  el.querySelector('#abgleichHolen')?.addEventListener('click', async () => { if (await abgleich.holen()) render(el); });
+  const fragen = el.querySelector<HTMLInputElement>('#abgleichFragen');
+  db.getMeta<boolean>('abgleichAus').then((aus) => { if (fragen) fragen.checked = aus !== true; }).catch(() => { if (fragen) fragen.checked = true; });
+  fragen?.addEventListener('change', () => { db.setMeta('abgleichAus', !fragen.checked).catch(() => {}); toast(fragen.checked ? 'Sperling fragt beim Start.' : 'Sperling fragt beim Start nicht mehr.', 'ok'); });
+  el.querySelector('#icloud').addEventListener('click', async () => { await abgleich.sichern(letzteZeigen); });
   // Sperren auch dort, wo die Menüleiste keinen Sperr-Knopf hat (iPhone, iPad hochkant)
   el.querySelector('#jetztSperren')?.addEventListener('click', () => document.getElementById('sperren')?.click());
   el.querySelector('#einstExport').addEventListener('click', async () => {
@@ -322,7 +310,7 @@ export function render(el: HTMLElement) {
       knoepfe: [{ label: 'Einspielen', primaer: true, wert: (dlg) => dlg.querySelector('[name=pw]').value }],
     });
     if (!pw) return;
-    try { await store.adoptEnvelope(env, pw); toast('Sicherung eingespielt', 'ok'); render(el); } catch (err) { toast((err as Error).message, 'error'); }
+    try { await store.adoptEnvelope(env, pw); await db.setMeta('abgleichStand', store.getStand()).catch(() => {}); toast('Sicherung eingespielt', 'ok'); render(el); } catch (err) { toast((err as Error).message, 'error'); }
   });
 
   db.listHistory().then((liste) => {

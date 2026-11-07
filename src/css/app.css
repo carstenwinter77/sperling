@@ -546,7 +546,8 @@ body.ka-aktiv { overflow: hidden; }
 .gm-bisher li + li { border-top: 1px solid var(--linie); }
 .gm-bisher li { padding: .4rem 0; font-size: .9rem; }
 .gm-bisher p { margin: .2rem 0 0; color: var(--text-2); }
-.gm-art { margin-bottom: .6rem; display: inline-flex; border: 1px solid var(--linie); border-radius: 12px; overflow: hidden; }
+.gm-art { margin-bottom: .6rem; display: inline-flex; border: 1px solid var(--linie); border-radius: 12px; overflow: hidden; max-width: 100%; }
+.gm-art button { flex: 1 1 auto; min-width: 0; }
 .gm-art button { border: 0; background: none; padding: .5rem .8rem; font: inherit; font-weight: 600; color: var(--text-2); min-height: 44px; cursor: pointer; }
 .gm-art button + button { border-left: 1px solid var(--linie); }
 .gm-art button.aktiv { background: var(--aktiv-bg); color: var(--text); }
@@ -602,9 +603,10 @@ body.ka-aktiv { overflow: hidden; }
 .schutz-knopf { position: fixed; bottom: calc(var(--nav-h) + 14px + env(safe-area-inset-bottom)); right: 14px; z-index: 1200; width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--linie); background: var(--karte); box-shadow: var(--schatten); font-size: 1.35rem; cursor: pointer; display: grid; place-items: center; opacity: .85; }
 .schutz-knopf:hover, .schutz-knopf:focus-visible { opacity: 1; }
 .schutz-knopf.an { background: var(--gruen); border-color: var(--gruen); opacity: 1; box-shadow: 0 0 0 3px color-mix(in srgb, var(--gruen) 35%, transparent); }
-.schutz-band { position: sticky; top: var(--band-h); z-index: 1100; background: var(--gruen); color: #fff; text-align: center; font-size: .9rem; padding: .45rem 64px .45rem 16px; }
+.schutz-band { position: sticky; top: var(--band-h); z-index: 1100; background: color-mix(in srgb, var(--gruen) 14%, var(--karte)); color: var(--text); border-bottom: 2px solid var(--gruen); font-size: .82rem; padding: .2rem 16px; display: flex; align-items: center; justify-content: center; gap: .4rem; min-height: 32px; }
+.schutz-band .schutz-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .schutz-band[hidden] { display: none; }
-.schutz-band button { margin-left: .5rem; background: rgba(255,255,255,.25); border: 0; color: #fff; border-radius: 999px; padding: .2rem .7rem; font: inherit; cursor: pointer; }
+.schutz-band button { flex: none; background: var(--karte); border: 1px solid var(--gruen); color: var(--text); border-radius: 999px; padding: .1rem .6rem; font: inherit; font-weight: 600; cursor: pointer; min-height: 28px; }
 @media (min-width: 900px) { .schutz-band { margin-left: var(--nav-w); } }
 body.schutz-aktiv [data-nav="start"], body.schutz-aktiv [data-nav="kunden"], body.schutz-aktiv [data-nav="karte"],
 body.schutz-aktiv [data-nav="auswertung"], body.schutz-aktiv [data-nav="einstellungen"],
@@ -990,3 +992,36 @@ tr.li-gleich { opacity: .7; }
 .k-spalte.feiertag { background-color: color-mix(in srgb, var(--rot) 5%, transparent); }
 .tag-feiertag { color: var(--rot); }
 .feiertag-hinweis { color: var(--rot); margin: 0; }
+
+/* Abgleich-Leiste beim Start (iCloud Drive) */
+.abgleich-leiste { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; background: var(--aktiv-bg); color: var(--text); border-bottom: 1px solid var(--linie); padding: .5rem 16px; font-size: .95rem; }
+@media (min-width: 900px) { .abgleich-leiste { margin-left: var(--nav-w); padding: .5rem 32px; } }
+.sperre-uebernehmen { display: flex; flex-direction: column; align-items: center; gap: .4rem; text-align: center; max-width: 420px; margin: .5rem auto 0; padding-top: 1rem; border-top: 1px solid var(--linie); }
+.sperre-uebernehmen p { margin: 0; }
+
+/* Handy: Leiste unten mit 5 großen Tippflächen, Rest unter „Mehr“ */
+.nav-mehr { display: none; }
+@media (max-width: 639px) {
+  body:not(.schutz-aktiv) .hauptnav [data-neben] { display: none; }
+  body:not(.schutz-aktiv) .nav-mehr { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: none; border: 0; font: inherit; font-size: .74rem; font-weight: 600; color: var(--text-2); cursor: pointer; padding: 4px 0; }
+  .nav-mehr .nav-lupe { width: 30px; height: 30px; font-size: 1.5rem; }
+  .nav-mehr.aktiv { color: var(--braun); }
+  .hauptnav a { font-size: .74rem; min-width: 0; }
+  .hauptnav a > span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+.mehr-raster { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+.mehr-eintrag { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3rem; min-height: 84px; padding: .5rem; border: 1px solid var(--linie); border-radius: 14px; background: var(--feld); color: var(--text); text-decoration: none; font: inherit; font-weight: 600; font-size: .9rem; cursor: pointer; }
+.mehr-eintrag .nav-bild { width: 36px; height: 36px; }
+.mehr-eintrag .nav-lupe { font-size: 1.6rem; }
+.mehr-version { text-align: center; margin: .25rem 0 0; }
+
+/* Kleine Bildschirme: nichts darf breiter als der Bildschirm werden (iPhone schnitt sonst rechts ab) */
+.gm-links, .gm-rechts, .gm-teilung > * { min-width: 0; }
+.karte-box .tabs, .gm-links .tabs, .gm-rechts .tabs, .gm-leitfaden .tabs { margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; }
+.seitenkopf > * { min-width: 0; }
+.seitenkopf h1, .seitenkopf h2 { overflow-wrap: anywhere; }
+.filterleiste > * { min-width: 0; max-width: 100%; }
+@media (max-width: 479px) {
+  .btn { white-space: normal; text-align: center; max-width: 100%; }
+}
+@media (max-width: 379px) { .gm-art button { padding: .5rem .5rem; font-size: .85rem; } }

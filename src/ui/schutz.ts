@@ -68,7 +68,7 @@ export function zeigen() {
   const band = document.querySelector<HTMLElement>('#schutzBand');
   if (band) {
     band.hidden = !k;
-    band.innerHTML = k ? `🛡 Beratung: nur <b>${esc(kundenTitel(k))}</b> sichtbar <button type="button" id="schutzAus">Aufheben</button>${hilfeKnopf('schutz')}` : '';
+    band.innerHTML = k ? `<span class="schutz-text">🛡 Nur <b>${esc(kundenTitel(k))}</b></span><button type="button" id="schutzAus">Aufheben</button>${hilfeKnopf('schutz')}` : '';
     band.querySelector('#schutzAus')?.addEventListener('click', ausschalten);
   }
 }

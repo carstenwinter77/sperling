@@ -15,6 +15,10 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.fill('input[name=pw2]', 'testpasswort');
   await p.click('#sperrForm button');
   await p.waitForSelector('.hauptnav');
+  // Abgleich-Leiste nach dem Start, schließbar
+  await p.waitForSelector('#abgleichLeiste [data-abgleich=holen]');
+  await p.click('#abgleichLeiste [data-abgleich=zu]');
+  if (await p.$('#abgleichLeiste')) fail('Abgleich-Leiste lässt sich nicht schließen');
   // Kunde mit XSS-Namen anlegen
   await p.goto(BASE + '#/kunden');
   await p.click('#neu');
@@ -124,6 +128,31 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.fill('dialog [name=pw]', 'testpasswort');
   await p.click('dialog button.primary');
   await p.waitForFunction(() => document.querySelector('#toast')?.textContent.includes('eingespielt'));
+  // Abgleich mit derselben Datei: nichts zu tun
+  await p.goto(BASE + '#/einstellungen');
+  const [ab] = await Promise.all([p.waitForEvent('filechooser'), p.click('#abgleichHolen')]);
+  await ab.setFiles(icPfad);
+  await p.waitForFunction(() => /Schon aktuell|schon aktueller/.test(document.querySelector('#toast')?.textContent || ''));
+  // Zweites Gerät: beim ersten Start aus der Sicherung übernehmen, ohne neues Passwort
+  {
+    const ctx2 = await b.newContext({ viewport: { width: 390, height: 844 } });
+    const p2 = await ctx2.newPage();
+    p2.on('pageerror', (e) => errs.push('Gerät 2: ' + e.message));
+    await p2.goto(BASE);
+    const [fc2] = await Promise.all([p2.waitForEvent('filechooser'), p2.click('#ausSicherung')]);
+    await fc2.setFiles(icPfad);
+    await p2.fill('dialog [name=pw]', 'falschespasswort');
+    await p2.click('dialog button.primary');
+    await p2.waitForFunction(() => (document.querySelector('#toast')?.textContent || '').includes('Falsches Passwort'));
+    await p2.fill('dialog [name=pw]', 'testpasswort');
+    await p2.click('dialog button.primary');
+    await p2.waitForSelector('.hauptnav');
+    if (await p2.$('#abgleichLeiste')) fail('Nach dem Übernehmen gleich wieder gefragt');
+    await p2.goto(BASE + '#/kunden');
+    await p2.waitForSelector('#liste');
+    if (!(await p2.textContent('#liste')).includes('Prüfer')) fail('Übernahme auf zweitem Gerät ohne Kunden');
+    await ctx2.close();
+  }
   // Einstellungen sichern (ohne Kunden, verschlüsselt), ändern, wieder einlesen
   await p.goto(BASE + '#/einstellungen');
   await p.selectOption('#kalenderStart', 'woche');

@@ -61,6 +61,8 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/core/bestandkunde.ts  Geräte aus Sicht eines Kunden, Verkauf buchen (rein)
  ├─ src/ui/bestandkunde.ts  Block „Aus meinem Bestand“, Geräteauswahl, Verkaufsdialog
  ├─ src/core/feiertage.ts  Feiertage Niedersachsen (Ostern nach Gauß), nur Anzeige
+ ├─ src/core/abgleich.ts  Abgleich-Urteil (neuer/älter/gleich/Konflikt) für iCloud-Drive-Dateien (rein)
+ ├─ src/ui/abgleich.ts  Leiste beim Start, Datei holen, in iCloud sichern, Ersteinrichtung aus Sicherung
  ├─ src/core/schnellwahl.ts  Wiedervorlage-Schnellwahl: Zieldatum je Schritt (rein)
  ├─ src/ui/schnellwahl.ts  Knopfreihe unter datetime-Feldern, ein Klick-Handler am document
  ├─ src/ui/kundenwahl.ts  Suchfeld mit Treffern; verstecktes Feld behält den alten Namen

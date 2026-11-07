@@ -92,6 +92,13 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Gerät verleihen**: Gerät antippen, „Weiter“, dann wie gewohnt Zeitraum, Fotos, Unterschrift. Für ihn reservierte Geräte stehen oben, belegte sind ausgegraut.
 - **Gerät verkaufen**: Gerät wählen, Datum und optional Preis eintragen. Das Häkchen setzt den Vorwerk-Status auf „Abschluss / Kunde“ und lässt sich abwählen. Das Gerät verlässt den Bestand; hatte der Kunde es geliehen, ist die Leihgabe damit erledigt.
 
+## Zwischen Geräten wechseln (iPad, iPhone, Laptop)
+
+- **Erstes Mal auf einem weiteren Gerät:** Auf dem Startbildschirm „☁️ Vom anderen Gerät übernehmen (iCloud)“ tippen, die Sicherungsdatei aus iCloud Drive wählen und das bisherige Master-Passwort eingeben. Ein neues Passwort ist nicht nötig.
+- **Vor dem Wechsel:** „In iCloud sichern“ (Einstellungen → Datensicherung oder die Leiste oben) und die Datei in iCloud Drive/Sperling ablegen.
+- **Nach dem Wechsel:** Beim Öffnen fragt Sperling „Neueren Stand aus iCloud holen?“. Datei wählen; übernommen wird nur ein neuerer Stand. Wurde auf beiden Geräten etwas geändert, fragt Sperling nach; der bisherige Stand bleibt unter „Versionen“.
+- Ganz automatisch geht es nicht: Safari lässt eine Web-App nur Dateien lesen, die du selbst auswählst.
+
 ## Fenster schließen
 
 - Ein Tipp neben ein Fenster (auf den abgedunkelten Hintergrund) oder Esc schließt es ohne Speichern. Hast du schon etwas eingetragen, fragt Sperling vorher nach.

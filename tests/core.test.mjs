@@ -1199,3 +1199,20 @@ test('Feiertage Niedersachsen: fest, beweglich, Reformationstag ab 2018', async 
   assert.equal(f.feiertag('quatsch'), null);
   assert.equal(f.feiertage(2026).size, 10);
 });
+
+test('Abgleich über iCloud Drive: nur Neueres, Konflikt bei Änderungen auf beiden Seiten', async () => {
+  const a = await import('../src/core/abgleich.ts');
+  const t = (h) => `2026-11-07T${String(h).padStart(2, '0')}:00:00.000Z`;
+  assert.equal(a.abgleichUrteil(t(10), null, null), 'neuer', 'neues Gerät ohne Daten');
+  assert.equal(a.abgleichUrteil(t(10), t(10), null), 'gleich');
+  assert.equal(a.abgleichUrteil(t(9), t(10), t(10)), 'aelter');
+  assert.equal(a.abgleichUrteil(t(12), t(10), t(10)), 'neuer', 'hier seit Abgleich nichts geändert');
+  assert.equal(a.abgleichUrteil(t(12), t(11), t(10)), 'konflikt', 'auch hier geändert');
+  assert.equal(a.abgleichUrteil(t(12), t(11), null), 'konflikt', 'nie abgeglichen: lieber fragen');
+  assert.equal(a.abgleichUrteil('kaputt', t(11), null), 'ungueltig');
+  assert.equal(a.abgleichUrteil(undefined, t(11), null), 'ungueltig');
+  assert.equal(a.beimStartFragen({ demo: false, abgeschaltet: false, schonGefragt: false }), true);
+  assert.equal(a.beimStartFragen({ demo: true, abgeschaltet: false, schonGefragt: false }), false);
+  assert.equal(a.beimStartFragen({ demo: false, abgeschaltet: true, schonGefragt: false }), false);
+  assert.equal(a.beimStartFragen({ demo: false, abgeschaltet: false, schonGefragt: true }), false);
+});

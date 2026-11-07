@@ -1,5 +1,11 @@
 # Änderungsverlauf
 
+## 0.10.12 – 07.11.2026
+- **Abgleich über iCloud Drive** (`src/core/abgleich.ts`, `src/ui/abgleich.ts`): Nach dem Entsperren eine Leiste „Neueren Stand aus iCloud holen“ (einmal je Sitzung, abschaltbar unter Einstellungen → Datensicherung), bei Änderungen seit dem letzten Abgleich zusätzlich „Diesen Stand in iCloud sichern“. Übernommen wird nur ein neuerer Stand; wurde auf beiden Geräten geändert, fragt Sperling nach (der bisherige Stand bleibt in den Versionen). Merkt sich den Stand des letzten Abgleichs (`meta.abgleichStand`, nur auf dem Gerät). Safari erlaubt keinen automatischen Zugriff auf iCloud Drive, deshalb ein Tipp zum Wählen der Datei.
+- **Ersteinrichtung auf einem weiteren Gerät:** „Vom anderen Gerät übernehmen (iCloud)“ auf dem Startbildschirm. Sicherung wählen, bisheriges Passwort eingeben, fertig; kein neues Passwort (`store.einrichtenAusSicherung`).
+- **iPhone:** Leiste unten mit fünf großen Tippflächen (Übersicht, Kunden, Karte, Kalender, Mehr); Gespräch, Bestand, Produkte, Auswertungen, Einstellungen, Suchen und Sperren unter „Mehr“. Keine Seite ist mehr breiter als der Bildschirm (der rechte Rand wurde im Hochformat abgeschnitten); geprüft auf iPhone SE, iPhone 13, iPad mini und Laptop.
+- **Beratungs-Schutz:** schmaler, heller Balken „🛡 Nur <Kunde> · Aufheben“ statt des großen grünen.
+
 ## 0.10.11 – 07.11.2026
 - **Feiertage im Kalender** (Niedersachsen, lokal berechnet, `src/core/feiertage.ts`): Neujahr, Karfreitag, Ostermontag, 1. Mai, Christi Himmelfahrt, Pfingstmontag, 3. Oktober, Reformationstag (ab 2018), 1. und 2. Weihnachtstag. Im Monat Name unter dem Datum und getönte Fläche, in Woche/Tag im Spaltenkopf, in der Liste beim Termin, im Termin-Dialog als Hinweis. Termine bleiben möglich.
 
