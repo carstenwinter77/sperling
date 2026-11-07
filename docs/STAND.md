@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.0
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.1
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -15,9 +15,14 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.9.0)
+## Erledigt (Version 0.9.1)
+
+### Neu in 0.9.1
+- [x] **Kontaktseite (Konzept)** `public/kontakt/` (eigenständig, kein App-Code, `noindex`), in der App `src/ui/kontaktseite.ts` (Einstellungen: öffnen, teilen, QR-Code mit `public/vendor/qrcode/`).
+- [ ] Echte Kontaktdaten, Impressum (§ 5 DDG), Datenschutzerklärung, eigene Domain bzw. Hosting
 
 ### Neu in 0.9.0
+
 - [x] **TypeScript + Vite**, Auslieferung per GitHub Actions nach GitHub Pages (Pages-Quelle „GitHub Actions“).
 - [x] **Belegungskalender** (`#/belegung`, `src/core/belegung.ts`): Zeitleiste 1/4 Wochen/3 Monate, Liste, „Freie finden“, Zeitraum wischen mit gesperrten Tagen beim Reservieren/Verleihen.
 - [x] **Auswertungen** (`#/auswertung`, `src/core/auswertung.ts`): Bereich alles/PV/WP/Vorwerk; Tag, Woche, Monat, Kalenderjahr, letzte 365 Tage bis zum gewählten Tag; Vergleich Vorzeitraum; PDF-Bericht.

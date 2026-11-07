@@ -2,6 +2,10 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.9.1',
+    punkte: ['Meine Kontaktseite (Konzept): öffentliche Seite für Photovoltaik und Wärmepumpe mit Anrufen, WhatsApp, E-Mail, Kontakt speichern und Rückrufwunsch – in den Einstellungen öffnen, teilen oder als QR-Code zeigen.'],
+  },
+  {
     version: '0.9.0',
     punkte: [
       'Neues Aussehen: grünes Logo, neue Symbole, Bereichsfarben PV gelb, WP blau, Vorwerk grün. Hell/Dunkel jetzt unter Einstellungen.',

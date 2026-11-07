@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.9.1 – 07.11.2026
+- **Meine Kontaktseite (Konzept):** eigenständige Seite `kontakt/` für Photovoltaik und Wärmepumpe (ohne Anbieter) mit Anrufen, WhatsApp, E-Mail, vCard und Rückrufwunsch ohne Server. In der App unter Einstellungen: öffnen, Link teilen, QR-Code (offline erzeugt, als Bild speicherbar). Noch mit Platzhalterdaten; Impressum, Datenschutz und eigene Adresse folgen.
+
 ## 0.9.0 – 07.11.2026
 - **TypeScript und Vite:** Code in TypeScript, Build mit Vite, Auslieferung über GitHub Actions nach GitHub Pages.
 - **Gesprächsmodus:** „Gespräch starten“ beim Kunden öffnet eine geteilte Ansicht (links Kundendaten bearbeitbar, rechts Kontaktart, Notizen je Firma, eingebetteter Leitfaden, Abschluss je Bereich). Läuft weiter beim Seitenwechsel. Gesprächshistorie als Zeitstrahl im Tab „Verlauf“.
