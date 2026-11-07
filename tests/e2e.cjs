@@ -104,6 +104,21 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.fill('dialog [name=pw]', 'testpasswort');
   await p.click('dialog button.primary');
   await p.waitForFunction(() => document.querySelector('#toast')?.textContent.includes('eingespielt'));
+  // Beispielkunden laden und entfernen
+  await p.click('#beispielLaden');
+  await p.waitForFunction(() => document.querySelector('#beispielInfo')?.textContent.includes('5 Beispielkunden'));
+  await p.goto(BASE + '#/kunden');
+  await p.waitForSelector('#liste .tag-beispiel');
+  if ((await p.locator('#liste .tag-beispiel').count()) !== 5) fail('Beispielkunden nicht markiert');
+  await p.goto(BASE + '#/einstellungen');
+  await p.click('#beispielWeg');
+  await p.click('dialog button.danger');
+  await p.waitForFunction(() => document.querySelector('#beispielInfo')?.textContent.includes('Keine Beispielkunden'));
+  await p.goto(BASE + '#/kunden');
+  await p.waitForSelector('#liste .zeile');
+  if (await p.$('#liste .tag-beispiel')) fail('Beispielkunden nicht entfernt');
+  if (!(await p.textContent('#liste')).includes('Prüfer')) fail('Echter Kunde beim Entfernen verloren!');
+  await p.goto(BASE + '#/einstellungen');
   // Historie vorhanden
   await p.waitForTimeout(500);
   if (!(await p.$('#historie [data-i]'))) fail('Keine Versionshistorie');

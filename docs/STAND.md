@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.4.0
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.5.0
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -15,7 +15,11 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.4.0)
+## Erledigt (Version 0.5.0)
+
+### Neu in 0.5.0
+- [x] **Beispielkunden in der echten App:** Einstellungen → Beispielkunden → „Laden“ fügt die fünf Demo-Kunden mit Notizen, Gesprächen, Enpal-Doku, Terminen, Vorführgeräten und Verleih ein (markiert „Beispiel“). „Entfernen“ löscht sie wieder vollständig; echte Kunden bleiben, echte Termine bei Beispielkunden verlieren nur den Bezug, ein echt verliehenes Beispielgerät bleibt.
+
 
 ### Neu in 0.4.0
 - [x] **iCloud-Sicherung (Stufe 1):** Einstellungen → „In iCloud / Dateien sichern“ öffnet das Teilen-Menü („In Dateien sichern“ → iCloud Drive); ohne Teilen-Menü (Laptop) wird heruntergeladen. Einspielen aus iCloud Drive über „Sicherung einspielen“ (Dateiauswahl ohne Filter, damit iOS `.sperling` nicht ausgraut). Anzeige „Letzte Sicherung“, Erinnerung auf der Übersicht nach 7 Tagen, wenn kein Dropbox-Abgleich läuft.

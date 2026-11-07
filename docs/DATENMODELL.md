@@ -116,6 +116,10 @@ Typen: Zahlen sind `null`, wenn leer. Ja/Nein-Felder sind `true`/`false`/`null` 
 | `dropbox` | `appKey`, `refreshToken`, `pfad`, `letzterSync` |
 | `empfaenger` | `{enpal, vorwerk}` – Vorbelegung für „Per E-Mail senden“ (ab Schema 2) |
 
+## Beispieldaten
+
+Beispielkunden, -termine, -geräte und -verleihe in der echten App erkennt man am ID-Präfix `demo-` (kein eigenes Feld, keine Schemaänderung). `beispielEntfernen()` in `js/demo.js` entfernt genau diese.
+
 ## Migration
 
 `migrate(input)` wird bei jedem Laden ausgeführt. Sie

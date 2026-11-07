@@ -91,3 +91,41 @@ export function demoDaten() {
   d.termine.push({ id: 't6', kundeId: 'demo-4', sparte: 'vorwerk', art: 'wiedervorlage', titel: 'Nachfragen: Kobold SP7 Saugwischer bei Dieter Test (Bäckerei Test)', beginn: tageAb(-2, 10, 0), dauerMin: 15, notiz: 'Wie gefällt das Gerät? Kaufinteresse? Rückgabe abholen.' });
   return d;
 }
+
+// ---------- Beispielkunden in der echten App (Einstellungen → Beispielkunden) ----------
+// Kennzeichnung ohne Schemaänderung: Alle Beispiel-Objekte haben IDs mit Präfix "demo-".
+// So lassen sie sich jederzeit vollständig wieder entfernen, ohne echte Daten anzufassen.
+
+export const BEISPIEL_PRAEFIX = 'demo-';
+export const istBeispiel = (id) => typeof id === 'string' && id.startsWith(BEISPIEL_PRAEFIX);
+const mitPraefix = (id) => (istBeispiel(id) ? id : `${BEISPIEL_PRAEFIX}${id}`);
+
+/** Anzahl der vorhandenen Beispielkunden. */
+export function beispielAnzahl(data) {
+  return data.kunden.filter((k) => istBeispiel(k.id)).length;
+}
+
+/**
+ * Fügt die Beispieldaten in einen (bereits migrierten) Datenbestand ein. Bereits vorhandene
+ * Beispiele werden vorher entfernt, damit nichts doppelt ist. `beispiel` = migrate(demoDaten()).
+ * Absender, Vorlagen und übrige Einstellungen bleiben unangetastet.
+ */
+export function beispielEinfuegen(data, beispiel) {
+  beispielEntfernen(data);
+  data.kunden.push(...beispiel.kunden.map((k) => ({ ...k, id: mitPraefix(k.id) })));
+  data.termine.push(...beispiel.termine.map((t) => ({ ...t, id: mitPraefix(t.id), kundeId: t.kundeId ? mitPraefix(t.kundeId) : '' })));
+  data.geraete.push(...beispiel.geraete.map((g) => ({ ...g, id: mitPraefix(g.id) })));
+  data.leihvorgaenge.push(...beispiel.leihvorgaenge.map((l) => ({ ...l, id: mitPraefix(l.id), geraetId: mitPraefix(l.geraetId), kundeId: l.kundeId ? mitPraefix(l.kundeId) : '' })));
+}
+
+/** Entfernt alle Beispiel-Objekte. Echte Termine/Verleihe, die auf Beispiele zeigen, verlieren nur den Bezug (R-LOESCH). */
+export function beispielEntfernen(data) {
+  data.kunden = data.kunden.filter((k) => !istBeispiel(k.id));
+  data.termine = data.termine.filter((t) => !istBeispiel(t.id)).map((t) => (istBeispiel(t.kundeId) ? { ...t, kundeId: '' } : t));
+  // Ein Beispielgerät, das schon echt verliehen wurde, bleibt (sonst ginge ein echter Verleih verloren).
+  const echtVerliehen = new Set(data.leihvorgaenge.filter((l) => !istBeispiel(l.id)).map((l) => l.geraetId));
+  data.geraete = data.geraete.filter((g) => !istBeispiel(g.id) || echtVerliehen.has(g.id));
+  data.leihvorgaenge = data.leihvorgaenge
+    .filter((l) => !istBeispiel(l.id))
+    .map((l) => (istBeispiel(l.kundeId) ? { ...l, kundeId: '' } : l));
+}

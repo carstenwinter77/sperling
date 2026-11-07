@@ -224,3 +224,27 @@ test('Enpal-Doku: Text enthält Kontakt, nie Vorwerk (R-TEXT)', () => {
   assert.equal(enpalDokuText(k, 'gibtsnicht'), '');
   assert.equal(projizieren(k, 'vorwerk').enpalKontakte, undefined, 'Vorwerk-Projektion sieht keine Enpal-Doku');
 });
+
+// ---------- 0.5.0: Beispielkunden in der echten App ----------
+import { demoDaten, beispielEinfuegen, beispielEntfernen, beispielAnzahl, istBeispiel } from '../js/demo.js';
+
+test('Beispielkunden laden und vollständig entfernen, echte Daten bleiben', () => {
+  const d = migrate({ schemaVersion: 2, kunden: [{ id: 'echt', nachname: 'Echt' }], termine: [{ id: 'te', kundeId: 'echt', titel: 'Echt', beginn: '2026-11-10T10:00:00Z' }] });
+  beispielEinfuegen(d, migrate(demoDaten()));
+  assert.equal(beispielAnzahl(d), 5);
+  assert.ok(d.termine.length > 1 && d.termine.filter((t) => t.id !== 'te').every((t) => istBeispiel(t.id) && istBeispiel(t.kundeId)));
+  assert.ok(d.leihvorgaenge.every((l) => istBeispiel(l.geraetId) && istBeispiel(l.kundeId)));
+  // doppelt laden ersetzt statt zu verdoppeln
+  beispielEinfuegen(d, migrate(demoDaten()));
+  assert.equal(beispielAnzahl(d), 5);
+  // echter Termin bei Beispielkunde, echter Verleih eines Beispielgeräts
+  d.termine.push({ id: 'te2', kundeId: 'demo-1', titel: 'Echt bei Beispiel' });
+  d.leihvorgaenge.push({ id: 'le', geraetId: 'demo-g2', kundeId: 'echt' });
+  beispielEntfernen(d);
+  assert.equal(beispielAnzahl(d), 0);
+  assert.deepEqual(d.kunden.map((k) => k.id), ['echt']);
+  assert.ok(d.termine.find((t) => t.id === 'te'));
+  assert.equal(d.termine.find((t) => t.id === 'te2').kundeId, '', 'echter Termin bleibt, verliert nur den Bezug');
+  assert.deepEqual(d.geraete.map((g) => g.id), ['demo-g2'], 'echt verliehenes Beispielgerät bleibt');
+  assert.deepEqual(d.leihvorgaenge.map((l) => l.id), ['le']);
+});

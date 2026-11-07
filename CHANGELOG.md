@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.5.0 – 07.11.2026
+- Beispielkunden in der passwortgeschützten App laden und wieder entfernen (Einstellungen → Beispielkunden), in Listen als „Beispiel“ markiert.
+
 ## 0.4.0 – 07.11.2026
 - **iCloud-Sicherung:** verschlüsselte Sicherung über das Teilen-Menü in iCloud Drive ablegen und von dort einspielen; Anzeige der letzten Sicherung und Erinnerung nach 7 Tagen.
 - Dauerhaften Browser-Speicher anfordern (schützt vor automatischem Löschen).

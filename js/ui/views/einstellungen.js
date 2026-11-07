@@ -1,6 +1,7 @@
 // Einstellungen: Absender, Textvorlagen, Dropbox, Backup, Historie, Passwort, Datenschutz.
 import { esc, formatDateTime, parseNumber } from '../../core/util.js';
-import { DEFAULT_VORLAGEN } from '../../core/model.js';
+import { DEFAULT_VORLAGEN, migrate } from '../../core/model.js';
+import { demoDaten, beispielAnzahl, beispielEinfuegen, beispielEntfernen } from '../../demo.js';
 import { PLATZHALTER } from '../../core/textgen.js';
 import { validateEnvelope } from '../../core/crypto.js';
 import * as store from '../../storage/store.js';
@@ -11,7 +12,7 @@ import * as theme from '../theme.js';
 import { MAILPROGRAMME, gemerktesMailprogramm, mailprogrammMerken } from '../kontakt.js';
 import { maskottchen, toast, download, dateiWaehlen, dialog, bestaetigen, teilenOderSpeichern } from '../dom.js';
 
-export const APP_VERSION = '0.4.0';
+export const APP_VERSION = '0.5.0';
 
 export function render(el) {
   const e = store.getData().einstellungen;
@@ -33,6 +34,16 @@ export function render(el) {
       <div class="formgrid">
         <label class="breit">Absender (Gruß unter Texten)<input id="absender" value="${esc(e.absender)}"></label>
         <label>Automatisch sperren nach (Minuten, 0 = nie)<input id="autoSperre" type="number" min="0" max="240" value="${esc(e.autoSperreMin)}"></label>
+      </div>
+    </section>
+
+    <section class="karte-box ${demo ? 'aus' : ''}">
+      <h2>Beispielkunden</h2>
+      <p class="hinweis">Lädt fünf erfundene Kunden mit Notizen, Gesprächen, Enpal-Doku, Terminen und Vorführgeräten – zum Zeigen und Üben. Sie sind mit „Beispiel“ markiert und lassen sich mit einem Tipp wieder vollständig entfernen. Deine echten Kunden bleiben unberührt.</p>
+      <p id="beispielInfo" class="hinweis">${demo ? '' : (beispielAnzahl(store.getData()) ? `<b>${beispielAnzahl(store.getData())} Beispielkunden</b> sind geladen.` : 'Keine Beispielkunden geladen.')}</p>
+      <div class="knopfreihe">
+        <button class="btn ghost" id="beispielLaden" ${demo ? 'disabled' : ''}>Beispielkunden laden</button>
+        <button class="btn danger" id="beispielWeg" ${demo || !beispielAnzahl(store.getData()) ? 'disabled' : ''}>Beispielkunden entfernen</button>
       </div>
     </section>
 
@@ -106,6 +117,23 @@ export function render(el) {
   }));
 
   const speichere = (fn) => { if (!demo) store.mutate(fn); };
+  el.querySelector('#beispielLaden').addEventListener('click', async () => {
+    if (beispielAnzahl(store.getData()) && !(await bestaetigen('Beispielkunden neu laden?', 'Die vorhandenen Beispielkunden werden durch frische ersetzt (Änderungen daran gehen verloren). Echte Kunden bleiben unberührt.', 'Neu laden'))) return;
+    try {
+      const beispiel = migrate(demoDaten());
+      await store.mutate((d) => beispielEinfuegen(d, beispiel));
+      toast('Beispielkunden geladen – siehe Kunden', 'ok');
+      render(el);
+    } catch (err) { toast(`Laden fehlgeschlagen: ${err.message}`, 'error'); }
+  });
+  el.querySelector('#beispielWeg').addEventListener('click', async () => {
+    if (!(await bestaetigen('Beispielkunden entfernen?', 'Alle Beispielkunden samt ihrer Notizen, Termine und Beispielgeräte werden gelöscht. Echte Kunden bleiben unberührt.', 'Entfernen'))) return;
+    try {
+      await store.mutate((d) => beispielEntfernen(d));
+      toast('Beispielkunden entfernt', 'ok');
+      render(el);
+    } catch (err) { toast(`Entfernen fehlgeschlagen: ${err.message}`, 'error'); }
+  });
   el.querySelector('#mailprogramm').addEventListener('change', (ev) => { mailprogrammMerken(ev.target.value); toast('Gespeichert', 'ok'); });
   el.querySelector('#empfEnpal').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.empfaenger.enpal = ev.target.value.trim(); }));
   el.querySelector('#empfVorwerk').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.empfaenger.vorwerk = ev.target.value.trim(); }));

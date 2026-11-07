@@ -367,3 +367,4 @@ body { --band-h: 0px; }
 .kontaktart { display: flex; flex-direction: column; max-width: 360px; margin-bottom: .75rem; }
 .warnung-box { background: var(--tag-warn-bg); color: var(--text); border-radius: var(--radius); padding: .75rem 1rem; margin: 0 0 1rem; }
 .warnung-box a { font-weight: 600; }
+.tag-beispiel { background: var(--flaeche-2); color: var(--text-2); font-size: .7rem; font-weight: 600; vertical-align: middle; margin-left: .4rem; border: 1px dashed var(--linie); }

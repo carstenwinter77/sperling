@@ -8,6 +8,7 @@ import { koordinateZuAdresse } from '../../services/geo.js';
 import { maskottchen, toast, kopieren, bestaetigen, dialog } from '../dom.js';
 import { anrufen, emailSchreiben } from '../kontakt.js';
 import * as enpalDoku from '../enpaldoku.js';
+import { istBeispiel } from '../../demo.js';
 import { statusOptions, terminDialog, terminZeile, terminListeVerdrahten, icsExport, spartenIcon, statusChips } from '../parts.js';
 
 const TABS = [
@@ -34,7 +35,7 @@ export function render(el, params, [id]) {
   el.innerHTML = `
     <header class="seitenkopf kunde-kopf">
       <a href="#/kunden" class="zurueck" aria-label="Zurück">‹</a>
-      <h1 id="kTitel">${esc(kundenTitel(kunde))}</h1>
+      <h1 id="kTitel">${esc(kundenTitel(kunde))}</h1>${istBeispiel(kunde.id) ? '<span class="tag tag-beispiel">Beispiel</span>' : ''}
       <span id="kChips">${statusChips(kunde)}</span>
     </header>
     <div class="knopfreihe kunde-aktionen"><a class="btn klein" href="#/gespraech?kunde=${esc(kunde.id)}">💬 Gesprächsleitfaden</a></div>

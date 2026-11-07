@@ -1,6 +1,7 @@
 // Kundenliste mit Suche und Filter nach Sparte/Status.
 import { esc } from '../../core/util.js';
 import { SPARTEN, SPARTEN_KEYS, STATUS, kundenTitel, adresseEinzeilig, neuerKunde } from '../../core/model.js';
+import { istBeispiel } from '../../demo.js';
 import * as store from '../../storage/store.js';
 import { maskottchen } from '../dom.js';
 import { statusChips, leer } from '../parts.js';
@@ -42,7 +43,7 @@ export function render(el, params) {
     if (!treffer.length) { liste.innerHTML = '<li class="hinweis">Keine Treffer.</li>'; return; }
     liste.innerHTML = treffer.map((k) => `
       <li><a class="zeile" href="#/kunde/${esc(k.id)}">
-        <span class="zeile-haupt"><strong>${esc(kundenTitel(k))}</strong><small>${esc(kundenName(k) ? adresseEinzeilig(k) : (k.telefon || ''))}</small></span>
+        <span class="zeile-haupt"><strong>${esc(kundenTitel(k))}${istBeispiel(k.id) ? ' <span class="tag tag-beispiel">Beispiel</span>' : ''}</strong><small>${esc(kundenName(k) ? adresseEinzeilig(k) : (k.telefon || ''))}</small></span>
         ${statusChips(k)}
       </a></li>`).join('');
   };
