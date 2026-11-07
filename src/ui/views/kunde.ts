@@ -226,7 +226,7 @@ function uebersicht(el, k, kopf) {
       </div>
     </section>
     ${k.lat !== null ? `
-    <section class="karte-box">
+    <section class="karte-box nachbarn-box">
       <header class="seitenkopf"><h2>${maskottchen('karte', 'titel-bild')} Nachbarn <small>(${nachbarn.length})</small></h2>
         <label class="umkreis">Umkreis <select id="umkreis">${NACHBAR_RADIEN.map((r) => `<option value="${r}" ${r === radius ? 'selected' : ''}>${radiusText(r)}</option>`).join('')}</select></label></header>
       ${nachbarn.length ? `<ul class="liste">${nachbarn.slice(0, 100).map(({ x, m }) => `<li><a class="zeile" href="#/kunde/${esc(x.id)}"><span class="zeile-haupt"><strong>${esc(kundenTitel(x))}</strong><small>${m >= 1000 ? `${(m / 1000).toLocaleString('de-DE', { maximumFractionDigits: 1 })} km` : `${Math.round(m)} m`} entfernt${x.ort && x.ort !== k.ort ? ` · ${esc(x.ort)}` : ''}</small></span>${statusChips(x)}</a></li>`).join('')}</ul>${nachbarn.length > 100 ? '<p class="hinweis">Die 100 nächsten werden gezeigt.</p>' : ''}` : `<p class="hinweis">Im Umkreis von ${radiusText(radius)} gibt es keine Kunden mit Standort. Wähle einen größeren Umkreis oder markiere Nachbarhäuser auf der Karte.</p>`}

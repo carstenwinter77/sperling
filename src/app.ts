@@ -24,6 +24,7 @@ import * as vBelegung from './ui/views/belegung.ts';
 import * as vAuswertung from './ui/views/auswertung.ts';
 import * as vGeloescht from './ui/views/geloescht.ts';
 import * as vGespraechsmodus from './ui/views/gespraechsmodus.ts';
+import * as schutz from './ui/schutz.ts';
 
 interface Ansicht { render(el: HTMLElement, params: URLSearchParams, treffer: string[]): void | (() => void) }
 interface Route { muster: RegExp; view: Ansicht; nav: string }
@@ -197,7 +198,10 @@ function shell() {
       <button class="sperr-knopf" id="thema" title="Hell/Dunkel umschalten">◐<span>Hell / Dunkel</span></button>
       <button class="sperr-knopf" id="sperren" title="Sperren" style="margin-top:0">🔒<span>Sperren</span></button>
     </nav>
+    <div class="schutz-band" id="schutzBand" role="status" hidden></div>
+    <button type="button" class="schutz-knopf" id="schutzKnopf" aria-pressed="false" aria-label="Beratungs-Schutz">🛡</button>
     <main id="inhalt" class="inhalt" tabindex="-1"></main>`;
+  schutz.verdrahten();
   $('#sperren').addEventListener('click', sperren);
   $('#demoEnde')?.addEventListener('click', sperren);
   const umschalten = () => { theme.umschalten(); if (location.hash.startsWith('#/einstellungen')) route(); };
@@ -221,6 +225,8 @@ function route() {
   const roh = location.hash.replace(/^#/, '') || '/';
   const [pfad, query = ''] = roh.split('?');
   const params = new URLSearchParams(query);
+  const umleiten = schutz.umleitung(pfad);
+  if (umleiten) { history.replaceState(null, '', umleiten); route(); return; }
   const r = ROUTEN.find((x) => x.muster.test(pfad)) || ROUTEN[0];
   const treffer = pfad.match(r.muster)?.slice(1) || [];
   try { aufraeumen?.(); } catch (e) { console.error(e); }

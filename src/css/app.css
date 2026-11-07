@@ -593,3 +593,19 @@ body.ka-aktiv { overflow: hidden; }
 .filterleiste #fKnopf { white-space: nowrap; }
 .filterleiste #sortierung { width: auto; }
 .ka-wahl { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .3rem 1rem; }
+
+/* Beratungs-Schutz */
+.schutz-knopf { position: fixed; bottom: calc(var(--nav-h) + 14px + env(safe-area-inset-bottom)); right: 14px; z-index: 1200; width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--linie); background: var(--karte); box-shadow: var(--schatten); font-size: 1.35rem; cursor: pointer; display: grid; place-items: center; opacity: .85; }
+.schutz-knopf:hover, .schutz-knopf:focus-visible { opacity: 1; }
+.schutz-knopf.an { background: var(--gruen); border-color: var(--gruen); opacity: 1; box-shadow: 0 0 0 3px color-mix(in srgb, var(--gruen) 35%, transparent); }
+.schutz-band { position: sticky; top: var(--band-h); z-index: 1100; background: var(--gruen); color: #fff; text-align: center; font-size: .9rem; padding: .45rem 64px .45rem 16px; }
+.schutz-band[hidden] { display: none; }
+.schutz-band button { margin-left: .5rem; background: rgba(255,255,255,.25); border: 0; color: #fff; border-radius: 999px; padding: .2rem .7rem; font: inherit; cursor: pointer; }
+@media (min-width: 900px) { .schutz-band { margin-left: var(--nav-w); } }
+body.schutz-aktiv [data-nav="start"], body.schutz-aktiv [data-nav="kunden"], body.schutz-aktiv [data-nav="karte"],
+body.schutz-aktiv [data-nav="auswertung"], body.schutz-aktiv [data-nav="einstellungen"],
+body.schutz-aktiv .nachbarn-box, body.schutz-aktiv .kunde-kopf .zurueck, body.schutz-aktiv .geloescht-hinweis { display: none !important; }
+body.ka-aktiv .schutz-knopf { display: none; }
+@media (min-width: 900px) { .schutz-knopf { bottom: 18px; right: 18px; } }
+.seite-karte ~ .schutz-knopf, body:has(.seite-karte) .schutz-knopf { bottom: calc(var(--nav-h) + 64px + env(safe-area-inset-bottom)); }
+@media (min-width: 900px) { body:has(.seite-karte) .schutz-knopf { bottom: 56px; } }

@@ -279,6 +279,27 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('#gmVerwerfen');
   await p.click('dialog button.danger');
   await p.waitForFunction(() => /^#\/kunde\/[\w-]+$/.test(location.hash));
+  // Beratungs-Schutz: nur der beratene Kunde, andere Seiten führen zu ihm zurück, Aufheben nur mit Passwort
+  await p.goto(BASE + '#/kunden');
+  await p.click('#liste .zeile');
+  await p.waitForSelector('#kTitel');
+  const beraten = await p.textContent('#kTitel');
+  await p.click('#schutzKnopf');
+  await p.waitForSelector('#schutzBand:not([hidden])');
+  await p.evaluate(() => { location.hash = '#/kunden'; });
+  await p.waitForFunction(() => /^#\/kunde\//.test(location.hash));
+  await p.evaluate(() => { location.hash = '#/gespraech'; });
+  await p.waitForSelector('#gKunde');
+  if ((await p.$$eval('#gKunde option', (o) => o.length)) !== 2) fail('Im Schutz sind andere Kunden im Leitfaden wählbar');
+  await p.click('#schutzKnopf');
+  await p.fill('.schutz-sperre [name=pw]', 'falsch');
+  await p.click('.schutz-sperre button.primary');
+  await p.waitForFunction(() => (document.querySelector('#toast')?.textContent || '').includes('Falsches'));
+  if (await p.isHidden('#schutzBand')) fail('Schutz trotz falschem Passwort aufgehoben');
+  await p.fill('.schutz-sperre [name=pw]', 'testpasswort');
+  await p.click('.schutz-sperre button.primary');
+  await p.waitForSelector('#schutzBand', { state: 'hidden' });
+  void beraten;
   // Kundenansicht: nur Freigegebenes, Beenden nur mit Passwort
   await p.goto(BASE + '#/kunden');
   await p.click('#liste .zeile');

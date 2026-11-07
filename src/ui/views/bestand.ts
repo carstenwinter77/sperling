@@ -89,7 +89,7 @@ export function render(el: HTMLElement) {
         </div>
         ${resvHtml}
         ${l ? `
-          <p class="geraet-info">Bei ${k ? `<a href="#/kunde/${esc(k.id)}">${esc(kundenTitel(k))}</a>` : 'unbekanntem Kunden'} seit ${esc(formatDate(l.ausgabe))}${l.rueckgabeGeplant ? `, zurück bis <b>${esc(formatDate(l.rueckgabeGeplant))}</b>` : ''}</p>
+          <p class="geraet-info">Bei ${k ? `<a href="#/kunde/${esc(k.id)}">${esc(kundenTitel(k))}</a>` : (store.schutzKunde() ? 'einem anderen Kunden' : 'unbekanntem Kunden')} seit ${esc(formatDate(l.ausgabe))}${l.rueckgabeGeplant ? `, zurück bis <b>${esc(formatDate(l.rueckgabeGeplant))}</b>` : ''}</p>
           <label class="kauf">Kaufinteresse
             <select data-kauf="${esc(l.id)}">${Object.entries(KAUFINTERESSE).filter(([key]) => key !== 'gekauft').map(([key, v]) => `<option value="${key}" ${key === l.kaufinteresse ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select>
           </label>

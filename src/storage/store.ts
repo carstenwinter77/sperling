@@ -28,7 +28,33 @@ export function isUnlocked() {
 
 export function getData(): Daten {
   if (!data) throw new Error('Daten sind gesperrt.');
-  return data;
+  return schutzKundeId ? schutzSicht(data, schutzKundeId) : data;
+}
+
+// ---------- Beratungs-Schutz ----------
+// Ist er an, liefert getData() nur den beratenen Kunden: andere Kunden, deren Termine und das
+// Gelöschte fehlen, Verleihe/Reservierungen anderer Kunden sind anonymisiert. Geändert wird weiter
+// über mutate() am vollständigen Bestand. Gilt nur im Arbeitsspeicher, Sperren hebt ihn auf.
+let schutzKundeId: string | null = null;
+export const schutzKunde = () => schutzKundeId;
+export function schutzSetzen(kundeId: string | null) {
+  schutzKundeId = kundeId && data?.kunden.some((k) => k.id === kundeId) ? kundeId : null;
+  notify();
+}
+function schutzSicht(d: Daten, id: string): Daten {
+  // fremde Einträge: Kundenbezug, Notizen, Namen, Fotos und Unterschriften entfernen
+  const fremd = <T extends { kundeId: string; notiz?: string }>(x: T): T => (x.kundeId === id ? x : {
+    ...x, kundeId: '', notiz: '',
+    ...('nameAusgabe' in x ? { nameAusgabe: '', nameRueckgabe: '', unterschriftAusgabe: '', unterschriftRueckgabe: '', fotosAusgabe: [], fotosRueckgabe: [] } : {}),
+  });
+  return {
+    ...d,
+    kunden: d.kunden.filter((k) => k.id === id),
+    termine: d.termine.filter((t) => t.kundeId === id),
+    leihvorgaenge: d.leihvorgaenge.map(fremd),
+    reservierungen: d.reservierungen.map(fremd),
+    papierkorb: [],
+  };
 }
 
 export function getStand() {
@@ -105,6 +131,7 @@ export async function lock() {
   keyring?.wipe();
   keyring = null;
   data = null;
+  schutzKundeId = null;
   demo = false;
   stand = null;
   notify();
@@ -115,7 +142,8 @@ export async function lock() {
  * fn bekommt den Datenbestand und ändert ihn direkt. Wirft fn, bleibt der alte Stand erhalten.
  */
 export function mutate(fn: (d: Daten) => void): void {
-  const d = getData();
+  if (!data) throw new Error('Daten sind gesperrt.');
+  const d = data; // immer der vollständige Bestand, auch bei Beratungs-Schutz
   const backup = clone(d);
   try {
     fn(d);
@@ -243,5 +271,6 @@ function safeCall<A>(fn: (a: A) => void, arg: A) {
 // ---------- bequeme Zugriffe ----------
 
 export function findKunde(id: string): Kunde | null {
+  if (schutzKundeId && id !== schutzKundeId) return null;
   return data?.kunden.find((k) => k.id === id) || null;
 }
