@@ -1,6 +1,6 @@
 // Sperling – Kontaktseite: ALLE persönlichen Angaben stehen nur hier.
 // Werden von index.html (Kontaktseite) und datenschutz.html (Datenschutzerklärung) gelesen.
-// Stand: Konzept – die E-Mail-Adresse ist noch ein Platzhalter.
+// Stand: Konzept – E-Mail-Adresse und USt-IdNr. sind noch Platzhalter.
 // eslint-disable-next-line no-unused-vars
 const KONTAKT = {
   konzept: true,                          // false = Hinweis „Platzhalter“ ausblenden
@@ -16,7 +16,7 @@ const KONTAKT = {
   // Für Datenschutzerklärung und Impressum (ladungsfähige Anschrift, kein Postfach):
   strasse: 'Nordstraße 2',
   plzOrt: '38268 Lengede',
-  ustId: '',                              // falls vorhanden eintragen (erscheint dann im Impressum)
+  ustId: 'DE 000 000 000',                // Platzhalter – echte USt-IdNr. eintragen; leer ('') blendet die Zeile aus
   // Zuständige Datenschutz-Aufsichtsbehörde = die des Bundeslands, in dem der Geschäftssitz liegt:
   aufsicht: 'die Datenschutz-Aufsichtsbehörde Niedersachsen (LfD Niedersachsen), Prinzenstraße 5, 30159 Hannover',
   aufsichtUrl: 'https://www.lfd.niedersachsen.de',
