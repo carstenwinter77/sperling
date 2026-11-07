@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.20
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.21
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,13 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.20)
+## Erledigt (Version 0.10.21)
+
+### Neu in 0.10.21 (Befunde aus dem Rundumcheck)
+- [x] iPad hochkant: „Mehr“ in der Leiste (Produkte, Sperren erreichbar), Tour-Texte angepasst.
+- [x] Handy: Kundennamen in Liste und Kartei vollständig lesbar.
+- [x] Tour-Karte verdeckt das Ziel nicht mehr (iPhone SE), Feiertagsnamen ohne Trennung mitten im Wort.
+- [x] Barrierefreiheit (axe, WCAG AA): Kontraste, Namen, Rollen, Tippflächen. Bewusst offen: abgeblendete Demo-Abschnitte in den Einstellungen, Termin-Einträge im Kalender am Laptop (Maus) unter 24 px.
 
 ### Neu in 0.10.20
 - [x] Förderung: Rechner ohne seitliches Scrollen bei 320 px, Quellenlinks auf Touch mindestens 24 px hoch.

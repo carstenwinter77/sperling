@@ -79,7 +79,7 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/produkte.ts ... Kacheln, Produktdetail, Markieren-Block (Kartei, Gesprächsmodus)
  ├─ src/ui/views/produkte.ts  Produktübersicht #/produkte (auch im Beratungs-Schutz)
  ├─ src/ui/rechner.ts .... Rechner „Wann rechnet sich das?“ im Reiter Förderung (nur Arbeitsspeicher)
- ├─ src/ui/views/foerderung.ts  Förderung #/foerderung (auch im Beratungs-Schutz, iPhone unter „Mehr“)
+ ├─ src/ui/views/foerderung.ts  Förderung #/foerderung (auch im Beratungs-Schutz, iPhone und iPad hochkant unter „Mehr“)
  ├─ src/data/produkte.json  Produktkatalog (statisch, im Paket)
  ├─ src/ui/felder.ts ..... Formularfelder der Kartei aus der Feldverwaltung (Kartei, Gesprächsmodus)
  ├─ src/ui/feldverwaltung.ts  Einstellungen → Felder (ein-/ausblenden, eigene Felder anlegen/bearbeiten/löschen)
@@ -126,5 +126,6 @@ Siehe REGELN.md, R-ABSTURZ. Zusätzlich: `mutate()` rollt den Zustand zurück, w
 ## Responsives Layout
 
 - < 640 px: eine Spalte, untere Navigationsleiste mit Maskottchen-Symbolen.
+- < 900 px (Handy und iPad hochkant): Leiste unten mit den Hauptbereichen und „Mehr“ (übrige Bereiche, Rund-Tour, Sperren).
 - ≥ 640 px: Formulare zweispaltig, Sparten-Kacheln nebeneinander.
 - ≥ 900 px (Tablet quer, Laptop): Seitenleiste links, Inhalte zweispaltig.

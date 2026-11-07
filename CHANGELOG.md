@@ -1,5 +1,13 @@
 # Änderungsverlauf
 
+## 0.10.21 – 07.11.2026
+- **iPad hochkant (640–899 px):** Leiste unten wie am iPhone mit „Mehr“; Produkte, Förderung, Sperren und die übrigen Bereiche sind dort wieder erreichbar. Rund-Tour: „Zu finden unter „Mehr““ statt „Auf dem iPhone …“.
+- **Kundenliste und Kundenkartei am Handy:** Name bekommt die ganze Breite und bricht um; Kontakt-Alter und PV/WP/VW stehen darunter.
+- **Rund-Tour:** Karte legt sich nie über das markierte Feld (oben/unten nach Platz, notfalls scrollbar).
+- **Kalender Monat:** Feiertagsnamen brechen nur an Wortfugen um („Weihnachts-tag“); am schmalen Handy rote Tageszahl, Name im Titel und für Bildschirmleser.
+- **Barrierefreiheit:** Kontraste (Demo-Band, Kontakt-Alter, „überfällig“, Löschen-Knopf dunkel, Vormonatstage, Zähler im aktiven Bereichs-Chip, „bald verfügbar“, Auswertungs-Veränderung, erledigte Termine), Face-ID-Knopf mit Namen, Bereichs-Umschalter ohne falsche Tab-Rolle, Kundenwahl-Liste benannt und per Tastatur scrollbar, Termin-Titel als eigener Knopf statt verschachtelter Schaltfläche, Überschrift auf der Karte, Tippflächen auf Touch mindestens 24 px.
+- Aufgeräumt: zwei alte Testbilder aus dem Repo entfernt, Kommentar ohne Personennamen.
+
 ## 0.10.20 – 07.11.2026
 - Förderung: Rechner passt auf kleine Handys (320 px) ohne seitliches Scrollen (Fieldset und Raster mit `min-width: 0`, Reiterknöpfe dürfen umbrechen). Quellenlinks auf Touch-Geräten mit größerer Tippfläche (mindestens 24 px).
 

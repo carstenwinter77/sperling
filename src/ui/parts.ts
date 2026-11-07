@@ -110,8 +110,8 @@ export function terminZeile(t, kunde) {
   return `
     <li class="termin ${t.erledigt ? 'erledigt' : ''} ${ueberfaellig ? 'ueberfaellig' : ''}" data-id="${esc(t.id)}">
       <button class="haken" data-aktion="erledigt" aria-label="Erledigt umschalten">${t.erledigt ? '✓' : ''}</button>
-      <div class="termin-text" data-aktion="karte" role="button" tabindex="0">
-        <strong>${esc(t.titel || 'Termin')}</strong>
+      <div class="termin-text" data-aktion="karte">
+        <button type="button" class="termin-titel" data-aktion="karte"><strong>${esc(t.titel || 'Termin')}</strong></button>
         <small>${esc(formatDateTime(t.beginn))}${feiertag(new Date(t.beginn)) ? ` · <span class="tag tag-feiertag">Feiertag: ${esc(feiertag(new Date(t.beginn))!)}</span>` : ''} · ${t.art === 'termin' ? 'Termin' : 'Wiedervorlage'}${t.sparte ? ` · ${esc(SPARTEN[t.sparte].label)}` : ''}${kunde ? ` · <a href="#/kunde/${esc(kunde.id)}">${esc(kundenTitel(kunde))}</a>` : ''}</small>
       </div>
       ${kunde && t.art === 'termin' && !t.erledigt ? hinfahrenKnopf(kunde, 'btn klein ghost').replace('🚗 Hinfahren', '🚗') : ''}

@@ -44,7 +44,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       <a class="btn ghost" href="#/bestand">Bestand</a>
     </header>
     ${kalenderTabs('geraete')}
-    <nav class="tabs bk-unter" role="tablist">${ANSICHTEN.map(([k, l]) => `<button type="button" data-ansicht="${k}" class="${k === ansicht ? 'aktiv' : ''}">${l}</button>`).join('')}</nav>
+    <nav class="tabs bk-unter" aria-label="Ansicht">${ANSICHTEN.map(([k, l]) => `<button type="button" data-ansicht="${k}" class="${k === ansicht ? 'aktiv' : ''}">${l}</button>`).join('')}</nav>
     ${ansicht !== 'frei' ? `<div class="bk-leiste">
       <div class="k-nav"><button type="button" class="btn klein ghost" data-schritt="-1" aria-label="Zurück">‹</button><button type="button" class="btn klein ghost" data-schritt="0">Heute</button><button type="button" class="btn klein ghost" data-schritt="1" aria-label="Weiter">›</button></div>
       <select id="bkZoom" aria-label="Zeitraum">${ZOOM.map(([z, l]) => `<option value="${z}" ${z === zoom ? 'selected' : ''}>${l}</option>`).join('')}</select>

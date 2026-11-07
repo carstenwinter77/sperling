@@ -35,11 +35,11 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
       <h1><span class="gm-live" aria-hidden="true"></span> Gespräch mit <span id="gmName">${esc(kundenTitel(k0))}</span></h1>
       <span class="gm-uhr" id="gmUhr" title="Dauer seit Beginn"></span>
     </header>
-    <nav class="tabs gm-handy" role="tablist"><button data-handy="kunde">👤 Kunde</button><button data-handy="gespraech" class="aktiv">💬 Gespräch</button></nav>
+    <nav class="tabs gm-handy" aria-label="Kunde oder Gespräch"><button data-handy="kunde">👤 Kunde</button><button data-handy="gespraech" class="aktiv">💬 Gespräch</button></nav>
     <div class="gm-teilung">
       <section class="gm-links" id="gmLinks" aria-label="Kundendaten"></section>
       <section class="gm-rechts" aria-label="Gespräch">
-        <nav class="tabs gm-seiten" role="tablist">${SEITEN.map(([s, l]) => `<button data-seite="${s}" class="${s === seite ? 'aktiv' : ''}">${l}</button>`).join('')}</nav>
+        <nav class="tabs gm-seiten" aria-label="Seite">${SEITEN.map(([s, l]) => `<button data-seite="${s}" class="${s === seite ? 'aktiv' : ''}">${l}</button>`).join('')}</nav>
         <div id="gmRechts"></div>
       </section>
     </div>`;

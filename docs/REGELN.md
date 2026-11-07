@@ -69,6 +69,7 @@ Tests in `tests/core.test.mjs` sichern das ab. Diese Tests dürfen nie gelöscht
 
 - Sprache in UI, Kommentaren und Doku: **Deutsch**. Bezeichner überwiegend deutsch (`kunde`, `termine`, `mutate` als Ausnahme für den etablierten Begriff).
 - UI-Texte sagen, was passiert („Gespeichert“, „Sicherung herunterladen“), Fehler sagen, was zu tun ist.
-- Touch-Ziele mindestens 44 px hoch. Mobile zuerst, Tablet ab 640 px, Seitenleiste ab 900 px.
+- Touch-Ziele mindestens 44 px hoch (Hauptknöpfe), kleine Ziele auf Touch nie unter 24 px. Mobile zuerst, Tablet ab 640 px, Seitenleiste ab 900 px; darunter muss jeder Bereich über die Leiste oder „Mehr“ erreichbar sein.
+- Textkontrast mindestens 4,5:1 (WCAG AA) in hell und dunkel; Farbe nie als einziges Merkmal.
 - Farben nur als CSS-Variablen in `:root` (`css/app.css`), dunkle Werte in den beiden Dunkel-Blöcken darunter. Keine festen Farbwerte in Komponenten-Regeln, sonst bricht der Dark Mode. Status-Farben nur in `STATUS` (`model.js`).
 - Keine nativen `alert/confirm/prompt` – immer `dialog()` / `bestaetigen()` aus `src/ui/dom.ts`.

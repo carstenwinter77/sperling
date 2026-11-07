@@ -20,7 +20,7 @@ export function html(name: string, label: string, vorgabeId = '', { leerErlaubt 
     </div>
     <div class="kw-suche" ${k ? 'hidden' : ''}>
       <input type="search" class="kw-eingabe" placeholder="Name, Straße, Ort oder Telefon …" autocomplete="off" aria-labelledby="${id}-l" aria-controls="${id}-t" enterkeyhint="search">
-      <ul class="kw-treffer" id="${id}-t" role="listbox"></ul>
+      <ul class="kw-treffer" id="${id}-t" role="listbox" aria-labelledby="${id}-l" tabindex="0"></ul>
     </div>
   </div>`;
 }
@@ -35,7 +35,7 @@ export function verdrahten(root: Element) {
     const zeigen = () => {
       const t = kundenSuchen(store.getData(), eingabe.value);
       const leer = !eingabe.value.trim();
-      liste.innerHTML = `${leer && t.length ? '<li class="kw-kopf">Zuletzt</li>' : ''}${box.dataset.leer && leer ? `<li role="option" class="kw-ohne" data-kw-id="">${esc(box.dataset.leer || '')}</li>` : ''}${t.map((x) => `<li role="option" data-kw-id="${esc(x.id)}"><b>${esc(x.titel)}</b>${x.doppelt ? ' <span class="chip">gleicher Name</span>' : ''}<small>${esc(x.zusatz || 'ohne Adresse')}</small></li>`).join('')}${!leer && !t.length ? '<li class="kw-kopf">Kein Kunde gefunden</li>' : ''}`;
+      liste.innerHTML = `${leer && t.length ? '<li class="kw-kopf" role="option" aria-disabled="true">Zuletzt</li>' : ''}${box.dataset.leer && leer ? `<li role="option" class="kw-ohne" data-kw-id="">${esc(box.dataset.leer || '')}</li>` : ''}${t.map((x) => `<li role="option" data-kw-id="${esc(x.id)}"><b>${esc(x.titel)}</b>${x.doppelt ? ' <span class="chip">gleicher Name</span>' : ''}<small>${esc(x.zusatz || 'ohne Adresse')}</small></li>`).join('')}${!leer && !t.length ? '<li class="kw-kopf" role="option" aria-disabled="true">Kein Kunde gefunden</li>' : ''}`;
     };
     const waehlen = (id: string) => {
       versteckt.value = id;

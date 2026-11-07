@@ -10,7 +10,7 @@ export interface Schritt {
   ziel: string[];
   titel: string;
   text: string;
-  /** Zusatz, wenn das Ziel nur über „Mehr“ erreichbar ist (Handy) */
+  /** Zusatz, wenn das Ziel nur über „Mehr“ erreichbar ist (Handy, iPad hochkant) */
   mehr?: string;
 }
 
@@ -22,12 +22,12 @@ export const SCHRITTE: Schritt[] = [
   { ziel: nav('kunden'), titel: 'Kunden', text: 'Deine Kartei mit Status je Sparte (PV, Wärmepumpe, Vorwerk), Notizen, Fotos und den fertigen Texten für Enpal, GALVANY und Vorwerk. Hier importierst du auch die Vorwerk-Liste.' },
   { ziel: nav('karte'), titel: 'Karte', text: 'Alle Kunden auf der Karte oder im Satellitenbild, mit Nachbarn im Umkreis. Praktisch, um Touren zu planen.' },
   { ziel: nav('termine'), titel: 'Kalender', text: 'Termine und Wiedervorlagen in Monat, Woche oder Tag, mit Feiertagen. Unter „Geräte“ siehst du, wann welches Vorführgerät belegt ist.' },
-  { ziel: nav('gespraech'), titel: 'Gespräch', text: 'Der Gesprächsleitfaden in sieben Phasen mit Einwandbehandlung. Ergebnis und Wiedervorlage landen direkt beim Kunden.', mehr: 'Auf dem iPhone unter „Mehr“.' },
-  { ziel: nav('bestand'), titel: 'Bestand', text: 'Vorführgeräte im Auto, Leihgaben mit Leihschein, Reservierungen und Verbrauchsmaterial mit Mindestbestand.', mehr: 'Auf dem iPhone unter „Mehr“.' },
-  { ziel: nav('produkte'), titel: 'Produkte', text: 'Die Produktübersicht von Enpal, GALVANY und Vorwerk mit Preisen und technischen Daten, zum Zeigen beim Kunden.', mehr: 'Auf dem iPhone unter „Mehr“.' },
-  { ziel: nav('foerderung'), titel: 'Förderung', text: 'Gesetze, Zuschüsse und Steuern für Photovoltaik und Wärmepumpe in einfacher Sprache, mit Quellen. Jeder Abschnitt lässt sich zum Weiterleiten kopieren.', mehr: 'Auf dem iPhone unter „Mehr“.' },
-  { ziel: nav('auswertung'), titel: 'Auswertungen', text: 'Gespräche, Abschlüsse und Termine je Zeitraum, mit „Fokus je Sparte“ und Kurztipp. Als PDF auf einer Seite.', mehr: 'Auf dem iPhone unter „Mehr“.' },
-  { ziel: nav('einstellungen'), titel: 'Einstellungen', text: 'Sicherung in iCloud, Felder, Textvorlagen, Face ID und Darstellung. Hier startest du diese Tour auch wieder.', mehr: 'Auf dem iPhone unter „Mehr“.' },
+  { ziel: nav('gespraech'), titel: 'Gespräch', text: 'Der Gesprächsleitfaden in sieben Phasen mit Einwandbehandlung. Ergebnis und Wiedervorlage landen direkt beim Kunden.', mehr: 'Zu finden unter „Mehr“.' },
+  { ziel: nav('bestand'), titel: 'Bestand', text: 'Vorführgeräte im Auto, Leihgaben mit Leihschein, Reservierungen und Verbrauchsmaterial mit Mindestbestand.', mehr: 'Zu finden unter „Mehr“.' },
+  { ziel: nav('produkte'), titel: 'Produkte', text: 'Die Produktübersicht von Enpal, GALVANY und Vorwerk mit Preisen und technischen Daten, zum Zeigen beim Kunden.', mehr: 'Zu finden unter „Mehr“.' },
+  { ziel: nav('foerderung'), titel: 'Förderung', text: 'Gesetze, Zuschüsse und Steuern für Photovoltaik und Wärmepumpe in einfacher Sprache, mit Quellen. Jeder Abschnitt lässt sich zum Weiterleiten kopieren.', mehr: 'Zu finden unter „Mehr“.' },
+  { ziel: nav('auswertung'), titel: 'Auswertungen', text: 'Gespräche, Abschlüsse und Termine je Zeitraum, mit „Fokus je Sparte“ und Kurztipp. Als PDF auf einer Seite.', mehr: 'Zu finden unter „Mehr“.' },
+  { ziel: nav('einstellungen'), titel: 'Einstellungen', text: 'Sicherung in iCloud, Felder, Textvorlagen, Face ID und Darstellung. Hier startest du diese Tour auch wieder.', mehr: 'Zu finden unter „Mehr“.' },
   { ziel: ['#sperren', '#navMehr'], titel: 'Sperren', text: 'Ein Tipp sperrt Sperling. Danach nur mit Passwort oder Face ID wieder öffnen. Alle Daten sind auf dem Gerät verschlüsselt.' },
   { ziel: [], titel: 'Beratungs-Schutz 🛡', text: 'Sitzt du beim Kunden, tippst du in seiner Kartei unten rechts auf 🛡. Dann ist nur noch dieser Kunde sichtbar, bis du mit Passwort oder Face ID aufhebst.' },
   { ziel: [], titel: 'Fertig!', text: 'Die ?-Knöpfe erklären jede Seite kurz. Die Tour findest du jederzeit unter Hilfe, in den Einstellungen und über die Suche („Tour“).' },
@@ -153,7 +153,7 @@ function oeffnen(inhalt: (karte: HTMLElement, zu: (gesehen: boolean) => void, lo
 /** Loch um das Ziel legen und die Karte daneben, darüber oder darunter platzieren (immer im Bild). */
 function platzieren(karte: HTMLElement, loch: HTMLElement, ziel: HTMLElement | null) {
   const vw = window.innerWidth; const vh = window.innerHeight; const rand = 16; const abstand = 12;
-  karte.style.left = ''; karte.style.top = ''; karte.classList.toggle('mitte', !ziel);
+  karte.style.left = ''; karte.style.top = ''; karte.style.maxHeight = ''; karte.classList.toggle('mitte', !ziel);
   if (!ziel) { loch.hidden = true; return; }
   ziel.scrollIntoView?.({ block: 'nearest' });
   const r = ziel.getBoundingClientRect();
@@ -167,11 +167,19 @@ function platzieren(karte: HTMLElement, loch: HTMLElement, ziel: HTMLElement | n
   if (r.right + abstand + kb + rand <= vw && r.width < vw / 3) {
     // rechts daneben (Seitenleiste auf Tablet und Laptop)
     x = r.right + pad + abstand; y = r.top + r.height / 2 - kh / 2;
-  } else if (r.top > vh / 2) {
-    // darüber (Leiste unten auf dem Handy)
-    x = r.left + r.width / 2 - kb / 2; y = r.top - pad - abstand - kh;
   } else {
-    x = r.left + r.width / 2 - kb / 2; y = r.bottom + pad + abstand;
+    // darunter oder darüber, je nachdem wo Platz ist; notfalls Karte kürzen (scrollt), aber nie über das Ziel legen
+    const unten = vh - (r.bottom + pad + abstand) - rand;
+    const oben = r.top - pad - abstand - rand;
+    const nachOben = r.top > vh / 2 ? !(oben < kh && unten >= kh) : (unten < kh && oben > unten);
+    const platz = Math.max(120, nachOben ? oben : unten);
+    if (kh > platz) karte.style.maxHeight = `${Math.floor(platz)}px`;
+    const h = Math.min(kh, platz);
+    x = r.left + r.width / 2 - kb / 2;
+    y = nachOben ? r.top - pad - abstand - h : r.bottom + pad + abstand;
+    karte.style.left = `${Math.round(Math.max(rand, Math.min(x, vw - kb - rand)))}px`;
+    karte.style.top = `${Math.round(Math.max(rand, y))}px`;
+    return;
   }
   karte.style.left = `${Math.round(Math.max(rand, Math.min(x, vw - kb - rand)))}px`;
   karte.style.top = `${Math.round(Math.max(rand, Math.min(y, vh - kh - rand)))}px`;

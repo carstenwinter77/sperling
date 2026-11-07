@@ -2,6 +2,14 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.21',
+    punkte: [
+      'iPad hochkant: Unten gibt es jetzt „Mehr“ mit Produkte, Förderung, Sperren und den übrigen Bereichen.',
+      'Am Handy sind Kundennamen in der Liste und in der Kartei wieder ganz lesbar.',
+      'Besser lesbar: kräftigere Farben an mehreren Stellen, größere Tippflächen.',
+    ],
+  },
+  {
     version: '0.10.20',
     punkte: [
       'Förderung: Der Rechner passt jetzt auch auf kleine Handys, und Quellenlinks lassen sich leichter antippen.',

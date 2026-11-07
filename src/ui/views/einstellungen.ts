@@ -163,7 +163,7 @@ export function render(el: HTMLElement) {
       <p><button class="btn primary" id="jetztSperren">🔒 Jetzt sperren</button></p>
       <p class="hinweis" id="bioInfo"></p>
       <div class="knopfreihe">
-        <button class="btn ghost" id="bio" hidden></button>
+        <button class="btn ghost" id="bio" hidden>Face ID einrichten</button>
         <button class="btn ghost" id="pw" ${demo ? 'disabled' : ''}>Master-Passwort ändern</button>
         <button class="btn danger" id="reset" ${demo ? 'disabled' : ''}>Alle Daten auf diesem Gerät löschen</button>
       </div>

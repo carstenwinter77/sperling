@@ -36,7 +36,7 @@
    data-farbschema wird von ui/theme.ts gesetzt: "hell", "dunkel" oder nicht gesetzt (= automatisch). */
 @media (prefers-color-scheme: dark) {
   :root:not([data-farbschema="hell"]):not([data-theme="light"]) {
-    --braun: #a5d36a; --braun-hell: #5f8f2c; --creme: #0f1712; --karte: #17221b; --gruen: #6cc04f; --orange: #e8892c; --rot: #e06464;
+    --braun: #a5d36a; --braun-hell: #5f8f2c; --creme: #0f1712; --karte: #17221b; --gruen: #6cc04f; --orange: #e8892c; --rot: #e06464; --auf-rot: #1d0b0b;
     --text: #e4efe0; --text-2: #a3b5a6; --linie: #2b3b30;
     --schatten: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
     --feld: #1e2b22; --flaeche-2: #223127; --aktiv-bg: #233a28; --auf-akzent: #0f1712; --mix: #17221b; --mix-text: #ffffff;
@@ -48,7 +48,7 @@
   }
 }
 :root[data-farbschema="dunkel"], :root[data-theme="dark"]:not([data-farbschema="hell"]) {
-  --braun: #a5d36a; --braun-hell: #5f8f2c; --creme: #0f1712; --karte: #17221b; --gruen: #6cc04f; --orange: #e8892c; --rot: #e06464;
+  --braun: #a5d36a; --braun-hell: #5f8f2c; --creme: #0f1712; --karte: #17221b; --gruen: #6cc04f; --orange: #e8892c; --rot: #e06464; --auf-rot: #1d0b0b;
   --text: #e4efe0; --text-2: #a3b5a6; --linie: #2b3b30;
   --schatten: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
   --feld: #1e2b22; --flaeche-2: #223127; --aktiv-bg: #233a28; --auf-akzent: #0f1712; --mix: #17221b; --mix-text: #ffffff;
@@ -85,7 +85,8 @@ small { color: var(--text-2); }
 .btn:hover { border-color: var(--braun-hell); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .btn.primary { background: var(--braun); border-color: var(--braun); color: var(--auf-akzent); }
-.btn.danger { background: var(--rot); border-color: var(--rot); color: #fff; }
+.btn.danger { background: var(--rot); border-color: var(--rot); color: var(--auf-rot, #fff); }
+.btn[hidden] { display: none; }
 .btn.ghost { background: transparent; }
 .btn.klein { min-height: 34px; padding: .3rem .7rem; font-size: .9rem; }
 .knopfreihe { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
@@ -162,10 +163,10 @@ dialog.dlg::backdrop { background: var(--backdrop); }
 .hauptnav a.aktiv .nav-bild { transform: scale(1.12); }
 .sperr-knopf { display: none; }
 .inhalt { padding: 16px 16px calc(var(--nav-h) + 24px + env(safe-area-inset-bottom)); max-width: 1200px; margin: 0 auto; outline: none; }
-.demo-band { background: var(--orange); color: #fff; text-align: center; font-weight: 600; font-size: .85rem; height: var(--band-h); display: flex; align-items: center; justify-content: center; padding: 0 16px; position: sticky; top: 0; z-index: 1100; white-space: nowrap; overflow: hidden; }
+.demo-band { background: #a24f0c; color: #fff; text-align: center; font-weight: 600; font-size: .85rem; height: var(--band-h); display: flex; align-items: center; justify-content: center; padding: 0 16px; position: sticky; top: 0; z-index: 1100; white-space: nowrap; overflow: hidden; }
 body.demo { --band-h: 40px; }
 body { --band-h: 0px; }
-.demo-band button { margin-left: .5rem; background: rgba(255,255,255,.25); border: 0; color: #fff; border-radius: 999px; padding: .15rem .6rem; font: inherit; cursor: pointer; }
+.demo-band button { margin-left: .5rem; background: #fff; border: 0; color: #6b3305; font-weight: 700; border-radius: 999px; padding: .15rem .6rem; font: inherit; cursor: pointer; }
 
 .seitenkopf { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: 1rem; flex-wrap: wrap; }
 .kunde-kopf { flex-wrap: nowrap; }
@@ -302,7 +303,7 @@ body { --band-h: 0px; }
 .pill { font-size: .75rem; font-weight: 700; padding: .2rem .6rem; border-radius: 999px; white-space: nowrap; background: var(--flaeche-2); color: var(--text-2); }
 .pill-frei, .pill-kauf-gekauft { background: var(--tag-vw-bg); color: var(--tag-vw); }
 .pill-verliehen, .pill-kauf-interesse { background: var(--tag-wp-bg); color: var(--tag-wp); }
-.pill-ueberfaellig { background: var(--tag-warn-bg); color: var(--rot); }
+.pill-ueberfaellig { background: var(--tag-warn-bg); color: color-mix(in srgb, var(--rot) 75%, var(--text)); }
 .kauf { margin: .25rem 0; }
 
 /* ---------- Gesprächsleitfaden ---------- */
@@ -415,11 +416,12 @@ body.ka-aktiv { overflow: hidden; }
 .k-eintrag { display: block; width: 100%; text-align: left; border: 0; border-left: 3px solid var(--braun); background: color-mix(in srgb, var(--braun) 14%, var(--karte)); color: var(--text); border-radius: 6px; padding: .15rem .35rem; font: inherit; font-size: .78rem; line-height: 1.25; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; }
 .k-eintrag small { color: var(--text-2); }
 .k-eintrag.art-wiedervorlage { border-left-color: var(--orange); background: color-mix(in srgb, var(--orange) 14%, var(--karte)); }
-.k-eintrag.erledigt { opacity: .55; text-decoration: line-through; }
+.k-eintrag.erledigt { opacity: .8; text-decoration: line-through; }
 .k-monat { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
 .k-wt { text-align: center; font-size: .8rem; font-weight: 700; color: var(--text-2); padding: .2rem 0; }
 .k-tag { min-height: 92px; background: var(--karte); border: 1px solid var(--linie); border-radius: 6px; padding: 2px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; overflow: hidden; }
-.k-tag.fremd { opacity: .45; }
+.k-tag.fremd { background: var(--flaeche-2); }
+.k-tag.fremd .k-nr { color: var(--text-2); font-weight: 600; }
 .k-tag.heute { border-color: var(--braun); box-shadow: inset 0 0 0 1px var(--braun); }
 .k-nr { align-self: flex-start; border: 0; background: none; font: inherit; font-weight: 700; font-size: .85rem; color: var(--text); padding: .1rem .35rem; border-radius: 999px; cursor: pointer; }
 .k-tag.heute .k-nr { background: var(--braun); color: var(--auf-akzent, #fff); }
@@ -488,6 +490,7 @@ body.ka-aktiv { overflow: hidden; }
 /* Auswertungen */
 .bereich-alle { --bereich: var(--braun); } .bereich-pv { --bereich: var(--tag-pv); } .bereich-wp { --bereich: var(--tag-wp); } .bereich-vorwerk { --bereich: var(--tag-vw); }
 .aw-bereiche button.aktiv { background: var(--bereich); border-color: var(--bereich); }
+.aw-bereiche button.aktiv small { color: inherit; opacity: 1; }
 .aw-leiste { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: 1rem; }
 .aw-leiste input[type=date] { width: auto; }
 .aw-leiste .segment { display: inline-flex; max-width: 100%; overflow-x: auto; scrollbar-width: none; border: 1px solid var(--linie); border-radius: 12px; flex-wrap: nowrap; background: var(--karte); }
@@ -503,8 +506,8 @@ body.ka-aktiv { overflow: hidden; }
 .aw-zahl strong { font-size: 1.7rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .aw-zahl small { color: var(--text-2); font-size: .75rem; }
 .aw-delta { font-size: .8rem; font-weight: 700; justify-self: start; border-radius: 999px; padding: 0 .45rem; }
-.aw-delta.auf { color: var(--gruen); background: color-mix(in srgb, var(--gruen) 14%, transparent); }
-.aw-delta.ab { color: var(--rot); background: color-mix(in srgb, var(--rot) 14%, transparent); }
+.aw-delta.auf { color: color-mix(in srgb, var(--gruen) 75%, var(--text)); background: color-mix(in srgb, var(--gruen) 14%, transparent); }
+.aw-delta.ab { color: color-mix(in srgb, var(--rot) 75%, var(--text)); background: color-mix(in srgb, var(--rot) 14%, transparent); }
 .aw-delta.gleich { color: var(--text-2); }
 .aw-verlauf { display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 2px; height: 160px; align-items: end; padding-bottom: 1.2rem; }
 .aw-saeule { position: relative; height: 100%; display: flex; align-items: flex-end; }
@@ -589,9 +592,9 @@ body.ka-aktiv { overflow: hidden; }
 
 /* Letzter Kontakt */
 .kontakt-alter { font-size: .78rem; font-weight: 600; white-space: nowrap; border-radius: 999px; padding: .1rem .5rem; flex-shrink: 0; }
-.kontakt-alter.frisch { color: var(--gruen); background: color-mix(in srgb, var(--gruen) 12%, transparent); }
+.kontakt-alter.frisch { color: color-mix(in srgb, var(--gruen) 70%, var(--text)); background: color-mix(in srgb, var(--gruen) 12%, transparent); }
 .kontakt-alter.mittel { color: var(--text-2); background: var(--flaeche-2); }
-.kontakt-alter.alt { color: var(--rot); background: color-mix(in srgb, var(--rot) 12%, transparent); }
+.kontakt-alter.alt { color: color-mix(in srgb, var(--rot) 75%, var(--text)); background: color-mix(in srgb, var(--rot) 12%, transparent); }
 .kontakt-alter.nie { color: var(--text-2); border: 1px dashed var(--linie); }
 .kunde-kontakt { margin: -.25rem 0 .6rem; }
 .kontakt-alter-knopf { border: 0; font: inherit; cursor: pointer; padding: .3rem .7rem; font-size: .85rem; min-height: 32px; }
@@ -696,10 +699,10 @@ body.hilfe-aus .hilfe-knopf { display: none; }
 .kachel { border-top: 4px solid var(--k, var(--braun)); }
 .kachel-pv { --k: var(--pv); } .kachel-wp { --k: var(--wp); } .kachel-vorwerk { --k: var(--vw); }
 .hero-bild { border-radius: 22%; }
-.nav-version { display: block; font-size: .55rem; font-weight: 500; opacity: .75; }
+.nav-version { display: block; font-size: .55rem; font-weight: 500; opacity: .9; }
 @media (min-width: 900px) {
   /* Sperren oben neben dem Logo, Einstellungen mit Programmversion ganz unten:
-     weit auseinander, damit man nicht versehentlich sperrt (Carsten 07.11.) */
+     weit auseinander, damit man nicht versehentlich sperrt */
   .marke-zeile { display: flex; align-items: center; justify-content: space-between; gap: .4rem; padding: 0 0 .8rem .3rem; }
   .marke-zeile .marke { padding: 0; }
   .marke-zeile .marke-logo { width: 122px; }
@@ -757,7 +760,7 @@ body.hilfe-aus .hilfe-knopf { display: none; }
 .produkt-text small { color: var(--text-2); }
 .produkt-preis { font-weight: 700; color: var(--braun); }
 .produkt-preis.leer { font-weight: 500; color: var(--text-2); }
-.bald { color: var(--orange); font-weight: 700; }
+.bald { color: color-mix(in srgb, var(--orange) 60%, var(--text)); font-weight: 700; }
 .tag.bald { border-color: var(--orange); }
 dialog.dlg.dlg-produkt { width: min(680px, calc(100vw - 24px)); }
 .produkt-detail { display: flex; flex-direction: column; gap: .5rem; }
@@ -985,7 +988,7 @@ tr.li-gleich { opacity: .7; }
 
 /* Feiertage (Niedersachsen) im Kalender: Name als Text, Fläche dezent getönt */
 .k-tag-kopf { display: flex; flex-wrap: wrap; align-items: center; gap: 0 .25rem; min-width: 0; }
-.k-feiertag { font-size: .68rem; font-weight: 700; line-height: 1.1; color: var(--rot); min-width: 0; hyphens: auto; padding-left: .2rem; }
+.k-feiertag { font-size: .68rem; font-weight: 700; line-height: 1.1; color: var(--rot); min-width: 0; hyphens: manual; overflow-wrap: normal; padding-left: .2rem; }
 .k-tag.feiertag { background: color-mix(in srgb, var(--rot) 7%, var(--karte)); }
 .k-spaltenkopf .k-feiertag { display: block; font-weight: 600; }
 .k-spaltenkopf.feiertag { color: var(--rot); }
@@ -999,9 +1002,9 @@ tr.li-gleich { opacity: .7; }
 .sperre-uebernehmen { display: flex; flex-direction: column; align-items: center; gap: .4rem; text-align: center; max-width: 420px; margin: .5rem auto 0; padding-top: 1rem; border-top: 1px solid var(--linie); }
 .sperre-uebernehmen p { margin: 0; }
 
-/* Handy: Leiste unten mit 5 großen Tippflächen, Rest unter „Mehr“ */
+/* Handy und iPad hochkant (Leiste unten): 5 große Tippflächen, Rest unter „Mehr“ */
 .nav-mehr { display: none; }
-@media (max-width: 639px) {
+@media (max-width: 899px) {
   body:not(.schutz-aktiv) .hauptnav [data-neben] { display: none; }
   body:not(.schutz-aktiv) .nav-mehr { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: none; border: 0; font: inherit; font-size: .74rem; font-weight: 600; color: var(--text-2); cursor: pointer; padding: 4px 0; }
   .nav-mehr .nav-lupe { width: 30px; height: 30px; font-size: 1.5rem; }
@@ -1228,3 +1231,32 @@ tr.li-gleich { opacity: .7; }
 .rz .foe-hinweis { margin: .75rem 0; }
 @media (max-width: 639px) { .rz-annahmen { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .rz > summary h2::after { transition: none; } }
+
+/* Kundenliste und Kundenkopf am Handy: Name bekommt die ganze Breite, Zeit und Sparten darunter */
+@media (max-width: 639px) {
+  .zeile:has(> .chips) { flex-wrap: wrap; row-gap: .35rem; column-gap: .5rem; }
+  .zeile:has(> .chips) > .zeile-haupt { flex: 1 0 100%; }
+  .zeile:has(> .chips) > .chips { margin-left: auto; }
+  .zeile-haupt strong { white-space: normal; overflow-wrap: anywhere; }
+  .kunde-kopf { flex-wrap: wrap; row-gap: .3rem; }
+  .kunde-kopf h1 { flex: 1 1 calc(100% - 3.5rem); white-space: normal; overflow-wrap: anywhere; line-height: 1.2; }
+  .kunde-kopf #kChips { margin-left: auto; }
+}
+
+/* Termin-Titel als Knopf (öffnet die Terminkarte), sieht aus wie Text */
+.termin-titel { all: unset; cursor: pointer; display: block; min-height: 24px; overflow-wrap: anywhere; }
+.termin-titel:focus-visible { outline: 2px solid var(--braun); outline-offset: 2px; border-radius: 4px; }
+
+/* Tippflächen auf Touch mindestens 24 px */
+@media (pointer: coarse) {
+  .termin-text small a, .geloescht-hinweis a { display: inline-block; min-height: 24px; padding: .2rem 0; }
+  input[type=checkbox], .li-tabelle input[type=checkbox] { min-width: 24px; min-height: 24px; }
+  .k-nr { min-width: 26px; min-height: 26px; }
+  .k-geraet, .k-eintrag, .k-mehr { min-height: 24px; }
+}
+
+/* Monat am schmalen Handy: Feiertagsname passt nicht in die Zelle, dann rote Tageszahl (Name in der Tagesansicht) */
+@media (max-width: 479px) {
+  .k-tag .k-feiertag { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .k-tag.feiertag .k-nr { color: var(--rot); }
+}

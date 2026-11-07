@@ -48,6 +48,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
 
   el.innerHTML = `
     <div class="karte-seite">
+      <h1 class="sr-only">Karte</h1>
       <form class="karte-suche" id="suche" role="search" autocomplete="off">
         <input type="search" name="q" placeholder="Adresse oder Kunde suchen, z. B. Lindenweg 4 Hannover" enterkeyhint="search" aria-label="Adresse suchen">
         <button class="btn klein primary" type="submit">Suchen</button>

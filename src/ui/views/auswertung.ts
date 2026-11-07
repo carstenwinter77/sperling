@@ -124,7 +124,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       <h1>${maskottchen('statistik', 'titel-bild')} Auswertungen</h1>
       <button type="button" class="btn" id="awPdf">PDF-Bericht</button>
     </header>
-    <nav class="tabs aw-bereiche" role="tablist">${(Object.keys(BEREICHE) as Bereich[]).map((b) => `<button type="button" data-bereich="${b}" class="bereich-${b}${b === bereich ? ' aktiv' : ''}">${BEREICHE[b]}</button>`).join('')}</nav>
+    <nav class="tabs aw-bereiche" aria-label="Bereich">${(Object.keys(BEREICHE) as Bereich[]).map((b) => `<button type="button" data-bereich="${b}" class="bereich-${b}${b === bereich ? ' aktiv' : ''}">${BEREICHE[b]}</button>`).join('')}</nav>
     <div class="aw-leiste">
       <div class="segment aw-perioden" role="group" aria-label="Zeitraum">${PERIODEN_REIHE.map((pe) => `<button type="button" data-periode="${pe}" class="${pe === periode ? 'aktiv' : ''}" title="${PERIODEN[pe]}" aria-pressed="${pe === periode}">${PERIODE_KURZ[pe]}</button>`).join('')}</div>
       <div class="k-nav"><button type="button" class="btn klein ghost" data-schritt="-1" aria-label="Voriger Zeitraum">‹</button><button type="button" class="btn klein ghost" data-schritt="0">Heute</button><button type="button" class="btn klein ghost" data-schritt="1" aria-label="Nächster Zeitraum">›</button></div>

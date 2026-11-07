@@ -67,7 +67,7 @@ const NAV = [
   { key: 'einstellungen', href: '#/einstellungen', label: 'Einstellungen', bild: 'einstellungen' },
 ];
 
-/** Auf dem Handy stehen diese Bereiche unter „Mehr“, damit die Leiste unten große Tippflächen behält. */
+/** Auf dem Handy und dem iPad hochkant stehen diese Bereiche unter „Mehr“, damit die Leiste unten große Tippflächen behält. */
 const NEBEN = ['gespraech', 'bestand', 'foerderung', 'auswertung', 'einstellungen'];
 
 /** „Mehr“-Menü (Handy): übrige Bereiche, Suchen, Sperren. */

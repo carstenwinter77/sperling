@@ -102,7 +102,7 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 
 ## Rund-Tour
 
-- Beim ersten Start fragt Sperling, ob du eine kurze Tour möchtest. Später startest du sie unter Hilfe („🧭 Rund-Tour starten“), in den Einstellungen unter Hilfe, auf dem iPhone unter „Mehr“ oder über die Suche („Tour“).
+- Beim ersten Start fragt Sperling, ob du eine kurze Tour möchtest. Später startest du sie unter Hilfe („🧭 Rund-Tour starten“), in den Einstellungen unter Hilfe, auf dem iPhone und dem iPad hochkant unter „Mehr“ oder über die Suche („Tour“).
 - Weiter und Zurück mit den Knöpfen oder den Pfeiltasten, Esc oder „Beenden“ schließt.
 
 ## Zwischen Geräten wechseln (iPad, iPhone, Laptop)
