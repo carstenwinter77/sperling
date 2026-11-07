@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.6
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.7
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,10 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.9.6)
+## Erledigt (Version 0.9.7)
+
+### Neu in 0.9.7
+- [x] Kontaktseite mit echten Kontaktdaten, Impressum und Datenschutz-Aufsichtsbehörde; Barrierefreiheit geprüft.
 
 ### Neu in 0.9.6
 - [x] Auswertungs-PDF „Alles zusammen“ heißt „Gesamtauswertung“.

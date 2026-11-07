@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.9.7 – 07.11.2026
+- **Kontaktseite:** echte Anschrift und Arbeitsnummer (auch WhatsApp), Beratungsgebiet zwischen Peine und Salzgitter, vollständiges Impressum (§ 5 DDG, § 18 MStV, VSBG), Aufsichtsbehörde LfD Niedersachsen, Scroll-Animationen, Schnellkontakt-Leiste auf Handy und Tablet, barrierefrei geprüft (axe-core ohne Verstöße).
+
 ## 0.9.6 – 07.11.2026
 - Auswertungs-PDF über alle Bereiche trägt den Titel „Gesamtauswertung“.
 
