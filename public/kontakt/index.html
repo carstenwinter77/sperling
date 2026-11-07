@@ -119,11 +119,26 @@ ul.haken li::after { content: ""; position: absolute; left: .36rem; top: .52em; 
 .schritt h3 { margin: 0 0 .3rem; font-size: 1.1rem; }
 .schritt p { margin: 0; color: var(--text-2); }
 
-.zitat { background: var(--gruen-bg); border-radius: var(--radius); padding: 28px; display: grid; gap: 20px; align-items: center; }
-@media (min-width: 760px) { .zitat { grid-template-columns: auto 1fr; } }
-.zitat img { width: 96px; height: 96px; aspect-ratio: 1; border-radius: 50%; object-fit: cover; }
-.zitat p { margin: 0; font-size: 1.12rem; }
-.zitat p + p { margin-top: .6rem; font-size: .95rem; color: var(--text-2); }
+.ueber { display: grid; gap: 24px; align-items: start; }
+@media (min-width: 860px) { .ueber { grid-template-columns: 1.5fr 1fr; } }
+.ueber-text p { margin: 0 0 .9rem; font-size: 1.05rem; }
+ul.vorteile { list-style: none; padding: 0; margin: 1.2rem 0 0; display: grid; gap: .8rem; }
+ul.vorteile li { padding-left: 1.1rem; border-left: 3px solid var(--gruen-2); color: var(--text-2); }
+ul.vorteile b { color: var(--text); }
+.ueber-karte { background: var(--gruen-bg); text-align: center; }
+.ueber-karte img { width: 96px; height: 96px; aspect-ratio: 1; border-radius: 50%; object-fit: cover; }
+.ueber-karte .zitat-text { font-size: 1.08rem; margin: .8rem 0 .3rem; }
+.ueber-karte h3 { font-size: 1rem; margin: 1.3rem 0 .6rem; }
+ul.orte { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; }
+ul.orte li { background: var(--karte); border: 1px solid var(--linie); border-radius: 999px; padding: .25rem .7rem; font-size: .9rem; }
+.arbeit h3 { margin: 0 0 .4rem; font-size: 1.1rem; color: var(--gruen); }
+.arbeit p { margin: 0 0 .5rem; color: var(--text-2); }
+.arbeit a { color: var(--gruen); font-weight: 650; }
+@media (min-width: 760px) { .zweite-meinung { grid-column: 1 / -1; } }
+.fragen { display: grid; gap: 10px; }
+.fragen details { padding: 14px 18px; }
+.fragen summary { font-size: 1.02rem; padding: .2rem 0; }
+.fragen details p { color: var(--text-2); }
 
 /* Kontakt */
 .kontaktwege { display: grid; gap: 12px; }
@@ -321,14 +336,85 @@ a:focus-visible, button:focus-visible, .weg:focus-visible { outline: 3px solid v
     </div>
   </section>
 
-  <section aria-label="Persönlich">
+  <section aria-labelledby="t-ueber">
     <div class="huelle">
-      <div class="zitat zeigen-beim-scrollen">
-        <img src="foto.jpg" alt="" width="96" height="96" loading="lazy">
-        <div>
-          <p>„Ich berate so, wie ich selbst beraten werden möchte: offen, verständlich und mit Zeit für Ihre Entscheidung.“</p>
-          <p><span data-feld="name">Jan Sperling</span></p>
+      <h2 id="t-ueber" class="zeigen-beim-scrollen">Aus Lengede, für die Region</h2>
+      <div class="ueber">
+        <div class="ueber-text zeigen-beim-scrollen" style="--i:1">
+          <p>Erneuerbare Energien sind für mich mehr als ein Beruf. Ich bin aus eigener Erfahrung in diese Branche gekommen und habe gemerkt, wie gut es sich anfühlt, beim Thema Energie ein Stück unabhängiger zu sein. Gerade in Zeiten, in denen Strom- und Heizpreise kaum noch vorhersehbar sind.</p>
+          <p>Genau das möchte ich auch anderen ermöglichen. Ich bin überzeugt: Wer Energie selbst erzeugt und sparsam nutzt, hat davon ganz persönliche Vorteile und tut nebenbei etwas Gutes.</p>
+          <ul class="vorteile">
+            <li><b>Planbarere Kosten:</b> Was das eigene Dach an Strom liefert, muss nicht eingekauft werden. Preissprünge am Energiemarkt treffen Sie weniger hart.</li>
+            <li><b>Sonne im Alltag nutzen:</b> Mittags läuft die Waschmaschine mit eigenem Strom, das E-Auto lädt in der Einfahrt, und an sonnigen Tagen hilft der Solarstrom auch der Wärmepumpe beim Warmwasser.</li>
+            <li><b>Weniger Aufwand im Haus:</b> Mit einer Wärmepumpe entfallen Öltank, Ölbestellung oder Gasanschluss. Und kein Schornsteinfeger muss mehr Abgase messen.</li>
+            <li><b>Ein Haus mit Zukunft:</b> Eine moderne, klimafreundliche Heizung und Strom vom Dach machen ein Haus für die nächsten Jahre und Generationen gut aufgestellt.</li>
+            <li><b>Gut fürs Klima:</b> Jede Kilowattstunde vom eigenen Dach und jede Heizperiode ohne Öl oder Gas spart CO₂, ganz ohne Verzicht.</li>
+          </ul>
         </div>
+        <div class="ueber-karte karte zeigen-beim-scrollen" style="--i:2">
+          <img src="foto.jpg" alt="" width="96" height="96" loading="lazy">
+          <p class="zitat-text">„Ich berate so, wie ich selbst beraten werden möchte: offen, verständlich und mit Zeit für Ihre Entscheidung.“</p>
+          <p class="klein"><span data-feld="name">Jan Sperling</span></p>
+          <h3>Hier bin ich für Sie unterwegs</h3>
+          <ul class="orte" aria-label="Orte">
+            <li>Lengede</li><li>Peine</li><li>Salzgitter</li><li>Vechelde</li><li>Ilsede</li><li>Hohenhameln</li><li>Söhlde</li><li>Wendeburg</li><li>Edemissen</li><li>und Umgebung</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-arbeit">
+    <div class="huelle">
+      <h2 id="t-arbeit" class="zeigen-beim-scrollen">So arbeite ich</h2>
+      <p class="unterzeile zeigen-beim-scrollen" style="--i:1">Damit Sie wissen, mit wem Sie es zu tun haben.</p>
+      <div class="raster zwei">
+        <div class="karte arbeit zeigen-beim-scrollen" style="--i:1">
+          <h3>Selbständig, mit festen Partnern</h3>
+          <p>Ich bin selbständiger Berater und arbeite mit ausgewählten Fachunternehmen zusammen, die Photovoltaikanlagen und Wärmepumpen planen und installieren. Ich berate Sie, vermittle das passende Angebot und bleibe Ihr Ansprechpartner, auch während der Umsetzung.</p>
+        </div>
+        <div class="karte arbeit zeigen-beim-scrollen" style="--i:2">
+          <h3>Für Sie kostenlos</h3>
+          <p>Meine Beratung kostet Sie nichts. Vergütet werde ich von dem Fachunternehmen, und zwar nur dann, wenn Sie sich für ein Angebot entscheiden. Das sage ich Ihnen offen, damit Sie meine Empfehlungen richtig einordnen können.</p>
+        </div>
+        <div class="karte arbeit zweite-meinung zeigen-beim-scrollen" style="--i:3">
+          <h3>Zweite Meinung? Sehr gern.</h3>
+          <p>Lassen Sie mein Angebot ruhig unabhängig prüfen, zum Beispiel bei der Energieberatung der Verbraucherzentrale. Wer gut beraten wurde, muss keinen Vergleich scheuen.</p>
+          <p><a href="https://www.verbraucherzentrale-energieberatung.de/" target="_blank" rel="noopener">Energieberatung der Verbraucherzentrale<span class="sr-only"> (öffnet eine externe Seite)</span></a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-fragen">
+    <div class="huelle">
+      <h2 id="t-fragen" class="zeigen-beim-scrollen">Häufige Fragen</h2>
+      <p class="unterzeile zeigen-beim-scrollen" style="--i:1">Ihre Frage ist nicht dabei? Rufen Sie mich einfach an.</p>
+      <div class="fragen zeigen-beim-scrollen" style="--i:2">
+        <details>
+          <summary>Was kostet die Beratung?</summary>
+          <p>Für Sie nichts. Gespräch, Termin vor Ort und Angebot sind kostenlos und unverbindlich. Vergütet werde ich nur, wenn Sie sich für ein Angebot entscheiden (siehe „So arbeite ich“).</p>
+        </details>
+        <details>
+          <summary>Muss ich nach dem Termin etwas unterschreiben?</summary>
+          <p>Nein. Sie bekommen Ihr Angebot und können es in Ruhe prüfen, mit der Familie besprechen oder vergleichen. Unterschrieben wird erst, wenn Sie sich sicher sind.</p>
+        </details>
+        <details>
+          <summary>Lohnt sich Photovoltaik auf meinem Dach?</summary>
+          <p>Das hängt vor allem von Ausrichtung, Neigung, Verschattung und Ihrem Stromverbrauch ab. Auch Ost-West-Dächer eignen sich oft gut. Ich schaue mir das bei Ihnen an und sage Ihnen ehrlich, ob es sich rechnet.</p>
+        </details>
+        <details>
+          <summary>Passt eine Wärmepumpe zu meinem älteren Haus?</summary>
+          <p>In vielen Bestandsgebäuden ja. Entscheidend sind Heizlast, Heizkörper und Dämmung. Manchmal reichen kleine Anpassungen, zum Beispiel einzelne größere Heizkörper. Wenn eine Wärmepumpe bei Ihnen nicht sinnvoll ist, erfahren Sie das von mir.</p>
+        </details>
+        <details>
+          <summary>Gibt es Fördermittel?</summary>
+          <p>Für Wärmepumpen gibt es in der Regel staatliche Förderung, die Bedingungen ändern sich aber immer wieder. Ich gebe Ihnen einen Überblick über den aktuellen Stand und darüber, was Sie dafür beachten müssen. Die verbindliche Zusage kommt immer von der Förderstelle.</p>
+        </details>
+        <details>
+          <summary>Wie lange dauert es bis zur fertigen Anlage?</summary>
+          <p>Das hängt von der Anlage und der Auslastung der Fachbetriebe ab. Einen realistischen Zeitplan bekommen Sie mit dem Angebot, und ich halte Sie auf dem Laufenden.</p>
+        </details>
       </div>
     </div>
   </section>
