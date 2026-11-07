@@ -549,3 +549,10 @@ test('Letzter Kontakt: aus Verlauf oder von Hand, nichts aus der Zukunft; Kontak
   assert.equal(f.kontaktPasst(5, 'nie'), false);
   assert.equal(f.passt({ status: { pv: 'interesse', wp: 'unbekannt', vorwerk: 'unbekannt' } }, { sparten: ['pv'], status: [], kontakt: '90' }, 10), false);
 });
+
+test('Kundenansicht: Standard wie bisher, Auswahl wird übernommen', () => {
+  const e = emptyData().einstellungen.kundenansicht;
+  assert.equal(e.notizen, false); assert.equal(e.bemerkungen, false); assert.equal(e.pv, true); assert.equal(e.geraete, true);
+  const m = migrate({ ...emptyData(), einstellungen: { kundenansicht: { notizen: true, pv: false, quatsch: true } } }).einstellungen.kundenansicht;
+  assert.equal(m.notizen, true); assert.equal(m.pv, false); assert.equal(m.wp, true); assert.equal('quatsch' in m, false);
+});

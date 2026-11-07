@@ -1,6 +1,6 @@
 // Einstellungen: Absender, Textvorlagen, Dropbox, Backup, Historie, Passwort, Datenschutz.
 import { esc, formatDateTime, parseNumber } from '../../core/util.ts';
-import { DEFAULT_VORLAGEN, migrate, normalizeGeraet } from '../../core/model.ts';
+import { DEFAULT_VORLAGEN, KUNDENANSICHT_TEILE, migrate, normalizeGeraet, type KundenansichtTeil } from '../../core/model.ts';
 import { demoDaten, beispielAnzahl, beispielEinfuegen, beispielEntfernen, beispielBestand, bestandAnzahl, bestandEinfuegen, bestandEntfernen } from '../../demo.ts';
 import { PLATZHALTER } from '../../core/textgen.ts';
 import { validateEnvelope } from '../../core/crypto.ts';
@@ -62,6 +62,12 @@ export function render(el: HTMLElement) {
       <label>„Hinfahren“ öffnet<select id="kartenApp">
         ${[['auto', 'Automatisch (Apple Karten auf iPhone/iPad, sonst Google Maps)'], ['apple', 'Apple Karten'], ['google', 'Google Maps']].map(([k, v]) => `<option value="${k}" ${e.kartenApp === k ? 'selected' : ''}>${v}</option>`).join('')}
       </select></label>
+    </section>
+
+    <section class="karte-box" id="kaEinstellungen">
+      <h2>Kundenansicht zum Herzeigen</h2>
+      <p class="hinweis">Lege fest, was der Kunde sieht, wenn du ihm das Tablet mit der Kundenansicht gibst. Andere Kunden und Einwände sind dort nie zu sehen.</p>
+      <div class="ka-wahl">${Object.entries(KUNDENANSICHT_TEILE).map(([k, v]) => `<label class="check"><input type="checkbox" data-ka="${k}" ${e.kundenansicht[k] ? 'checked' : ''}> ${esc(v.label)}</label>`).join('')}</div>
     </section>
 
     <section class="karte-box">
@@ -176,6 +182,10 @@ export function render(el: HTMLElement) {
     } catch (err) { toast(`Entfernen fehlgeschlagen: ${(err as Error).message}`, 'error'); }
   });
   el.querySelector('#kartenApp').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.kartenApp = (ev.target as HTMLInputElement).value; }));
+  el.querySelector('#kaEinstellungen').addEventListener('change', (ev) => {
+    const c = (ev.target as Element).closest<HTMLInputElement>('[data-ka]');
+    if (c) speichere((d) => { d.einstellungen.kundenansicht[c.dataset.ka as KundenansichtTeil] = c.checked; });
+  });
   el.querySelector('#mailprogramm').addEventListener('change', (ev) => { mailprogrammMerken((ev.target as HTMLInputElement).value); toast('Gespeichert', 'ok'); });
   el.querySelector('#empfEnpal').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.empfaenger.enpal = (ev.target as HTMLInputElement).value.trim(); }));
   el.querySelector('#empfVorwerk').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.empfaenger.vorwerk = (ev.target as HTMLInputElement).value.trim(); }));

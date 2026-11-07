@@ -41,7 +41,7 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Hinfahren:** 🚗 beim Kunden, auf der Karte oder beim Termin öffnet die Navigation (Apple Karten oder Google Maps, Einstellungen → Navigation).
 - **Gerät reservieren:** Bestand → Gerät → Reservieren → Kunde und Zeitraum. Belegte Zeiträume werden abgelehnt. Am Tag selbst „Jetzt verleihen“.
 - **Leihschein:** Beim Verleihen Fotos vom Zustand machen und den Kunden auf dem Tablet unterschreiben lassen. Danach „Teilen / Speichern“ schickt das PDF per Mail oder legt es in Dateien ab. Bei der Rücknahme genauso (Rückgabeschein).
-- **Kundenansicht:** Kunde → „Kundenansicht“ → Tablet dem Kunden geben. Er sieht nur Name, Adresse, Erfassungsbogen und Leihgeräte. Beenden nur mit Master-Passwort oder Face ID.
+- **Kundenansicht:** Kunde → „Kundenansicht“ → Tablet dem Kunden geben. Was er sieht, legst du unter Einstellungen → „Kundenansicht zum Herzeigen“ fest (Standard: Name, Adresse, Erfassungsbögen ohne Bemerkungen, Leihgeräte; wahlweise auch Telefon/E-Mail, Status, kommende Termine, Gesprächsnotizen). Andere Kunden sieht er nie. Beenden nur mit Master-Passwort oder Face ID.
 - **Gelöscht:** Versehentlich gelöscht? Kunden → ganz unten „Gelöscht“ → Wiederherstellen. Nichts verfällt von selbst; endgültig weg ist ein Eintrag erst, wenn du ihn dort einzeln endgültig löschst.
 - **Vorführgerät verleihen:** Bestand → Gerät → Verleihen → Kunde und „zurück bis“. Die Nachfrage-Erinnerung erscheint unter Termine. Bei Rückgabe „Zurückgenommen“ oder „Kunde kauft es“.
 - **Telefonat mit Einwänden:** Kunde → „Gesprächsleitfaden“ (oder Leiste → Gespräch). Sparte wählen, Einwand antippen, Gegenargumente vorlesen, Ergebnis markieren. Am Ende „Als Notiz speichern“.

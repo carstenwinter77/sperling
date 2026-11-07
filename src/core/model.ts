@@ -140,6 +140,20 @@ export function defaultEinstellungen(): Einstellungen {
   return normalizeEinstellungen({});
 }
 
+/** Was die Kundenansicht zum Herzeigen zeigen darf (Einstellungen). Standard = Verhalten bis 0.8.0. */
+export const KUNDENANSICHT_TEILE = {
+  kontakt: { label: 'Telefon und E-Mail', standard: false },
+  pv: { label: 'Angaben Photovoltaik', standard: true },
+  wp: { label: 'Angaben Wärmepumpe', standard: true },
+  vorwerk: { label: 'Angaben Vorwerk', standard: true },
+  bemerkungen: { label: 'Interne Bemerkungen in den Angaben', standard: false },
+  status: { label: 'Interesse/Status je Bereich', standard: false },
+  geraete: { label: 'Geliehene Geräte', standard: true },
+  termine: { label: 'Kommende Termine', standard: false },
+  notizen: { label: 'Gesprächsnotizen und Gesprächsverlauf', standard: false },
+};
+export type KundenansichtTeil = keyof typeof KUNDENANSICHT_TEILE;
+
 /** Wählbare Umkreise für Nachbarn (Meter). */
 export const NACHBAR_RADIEN = [100, 200, 300, 500, 1000, 2000, 5000, 10000, 20000, 50000];
 export const radiusText = (m: number) => (m >= 1000 ? `${m / 1000} km` : `${m} m`);
@@ -482,6 +496,7 @@ function normalizeEinstellungen(e: unknown) {
       vorwerk: str(src.empfaenger?.vorwerk, 300),
     },
     kartenApp: (['auto', 'apple', 'google'].includes(src.kartenApp) ? src.kartenApp : 'auto') as 'auto' | 'apple' | 'google',
+    kundenansicht: Object.fromEntries(Object.entries(KUNDENANSICHT_TEILE).map(([k, v]) => [k, typeof src.kundenansicht?.[k] === 'boolean' ? src.kundenansicht[k] : v.standard])) as Record<KundenansichtTeil, boolean>,
     /** Umkreis für „Nachbarn“ beim Kunden (Meter), eine der NACHBAR_RADIEN-Stufen */
     nachbarRadiusM: NACHBAR_RADIEN.includes(Number(src.nachbarRadiusM)) ? Number(src.nachbarRadiusM) : 300,
   };

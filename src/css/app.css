@@ -592,3 +592,4 @@ body.ka-aktiv { overflow: hidden; }
 .kontakt-alter-knopf { border: 0; font: inherit; cursor: pointer; padding: .3rem .7rem; font-size: .85rem; min-height: 32px; }
 .filterleiste #fKnopf { white-space: nowrap; }
 .filterleiste #sortierung { width: auto; }
+.ka-wahl { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .3rem 1rem; }

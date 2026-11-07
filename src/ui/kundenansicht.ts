@@ -1,8 +1,10 @@
 // Sperling – Kundenansicht zum Herzeigen: Tablet dem Kunden geben, ohne interne Daten.
-// Zeigt nur Name, Adresse, die eigenen Erfassungsbögen (ohne interne Bemerkungen) und geliehene Geräte.
-// Keine Notizen, kein Status, keine Einwände, keine anderen Kunden. Beenden nur mit Passwort oder Face ID.
+// Was sichtbar ist, legt der Nutzer in den Einstellungen fest (einstellungen.kundenansicht); Standard:
+// Name, Adresse, Erfassungsbögen ohne interne Bemerkungen, geliehene Geräte. Nie: andere Kunden, Einwände.
+// Beenden nur mit Passwort oder Face ID.
 import { esc, formatDate } from '../core/util.ts';
-import { FELDER, SPARTEN, kundenName, kundenTitel, adresseEinzeilig } from '../core/model.ts';
+import { FELDER, SPARTEN, STATUS, kundenName, kundenTitel, adresseEinzeilig, notizenSortiert, type Kunde, type Daten } from '../core/model.ts';
+import { formatDateTime } from '../core/util.ts';
 import { WrongPasswordError, KeyRing } from '../core/crypto.ts';
 import * as store from '../storage/store.ts';
 import * as db from '../storage/db.ts';
@@ -18,16 +20,24 @@ function wert(f, v) {
   return String(v).replace(/\s*\(prüfen!\)/i, '');
 }
 
-export function inhalt(k, data) {
-  const bloecke = ['pv', 'wp', 'vorwerk'].map((s) => {
-    const zeilen = FELDER[s].filter((f) => !INTERN.has(f.key)).map((f) => [f.label, wert(f, k[s]?.[f.key])]).filter(([, v]) => v !== null);
+export function inhalt(k: Kunde, data: Daten) {
+  const z = data.einstellungen.kundenansicht;
+  const bloecke = (['pv', 'wp', 'vorwerk'] as const).filter((s) => z[s]).map((s) => {
+    const zeilen = FELDER[s].filter((f) => z.bemerkungen || !INTERN.has(f.key)).map((f) => [f.label, wert(f, k[s]?.[f.key])]).filter(([, v]) => v !== null);
+    if (z.status && k.status[s] !== 'unbekannt') zeilen.unshift(['Stand', STATUS[k.status[s]].label]);
     return zeilen.length ? `<section class="karte-box"><h2>${maskottchen(s === 'pv' ? 'photovoltaik' : s === 'wp' ? 'waermepumpe' : 'vorwerk', 'titel-bild')} ${esc(SPARTEN[s].label)}</h2><dl class="ka-daten">${zeilen.map(([l, v]) => `<dt>${esc(l)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></section>` : '';
   }).join('');
-  const geraete = data.leihvorgaenge.filter((l) => l.kundeId === k.id && !l.rueckgabe).map((l) => ({ l, g: data.geraete.find((g) => g.id === l.geraetId) })).filter((x) => x.g);
+  const geraete = z.geraete ? data.leihvorgaenge.filter((l) => l.kundeId === k.id && !l.rueckgabe).map((l) => ({ l, g: data.geraete.find((g) => g.id === l.geraetId) })).filter((x): x is { l: typeof x.l; g: NonNullable<typeof x.g> } => !!x.g) : [];
+  const jetzt = new Date().toISOString();
+  const termine = z.termine ? data.termine.filter((t) => t.kundeId === k.id && !t.erledigt && t.beginn >= jetzt).sort((a, b) => (a.beginn < b.beginn ? -1 : 1)) : [];
+  const notizen = z.notizen ? notizenSortiert(k).filter((n) => !n.sparten.length || n.sparten.some((s) => z[s])) : [];
+  const kontakt = z.kontakt ? [k.telefon, k.email].filter(Boolean).join(' · ') : '';
   return `
-    <header class="ka-kopf">${maskottchen('sperling', 'titel-bild')}<div><h1>${esc(kundenName(k) || kundenTitel(k))}</h1><p>${esc(adresseEinzeilig(k))}</p></div></header>
+    <header class="ka-kopf">${maskottchen('sperling', 'titel-bild')}<div><h1>${esc(kundenName(k) || kundenTitel(k))}</h1><p>${esc(adresseEinzeilig(k))}</p>${kontakt ? `<p>${esc(kontakt)}</p>` : ''}</div></header>
     ${bloecke || '<p class="hinweis">Noch keine Angaben erfasst.</p>'}
-    ${geraete.length ? `<section class="karte-box"><h2>Geliehene Geräte</h2><ul>${geraete.map(({ l, g }) => `<li><b>${esc(g.name)}</b>${g.seriennummer ? ` (SN ${esc(g.seriennummer)})` : ''} – seit ${esc(formatDate(l.ausgabe))}${l.rueckgabeGeplant ? `, zurück bis ${esc(formatDate(l.rueckgabeGeplant))}` : ''}</li>`).join('')}</ul></section>` : ''}`;
+    ${geraete.length ? `<section class="karte-box"><h2>Geliehene Geräte</h2><ul>${geraete.map(({ l, g }) => `<li><b>${esc(g.name)}</b>${g.seriennummer ? ` (SN ${esc(g.seriennummer)})` : ''} – seit ${esc(formatDate(l.ausgabe))}${l.rueckgabeGeplant ? `, zurück bis ${esc(formatDate(l.rueckgabeGeplant))}` : ''}</li>`).join('')}</ul></section>` : ''}
+    ${termine.length ? `<section class="karte-box"><h2>Kommende Termine</h2><ul>${termine.map((t) => `<li><b>${esc(formatDateTime(t.beginn))}</b> – ${esc(t.titel || (t.art === 'termin' ? 'Termin' : 'Rückmeldung'))}</li>`).join('')}</ul></section>` : ''}
+    ${notizen.length ? `<section class="karte-box"><h2>Gesprächsnotizen</h2><ul class="notizliste">${notizen.map((n) => `<li><time>${esc(formatDateTime(n.zeitpunkt))}</time><p>${esc(n.text).replace(/\n/g, '<br>')}</p></li>`).join('')}</ul></section>` : ''}`;
 }
 
 let aktiv = false;
