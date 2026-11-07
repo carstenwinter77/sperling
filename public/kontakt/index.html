@@ -105,6 +105,7 @@ ul.haken li::before { content: ""; position: absolute; left: 0; top: .32em; widt
 ul.haken li::after { content: ""; position: absolute; left: .36rem; top: .52em; width: .28rem; height: .5rem; border: solid var(--k); border-width: 0 2px 2px 0; transform: rotate(45deg); }
 
 .schritt { position: relative; }
+.kontakt-person { margin: 0 0 .3rem; font-size: 1.05rem; }
 .vertrauen { list-style: none; padding: 0; margin: 1.2rem 0 0; display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; color: var(--text-2); font-size: .95rem; }
 .vertrauen li { display: inline-flex; align-items: center; gap: .45rem; }
 .vertrauen li::before { content: ""; width: .45rem; height: .8rem; border: solid var(--gruen-2); border-width: 0 2px 2px 0; transform: rotate(45deg) translateY(-2px); }
@@ -255,7 +256,7 @@ a:focus-visible, button:focus-visible, .weg:focus-visible { outline: 3px solid v
       </div>
       <figure class="portrait auftritt" style="--i:2">
         <img src="foto.jpg" width="640" height="640" alt="" data-feld-alt="name">
-        <figcaption><span data-feld="name">Jan Sperling</span><span>Berater für Photovoltaik und Wärmepumpe</span></figcaption>
+        <figcaption><span data-feld="name">Jan Sperling</span><span data-feld="titel">Selbständiger Berater für Photovoltaik und Wärmepumpe</span></figcaption>
       </figure>
     </div>
   </div>
@@ -332,6 +333,7 @@ a:focus-visible, button:focus-visible, .weg:focus-visible { outline: 3px solid v
   <section id="kontakt" aria-labelledby="t-kontakt">
     <div class="huelle">
       <h2 id="t-kontakt" class="zeigen-beim-scrollen">Kontakt</h2>
+      <p class="kontakt-person zeigen-beim-scrollen" style="--i:1"><b data-feld="name">Jan Sperling</b> · <span data-feld="titel">Selbständiger Berater für Photovoltaik und Wärmepumpe</span></p>
       <p class="unterzeile zeigen-beim-scrollen" style="--i:1">Wählen Sie, was Ihnen am liebsten ist.</p>
       <div class="raster zwei">
         <div class="kontaktwege zeigen-beim-scrollen" style="--i:1">
@@ -390,7 +392,7 @@ a:focus-visible, button:focus-visible, .weg:focus-visible { outline: 3px solid v
       <p>Telefon: <span data-feld="telefon"></span><br>E-Mail: <span data-feld="email"></span></p>
       <p data-nur="ustId">Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG: <span data-feld="ustId"></span></p>
       <p><b>Verantwortlich für den Inhalt</b> nach § 18 Abs. 2 MStV: <span data-feld="name"></span>, Anschrift wie oben.</p>
-      <p><b>Verbraucherstreitbeilegung:</b> Ich bin nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+      <p><b>Streitschlichtung:</b> Wenn einmal etwas nicht rund läuft, sprechen Sie mich bitte direkt an. Wir finden gemeinsam eine Lösung. An Verfahren vor einer Verbraucherschlichtungsstelle nehme ich nicht teil.</p>
       <p><b>Links:</b> Für die Inhalte verlinkter Angebote (z. B. WhatsApp) ist der jeweilige Anbieter verantwortlich.</p>
       <p><b>Bildrechte:</b> Fotos und Grafiken auf dieser Seite dürfen nicht ohne Zustimmung verwendet werden.</p>
     </details>

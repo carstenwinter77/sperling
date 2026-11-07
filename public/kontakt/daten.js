@@ -6,7 +6,7 @@ const KONTAKT = {
   konzept: true,                          // false = Hinweis „Platzhalter“ ausblenden
   vorname: 'Jan',
   nachname: 'Sperling',
-  titel: 'Berater für Photovoltaik und Wärmepumpe',
+  titel: 'Selbständiger Berater für Photovoltaik und Wärmepumpe',
   telefon: '0152 31704399',              // Arbeitsnummer (Anzeige); Wählen/WhatsApp mit +49
   whatsapp: '+49 152 31704399',
   email: 'kontakt@beispiel.de',           // Platzhalter
