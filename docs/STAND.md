@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.1
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.2
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -28,6 +28,7 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 
 ### Neu in 0.9.7
 - [x] Kontaktseite mit echten Kontaktdaten, Impressum und Datenschutz-Aufsichtsbehörde; Barrierefreiheit geprüft.
+- [x] **0.10.2:** Kontaktseite als Entwurf gekennzeichnet (roter Balken); in der App Warnung, Teilen und QR-Code ausgeblendet (`ENTWURF` in `src/ui/kontaktseite.ts`).
 
 ### Neu in 0.9.6
 - [x] Auswertungs-PDF „Alles zusammen“ heißt „Gesamtauswertung“.

@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.2',
+    punkte: [
+      'Kontaktseite ist als Entwurf gekennzeichnet: Link bitte noch nicht weitergeben. Teilen und QR-Code sind bis dahin ausgeblendet.',
+    ],
+  },
+  {
     version: '0.10.1',
     punkte: [
       'Textbausteine im Gesprächsmodus: kurze Sätze je Bereich antippen, sie landen als neue Zeile in der Notiz. Pflegen unter Einstellungen → Textbausteine.',

@@ -57,18 +57,22 @@ export async function qrCanvas(text: string, groesse = 1024, beschriftung = ''):
   return c;
 }
 
+/** Solange die Seite ein Entwurf ist (eigene Domain, echte Daten fehlen), wird Teilen und QR-Code nicht angeboten. */
+export const ENTWURF = true;
+
 export function abschnitt(): string {
   const url = kontaktUrl();
   return `
     <section class="karte-box" id="kontaktseite">
       <h2>${maskottchen('sperling', 'titel-bild')} Meine Kontaktseite</h2>
       <p class="hinweis">Eine öffentliche Seite, die allgemein für Photovoltaik und Wärmepumpe wirbt – ohne Anbieter, ohne Kundendaten. Kunden können dich von dort anrufen, per WhatsApp oder E-Mail schreiben, deinen Kontakt speichern oder um Rückruf bitten.</p>
+      ${ENTWURF ? '<p class="entwurf-warnung" role="alert"><b>ENTWURF – NOCH NICHT VERWENDEN!</b> Bitte diesen Link nicht weitergeben. Teilen und QR-Code kommen, sobald die Seite eigene Adresse und echte Daten hat.</p>' : ''}
       <p class="hinweis"><b>Noch offen:</b> E-Mail-Adresse und USt-IdNr. sind Platzhalter.</p>
       <p class="kontaktseite-url"><code>${esc(url)}</code></p>
       <div class="knopfreihe">
-        <a class="btn" href="${esc(url)}" target="_blank" rel="noopener">Seite öffnen</a>
-        <button class="btn ghost" id="ksQr">QR-Code zeigen</button>
-        <button class="btn ghost" id="ksTeilen">Link teilen</button>
+        <a class="btn" href="${esc(url)}" target="_blank" rel="noopener">${ENTWURF ? 'Entwurf ansehen' : 'Seite öffnen'}</a>
+        ${ENTWURF ? '' : `<button class="btn ghost" id="ksQr">QR-Code zeigen</button>
+        <button class="btn ghost" id="ksTeilen">Link teilen</button>`}
       </div>
     </section>`;
 }

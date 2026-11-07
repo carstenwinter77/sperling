@@ -1,5 +1,9 @@
 # Änderungsverlauf
 
+## 0.10.2 – 07.11.2026
+- Kontaktseite (öffentlich und Datenschutz): roter Balken „ENTWURF – NOCH NICHT VERWENDEN!“.
+- Einstellungen → Meine Kontaktseite: dieselbe Warnung; „Link teilen“ und „QR-Code“ ausgeblendet, solange `ENTWURF` in `src/ui/kontaktseite.ts` gesetzt ist.
+
 ## 0.10.1 – 07.11.2026
 - **Textbausteine** im Gesprächsmodus: Chips je Bereich über dem Notizfeld hängen den Satz als neue Zeile an (Enpal und Vorwerk getrennt, R-TEXT). Startliste je Bereich, pflegbar unter Einstellungen → Textbausteine (hinzufügen, ändern, sortieren, löschen, Startliste wiederherstellen). Schema 6 (`einstellungen.bausteine`).
 - Hinweis auf die Diktierfunktion der Tastatur. Bewusst keine eigene Spracheingabe (Web Speech schickt Audio an Dritte, R-EXTERN).
