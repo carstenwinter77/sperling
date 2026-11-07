@@ -6,6 +6,7 @@ import * as db from '../../storage/db.ts';
 import { maskottchen } from '../dom.ts';
 import { terminZeile, terminListeVerdrahten, statusChips } from '../parts.ts';
 import * as suche from '../suche.ts';
+import * as hilfe from '../hilfe.ts';
 
 const AKTIV = ['interesse', 'termin', 'angebot', 'abschluss'];
 
@@ -41,6 +42,7 @@ export function render(el: HTMLElement) {
       </div>
     </section>
     <div class="start-suche">${suche.feldHtml()}${suche.zuletztHtml()}</div>
+    ${store.isDemo() ? '' : hilfe.hinweisHtml()}
     <div id="sicherungHinweis"></div>
 
     <section class="kacheln">
@@ -75,6 +77,7 @@ export function render(el: HTMLElement) {
     const ul = el.querySelector(`#${id}`);
     if (ul) terminListeVerdrahten(ul, () => render(el));
   }
+  hilfe.hinweisVerdrahten(el);
   el.querySelector('#startSuche')?.addEventListener('click', () => suche.oeffnen());
   sicherungErinnern(el.querySelector('#sicherungHinweis'), d);
 }

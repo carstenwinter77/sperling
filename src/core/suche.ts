@@ -74,6 +74,8 @@ const BEREICHE: [string, string, string][] = [
   ['Auswertungen', '#/auswertung', 'statistik bericht zahlen'],
   ['Gelöschte Kunden', '#/geloescht', 'papierkorb wiederherstellen geloescht'],
   ['Einstellungen', '#/einstellungen', 'optionen sicherung dropbox passwort vorlagen'],
+  ['Hilfe', '#/hilfe', 'anleitung fragen begriffe faq erklaerung'],
+  ['App installieren', '#/hilfe?thema=installieren', 'installation home bildschirm homescreen dock einrichten'],
 ];
 
 export const BEFEHLE: { befehl: Befehl; titel: string; such: string }[] = [

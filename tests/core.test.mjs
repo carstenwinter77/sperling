@@ -617,3 +617,30 @@ test('Kommandozeile: Normalisierung, Bewertung, Gruppen, Verben, Zuletzt', async
   assert.deepEqual(migrate({ ...emptyData(), einstellungen: { zuletzt: [{ art: 'kunde', id: 'a' }, { art: 'x', id: 'b' }, 'quatsch'] } }).einstellungen.zuletzt, [{ art: 'kunde', id: 'a' }]);
   assert.match(s.ausschnitt('x '.repeat(80) + 'Speicher gewünscht ' + 'y '.repeat(80), 'speicher'), /Speicher/);
 });
+
+test('Installationshilfe: Gerät/Browser erkennen, passender Weg zuerst', async () => {
+  const i = await import('../src/core/installieren.ts');
+  const ipad = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15';
+  assert.deepEqual(i.erkennen(ipad, 5), { geraet: 'ipad', browser: 'safari' });
+  assert.deepEqual(i.erkennen(ipad, 0), { geraet: 'mac', browser: 'safari' });
+  assert.deepEqual(i.erkennen('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 CriOS/130.0 Mobile/15E148 Safari/604.1'), { geraet: 'iphone', browser: 'chrome' });
+  assert.deepEqual(i.erkennen('Mozilla/5.0 (Linux; Android 14; SM-X710) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/25.0 Chrome/121.0 Safari/537.36'), { geraet: 'android', browser: 'samsung' });
+  assert.deepEqual(i.erkennen('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36 Edg/130.0'), { geraet: 'windows', browser: 'edge' });
+  assert.equal(i.wegeFuer('ipad', 'safari')[0].id, 'ios-safari');
+  assert.equal(i.wegeFuer('iphone', 'chrome')[0].id, 'ios-andere');
+  assert.equal(i.wegeFuer('android', 'samsung')[0].id, 'android-samsung');
+  assert.equal(i.wegeFuer('mac', 'safari')[0].id, 'mac-safari');
+  assert.equal(i.wegeFuer('linux', 'firefox')[0].id, 'desktop-firefox');
+  for (const g of ['iphone', 'ipad', 'android', 'windows', 'mac', 'linux']) assert.ok(i.wegeFuer(g, 'andere').length >= 2, g);
+});
+
+test('Hilfe: Themen vollständig, Suche findet Anleitungen, Begriffe und Fragen', async () => {
+  const h = await import('../src/core/hilfe.ts');
+  for (const [id, t] of Object.entries(h.THEMEN)) { assert.ok(t.titel && t.kurz, id); }
+  assert.equal(h.hilfeSuchen('').length, 0);
+  assert.equal(h.hilfeSuchen('sicherung')[0].id, 'sicherung');
+  assert.equal(h.hilfeSuchen('karte')[0].id, 'karte');
+  assert.ok(h.hilfeSuchen('wiedervorlage').some((x) => x.art === 'begriff'));
+  assert.ok(h.hilfeSuchen('passwort vergessen').some((x) => x.art === 'frage'));
+  assert.ok(h.hilfeSuchen('Einwände').length > 0, 'Umlaute');
+});

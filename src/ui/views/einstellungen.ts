@@ -13,6 +13,7 @@ import * as bio from '../../storage/biometrie.ts';
 import { KeyRing } from '../../core/crypto.ts';
 import { MAILPROGRAMME, gemerktesMailprogramm, mailprogrammMerken } from '../kontakt.ts';
 import { maskottchen, toast, download, dateiWaehlen, dialog, bestaetigen, teilenOderSpeichern } from '../dom.ts';
+import * as hilfe from '../hilfe.ts';
 
 export const APP_VERSION = __APP_VERSION__; // aus package.json (vite.config.ts)
 
@@ -29,6 +30,13 @@ export function render(el: HTMLElement) {
         ${Object.entries(theme.SCHEMATA).map(([k, v]) => `<button data-schema="${k}" class="${theme.lesen() === k ? 'aktiv' : ''}">${v}</button>`).join('')}
       </div>
       <p class="hinweis">Automatisch folgt der Einstellung des Geräts.</p>
+    </section>
+
+    <section class="karte-box" id="hilfeEinstellungen">
+      <h2>Hilfe</h2>
+      <label class="check"><input type="checkbox" id="hilfeKnoepfe" ${hilfe.vorlieben().knoepfe ? 'checked' : ''}> ?-Knöpfe mit Kurzhilfe anzeigen</label>
+      <div class="knopfreihe"><a class="btn" href="#/hilfe">📖 Hilfe öffnen</a><a class="btn ghost" href="#/hilfe?thema=installieren">📲 App installieren</a></div>
+      <p class="hinweis">Die Hilfe-Seite bleibt auch ohne ?-Knöpfe erreichbar (hier und über die Suche).</p>
     </section>
 
     <section class="karte-box">
@@ -65,7 +73,7 @@ export function render(el: HTMLElement) {
     </section>
 
     <section class="karte-box" id="kaEinstellungen">
-      <h2>Kundenansicht zum Herzeigen</h2>
+      <h2>Kundenansicht zum Herzeigen ${hilfe.knopf('kundenansicht')}</h2>
       <p class="hinweis">Lege fest, was der Kunde sieht, wenn du ihm das Tablet mit der Kundenansicht gibst. Andere Kunden und Einwände sind dort nie zu sehen.</p>
       <div class="ka-wahl">${Object.entries(KUNDENANSICHT_TEILE).map(([k, v]) => `<label class="check"><input type="checkbox" data-ka="${k}" ${e.kundenansicht[k] ? 'checked' : ''}> ${esc(v.label)}</label>`).join('')}</div>
     </section>
@@ -114,7 +122,7 @@ export function render(el: HTMLElement) {
     </section>
 
     <section class="karte-box ${demo ? 'aus' : ''}">
-      <h2>Datensicherung</h2>
+      <h2>Datensicherung ${hilfe.knopf('sicherung')}</h2>
       <p class="hinweis">Die Sicherungsdatei ist mit deinem Master-Passwort verschlüsselt. <b>iCloud:</b> „In iCloud / Dateien sichern“ tippen, im Teilen-Menü „In Dateien sichern“ wählen und den Ordner in iCloud Drive aussuchen. Zum Zurückholen „Sicherung einspielen“ und die Datei aus iCloud Drive wählen.</p>
       <p id="letzteSicherung" class="hinweis"></p>
       <div class="knopfreihe">
@@ -181,6 +189,7 @@ export function render(el: HTMLElement) {
       render(el);
     } catch (err) { toast(`Entfernen fehlgeschlagen: ${(err as Error).message}`, 'error'); }
   });
+  el.querySelector('#hilfeKnoepfe')?.addEventListener('change', (ev) => { hilfe.vorliebeSetzen({ knoepfe: (ev.target as HTMLInputElement).checked }); toast('Gespeichert', 'ok'); });
   el.querySelector('#kartenApp').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.kartenApp = (ev.target as HTMLInputElement).value; }));
   el.querySelector('#kaEinstellungen').addEventListener('change', (ev) => {
     const c = (ev.target as Element).closest<HTMLInputElement>('[data-ka]');

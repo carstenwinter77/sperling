@@ -8,9 +8,10 @@ import * as store from '../storage/store.ts';
 import * as db from '../storage/db.ts';
 import * as bio from '../storage/biometrie.ts';
 import { toast } from './dom.ts';
+import { knopf as hilfeKnopf } from './hilfe.ts';
 
 /** Routen, die im Schutz erreichbar sind (alles andere führt zurück zum Kunden). */
-const ERLAUBT = [/^\/kunde\/([\w-]+)(\/gespraech)?$/, /^\/gespraech$/, /^\/termine$/, /^\/bestand$/, /^\/belegung$/];
+const ERLAUBT = [/^\/kunde\/([\w-]+)(\/gespraech)?$/, /^\/gespraech$/, /^\/termine$/, /^\/bestand$/, /^\/belegung$/, /^\/hilfe$/];
 
 export const aktiv = () => !!store.schutzKunde();
 store.subscribe((d) => { if (!d) document.body.classList.remove('schutz-aktiv'); });
@@ -67,7 +68,7 @@ export function zeigen() {
   const band = document.querySelector<HTMLElement>('#schutzBand');
   if (band) {
     band.hidden = !k;
-    band.innerHTML = k ? `🛡 Beratung: nur <b>${esc(kundenTitel(k))}</b> sichtbar <button type="button" id="schutzAus">Aufheben</button>` : '';
+    band.innerHTML = k ? `🛡 Beratung: nur <b>${esc(kundenTitel(k))}</b> sichtbar <button type="button" id="schutzAus">Aufheben</button>${hilfeKnopf('schutz')}` : '';
     band.querySelector('#schutzAus')?.addEventListener('click', ausschalten);
   }
 }

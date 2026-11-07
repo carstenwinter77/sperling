@@ -652,3 +652,25 @@ dialog.such-dlg::backdrop { background: rgba(43, 33, 24, .45); }
 .such-fuss { margin: 0; padding: .45rem .9rem; border-top: 1px solid var(--linie); }
 @media (pointer: coarse) { .such-fuss, .such-feld kbd { display: none; } }
 .geraet.such-ziel { outline: 3px solid var(--braun-hell); outline-offset: 2px; }
+
+/* ---------- Hilfe ---------- */
+.hilfe-knopf { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; margin-left: .45rem; vertical-align: middle; border-radius: 50%; border: 1.5px solid var(--braun-hell); background: var(--karte); color: var(--braun); font: inherit; font-size: .95rem; font-weight: 800; line-height: 1; cursor: pointer; position: relative; }
+.hilfe-knopf::after { content: ''; position: absolute; inset: -8px; } /* Tippfläche 44 px */
+.hilfe-knopf:hover { background: var(--aktiv-bg); }
+body.hilfe-aus .hilfe-knopf { display: none; }
+.hilfe-schritte { margin: .2rem 0 .4rem; padding-left: 1.3rem; display: flex; flex-direction: column; gap: .35rem; }
+.hilfe-suche input { width: 100%; min-height: 48px; font-size: 1.05rem; margin-bottom: 1rem; }
+.hilfe-thema { border-top: 1px solid var(--linie); padding: .3rem 0; }
+.hilfe-thema:first-of-type { border-top: 0; }
+.hilfe-thema summary { cursor: pointer; font-weight: 700; min-height: 44px; display: flex; align-items: center; gap: .4rem; }
+.hilfe-thema summary small { font-weight: 500; color: var(--text-2); }
+.hilfe-thema > p, .hilfe-thema > ol { margin-left: .2rem; }
+.hilfe-begriffe { display: grid; grid-template-columns: minmax(120px, max-content) 1fr; gap: .5rem 1rem; margin: 0; }
+.hilfe-begriffe dt { font-weight: 700; }
+.hilfe-begriffe dd { margin: 0; }
+@media (max-width: 520px) { .hilfe-begriffe { grid-template-columns: 1fr; } .hilfe-begriffe dd { margin-bottom: .4rem; } }
+.install-geraete { flex-wrap: wrap; margin: .6rem 0; max-width: 100%; }
+.install-hinweis { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .6rem; }
+.ok-box { color: var(--gruen); font-weight: 700; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.schutz-band .hilfe-knopf { width: 24px; height: 24px; font-size: .85rem; }

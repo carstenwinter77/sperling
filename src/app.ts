@@ -26,22 +26,26 @@ import * as vGeloescht from './ui/views/geloescht.ts';
 import * as vGespraechsmodus from './ui/views/gespraechsmodus.ts';
 import * as schutz from './ui/schutz.ts';
 import * as suche from './ui/suche.ts';
+import * as hilfe from './ui/hilfe.ts';
+import * as vHilfe from './ui/views/hilfe.ts';
+import type { ThemaId } from './core/hilfe.ts';
 
 interface Ansicht { render(el: HTMLElement, params: URLSearchParams, treffer: string[]): void | (() => void) }
-interface Route { muster: RegExp; view: Ansicht; nav: string }
+interface Route { muster: RegExp; view: Ansicht; nav: string; hilfe?: ThemaId }
 const ROUTEN: Route[] = [
-  { muster: /^\/?$/, view: vStart, nav: 'start' },
-  { muster: /^\/kunden$/, view: vKunden, nav: 'kunden' },
-  { muster: /^\/kunde\/([\w-]+)$/, view: vKunde, nav: 'kunden' },
-  { muster: /^\/kunde\/([\w-]+)\/gespraech$/, view: vGespraechsmodus, nav: 'kunden' },
-  { muster: /^\/karte$/, view: vKarte, nav: 'karte' },
-  { muster: /^\/termine$/, view: vTermine, nav: 'termine' },
-  { muster: /^\/einstellungen$/, view: vEinst, nav: 'einstellungen' },
-  { muster: /^\/bestand$/, view: vBestand, nav: 'bestand' },
-  { muster: /^\/belegung$/, view: vBelegung, nav: 'bestand' },
-  { muster: /^\/auswertung$/, view: vAuswertung, nav: 'auswertung' },
-  { muster: /^\/geloescht$/, view: vGeloescht, nav: 'kunden' },
-  { muster: /^\/gespraech$/, view: vGespraech, nav: 'gespraech' },
+  { muster: /^\/?$/, view: vStart, nav: 'start', hilfe: 'start' },
+  { muster: /^\/kunden$/, view: vKunden, nav: 'kunden', hilfe: 'kunden' },
+  { muster: /^\/kunde\/([\w-]+)$/, view: vKunde, nav: 'kunden', hilfe: 'kunde' },
+  { muster: /^\/kunde\/([\w-]+)\/gespraech$/, view: vGespraechsmodus, nav: 'kunden', hilfe: 'gespraechsmodus' },
+  { muster: /^\/karte$/, view: vKarte, nav: 'karte', hilfe: 'karte' },
+  { muster: /^\/termine$/, view: vTermine, nav: 'termine', hilfe: 'termine' },
+  { muster: /^\/einstellungen$/, view: vEinst, nav: 'einstellungen', hilfe: 'einstellungen' },
+  { muster: /^\/bestand$/, view: vBestand, nav: 'bestand', hilfe: 'bestand' },
+  { muster: /^\/belegung$/, view: vBelegung, nav: 'bestand', hilfe: 'belegung' },
+  { muster: /^\/auswertung$/, view: vAuswertung, nav: 'auswertung', hilfe: 'auswertung' },
+  { muster: /^\/geloescht$/, view: vGeloescht, nav: 'kunden', hilfe: 'geloescht' },
+  { muster: /^\/gespraech$/, view: vGespraech, nav: 'gespraech', hilfe: 'gespraech' },
+  { muster: /^\/hilfe$/, view: vHilfe, nav: 'einstellungen' },
 ];
 
 const NAV = [
@@ -243,6 +247,9 @@ function route() {
   try {
     const res = r.view.render(el, params, treffer);
     if (typeof res === 'function') aufraeumen = res;
+    // ?-Knopf an die Seitenüberschrift
+    const h1 = el.querySelector('.seitenkopf h1, .hero h1');
+    if (r.hilfe && h1 && !h1.querySelector('.hilfe-knopf')) h1.insertAdjacentHTML('beforeend', hilfe.knopf(r.hilfe));
   } catch (e) {
     console.error(e);
     el.innerHTML = `<div class="leer">${maskottchen('sperling', 'gross')}<p>Diese Ansicht konnte nicht angezeigt werden.</p><p class="hinweis">${esc((e as Error).message)}</p><a class="btn" href="#/">Zur Übersicht</a></div>`;
@@ -270,6 +277,7 @@ store.onSaved((ev) => { if (ev.fehler) toast(`Speichern fehlgeschlagen: ${ev.feh
 
 // ---------- Start ----------
 async function start() {
+  try { hilfe.starten(); } catch (e) { console.error(e); }
   try { dbx.captureAuthCode(); } catch (e) { console.error(e); }
   sync.init();
   // Browser bitten, die Daten nicht automatisch zu löschen (wichtig v. a. auf iPad/Android).

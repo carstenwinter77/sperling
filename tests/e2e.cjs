@@ -374,6 +374,25 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.keyboard.press('Enter');
   await p.waitForSelector('dialog.dlg input[name=titel]');
   await p.click('dialog.dlg button.ghost');
+  // Hilfe: ?-Knopf zeigt Kurzhilfe, Hilfe-Seite mit Suche und Installationshilfe, abschaltbar
+  await p.goto(BASE + '#/kunden');
+  await p.click('.seitenkopf h1 .hilfe-knopf');
+  await p.waitForSelector('dialog.dlg .hilfe-schritte');
+  await p.click('dialog.dlg button.primary');
+  await p.goto(BASE + '#/hilfe');
+  await p.waitForSelector('#installBox .install-weg');
+  await p.click('#installBox [data-geraet=ipad]');
+  if (!(await p.textContent('#installBox')).includes('Zum Home-Bildschirm')) fail('iPad-Anleitung fehlt');
+  await p.fill('#hilfeSuche', 'passwort vergessen');
+  await p.waitForSelector('#hilfeTreffer details');
+  if (!(await p.isHidden('#hilfeAlles'))) fail('Hilfe-Suche blendet den Rest nicht aus');
+  await p.goto(BASE + '#/einstellungen');
+  await p.uncheck('#hilfeKnoepfe');
+  await p.goto(BASE + '#/kunden');
+  await p.waitForSelector('#liste');
+  if (await p.isVisible('.seitenkopf h1 .hilfe-knopf')) fail('?-Knopf trotz Abschalten sichtbar');
+  await p.goto(BASE + '#/einstellungen');
+  await p.check('#hilfeKnoepfe');
   // Unbekannte Route / unbekannter Kunde stürzen nicht ab
   await p.goto(BASE + '#/kunde/gibtsnicht');
   await p.waitForSelector('.leer');
