@@ -1,5 +1,10 @@
 # Änderungsverlauf
 
+## 0.10.1 – 07.11.2026
+- **Textbausteine** im Gesprächsmodus: Chips je Bereich über dem Notizfeld hängen den Satz als neue Zeile an (Enpal und Vorwerk getrennt, R-TEXT). Startliste je Bereich, pflegbar unter Einstellungen → Textbausteine (hinzufügen, ändern, sortieren, löschen, Startliste wiederherstellen). Schema 6 (`einstellungen.bausteine`).
+- Hinweis auf die Diktierfunktion der Tastatur. Bewusst keine eigene Spracheingabe (Web Speech schickt Audio an Dritte, R-EXTERN).
+- Hilfe-Thema „Textbausteine im Gespräch“.
+
 ## 0.10.0 – 07.11.2026
 - **Produktübersicht** `#/produkte`: 46 Produkte (Enpal PV/WP, GALVANY WP, Vorwerk Kobold) aus `src/data/produkte.json`, Reiter je Bereich, Kategorien, Suche, Detail mit technischen Daten, Preis mit Stand, „Passt dazu“, Link zum Hersteller, Kennzeichen „bald verfügbar“. Bilder nur verlinkt, offline Bereichs-Icon. Im Beratungs-Schutz erlaubt, in der Kommandozeile suchbar.
 - **Produkte im Gespräch markieren:** Kartei (Enpal/Vorwerk) und Gesprächsmodus, je Produkt Interesse / Später / Schon vorhanden / Kein Interesse; Verlauf, Texte (R-TEXT), Filter „Produkte“, Auswertungen „Produkt-Interessen“ und „Meistgefragte Produkte“ (auch im PDF). Schema 5.

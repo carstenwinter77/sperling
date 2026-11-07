@@ -163,6 +163,17 @@ export const THEMEN = {
       'Löschen (🗑) entfernt ein eigenes Feld samt Werten. Wer die Werte behalten will, blendet es nur aus.',
     ],
   },
+  bausteine: {
+    titel: 'Textbausteine im Gespräch',
+    kurz: 'Statt zu tippen: Im Gesprächsmodus kurze Sätze antippen, sie landen als neue Zeile in der Notiz. Tippen geht weiterhin.',
+    schritte: [
+      'Gesprächsmodus → Notizen: Über dem Notizfeld stehen die Bausteine der gewählten Themen.',
+      'Antippen hängt den Satz als neue Zeile an. Danach kannst du ihn im Notizfeld frei ändern.',
+      'Enpal und Vorwerk haben getrennte Notizen. Jeder Baustein landet nur in der Notiz seines Bereichs.',
+      'Diktieren: Ins Notizfeld tippen und auf der Tastatur das Mikrofon antippen. Das ist die Diktierfunktion des iPad, Sperling selbst nimmt nichts auf.',
+      'Einstellungen → Textbausteine: je Bereich hinzufügen, umschreiben, mit ↑ ↓ sortieren, löschen oder die Startliste wiederherstellen.',
+    ],
+  },
   installieren: {
     titel: 'Sperling als App installieren',
     kurz: 'Installiert startet Sperling wie jede App vom Home-Bildschirm, läuft offline und kann Face ID nutzen.',

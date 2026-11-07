@@ -2,6 +2,13 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.1',
+    punkte: [
+      'Textbausteine im Gesprächsmodus: kurze Sätze je Bereich antippen, sie landen als neue Zeile in der Notiz. Pflegen unter Einstellungen → Textbausteine.',
+      'Lieber sprechen? Ins Notizfeld tippen und auf der Tastatur das Mikrofon antippen.',
+    ],
+  },
+  {
     version: '0.10.0',
     punkte: [
       'Produktübersicht: alle Produkte von Enpal, GALVANY und Vorwerk Kobold mit Daten, Preis (mit Stand) und Link zum Hersteller.',

@@ -13,6 +13,7 @@ import * as leitfaden from './gespraech.ts';
 import { bindeFelder } from './kunde.ts';
 import { felderHtml } from '../felder.ts';
 import { markierenHtml, markierenVerdrahten, markierenNeuZeichnen } from '../produkte.ts';
+import { bausteinAnhaengen } from '../../core/bausteine.ts';
 
 type Seite = 'notizen' | 'leitfaden' | 'abschluss';
 const SEITEN: [Seite, string][] = [['notizen', '📝 Notizen'], ['leitfaden', '💬 Leitfaden'], ['abschluss', '✓ Abschließen']];
@@ -87,6 +88,18 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
   // ---------- Rechts ----------
   const gruppen = (): ablauf.Gruppe[] => (['enpal', 'vorwerk'] as ablauf.Gruppe[]).filter((g) => e.sparten.some((s) => ablauf.gruppeVon(s) === g) || e.notiz[g].trim());
 
+  // Textbausteine der Bereiche dieser Gruppe (gewählte Themen, sonst alle der Gruppe)
+  const bausteineHtml = (g: ablauf.Gruppe) => {
+    const alle = SPARTEN_KEYS.filter((s) => ablauf.gruppeVon(s) === g);
+    const gewaehlt = alle.filter((s) => e.sparten.includes(s));
+    const bs = store.getData().einstellungen.bausteine;
+    const zeigen = (gewaehlt.length ? gewaehlt : alle).filter((s) => bs[s].length);
+    if (!zeigen.length) return '';
+    return `<div class="gm-bausteine" data-gruppe="${g}">${zeigen.map((s) => `
+      <div class="gm-baustein-reihe" role="group" aria-label="Textbausteine ${esc(SPARTEN[s].label)}">${zeigen.length > 1 ? `<small class="tag tag-${s}">${esc(SPARTEN[s].label)}</small>` : ''}${bs[s].map((t, i) => `<button type="button" class="chip-wahl gm-baustein" data-baustein="${s}:${i}">+ ${esc(t)}</button>`).join('')}</div>`).join('')}
+    </div>`;
+  };
+
   const notizenZeichnen = () => {
     const gs = gruppen();
     rechts.innerHTML = `
@@ -99,14 +112,30 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
       </div>
       ${gs.length ? gs.map((g) => `
       <div class="karte-box gm-notiz">
-        <label>${gs.length > 1 ? `Notizen ${esc(GRUPPE_TEXT[g])}` : 'Notizen'}<textarea data-gruppe="${g}" rows="${gs.length > 1 ? 7 : 12}" placeholder="Was sagt der Kunde? Wünsche, Bedenken, Absprachen …">${esc(e.notiz[g])}</textarea></label>
+        <label for="gmNotiz-${g}">${gs.length > 1 ? `Notizen ${esc(GRUPPE_TEXT[g])}` : 'Notizen'}</label>
+        ${bausteineHtml(g)}
+        <textarea id="gmNotiz-${g}" data-gruppe="${g}" rows="${gs.length > 1 ? 7 : 12}" placeholder="Was sagt der Kunde? Wünsche, Bedenken, Absprachen … oder oben Bausteine antippen">${esc(e.notiz[g])}</textarea>
       </div>`).join('') : '<p class="hinweis">Wähle oben, worüber ihr sprecht.</p>'}
+      ${gs.length ? '<p class="hinweis gm-diktat">🎤 Lieber sprechen? Ins Notizfeld tippen und auf der Tastatur das Mikrofon antippen. Bausteine änderst du unter Einstellungen → Textbausteine.</p>' : ''}
       ${gs.length > 1 ? '<p class="hinweis">Enpal und Vorwerk werden getrennt notiert, damit jede Seite nur ihren Teil im Text bekommt.</p>' : ''}
       <div class="knopfreihe">
         <button type="button" class="btn" data-geh="leitfaden">💬 Leitfaden öffnen</button>
         <button type="button" class="btn primary" data-geh="abschluss">Gespräch abschließen ›</button>
       </div>`;
     rechts.querySelectorAll<HTMLTextAreaElement>('textarea[data-gruppe]').forEach((t) => t.addEventListener('input', () => { e.notiz[t.dataset.gruppe as ablauf.Gruppe] = t.value; }));
+    rechts.querySelectorAll<HTMLElement>('.gm-bausteine').forEach((box) => box.addEventListener('click', (ev) => {
+      const b = (ev.target as Element).closest<HTMLElement>('[data-baustein]');
+      if (!b) return;
+      const g = box.dataset.gruppe as ablauf.Gruppe;
+      const [s, i] = b.dataset.baustein!.split(':');
+      const text = store.getData().einstellungen.bausteine[s as Sparte]?.[Number(i)];
+      const ta = rechts.querySelector<HTMLTextAreaElement>(`textarea[data-gruppe="${g}"]`);
+      if (!text || !ta) return;
+      e.notiz[g] = bausteinAnhaengen(e.notiz[g], text);
+      ta.value = e.notiz[g];
+      ta.scrollTop = ta.scrollHeight;
+      b.classList.add('benutzt');
+    }));
     rechts.querySelector('#gmErreicht').addEventListener('change', (ev) => { e.erreicht = (ev.target as HTMLInputElement).checked; });
     rechts.querySelector('.gm-art').addEventListener('click', (ev) => {
       const b = (ev.target as Element).closest('[data-art]');

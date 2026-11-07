@@ -263,6 +263,11 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('.gm-leitfaden [data-ergebnis=ueberzeugt]');
   await p.click('.gm-seiten [data-seite=notizen]');
   if ((await p.inputValue('textarea[data-gruppe] >> nth=0')) !== 'E2E-Gesprächsnotiz Speicherwunsch') fail('Notiz nach Leitfaden verloren');
+  // Textbaustein antippen hängt eine Zeile an
+  const bsText = (await p.textContent('.gm-bausteine .gm-baustein >> nth=0')).replace(/^\+\s*/, '').trim();
+  await p.click('.gm-bausteine .gm-baustein >> nth=0');
+  if ((await p.inputValue('textarea[data-gruppe] >> nth=0')) !== 'E2E-Gesprächsnotiz Speicherwunsch\n' + bsText) fail('Textbaustein nicht angehängt');
+  if (!(await p.isVisible('.gm-diktat'))) fail('Diktat-Hinweis fehlt');
   await p.click('.gm-seiten [data-seite=abschluss]');
   await p.selectOption('[data-abschluss] [name=ausgang] >> nth=0', 'wiedervorlage');
   await p.click('#gmSpeichern');
@@ -462,6 +467,25 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   if ((await p.$$('#liste a.zeile')).length !== 1) fail('Produktfilter Interesse falsch');
   await p.click('[data-f-alle]');
   if (!markiert) fail('Markiertes Produkt nicht erkennbar');
+  // Einstellungen → Textbausteine: hinzufügen, erscheint im Gesprächsmodus
+  await p.goto(BASE + '#/einstellungen');
+  await p.click('#bausteinEinstellungen details[data-baustein-bereich=vorwerk] summary');
+  await p.fill('[data-bs-neu=vorwerk] input', 'E2E-Baustein Rückruf abends');
+  await p.click('[data-bs-neu=vorwerk] button');
+  await p.waitForSelector('#bausteinEinstellungen details[data-baustein-bereich=vorwerk][open] [data-bs-text]');
+  if (!(await p.$$eval('[data-baustein-bereich=vorwerk] [data-bs-text]', (l) => l.some((i) => i.value === 'E2E-Baustein Rückruf abends')))) fail('Baustein nicht gespeichert');
+  await p.goto(BASE + '#/kunden');
+  await p.click('#liste .zeile');
+  await p.click('#gespraechStarten');
+  await p.waitForSelector('.gm-sparten');
+  if (!(await p.$('.gm-sparten [data-sparte=vorwerk].aktiv'))) await p.click('.gm-sparten [data-sparte=vorwerk]');
+  await p.click('.gm-bausteine[data-gruppe=vorwerk] .gm-baustein:has-text("E2E-Baustein Rückruf abends")');
+  if (!(await p.inputValue('textarea[data-gruppe=vorwerk]')).includes('E2E-Baustein Rückruf abends')) fail('Eigener Baustein nicht in Vorwerk-Notiz');
+  if ((await p.$$('.gm-bausteine[data-gruppe=enpal] .gm-baustein:has-text("E2E-Baustein")')).length) fail('Vorwerk-Baustein bei Enpal (R-TEXT)');
+  await p.click('.gm-seiten [data-seite=abschluss]');
+  await p.click('#gmVerwerfen');
+  await p.click('dialog button.danger');
+  await p.waitForFunction(() => /^#\/kunde\/[\w-]+(\?|$)/.test(location.hash));
   // Unbekannte Route / unbekannter Kunde stürzen nicht ab
   await p.goto(BASE + '#/kunde/gibtsnicht');
   await p.waitForSelector('.leer');

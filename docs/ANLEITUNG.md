@@ -50,6 +50,13 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Auswertungen:** Bereich und Zeitraum wählen, mit ‹ › blättern, „PDF-Bericht“ zum Teilen.
 - **Hilfe:** ?-Knopf neben jeder Überschrift; alles unter Einstellungen → Hilfe (dort auch abschaltbar und die Installationsanleitung).
 
+## Textbausteine und Diktieren
+
+- Im Gesprächsmodus stehen über dem Notizfeld kurze Sätze je Bereich. Antippen hängt den Satz als neue Zeile an die Notiz an; danach frei weiterschreiben.
+- Enpal und Vorwerk haben getrennte Notizen, ein Baustein landet nur in der Notiz seines Bereichs.
+- Diktieren: ins Notizfeld tippen und auf der iPad-Tastatur das Mikrofon antippen.
+- **Einstellungen → Textbausteine:** je Bereich hinzufügen, umschreiben (Feld ändern), mit ↑ ↓ sortieren, löschen, Startliste wiederherstellen.
+
 ## Produkte
 
 - **Produkte** (Seitenleiste, am Handy über Gespräch oder die Suche): Reiter Photovoltaik, Wärmepumpe, Vorwerk, Kategorien und Suche. Produkt antippen für Daten, Preis mit Stand und Link zum Hersteller.

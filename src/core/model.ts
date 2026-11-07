@@ -5,8 +5,9 @@
 import { type Rec, uid, nowIso, isValidDate, parseNumber, isValidCoord } from './util.ts';
 import { normalizeFeldEinstellungen, normalizeEigeneWerte } from './felder.ts';
 import { normalizeProduktMarkierung, type ProduktMarkierung } from './produkte.ts';
+import { normalizeBausteine } from './bausteine.ts';
 
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 6;
 
 /** Die drei Geschäftszweige. Gruppe bestimmt, welcher Textgenerator sie sehen darf. */
 export const SPARTEN = {
@@ -517,6 +518,8 @@ function normalizeEinstellungen(e: unknown) {
     zuletzt: normalizeZuletzt(src.zuletzt),
     /** Feldverwaltung (ab Schema 4): ausgeblendete Felder (Pfade) und eigene Felder */
     felder: normalizeFeldEinstellungen(src.felder),
+    /** Textbausteine je Bereich für die Gesprächsnotizen (ab Schema 6) */
+    bausteine: normalizeBausteine(src.bausteine),
   };
 }
 
@@ -533,7 +536,8 @@ export function migrate(input: unknown): Daten {
   // Beides ergänzt normalize…() unten; ältere Daten bleiben vollständig lesbar.
   // v3 → v4: kunde.eigene und einstellungen.felder (Feldverwaltung), beides leer ergänzt.
   // v4 → v5: kunde.produkte (Produkte im Gespräch markieren), leer ergänzt.
-  // Künftige Migrationen hier schrittweise: if (v < 6) { ... }
+  // v5 → v6: einstellungen.bausteine (Textbausteine im Gesprächsmodus), mit Startliste ergänzt.
+  // Künftige Migrationen hier schrittweise: if (v < 7) { ... }
   const kunden = Array.isArray(data.kunden) ? data.kunden.map(normalizeKunde) : [];
   // Doppelte IDs verhindern (z. B. nach manuellem Zusammenführen)
   const seen = new Set();

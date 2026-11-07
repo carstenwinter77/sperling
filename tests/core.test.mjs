@@ -806,3 +806,27 @@ test('Produkte im Gespräch: markieren, umentscheiden, aufheben, Verlauf, Texte 
   assert.deepEqual(kz.topProdukte, [{ name: 'Enpal Speicher', anzahl: 1 }]);
   assert.equal(kennzahlen(d, 'vorwerk', '2026-11-01', '2026-11-01', 'tag').produkte.interesse, 0);
 });
+
+import * as bs from '../src/core/bausteine.ts';
+test('Textbausteine: Startliste, Normalisierung, Anhängen', () => {
+  // Ältere Daten ohne bausteine bekommen die Startliste
+  const d = migrate({ schemaVersion: 5, kunden: [], einstellungen: {} });
+  assert.deepEqual(d.einstellungen.bausteine.pv, bs.STANDARD_BAUSTEINE.pv);
+  assert.ok(d.einstellungen.bausteine.vorwerk.length > 5);
+  // Bewusst geleerte Liste bleibt leer, Unsinn wird bereinigt
+  const n = bs.normalizeBausteine({ pv: [], wp: ['  A  ', 'A', '', 5, null, 'B   C'], vorwerk: 'kaputt' });
+  assert.deepEqual(n.pv, []);
+  assert.deepEqual(n.wp, ['A', 'B C']);
+  assert.deepEqual(n.vorwerk, bs.STANDARD_BAUSTEINE.vorwerk);
+  assert.equal(bs.bausteinListe(Array.from({ length: 200 }, (_, i) => `x${i}`)).length, bs.MAX_BAUSTEINE);
+  assert.equal(bs.bausteinListe(['y'.repeat(999)])[0].length, bs.MAX_BAUSTEIN_LAENGE);
+  // Anhängen: jede Bausteinzeile eigene Zeile
+  assert.equal(bs.bausteinAnhaengen('', 'Speicher gewünscht'), 'Speicher gewünscht');
+  assert.equal(bs.bausteinAnhaengen('Hallo', 'B'), 'Hallo\nB');
+  assert.equal(bs.bausteinAnhaengen('Hallo\n', 'B'), 'Hallo\nB');
+  assert.equal(bs.bausteinAnhaengen('Hallo  ', 'B'), 'Hallo\nB');
+  assert.equal(bs.bausteinAnhaengen('Hallo', '   '), 'Hallo');
+  // Verschlüsselte Einstellungen überleben den Rundweg
+  const d2 = migrate(JSON.parse(JSON.stringify({ ...d, einstellungen: { ...d.einstellungen, bausteine: n } })));
+  assert.deepEqual(d2.einstellungen.bausteine.wp, ['A', 'B C']);
+});

@@ -14,6 +14,7 @@ import { maskottchen, toast, download, dateiWaehlen, dialog, bestaetigen, teilen
 import * as hilfe from '../hilfe.ts';
 import * as kontaktseite from '../kontaktseite.ts';
 import * as feldverwaltung from '../feldverwaltung.ts';
+import * as bausteinverwaltung from '../bausteinverwaltung.ts';
 
 export const APP_VERSION = __APP_VERSION__; // aus package.json (vite.config.ts)
 
@@ -74,6 +75,8 @@ export function render(el: HTMLElement) {
     </section>
 
     ${feldverwaltung.html(e.felder)}
+
+    ${bausteinverwaltung.html(e.bausteine)}
 
     <section class="karte-box" id="kaEinstellungen">
       <h2>Kundenansicht zum Herzeigen ${hilfe.knopf('kundenansicht')}</h2>
@@ -180,6 +183,7 @@ export function render(el: HTMLElement) {
   el.querySelector('#hilfeKnoepfe')?.addEventListener('change', (ev) => { hilfe.vorliebeSetzen({ knoepfe: (ev.target as HTMLInputElement).checked }); toast('Gespeichert', 'ok'); });
   el.querySelector('#kartenApp').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.kartenApp = (ev.target as HTMLInputElement).value; }));
   feldverwaltung.verdrahten(el, () => { const y = scrollY; render(el); scrollTo(0, y); });
+  bausteinverwaltung.verdrahten(el, () => { const y = scrollY; render(el); scrollTo(0, y); });
   el.querySelector('#kaEinstellungen').addEventListener('change', (ev) => {
     const c = (ev.target as Element).closest<HTMLInputElement>('[data-ka]');
     if (c) speichere((d) => { d.einstellungen.kundenansicht[c.dataset.ka as KundenansichtTeil] = c.checked; });

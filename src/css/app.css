@@ -770,3 +770,19 @@ dialog.dlg.dlg-produkt { width: min(680px, calc(100vw - 24px)); }
 .chip-wahl.markierung-vorhanden.aktiv { background: var(--tag-wp); border-color: var(--tag-wp); color: var(--karte); }
 .chip-wahl.markierung-kein.aktiv { background: var(--rot); border-color: var(--rot); color: #fff; }
 .chip.markierung-interesse { border-color: var(--gruen); } .chip.markierung-kein { border-color: var(--rot); }
+
+/* ===== Textbausteine (Gesprächsmodus und Einstellungen) ===== */
+.gm-notiz > label { display: block; font-weight: 600; margin-bottom: .4rem; }
+.gm-notiz textarea { width: 100%; }
+.gm-bausteine { display: flex; flex-direction: column; gap: .35rem; margin-bottom: .5rem; max-height: 11.5rem; overflow-y: auto; }
+.gm-baustein-reihe { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+.gm-baustein-reihe .tag { margin-right: .2rem; }
+.gm-baustein { padding: .3rem .65rem; min-height: 40px; font-size: .92rem; font-weight: 500; text-align: left; }
+.gm-bausteine { max-height: min(14rem, 32vh); }
+.gm-baustein.benutzt { border-color: var(--gruen, var(--linie)); color: var(--text); background: var(--feld); }
+.baustein-liste { margin: .3rem 0 .5rem; padding-left: 1.6rem; display: flex; flex-direction: column; gap: .3rem; }
+.baustein-liste li { display: flex; gap: .25rem; align-items: center; }
+.baustein-liste input { flex: 1 1 auto; min-width: 0; }
+.baustein-neu { display: flex; gap: .4rem; margin: .3rem 0 .5rem; }
+.baustein-neu input { flex: 1 1 auto; min-width: 0; }
+.baustein-neu .btn { white-space: nowrap; }
