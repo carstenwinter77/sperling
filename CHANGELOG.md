@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.10.27 – 07.11.2026
+- Kontaktseite: Satz zum Vergleich positiver formuliert („Ich bin überzeugt: Ein gutes Angebot hält jedem Vergleich stand.“).
+
 ## 0.10.26 – 07.11.2026
 - Kontaktseite: spricht auch Unternehmen und landwirtschaftliche Betriebe an. Neuer Abschnitt „Für Zuhause, Betrieb und Hof“, neutralere Texte, FAQ zu Unternehmen. Rückrufformular mit „Anfrage für“ und „Firma (optional)“; Datenschutzerklärung nennt die neuen Felder.
 
