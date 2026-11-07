@@ -381,3 +381,68 @@ test('Belegungsplan: Balken, Sperren, freie Geräte, Liste nach Tagen', async ()
   assert.deepEqual(a.ueberfaellig.map((l) => l.id), ['l1']);
   assert.deepEqual(a.tage.map((x) => [x.tag, x.ereignisse.map((e) => e.art).join()]), [['2026-11-12', 'resvBeginn'], ['2026-11-14', 'resvEnde']]);
 });
+
+test('Auswertungen: Zeiträume, Navigation, Kennzahlen je Bereich, Vergleich', async () => {
+  const a = await import('../src/core/auswertung.ts');
+  const { normalizeTermin, neuerLeihvorgang, normalizeKunde: nk } = await import('../src/core/model.ts');
+  // Zeiträume
+  assert.deepEqual([a.zeitraum('woche', '2026-11-08').von, a.zeitraum('woche', '2026-11-08').bis], ['2026-11-02', '2026-11-08']);
+  assert.deepEqual([a.zeitraum('monat', '2026-02-14').von, a.zeitraum('monat', '2026-02-14').bis], ['2026-02-01', '2026-02-28']);
+  assert.deepEqual([a.zeitraum('jahr', '2026-07-01').von, a.zeitraum('jahr', '2026-07-01').bis], ['2026-01-01', '2026-12-31']);
+  // 365 Tage enden am gewählten Tag, egal wo er liegt
+  assert.deepEqual([a.zeitraum('365', '2026-03-15').von, a.zeitraum('365', '2026-03-15').bis], ['2025-03-16', '2026-03-15']);
+  assert.equal(a.verschieben('monat', '2026-03-31', -1), '2026-02-28');
+  assert.equal(a.verschieben('jahr', '2028-02-29', 1), '2029-02-28');
+  assert.equal(a.verschieben('woche', '2026-11-08', 1), '2026-11-15');
+  assert.equal(a.vorzeitraum('tag', '2026-01-01').von, '2025-12-31');
+
+  const t = (s, h = 10) => new Date(`${s}T${String(h).padStart(2, '0')}:00`).toISOString();
+  const data = emptyData();
+  data.kunden = [
+    nk({ id: 'k1', nachname: 'A', createdAt: t('2026-11-03'), status: { pv: 'abschluss' },
+      enpalKontakte: [
+        { zeitpunkt: t('2026-11-03', 9), art: 'telefon', erreicht: true, themen: ['pv'], ergebnis: 'abschluss' },
+        { zeitpunkt: t('2026-11-04'), art: 'hausbesuch', erreicht: false, themen: ['pv', 'wp'], ergebnis: '' },
+        { zeitpunkt: t('2026-10-20'), art: 'telefon', erreicht: true, themen: ['wp'], ergebnis: 'kein' },
+      ],
+      notizen: [{ zeitpunkt: t('2026-11-05'), text: 'x', sparten: ['pv'] }] }),
+    nk({ id: 'k2', nachname: 'B', createdAt: t('2026-11-05'), status: { vorwerk: 'interesse' },
+      gespraeche: [{ zeitpunkt: t('2026-11-05'), sparte: 'vorwerk', ausgang: 'test' }] }),
+  ];
+  data.termine = [
+    normalizeTermin({ art: 'termin', sparte: 'pv', beginn: t('2026-11-06'), erledigt: true }),
+    normalizeTermin({ art: 'termin', sparte: 'vorwerk', beginn: t('2026-11-06') }),
+    normalizeTermin({ art: 'wiedervorlage', sparte: '', beginn: t('2026-11-07') }),
+  ];
+  data.leihvorgaenge = [
+    neuerLeihvorgang({ geraetId: 'g', kundeId: 'k2', ausgabe: t('2026-11-05'), rueckgabe: t('2026-11-06'), kaufinteresse: 'gekauft' }),
+    neuerLeihvorgang({ geraetId: 'g', kundeId: 'k2', ausgabe: t('2026-11-06') }),
+  ];
+  const alle = a.kennzahlen(data, 'alle', '2026-11-02', '2026-11-08', 'woche');
+  assert.equal(alle.gespraeche, 3);
+  assert.equal(alle.erreicht, 2);
+  assert.equal(alle.abschluesse, 1);
+  assert.equal(alle.abschlussquote, 0.5);
+  assert.equal(alle.neueKunden, 2);
+  assert.equal(alle.termine, 2); assert.equal(alle.termineErledigt, 1); assert.equal(alle.wiedervorlagen, 1);
+  assert.equal(alle.verleihe, 2); assert.equal(alle.rueckgaben, 1); assert.equal(alle.kaeufe, 1); assert.equal(alle.kaufquote, 0.5);
+  assert.equal(alle.verlauf.length, 7);
+  assert.equal(alle.verlauf.reduce((s, x) => s + x.wert, 0), 3);
+  const pv = a.kennzahlen(data, 'pv', '2026-11-02', '2026-11-08');
+  assert.equal(pv.gespraeche, 2); assert.equal(pv.abschlussquote, 1); assert.equal(pv.neueKunden, 1); assert.equal(pv.notizen, 1); assert.equal(pv.termine, 1);
+  assert.equal(pv.verleihe, 0); assert.equal(pv.kaufquote, null);
+  const wp = a.kennzahlen(data, 'wp', '2026-11-02', '2026-11-08');
+  assert.equal(wp.gespraeche, 1); assert.equal(wp.abschlussquote, null);
+  const vw = a.kennzahlen(data, 'vorwerk', '2026-11-02', '2026-11-08');
+  assert.equal(vw.gespraeche, 1); assert.equal(vw.ergebnisse.test, 1); assert.equal(vw.termine, 1); assert.equal(vw.verleihe, 2);
+  // Vergleich mit Vorzeitraum
+  const ber = a.bericht(data, 'wp', 'woche', '2026-10-26');
+  assert.equal(ber.jetzt.gespraeche, 0); assert.equal(ber.vorher.gespraeche, 1);
+  assert.deepEqual(a.veraenderung(ber.jetzt.gespraeche, ber.vorher.gespraeche), { text: '−1', richtung: 'ab' });
+  assert.deepEqual(a.veraenderung(0.5, 0.25, true), { text: '+25 Pkt.', richtung: 'auf' });
+  assert.equal(a.veraenderung(null, 1), null);
+  // Jahr/365: Monatsverlauf, leere Daten stürzen nicht ab
+  assert.equal(a.kennzahlen(emptyData(), 'alle', '2026-01-01', '2026-12-31', 'jahr').verlauf.length, 12);
+  assert.equal(a.kennzahlen(emptyData(), 'alle', '2025-11-08', '2026-11-07', '365').verlauf.length, 13);
+  assert.equal(a.kennzahlen(emptyData(), 'alle', '2026-11-07', '2026-11-07', 'tag').verlauf.length, 14);
+});

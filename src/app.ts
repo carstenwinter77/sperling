@@ -21,6 +21,7 @@ import * as vEinst from './ui/views/einstellungen.ts';
 import * as vBestand from './ui/views/bestand.ts';
 import * as vGespraech from './ui/views/gespraech.ts';
 import * as vBelegung from './ui/views/belegung.ts';
+import * as vAuswertung from './ui/views/auswertung.ts';
 
 interface Ansicht { render(el: HTMLElement, params: URLSearchParams, treffer: string[]): void | (() => void) }
 interface Route { muster: RegExp; view: Ansicht; nav: string }
@@ -33,6 +34,7 @@ const ROUTEN: Route[] = [
   { muster: /^\/einstellungen$/, view: vEinst, nav: 'einstellungen' },
   { muster: /^\/bestand$/, view: vBestand, nav: 'bestand' },
   { muster: /^\/belegung$/, view: vBelegung, nav: 'bestand' },
+  { muster: /^\/auswertung$/, view: vAuswertung, nav: 'auswertung' },
   { muster: /^\/gespraech$/, view: vGespraech, nav: 'gespraech' },
 ];
 
@@ -43,6 +45,7 @@ const NAV = [
   { key: 'termine', href: '#/termine', label: 'Termine', bild: 'termine' },
   { key: 'gespraech', href: '#/gespraech', label: 'Gespräch', bild: 'notizen' },
   { key: 'bestand', href: '#/bestand', label: 'Bestand', bild: 'vorwerk' },
+  { key: 'auswertung', href: '#/auswertung', label: 'Auswertungen', bild: 'statistik' },
   { key: 'einstellungen', href: '#/einstellungen', label: 'Einstellungen', bild: 'einstellungen' },
 ];
 

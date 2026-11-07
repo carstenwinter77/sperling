@@ -10,7 +10,7 @@ import { teilenOderSpeichern, toast } from './dom.ts';
 type JsPdfKlasse = new (opts: object) => any;
 const jspdfGlobal = () => (globalThis as unknown as { jspdf?: { jsPDF?: JsPdfKlasse } }).jspdf;
 let laden: Promise<JsPdfKlasse> | null = null;
-function jsPdfLaden() {
+export function jsPdfLaden() {
   const vorhanden = jspdfGlobal()?.jsPDF;
   if (vorhanden) return Promise.resolve(vorhanden);
   laden ||= new Promise((ok, fehler) => {
@@ -23,11 +23,11 @@ function jsPdfLaden() {
   return laden;
 }
 
-async function logo() {
+export async function logo(): Promise<string> {
   try {
     const r = await fetch('assets/maskottchen/sperling.png');
     const b = await r.blob();
-    return await new Promise((ok) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.onerror = () => ok(''); fr.readAsDataURL(b); });
+    return await new Promise((ok) => { const fr = new FileReader(); fr.onload = () => ok(String(fr.result || '')); fr.onerror = () => ok(''); fr.readAsDataURL(b); });
   } catch { return ''; }
 }
 
@@ -118,9 +118,14 @@ export async function erzeugen(leihId, art = 'ausgabe') {
 export async function anbieten(leihId, art, dialogFn) {
   let pdf;
   try { pdf = await erzeugen(leihId, art); } catch (err) { toast((err as Error).message, 'error'); return; }
+  await pdfAnbieten(pdf, art === 'rueckgabe' ? 'Rückgabeschein (PDF)' : 'Leihschein (PDF)', 'Der Beleg', dialogFn);
+}
+
+/** Fertiges PDF ansehen oder teilen/speichern. */
+export async function pdfAnbieten(pdf: { blob: Blob; dateiname: string }, titel: string, was: string, dialogFn) {
   await dialogFn({
-    titel: art === 'rueckgabe' ? 'Rückgabeschein (PDF)' : 'Leihschein (PDF)',
-    html: `<p>Der Beleg <b>${pdf.dateiname}</b> ist fertig.</p><p class="hinweis">Teilen öffnet z. B. Mail, Nachrichten oder „In Dateien sichern“.</p>`,
+    titel,
+    html: `<p>${was} <b>${pdf.dateiname}</b> ist fertig.</p><p class="hinweis">Teilen öffnet z. B. Mail, Nachrichten oder „In Dateien sichern“.</p>`,
     knoepfe: [{ label: 'Ansehen', wert: null }, { label: 'Teilen / Speichern', primaer: true, wert: null }],
     onOpen: (dlg) => {
       const [, ansehen, teilen] = dlg.querySelectorAll('.dlg-actions button');
