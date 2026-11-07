@@ -818,3 +818,4 @@ dialog.dlg.dlg-termin { width: min(560px, calc(100vw - 24px)); }
 .termin-karte .tk-notiz { white-space: normal; background: var(--feld); border-radius: 8px; padding: .5rem .6rem; }
 .tk-aktionen { flex-wrap: wrap; }
 .bk-unter { margin-top: -.25rem; }
+@media (min-width: 1300px) { .spalten.drei { grid-template-columns: repeat(3, 1fr); } }

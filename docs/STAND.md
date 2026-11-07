@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.3
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.4
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,11 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.3)
+## Erledigt (Version 0.10.4)
+
+### Neu in 0.10.4
+- [x] **Drei getrennte Texte** je Anbieter (PV/Enpal, WP/GALVANY, Vorwerk), Notizen und Reiter je Bereich, Schema 7.
+- [x] Kalender-Startansicht wählbar (Standard Monat), Termine standardmäßig 1 Stunde.
 
 ### Neu in 0.10.3
 - [x] **Kalender** mit Leihgaben und Reiter „Geräte“, **Termin-Karte**, Termine mit Griffen verschieben und ziehen (`src/core/kalender.ts`, `src/ui/terminkarte.ts`).

@@ -2,10 +2,10 @@
 // Der Entwurf (Notizen, angetippte Einwände) lebt nur im Arbeitsspeicher, nie im Browser-Speicher
 // (R-KRYPTO), und wird beim Sperren verworfen. So bleibt er erhalten, wenn man zwischen Notizen,
 // Leitfaden und anderen Seiten wechselt.
-// Gespeichert wird je Gruppe (Enpal = PV/WP, Vorwerk) eine eigene Notiz (R-TEXT).
+// Gespeichert wird je Bereich (PV, WP, Vorwerk) eine eigene Notiz (R-TEXT).
 import { nowIso } from '../core/util.ts';
 import { SPARTEN, type Sparte } from '../core/model.ts';
-import { speichern, leererVerlauf, hatEinwaende, hatInhalt, gruppeVon, type Entwurf, type Abschluss, type Gruppe, type Verlauf } from '../core/gespraech.ts';
+import { speichern, leererVerlauf, leereNotizen, hatEinwaende, hatInhalt, gruppeVon, type Entwurf, type Abschluss, type Gruppe, type Verlauf } from '../core/gespraech.ts';
 import * as store from '../storage/store.ts';
 
 export { speichern, leererVerlauf, hatEinwaende, hatInhalt, gruppeVon, type Entwurf, type Abschluss, type Gruppe, type Verlauf };
@@ -31,7 +31,7 @@ export function beginnen(kundeId: string, vorgabe: Partial<Entwurf> = {}): Entwu
     const sparten = vorgabe.sparten?.length ? vorgabe.sparten : vermuteteSparten(kundeId);
     e = {
       kundeId, start: nowIso(), kontaktart: 'telefon', erreicht: true, sparten,
-      notiz: { enpal: '', vorwerk: '' }, verlauf: leererVerlauf(), leitfadenSparte: sparten[0] || 'pv', ...vorgabe,
+      notiz: leereNotizen(), verlauf: leererVerlauf(), leitfadenSparte: sparten[0] || 'pv', ...vorgabe,
     };
     entwuerfe.set(kundeId, e);
   } else if (vorgabe.verlauf) {

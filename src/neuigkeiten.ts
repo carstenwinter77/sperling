@@ -2,6 +2,14 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.4',
+    punkte: [
+      'Drei getrennte Texte: Photovoltaik (Enpal), Wärmepumpe (GALVANY) und Vorwerk, jeder mit eigener Vorlage und eigenem Empfänger. Auch im Gesprächsmodus hat jedes Thema sein eigenes Notizfeld.',
+      'Beim Kunden eigene Reiter für Photovoltaik und Wärmepumpe.',
+      'Der Kalender startet im Monat; die Startansicht ist unter Einstellungen → Kalender wählbar. Neue Termine und Wiedervorlagen dauern eine Stunde.',
+    ],
+  },
+  {
     version: '0.10.3',
     punkte: [
       '„Termine“ heißt jetzt „Kalender“: mit Leihgaben, Rückgaben und Reservierungen und dem Reiter „Geräte“ (Belegungskalender).',

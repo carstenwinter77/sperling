@@ -19,7 +19,7 @@ export async function terminKarte(t0: Termin): Promise<boolean> {
   const k = d.kunden.find((x) => x.id === t.kundeId) || null;
   const beginn = new Date(t.beginn);
   const ende = new Date(beginn.getTime() + (t.dauerMin || 0) * 60000);
-  const zeit = `${formatDateTime(t.beginn)}${t.art === 'termin' && t.dauerMin ? ` – ${uhr(ende)}` : ''}`;
+  const zeit = `${formatDateTime(t.beginn)}${t.dauerMin ? ` – ${uhr(ende)}` : ''}`;
   const ort = t.ort || (k ? adresseEinzeilig(k) : '');
   const route = t.ort ? naviLink({ ort: t.ort }) : naviLink(k);
   const bisher = k ? kundenVerlauf(d, k).filter((v) => v.art === 'gespraech' || v.art === 'notiz').slice(0, 2) : [];

@@ -2,7 +2,7 @@
 import { esc, debounce, parseNumber, isoToLocalInput, localInputToIso, formatDateTime, distanceMeters, nowIso } from '../../core/util.ts';
 import { NACHBAR_RADIEN, radiusText, AUSGANG, SPARTEN, SPARTEN_KEYS, STATUS, kundenTitel, adresseEinzeilig, notizenSortiert, neueNotiz, normalizeNotiz } from '../../core/model.ts';
 import { ERGEBNIS } from '../../core/einwaende.ts';
-import { generiereText, ausgelasseneNotizen, GRUPPEN, notizErlaubt } from '../../core/textgen.ts';
+import { generiereText, ausgelasseneNotizen, GRUPPEN, GRUPPEN_KEYS, notizErlaubt } from '../../core/textgen.ts';
 import * as store from '../../storage/store.ts';
 import { koordinateZuAdresse } from '../../services/geo.ts';
 import { maskottchen, toast, kopieren, bestaetigen, dialog } from '../dom.ts';
@@ -23,8 +23,9 @@ import { statusOptions, terminDialog, terminZeile, terminListeVerdrahten, icsExp
 const TABS = [
   { key: 'uebersicht', label: 'Übersicht', bild: 'kunde-neu' },
   { key: 'notizen', label: 'Notizen', bild: 'notizen' },
-  { key: 'enpal', label: 'PV & Wärmepumpe', bild: 'photovoltaik' },
+  { key: 'pv', label: 'Photovoltaik', bild: 'photovoltaik' },
   { key: 'doku', label: 'Enpal-Doku', bild: 'photovoltaik' },
+  { key: 'wp', label: 'Wärmepumpe', bild: 'waermepumpe' },
   { key: 'vorwerk', label: 'Vorwerk', bild: 'vorwerk' },
   { key: 'verlauf', label: 'Verlauf', bild: 'notizen' },
   { key: 'termine', label: 'Termine', bild: 'termine' },
@@ -38,7 +39,8 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
     el.innerHTML = `<div class="leer">${maskottchen('sperling', 'gross')}<p>Diesen Kunden gibt es nicht (mehr).</p><a class="btn" href="#/kunden">Zur Kundenliste</a></div>`;
     return;
   }
-  const tabWunsch = params.get('tab') === 'gespraeche' ? 'verlauf' : params.get('tab');
+  // frühere Reiter: „gespraeche“ → Verlauf, „enpal“ (PV & WP) → Photovoltaik
+  const tabWunsch = ({ gespraeche: 'verlauf', enpal: 'pv' } as Record<string, string>)[params.get('tab') || ''] || params.get('tab');
   let tab = TABS.some((t) => t.key === tabWunsch) ? tabWunsch : 'uebersicht';
   const laeuft = ablauf.entwurf(id);
 
@@ -104,7 +106,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
     history.replaceState(null, '', `#/kunde/${id}?tab=${t}`);
     const k = store.findKunde(id);
     if (!k) { location.hash = '#/kunden'; return; }
-    ({ uebersicht, notizen, enpal, doku: enpalDoku.tab, vorwerk, verlauf, termine, texte })[t](inhalt, k, kopfAktualisieren);
+    ({ uebersicht, notizen, pv, wp, doku: enpalDoku.tab, vorwerk, verlauf, termine, texte })[t](inhalt, k, kopfAktualisieren);
   };
   el.querySelector('.tabs').addEventListener('click', (e) => {
     const b = (e.target as Element).closest('button[data-tab]');
@@ -355,7 +357,7 @@ function notizen(el, k) {
 }
 
 function notizHtml(n) {
-  const gemischt = !notizErlaubt(n, 'enpal') && !notizErlaubt(n, 'vorwerk');
+  const gemischt = !GRUPPEN_KEYS.some((g) => notizErlaubt(n, g));
   return `<li data-id="${esc(n.id)}">
     <div class="notiz-kopf">
       <time>${esc(formatDateTime(n.zeitpunkt))}</time>
@@ -379,7 +381,8 @@ function bogen(el, k, sparten, kopf) {
   markierenVerdrahten(el, k.id, (b) => markierenNeuZeichnen(el, k.id, b));
 }
 
-const enpal = (el, k, kopf) => bogen(el, k, ['pv', 'wp'], kopf);
+const pv = (el, k, kopf) => bogen(el, k, ['pv'], kopf);
+const wp = (el, k, kopf) => bogen(el, k, ['wp'], kopf);
 const vorwerk = (el, k, kopf) => bogen(el, k, ['vorwerk'], kopf);
 
 function termine(el, k) {
@@ -404,11 +407,11 @@ function texte(el, k) {
   const einst = store.getData().einstellungen;
   const ausgelassen = ausgelasseneNotizen(k);
   el.innerHTML = `
-    <p class="hinweis">Die beiden Texte sind strikt getrennt: Der Enpal-Text enthält nur Photovoltaik und Wärmepumpe, der Vorwerk-Text nur Vorwerk. Notizen erscheinen nur, wenn sie ausschließlich einer Seite zugeordnet sind.${ausgelassen ? ` <b>${ausgelassen} Notiz(en)</b> sind keiner oder beiden Seiten zugeordnet und erscheinen deshalb in keinem Text.` : ''}</p>
-    <div class="spalten">
-      ${['enpal', 'vorwerk'].map((g) => `
-      <section class="karte-box text-${g}">
-        <h2>${maskottchen(g === 'enpal' ? 'photovoltaik' : 'vorwerk', 'titel-bild')} ${esc(GRUPPEN[g].label)}</h2>
+    <p class="hinweis">Die drei Texte sind strikt getrennt: Photovoltaik für Enpal, Wärmepumpe für GALVANY, Vorwerk für Vorwerk. Jeder enthält nur seinen eigenen Bereich. Ältere Notizen, die Photovoltaik und Wärmepumpe gemeinsam betreffen, stehen in beiden dieser Texte.${ausgelassen ? ` <b>${ausgelassen} Notiz(en)</b> sind keinem oder mehreren Anbietern zugeordnet und erscheinen deshalb in keinem Text.` : ''}</p>
+    <div class="spalten drei">
+      ${GRUPPEN_KEYS.map((g) => `
+      <section class="karte-box text-${g} bereich-rand bereich-${g}">
+        <h2>${maskottchen(spartenIcon(g), 'titel-bild')} ${esc(GRUPPEN[g].label)}</h2>
         <textarea readonly rows="16" id="text-${g}">${esc(generiereText(k, g, einst))}</textarea>
         <div class="knopfreihe">
           <button class="btn primary" data-kopieren="${g}">In Zwischenablage kopieren</button>
@@ -425,7 +428,7 @@ function texte(el, k) {
     const g = b.dataset.mail;
     emailSchreiben({
       an: einst.empfaenger?.[g] || '',
-      betreff: `${g === 'enpal' ? 'Enpal' : 'Vorwerk'}: ${kundenTitel(k)}`,
+      betreff: `${GRUPPEN[g].anbieter} ${SPARTEN[g].label}: ${kundenTitel(k)}`,
       text: el.querySelector(`#text-${g}`).value,
     });
   }));

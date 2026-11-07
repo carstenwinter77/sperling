@@ -27,7 +27,7 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Haus markieren:** Karte → lange auf das Haus tippen (Laptop: Rechtsklick) → „Als Potenzial markieren“ oder „Kunde anlegen“. Die Adresse wird vorgeschlagen.
 - **Gesprächsnotiz:** Kunde → Notizen → Text, Sparten ankreuzen, Zeitpunkt bleibt „jetzt“ oder wird geändert. Häkchen „danach Wiedervorlage anlegen“ für einen separaten Termin (z. B. Vorwerk-Vorführung).
 - **Texte für Enpal bzw. Vorwerk:** Kunde → Texte → „In Zwischenablage kopieren“. Notizen erscheinen nur in dem Text, zu dessen Sparten sie ausschließlich gehören.
-- **Kalender:** Menü „Kalender“ → Liste, Monat, Woche, Tag oder Geräte (Belegung der Vorführgeräte). Im Monat einen Tag antippen = neuer Termin; auf die Tageszahl tippen = Tagesansicht. In Woche/Tag eine Uhrzeit antippen = Termin über 1 Stunde; für eine andere Dauer den Finger kurz halten und nach unten ziehen.
+- **Kalender:** Menü „Kalender“ → Liste, Monat, Woche, Tag oder Geräte (Belegung der Vorführgeräte). Er startet im Monat; die Startansicht stellst du unter Einstellungen → Kalender ein. Neue Termine dauern eine Stunde. Im Monat einen Tag antippen = neuer Termin; auf die Tageszahl tippen = Tagesansicht. In Woche/Tag eine Uhrzeit antippen = Termin über 1 Stunde; für eine andere Dauer den Finger kurz halten und nach unten ziehen.
 - **Termin antippen** öffnet die Termin-Karte: Kunde, Adresse, Notiz, letzte Gespräche; Knöpfe Route, Anrufen, E-Mail, Erledigt, In Kalender-App, Bearbeiten, Löschen (mit Sicherheitsabfrage).
 - **Termin verschieben:** Finger auf dem Termin halten, bis Griffe erscheinen. Mitte (⠿) = verschieben, in der Woche auch auf einen anderen Tag; Balken oben/unten = früher anfangen oder länger dauern (15-Minuten-Raster). Tipp daneben wählt ab. Im Monat den Termin halten und auf einen anderen Tag ziehen.
 - **Leihgaben im Kalender:** ↗ geht raus, ↙ kommt zurück, 📌 Reservierung, ⚠ überfällig. „Leihgaben zeigen“ blendet sie aus. Antippen zeigt Gerät, Kunde und Leihschein.
@@ -52,6 +52,12 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Belegungskalender:** Kalender → „Geräte“ (oder Bestand → „Belegungskalender“). Über freie Tage wischen reserviert direkt.
 - **Auswertungen:** Bereich und Zeitraum wählen, mit ‹ › blättern, „PDF-Bericht“ zum Teilen.
 - **Hilfe:** ?-Knopf neben jeder Überschrift; alles unter Einstellungen → Hilfe (dort auch abschaltbar und die Installationsanleitung).
+
+## Drei getrennte Texte
+
+- Beim Kunden unter **Texte** gibt es drei Texte: Photovoltaik (Enpal), Wärmepumpe (GALVANY) und Vorwerk, jeder mit eigener Vorlage und eigenem Empfänger (Einstellungen). Jeder Text enthält nur seinen Bereich.
+- Im Gesprächsmodus hat jedes gewählte Thema sein eigenes Notizfeld mit eigenen Bausteinen.
+- Ältere Notizen, die Photovoltaik und Wärmepumpe gemeinsam betreffen, stehen in beiden dieser Texte.
 
 ## Textbausteine und Diktieren
 

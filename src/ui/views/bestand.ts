@@ -335,7 +335,7 @@ export async function verleihDialog(g: Geraet, reservierung: Reservierung | null
     }
     if (res.erinnern && res.rueckgabeGeplant) {
       data.termine.push(neuerTermin({
-        kundeId: res.kundeId, sparte: 'vorwerk', art: 'wiedervorlage', dauerMin: 15, beginn: res.rueckgabeGeplant,
+        kundeId: res.kundeId, sparte: 'vorwerk', art: 'wiedervorlage', dauerMin: 60, beginn: res.rueckgabeGeplant,
         titel: `Nachfragen: ${g.name} bei ${k ? kundenTitel(k) : 'Kunde'}`,
         notiz: 'Wie gefällt das Gerät? Kaufinteresse? Rückgabe abholen.',
         ort: k ? adresseEinzeilig(k) : '',
@@ -403,7 +403,7 @@ async function erinnerung(g: Geraet): Promise<boolean> {
   });
   if (!res) return false;
   store.mutate((data) => {
-    data.termine.push(neuerTermin({ kundeId: l?.kundeId || '', sparte: 'vorwerk', art: 'wiedervorlage', dauerMin: 15, beginn: res, titel: `Nachfragen: ${g.name} bei ${k ? kundenTitel(k) : 'Kunde'}`, notiz: 'Wie gefällt das Gerät? Kaufinteresse?' }));
+    data.termine.push(neuerTermin({ kundeId: l?.kundeId || '', sparte: 'vorwerk', art: 'wiedervorlage', dauerMin: 60, beginn: res, titel: `Nachfragen: ${g.name} bei ${k ? kundenTitel(k) : 'Kunde'}`, notiz: 'Wie gefällt das Gerät? Kaufinteresse?' }));
   });
   toast('Erinnerung angelegt', 'ok');
   return false;

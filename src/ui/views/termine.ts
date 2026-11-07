@@ -9,7 +9,10 @@ import * as kalender from '../kalender.ts';
 const tagKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 export function render(el: HTMLElement, params: URLSearchParams = new URLSearchParams()) {
-  const wahl = params.get('ansicht') || '';
+  const start = store.getData().einstellungen.kalenderStart || 'monat';
+  // Ohne Angabe in der Adresse: Startansicht aus den Einstellungen
+  if (!params.get('ansicht') && start === 'geraete') { location.replace('#/belegung'); return; }
+  const wahl = params.get('ansicht') || start;
   const ansicht: string = kalender.KALENDER_ANSICHTEN.some(([k]) => k !== 'geraete' && k === wahl) ? wahl : 'liste';
   let datum = new Date();
   if (/^\d{4}-\d{2}-\d{2}$/.test(params.get('datum') || '')) { const t = kalender.tagVon(params.get('datum')); if (!Number.isNaN(t.getTime())) datum = t; }

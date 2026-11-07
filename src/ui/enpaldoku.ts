@@ -66,7 +66,7 @@ export async function kontaktDialog(kundeId: string, { kontaktId = null as strin
     const i = kk.enpalKontakte.findIndex((x) => x.id === neu.id);
     if (i >= 0) kk.enpalKontakte[i] = neu; else kk.enpalKontakte.push(neu);
     if (!alt && res.termin && neu.frist) {
-      d.termine.push(neuerTermin({ kundeId, sparte: neu.themen[0] || 'pv', art: 'wiedervorlage', beginn: neu.frist, dauerMin: 15,
+      d.termine.push(neuerTermin({ kundeId, sparte: neu.themen[0] || 'pv', art: 'wiedervorlage', beginn: neu.frist, dauerMin: 60,
         titel: `Enpal-Frist: ${neu.naechsterSchritt || AUSGANG[neu.ergebnis] || 'nachfassen'} – ${kundenTitel(kk)}`, ort: adresseEinzeilig(kk) }));
     }
     kk.updatedAt = nowIso();

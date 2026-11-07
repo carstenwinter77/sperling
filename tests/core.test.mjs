@@ -67,14 +67,44 @@ function testKunde() {
   });
 }
 
-test('Textgenerator Enpal enthält nie Vorwerk-Daten', () => {
-  const t = generiereText(testKunde(), 'enpal', emptyData().einstellungen);
+test('Drei getrennte Texte: PV (Enpal) und WP (GALVANY) sehen nur sich selbst (R-TEXT)', () => {
+  const t = generiereText(testKunde(), 'pv', emptyData().einstellungen);
   assert.match(t, /NOTIZ-PV/);
-  assert.match(t, /NOTIZ-WP/);
   assert.match(t, /Dachfläche: 50 m²/);
-  for (const verboten of ['NOTIZ-VW', 'NOTIZ-GEMISCHT', 'NOTIZ-OHNE', 'GEHEIM-VORWERK', 'Kobold', 'Vorwerk']) {
-    assert.ok(!t.includes(verboten), `Enpal-Text enthält ${verboten}`);
+  assert.match(t, /^Kundenanfrage Photovoltaik/);
+  for (const verboten of ['NOTIZ-WP', 'Öl', 'Wärmepumpe', 'NOTIZ-VW', 'NOTIZ-GEMISCHT', 'NOTIZ-OHNE', 'GEHEIM-VORWERK', 'Kobold', 'Vorwerk']) {
+    assert.ok(!t.includes(verboten), `PV-Text enthält ${verboten}`);
   }
+  const w = generiereText(testKunde(), 'wp', emptyData().einstellungen);
+  assert.match(w, /NOTIZ-WP/);
+  assert.match(w, /Öl/);
+  for (const verboten of ['NOTIZ-PV', 'Dachfläche', 'Photovoltaik', 'NOTIZ-VW', 'Kobold', 'Vorwerk', 'NOTIZ-GEMISCHT']) {
+    assert.ok(!w.includes(verboten), `WP-Text enthält ${verboten}`);
+  }
+  // Alte gemeinsame PV/WP-Notiz steht in beiden Texten, nie bei Vorwerk
+  const k = testKunde();
+  k.notizen.push(neueNotiz({ text: 'NOTIZ-ALT-ENPAL', sparten: ['pv', 'wp'] }));
+  assert.ok(generiereText(k, 'pv', emptyData().einstellungen).includes('NOTIZ-ALT-ENPAL'));
+  assert.ok(generiereText(k, 'wp', emptyData().einstellungen).includes('NOTIZ-ALT-ENPAL'));
+  assert.ok(!generiereText(k, 'vorwerk', emptyData().einstellungen).includes('NOTIZ-ALT-ENPAL'));
+  assert.equal(projizieren(k, 'wp').pv, undefined);
+  assert.equal(projizieren(k, 'pv').wp, undefined);
+  assert.equal(projizieren(k, 'wp').enpalKontakte, undefined, 'Enpal-Doku nur bei Photovoltaik');
+});
+
+test('Schema 7: frühere Enpal-Vorlage und -Empfänger gelten für PV und WP', () => {
+  const eigen = 'Meine Enpal-Vorlage {{daten}}';
+  const d = migrate({ schemaVersion: 6, einstellungen: { vorlagen: { enpal: eigen, vorwerk: 'V {{daten}}' }, empfaenger: { enpal: 'team@enpal.de', vorwerk: 'b@v.de' } } });
+  assert.equal(d.einstellungen.vorlagen.pv, eigen);
+  assert.equal(d.einstellungen.vorlagen.wp, eigen);
+  assert.equal(d.einstellungen.vorlagen.vorwerk, 'V {{daten}}');
+  assert.deepEqual(d.einstellungen.empfaenger, { pv: 'team@enpal.de', wp: 'team@enpal.de', vorwerk: 'b@v.de' });
+  // Unveränderte alte Standardvorlage wird durch die neuen getrennten ersetzt
+  const alt = migrate({ schemaVersion: 6, einstellungen: { vorlagen: { enpal: 'Kundenanfrage {{sparten}}\n\nKunde: {{name}}\nAdresse: {{adresse}}\nTelefon: {{telefon}}\nE-Mail: {{email}}\n\n{{daten}}\n\nGesprächsnotizen:\n{{notizen}}\n\nViele Grüße\n{{absender}}' } } });
+  assert.match(alt.einstellungen.vorlagen.wp, /^Kundenanfrage Wärmepumpe/);
+  assert.equal(d.einstellungen.kalenderStart, 'monat');
+  assert.equal(migrate({ einstellungen: { kalenderStart: 'woche' } }).einstellungen.kalenderStart, 'woche');
+  assert.equal(migrate({ einstellungen: { kalenderStart: 'quatsch' } }).einstellungen.kalenderStart, 'monat');
 });
 
 test('Textgenerator Vorwerk enthält nie PV/WP-Daten', () => {
@@ -97,8 +127,11 @@ test('Vorlage kann fremde Daten nicht per Platzhalter erreichen', () => {
 });
 
 test('Notiz-Zuordnung und Zählung ausgelassener Notizen', () => {
-  assert.equal(notizErlaubt({ sparten: ['pv', 'wp'] }, 'enpal'), true);
-  assert.equal(notizErlaubt({ sparten: ['pv', 'vorwerk'] }, 'enpal'), false);
+  assert.equal(notizErlaubt({ sparten: ['pv', 'wp'] }, 'pv'), true);
+  assert.equal(notizErlaubt({ sparten: ['pv', 'wp'] }, 'wp'), true);
+  assert.equal(notizErlaubt({ sparten: ['wp'] }, 'pv'), false);
+  assert.equal(notizErlaubt({ sparten: ['pv', 'vorwerk'] }, 'pv'), false);
+  assert.equal(notizErlaubt({ sparten: ['pv', 'wp'] }, 'vorwerk'), false);
   assert.equal(notizErlaubt({ sparten: [] }, 'vorwerk'), false);
   assert.equal(ausgelasseneNotizen(testKunde()), 2);
   assert.throws(() => notizErlaubt({ sparten: [] }, 'gibtsnicht'));
@@ -196,7 +229,7 @@ test('Migration v1 → v2: enpalKontakte und Empfänger werden ergänzt', () => 
   const d = migrate(alt);
   assert.equal(d.schemaVersion, SCHEMA_VERSION);
   assert.deepEqual(d.kunden[0].enpalKontakte, []);
-  assert.deepEqual(d.einstellungen.empfaenger, { enpal: '', vorwerk: '' });
+  assert.deepEqual(d.einstellungen.empfaenger, { pv: '', wp: '', vorwerk: '' });
   assert.equal(d.einstellungen.absender, 'X');
 });
 
@@ -453,7 +486,7 @@ test('Einstellungen: Nachbar-Umkreis nur in festen Stufen', () => {
   assert.equal(emptyData().einstellungen.nachbarRadiusM, 300);
 });
 
-test('Gespräch speichern: Notizen je Gruppe getrennt (R-TEXT), Verlauf fasst zusammen', async () => {
+test('Gespräch speichern: Notizen je Bereich getrennt (R-TEXT), Verlauf fasst zusammen', async () => {
   const g = await import('../src/core/gespraech.ts');
   const { kundenVerlauf } = await import('../src/core/verlauf.ts');
   const { notizErlaubt } = await import('../src/core/textgen.ts');
@@ -461,7 +494,7 @@ test('Gespräch speichern: Notizen je Gruppe getrennt (R-TEXT), Verlauf fasst zu
   data.kunden = [normalizeKunde({ id: 'k1', vorname: 'Eva', nachname: 'Test', status: { pv: 'interesse', vorwerk: 'interesse' } })];
   const e = {
     kundeId: 'k1', start: '2026-11-07T10:00:00.000Z', kontaktart: 'telefon', erreicht: true, sparten: ['pv', 'vorwerk'],
-    notiz: { enpal: 'Dach Süd, Speicher gewünscht', vorwerk: 'Hund, Teppich' }, verlauf: g.leererVerlauf(), leitfadenSparte: 'pv',
+    notiz: { pv: 'Dach Süd, Speicher gewünscht', wp: '', vorwerk: 'Hund, Teppich' }, verlauf: g.leererVerlauf(), leitfadenSparte: 'pv',
   };
   e.verlauf.pv.preis = 'ueberzeugt';
   const jetzt = '2026-11-07T10:20:00.000Z';
@@ -474,8 +507,8 @@ test('Gespräch speichern: Notizen je Gruppe getrennt (R-TEXT), Verlauf fasst zu
   assert.equal(k.notizen.length, 2);
   const enpalNotiz = k.notizen.find((n) => n.sparten.includes('pv'));
   const vwNotiz = k.notizen.find((n) => n.sparten.includes('vorwerk'));
-  assert.ok(notizErlaubt(enpalNotiz, 'enpal') && !notizErlaubt(enpalNotiz, 'vorwerk'));
-  assert.ok(notizErlaubt(vwNotiz, 'vorwerk') && !notizErlaubt(vwNotiz, 'enpal'));
+  assert.ok(notizErlaubt(enpalNotiz, 'pv') && !notizErlaubt(enpalNotiz, 'wp') && !notizErlaubt(enpalNotiz, 'vorwerk'));
+  assert.ok(notizErlaubt(vwNotiz, 'vorwerk') && !notizErlaubt(vwNotiz, 'pv'));
   assert.ok(!enpalNotiz.text.includes('Teppich') && !vwNotiz.text.includes('Speicher'));
   assert.equal(k.status.pv, 'termin');
   assert.equal(k.enpalKontakte.length, 1);
@@ -489,11 +522,14 @@ test('Gespräch speichern: Notizen je Gruppe getrennt (R-TEXT), Verlauf fasst zu
   assert.equal(gesp[0].titel, 'Telefonische Kontaktaufnahme');
   assert.ok(gesp[0].zeilen.join('\n').includes('Dach Süd'));
   assert.ok(v.some((x) => x.art === 'termin' && x.zukunft));
-  // nicht erreicht, ohne Notiz: nur Enpal-Doku-Eintrag ohne Ergebnis
-  const e2 = { ...e, erreicht: false, notiz: { enpal: '', vorwerk: '' }, verlauf: g.leererVerlauf(), sparten: ['wp'] };
+  // nicht erreicht, ohne Notiz: Wärmepumpe (GALVANY) bekommt keinen Enpal-Doku-Eintrag
+  const e2 = { ...e, erreicht: false, notiz: g.leereNotizen(), verlauf: g.leererVerlauf(), sparten: ['wp'] };
   g.speichern(data, e2, [{ sparte: 'wp', ausgang: '', status: '', schritt: '', wv: null }], '2026-11-08T10:00:00.000Z');
   assert.equal(k.gespraeche.length, 2);
   assert.equal(g.hatInhalt(e2), false);
+  assert.equal(k.enpalKontakte.length, 1, 'Wärmepumpe läuft nicht über Enpal');
+  // Photovoltaik nicht erreicht: Anrufversuch wird für Enpal dokumentiert
+  g.speichern(data, { ...e2, sparten: ['pv'] }, [{ sparte: 'pv', ausgang: '', status: '', schritt: '', wv: null }], '2026-11-08T11:00:00.000Z');
   assert.equal(k.enpalKontakte.length, 2, 'Anrufversuch wird für Enpal dokumentiert');
   assert.equal(k.enpalKontakte[1].erreicht, false);
   const versuch = k.notizen.find((n) => n.text.startsWith('Telefonische Kontaktaufnahme (nicht erreicht)'));
@@ -708,7 +744,7 @@ test('Feldverwaltung und Texte: eigene Felder nur im Text ihres Bereichs (R-TEXT
     { id: 'beruf', kategorie: 'kontakt', label: 'Beruf', typ: 'text' },
   ] } } }).einstellungen;
   const k = normalizeKunde({ vorname: 'A', pv: { dachflaeche: 60, neigung: 30 }, status: { pv: 'interesse', vorwerk: 'interesse' }, eigene: { hund: true, carport: 20, beruf: 'Lehrerin' } });
-  const enpal = generiereText(k, 'enpal', einst);
+  const enpal = generiereText(k, 'pv', einst);
   const vorwerk = generiereText(k, 'vorwerk', einst);
   assert.ok(enpal.includes('Carport: 20 m²'));
   assert.ok(enpal.includes('Beruf: Lehrerin'));
@@ -718,7 +754,7 @@ test('Feldverwaltung und Texte: eigene Felder nur im Text ihres Bereichs (R-TEXT
   assert.ok(vorwerk.includes('Hund: ja'));
   assert.ok(!vorwerk.includes('Carport'));
   assert.equal(projizieren(k, 'vorwerk', einst.felder).eigene.carport, undefined);
-  assert.deepEqual(projizieren(k, 'enpal').eigene, {}, 'ohne Felddefinition keine eigenen Werte');
+  assert.deepEqual(projizieren(k, 'pv').eigene, {}, 'ohne Felddefinition keine eigenen Werte');
 });
 
 test('Produktkatalog: Datei prüft sauber, Unsinn wird übersprungen', async () => {
@@ -786,7 +822,7 @@ test('Produkte im Gespräch: markieren, umentscheiden, aufheben, Verlauf, Texte 
   assert.ok(v[0].zeilen.includes('Enpal Speicher: Interesse') && v[0].zeilen.includes('Kobold VK7: Kein Interesse'));
   assert.ok(!v[0].zeilen.some((z) => z.includes('Später')));
   // Texte: Vorwerk-Produkte nie im Enpal-Text und umgekehrt
-  const enpal = generiereText(k2, 'enpal', d.einstellungen);
+  const enpal = generiereText(k2, 'pv', d.einstellungen);
   const vorwerk = generiereText(k2, 'vorwerk', d.einstellungen);
   assert.ok(enpal.includes('Produkte – Interesse: Enpal Speicher'));
   assert.ok(!enpal.includes('Kobold'));

@@ -1,6 +1,6 @@
 // Einstellungen: Absender, Textvorlagen, Sicherung (iCloud), Historie, Passwort, Datenschutz.
 import { esc, formatDateTime, parseNumber } from '../../core/util.ts';
-import { DEFAULT_VORLAGEN, KUNDENANSICHT_TEILE, migrate, normalizeGeraet, type KundenansichtTeil } from '../../core/model.ts';
+import { DEFAULT_VORLAGEN, KUNDENANSICHT_TEILE, SPARTEN, SPARTEN_KEYS, migrate, normalizeGeraet, type KundenansichtTeil, type Sparte } from '../../core/model.ts';
 import { demoDaten, beispielAnzahl, beispielEinfuegen, beispielEntfernen, beispielBestand, bestandAnzahl, bestandEinfuegen, bestandEntfernen } from '../../demo.ts';
 import { PLATZHALTER } from '../../core/textgen.ts';
 import { validateEnvelope } from '../../core/crypto.ts';
@@ -15,6 +15,7 @@ import * as hilfe from '../hilfe.ts';
 import * as kontaktseite from '../kontaktseite.ts';
 import * as feldverwaltung from '../feldverwaltung.ts';
 import * as bausteinverwaltung from '../bausteinverwaltung.ts';
+import { KALENDER_ANSICHTEN } from '../kalender.ts';
 
 export const APP_VERSION = __APP_VERSION__; // aus package.json (vite.config.ts)
 
@@ -68,6 +69,13 @@ export function render(el: HTMLElement) {
     </section>
 
     <section class="karte-box">
+      <h2>Kalender</h2>
+      <label>Kalender startet mit<select id="kalenderStart">
+        ${KALENDER_ANSICHTEN.map(([k, l]) => `<option value="${k}" ${e.kalenderStart === k ? 'selected' : ''}>${l}</option>`).join('')}
+      </select></label>
+    </section>
+
+    <section class="karte-box">
       <h2>Navigation</h2>
       <label>„Hinfahren“ öffnet<select id="kartenApp">
         ${[['auto', 'Automatisch (Apple Karten auf iPhone/iPad, sonst Google Maps)'], ['apple', 'Apple Karten'], ['google', 'Google Maps']].map(([k, v]) => `<option value="${k}" ${e.kartenApp === k ? 'selected' : ''}>${v}</option>`).join('')}
@@ -97,17 +105,15 @@ export function render(el: HTMLElement) {
           <option value="">Jedes Mal fragen</option>
           ${Object.entries(MAILPROGRAMME).map(([k, v]) => `<option value="${k}" ${gemerktesMailprogramm() === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}
         </select></label>
-        <label>Empfänger für Enpal-Texte<input id="empfEnpal" type="email" value="${esc(e.empfaenger.enpal)}" placeholder="z. B. team@enpal.de" autocomplete="off"></label>
-        <label>Empfänger für Vorwerk-Texte<input id="empfVorwerk" type="email" value="${esc(e.empfaenger.vorwerk)}" placeholder="z. B. buero@…" autocomplete="off"></label>
+        ${SPARTEN_KEYS.map((s) => `<label>Empfänger für ${esc(SPARTEN[s].label)}-Texte (${esc(SPARTEN[s].anbieter)})<input data-empf="${s}" type="email" value="${esc(e.empfaenger[s])}" placeholder="z. B. team@…" autocomplete="off"></label>`).join('')}
       </div>
       <p class="hinweis">Die Empfänger werden beim „Per E-Mail senden“ im Texte-Tab vorausgefüllt. Die Mail geht erst raus, wenn du sie im Mailprogramm abschickst.</p>
     </section>
 
     <section class="karte-box">
       <h2>Textvorlagen</h2>
-      <p class="hinweis">Platzhalter: ${PLATZHALTER.map((p) => `<code>{{${p}}}</code>`).join(' ')}. Jede Vorlage bekommt nur die Daten ihrer eigenen Seite.</p>
-      <label>Enpal (PV + Wärmepumpe)<textarea id="vEnpal" rows="10">${esc(e.vorlagen.enpal)}</textarea></label>
-      <label>Vorwerk<textarea id="vVorwerk" rows="10">${esc(e.vorlagen.vorwerk)}</textarea></label>
+      <p class="hinweis">Platzhalter: ${PLATZHALTER.map((p) => `<code>{{${p}}}</code>`).join(' ')}. Jede Vorlage bekommt nur die Daten ihres eigenen Bereichs.</p>
+      ${SPARTEN_KEYS.map((s) => `<label>${esc(SPARTEN[s].label)} (${esc(SPARTEN[s].anbieter)})<textarea data-vorlage="${s}" rows="10">${esc(e.vorlagen[s])}</textarea></label>`).join('')}
       <button class="btn ghost" id="vReset">Vorlagen zurücksetzen</button>
     </section>
 
@@ -181,6 +187,7 @@ export function render(el: HTMLElement) {
   });
   kontaktseite.binden(el);
   el.querySelector('#hilfeKnoepfe')?.addEventListener('change', (ev) => { hilfe.vorliebeSetzen({ knoepfe: (ev.target as HTMLInputElement).checked }); toast('Gespeichert', 'ok'); });
+  el.querySelector('#kalenderStart').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.kalenderStart = (ev.target as HTMLSelectElement).value as typeof d.einstellungen.kalenderStart; }));
   el.querySelector('#kartenApp').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.kartenApp = (ev.target as HTMLInputElement).value; }));
   feldverwaltung.verdrahten(el, () => { const y = scrollY; render(el); scrollTo(0, y); });
   bausteinverwaltung.verdrahten(el, () => { const y = scrollY; render(el); scrollTo(0, y); });
@@ -189,18 +196,19 @@ export function render(el: HTMLElement) {
     if (c) speichere((d) => { d.einstellungen.kundenansicht[c.dataset.ka as KundenansichtTeil] = c.checked; });
   });
   el.querySelector('#mailprogramm').addEventListener('change', (ev) => { mailprogrammMerken((ev.target as HTMLInputElement).value); toast('Gespeichert', 'ok'); });
-  el.querySelector('#empfEnpal').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.empfaenger.enpal = (ev.target as HTMLInputElement).value.trim(); }));
-  el.querySelector('#empfVorwerk').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.empfaenger.vorwerk = (ev.target as HTMLInputElement).value.trim(); }));
+  el.querySelectorAll<HTMLInputElement>('[data-empf]').forEach((i) => i.addEventListener('change', () => speichere((d) => { d.einstellungen.empfaenger[i.dataset.empf as Sparte] = i.value.trim(); })));
   el.querySelector('#absender').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.absender = (ev.target as HTMLInputElement).value; }));
   el.querySelector('#autoSperre').addEventListener('change', (ev) => {
     const n = parseNumber((ev.target as HTMLInputElement).value);
     if (n === null || n < 0 || n > 240) { toast('Bitte 0 bis 240 eingeben.', 'error'); return; }
     speichere((d) => { d.einstellungen.autoSperreMin = Math.round(n); });
   });
-  el.querySelector('#vEnpal').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.vorlagen.enpal = (ev.target as HTMLInputElement).value || DEFAULT_VORLAGEN.enpal; }));
-  el.querySelector('#vVorwerk').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.vorlagen.vorwerk = (ev.target as HTMLInputElement).value || DEFAULT_VORLAGEN.vorwerk; }));
+  el.querySelectorAll<HTMLTextAreaElement>('[data-vorlage]').forEach((t) => t.addEventListener('change', () => {
+    const s = t.dataset.vorlage as Sparte;
+    speichere((d) => { d.einstellungen.vorlagen[s] = t.value || DEFAULT_VORLAGEN[s]; });
+  }));
   el.querySelector('#vReset').addEventListener('click', async () => {
-    if (!(await bestaetigen('Vorlagen zurücksetzen?', 'Eigene Änderungen an beiden Vorlagen gehen verloren.', 'Zurücksetzen'))) return;
+    if (!(await bestaetigen('Vorlagen zurücksetzen?', 'Eigene Änderungen an allen drei Vorlagen gehen verloren.', 'Zurücksetzen'))) return;
     speichere((d) => { d.einstellungen.vorlagen = { ...DEFAULT_VORLAGEN }; });
     render(el);
   });

@@ -1,5 +1,10 @@
 # Änderungsverlauf
 
+## 0.10.4 – 07.11.2026
+- **Drei getrennte Texte** (R-TEXT neu): Photovoltaik (Enpal), Wärmepumpe (GALVANY), Vorwerk. Vorlagen und Empfänger je Bereich, Gesprächsmodus mit einer Notiz je Bereich, Kartei-Reiter „Photovoltaik“ und „Wärmepumpe“ statt „PV & Wärmepumpe“ (alter Link `?tab=enpal` führt zu Photovoltaik). Alte PV+WP-Notizen stehen in beiden Texten. Enpal-Doku nur noch für Photovoltaik. Schema 7.
+- **Kalender** startet im Monat; Startansicht unter Einstellungen → Kalender (`einstellungen.kalenderStart`).
+- Neue Termine und automatische Wiedervorlagen dauern standardmäßig 60 Minuten.
+
 ## 0.10.3 – 07.11.2026
 - **Kalender** statt „Termine“: Reiter Liste, Monat, Woche, Tag, Geräte (Belegungskalender, `#/belegung` gehört jetzt zum Kalender). Leihgaben, Rückgaben, Reservierungen und überfällige Leihgaben als Einträge im Monat und als Ganztagszeile in Woche/Tag, ein-/ausblendbar; Antippen öffnet die Belegungs-Details (`src/core/kalender.ts`).
 - **Termin-Karte** (`src/ui/terminkarte.ts`): Kunde, Adresse, Notiz, letzte Gespräche; Route, Anrufen (mit Sicherheitsabfrage), E-Mail, Erledigt, In Kalender-App, Bearbeiten, Löschen mit Sicherheitsabfrage. Auch aus der Terminliste.

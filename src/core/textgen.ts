@@ -1,17 +1,21 @@
-// Sperling – Textgeneratoren für Enpal (PV + WP) und Vorwerk.
+// Sperling – drei getrennte Textgeneratoren: Photovoltaik (Enpal), Wärmepumpe (GALVANY), Vorwerk.
 //
-// HARTE REGEL (siehe docs/REGELN.md, R-TEXT): Die beiden Generatoren dürfen
-// NIEMALS Daten der jeweils anderen Gruppe sehen oder ausgeben.
+// HARTE REGEL (siehe docs/REGELN.md, R-TEXT): Ein Generator darf NIEMALS Daten
+// eines anderen Bereichs sehen oder ausgeben.
 // Umsetzung in zwei Stufen:
-//   1. projizieren(): baut eine Kopie des Kunden, die NUR Stammdaten + die
-//      Sparten der eigenen Gruppe enthält. Alles Weitere arbeitet nur damit.
-//   2. Notizen werden nur übernommen, wenn sie mindestens eine Sparte haben
-//      und ALLE ihre Sparten zur Gruppe gehören. Gemischte oder unmarkierte
-//      Notizen werden ausgelassen (und in der UI als Hinweis gezählt).
+//   1. projizieren(): baut eine Kopie des Kunden, die NUR Stammdaten + den
+//      eigenen Bereich enthält. Alles Weitere arbeitet nur damit.
+//   2. Notizen werden nur übernommen, wenn sie den eigenen Bereich tragen und
+//      sonst nichts. Einzige Ausnahme: alte gemeinsame PV/WP-Notizen (bis 0.10.3
+//      gab es einen gemeinsamen Enpal-Text) erscheinen in beiden Texten, damit
+//      nichts verloren geht. Gemischte mit Vorwerk oder unmarkierte Notizen werden
+//      ausgelassen (und in der UI als Hinweis gezählt).
 
 import { SPARTEN, STATUS, FELDER, AUSGANG, KONTAKTART, kundenName, adresseEinzeilig, notizenSortiert, type Kunde, type Notiz, type EnpalKontakt, type Feld, type Sparte, type StatusKey, type Einstellungen } from './model.ts';
 
-export type Gruppe = 'enpal' | 'vorwerk';
+/** Eine Textgruppe ist genau ein Bereich (seit 0.10.4). */
+export type Gruppe = Sparte;
+export const GRUPPEN_KEYS: Gruppe[] = ['pv', 'wp', 'vorwerk'];
 type EinstellungenTeil = Partial<Pick<Einstellungen, 'absender' | 'vorlagen' | 'felder'>>;
 /** Kundenkopie nur mit Stammdaten und den Sparten einer Gruppe (siehe projizieren). */
 export interface Projektion extends Pick<Kunde, 'anrede' | 'vorname' | 'nachname' | 'firma' | 'strasse' | 'plz' | 'ort' | 'telefon' | 'email'> {
@@ -28,10 +32,11 @@ import { formatDateTime } from './util.ts';
 import { markierungenText, type ProduktMarkierung } from './produkte.ts';
 import { sichtbareFelder, feldText, feldWertLesen, type FeldEinstellungen } from './felder.ts';
 
-interface GruppeInfo { key: Gruppe; label: string; sparten: Sparte[] }
+interface GruppeInfo { key: Gruppe; label: string; anbieter: string; sparten: Sparte[]; /** Notizen mit diesen Sparten zusammen sind noch erlaubt (alte PV/WP-Notizen) */ verwandt: Sparte[] }
 export const GRUPPEN: Record<Gruppe, GruppeInfo> = {
-  enpal: { key: 'enpal', label: 'Enpal (PV + Wärmepumpe)', sparten: ['pv', 'wp'] },
-  vorwerk: { key: 'vorwerk', label: 'Vorwerk', sparten: ['vorwerk'] },
+  pv: { key: 'pv', label: 'Photovoltaik (Enpal)', anbieter: 'Enpal', sparten: ['pv'], verwandt: ['pv', 'wp'] },
+  wp: { key: 'wp', label: 'Wärmepumpe (GALVANY)', anbieter: 'GALVANY', sparten: ['wp'], verwandt: ['pv', 'wp'] },
+  vorwerk: { key: 'vorwerk', label: 'Vorwerk', anbieter: 'Vorwerk', sparten: ['vorwerk'], verwandt: ['vorwerk'] },
 };
 
 export const PLATZHALTER = ['name', 'vorname', 'nachname', 'firma', 'anrede', 'adresse', 'telefon', 'email', 'sparten', 'status', 'daten', 'notizen', 'datum', 'absender'];
@@ -45,7 +50,7 @@ function gruppeOrThrow(gruppe: string): GruppeInfo {
 /** Gehört eine Notiz ausschließlich zu dieser Gruppe? */
 export function notizErlaubt(notiz: { sparten?: Sparte[] }, gruppe: string): boolean {
   const g = gruppeOrThrow(gruppe);
-  return Array.isArray(notiz.sparten) && notiz.sparten.length > 0 && notiz.sparten.every((s) => g.sparten.includes(s));
+  return Array.isArray(notiz.sparten) && g.sparten.some((s) => notiz.sparten!.includes(s)) && notiz.sparten.every((s) => g.verwandt.includes(s));
 }
 
 /** Stufe 1: Kunde auf Stammdaten + eigene Sparten reduzieren. */
@@ -66,8 +71,8 @@ export function projizieren(kunde: Kunde, gruppe: string, fe?: FeldEinstellungen
     p.status[s] = kunde.status?.[s] ?? 'unbekannt';
     p[s] = { ...(kunde[s] || {}) };
   }
-  // Die Enpal-Gesprächsdokumentation gehört ausschließlich zur Enpal-Gruppe.
-  if (gruppe === 'enpal') {
+  // Die Enpal-Gesprächsdokumentation gehört ausschließlich zu Photovoltaik (Enpal).
+  if (gruppe === 'pv') {
     p.enpalKontakte = (kunde.enpalKontakte || []).map((c) => ({ ...c, themen: (c.themen || []).filter((t) => g.sparten.includes(t)) }));
   }
   return p;
@@ -145,13 +150,13 @@ export function generiereText(kunde: Kunde, gruppe: string, einstellungen: Einst
 
 /** Zählt Notizen, die wegen Mischung/fehlender Sparte in keinem Text erscheinen. */
 export function ausgelasseneNotizen(kunde: Kunde): number {
-  return (kunde.notizen || []).filter((n) => !notizErlaubt(n, 'enpal') && !notizErlaubt(n, 'vorwerk')).length;
+  return (kunde.notizen || []).filter((n) => !GRUPPEN_KEYS.some((g) => notizErlaubt(n, g))).length;
 }
 
 // ---------- Enpal-Gesprächsdokumentation (Lead-Nachweis) ----------
 
 function kontaktBlock(p: Projektion, c: EnpalKontakt): string {
-  const themen: Sparte[] = c.themen.length ? c.themen : ['pv', 'wp'];
+  const themen: Sparte[] = c.themen.length ? c.themen : ['pv'];
   const z = [
     `${KONTAKTART[c.art] || 'Kontakt'} am ${formatDateTime(c.zeitpunkt)} Uhr`,
     `Kunde erreicht: ${c.erreicht ? 'ja' : 'nein'}${c.gespraechspartner ? ` – Gesprächspartner: ${c.gespraechspartner}` : ''}`,
@@ -179,10 +184,10 @@ function kundenKopf(p: Projektion): string {
  * Arbeitet nur mit der Enpal-Projektion (R-TEXT): Vorwerk kann nicht vorkommen.
  */
 export function enpalDokuText(kunde: Kunde, kontaktId: string, einstellungen: EinstellungenTeil = {}): string {
-  const p = projizieren(kunde, 'enpal', einstellungen.felder);
+  const p = projizieren(kunde, 'pv', einstellungen.felder);
   const c = (p.enpalKontakte || []).find((x) => x.id === kontaktId);
   if (!c) return '';
-  const g = GRUPPEN.enpal;
+  const g = GRUPPEN.pv;
   const daten = datenBlock(p, g, c.themen.length ? c.themen : g.sparten, einstellungen.felder);
   return [
     'Gesprächsdokumentation Enpal',
@@ -199,7 +204,7 @@ export function enpalDokuText(kunde: Kunde, kontaktId: string, einstellungen: Ei
 
 /** Alle Enpal-Kontakte eines Kunden chronologisch (älteste zuerst). */
 export function enpalVerlaufText(kunde: Kunde, einstellungen: EinstellungenTeil = {}): string {
-  const p = projizieren(kunde, 'enpal');
+  const p = projizieren(kunde, 'pv');
   const liste = [...(p.enpalKontakte || [])].sort((a, b) => (a.zeitpunkt < b.zeitpunkt ? -1 : 1));
   if (!liste.length) return '';
   return [

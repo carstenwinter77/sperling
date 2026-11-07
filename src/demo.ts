@@ -75,8 +75,8 @@ export function demoDaten(): Rec {
   d.termine = [
     { id: 't1', kundeId: 'demo-1', sparte: 'wp', art: 'termin', titel: 'WP-Beratung Anna Beispiel', beginn: tageAb(1, 17, 0), dauerMin: 60, ort: 'Lindenweg 4, 30159 Hannover' },
     { id: 't2', kundeId: 'demo-1', sparte: 'vorwerk', art: 'termin', titel: 'Vorwerk-Vorführung Anna Beispiel', beginn: tageAb(9, 18, 0), dauerMin: 90, ort: 'Lindenweg 4, 30159 Hannover' },
-    { id: 't3', kundeId: 'demo-5', sparte: 'pv', art: 'wiedervorlage', titel: 'Lindenweg 8 nochmal klingeln', beginn: tageAb(0, 18, 30), dauerMin: 15 },
-    { id: 't4', kundeId: 'demo-2', sparte: 'pv', art: 'wiedervorlage', titel: 'Bernd Muster anrufen (Flyer)', beginn: tageAb(-1, 10, 0), dauerMin: 15 },
+    { id: 't3', kundeId: 'demo-5', sparte: 'pv', art: 'wiedervorlage', titel: 'Lindenweg 8 nochmal klingeln', beginn: tageAb(0, 18, 30), dauerMin: 60 },
+    { id: 't4', kundeId: 'demo-2', sparte: 'pv', art: 'wiedervorlage', titel: 'Bernd Muster anrufen (Flyer)', beginn: tageAb(-1, 10, 0), dauerMin: 60 },
     { id: 't5', kundeId: 'demo-4', sparte: 'wp', art: 'termin', titel: 'Bäckerei Test: Techniker vor Ort', beginn: tageAb(4, 8, 0), dauerMin: 120, ort: 'Hauptstraße 20, 30159 Hannover' },
   ];
   d.geraete = [
@@ -90,7 +90,7 @@ export function demoDaten(): Rec {
     { id: 'l2', geraetId: 'g3', kundeId: 'demo-4', ausgabe: tageAb(-9, 9, 0), rueckgabeGeplant: tageAb(-2, 10, 0), kaufinteresse: 'offen', notiz: 'Für die Backstube ausprobieren.' },
     { id: 'l3', geraetId: 'g2', kundeId: 'demo-3', ausgabe: tageAb(-20, 11, 0), rueckgabeGeplant: tageAb(-13, 10, 0), rueckgabe: tageAb(-7, 11, 0), kaufinteresse: 'gekauft' },
   ];
-  d.termine.push({ id: 't6', kundeId: 'demo-4', sparte: 'vorwerk', art: 'wiedervorlage', titel: 'Nachfragen: Kobold SP7 Saugwischer bei Dieter Test (Bäckerei Test)', beginn: tageAb(-2, 10, 0), dauerMin: 15, notiz: 'Wie gefällt das Gerät? Kaufinteresse? Rückgabe abholen.' });
+  d.termine.push({ id: 't6', kundeId: 'demo-4', sparte: 'vorwerk', art: 'wiedervorlage', titel: 'Nachfragen: Kobold SP7 Saugwischer bei Dieter Test (Bäckerei Test)', beginn: tageAb(-2, 10, 0), dauerMin: 60, notiz: 'Wie gefällt das Gerät? Kaufinteresse? Rückgabe abholen.' });
   return d;
 }
 

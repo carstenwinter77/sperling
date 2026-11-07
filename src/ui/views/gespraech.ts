@@ -192,7 +192,7 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
           kk.notizen.push(neueNotiz({ text, sparten: [e.s], zeitpunkt: jetzt }));
           if (e.status in STATUS) kk.status[e.s] = e.status as StatusKey;
           if (e.wv) {
-            data.termine.push(neuerTermin({ kundeId: kk.id, sparte: e.s, art: e.ausgang === 'termin' ? 'termin' : 'wiedervorlage', beginn: e.wv, dauerMin: e.ausgang === 'termin' ? 60 : 15,
+            data.termine.push(neuerTermin({ kundeId: kk.id, sparte: e.s, art: e.ausgang === 'termin' ? 'termin' : 'wiedervorlage', beginn: e.wv, dauerMin: 60,
               titel: `${SPARTEN[e.s].label}: ${e.schritt || AUSGANG[e.ausgang]} – ${kundenTitel(kk)}`, ort: adresseEinzeilig(kk), notiz: e.notiz }));
           }
         }

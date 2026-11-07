@@ -5,11 +5,11 @@ Diese Regeln gelten für **jede** Änderung an Sperling – egal ob von Mensch o
 ## Fachliche Regeln
 
 **R-TEXT – Strikte Trennung der Textgeneratoren.**
-Der Enpal-Text darf nur Stammdaten + Photovoltaik + Wärmepumpe enthalten, der Vorwerk-Text nur Stammdaten + Vorwerk. Umsetzung in `src/core/textgen.ts`:
-1. `projizieren()` erzeugt eine Kopie, die physisch nur die erlaubten Sparten enthält.
-2. Notizen kommen nur in einen Text, wenn sie mindestens eine Sparte haben und **alle** Sparten zur Gruppe gehören. Gemischte oder unmarkierte Notizen erscheinen in keinem Text (die UI zeigt „nicht in Texten“).
+Seit 0.10.4 gibt es drei getrennte Texte, einen je Anbieter: Photovoltaik (Enpal), Wärmepumpe (GALVANY), Vorwerk. Jeder darf nur Stammdaten + seinen eigenen Bereich enthalten. Umsetzung in `src/core/textgen.ts`:
+1. `projizieren()` erzeugt eine Kopie, die physisch nur den erlaubten Bereich enthält.
+2. Notizen kommen nur in einen Text, wenn sie den eigenen Bereich tragen und sonst keinen. Einzige Ausnahme: ältere Notizen mit genau PV + WP (aus der Zeit des gemeinsamen Enpal-Texts) stehen im PV- und im WP-Text. Mit Vorwerk gemischte oder unmarkierte Notizen erscheinen in keinem Text (die UI zeigt „nicht in Texten“). Der Gesprächsmodus führt je Bereich eine eigene Notiz.
 3. Vorlagen können nur feste Platzhalter (`PLATZHALTER`) nutzen, keine Objektpfade.
-4. Die Enpal-Gesprächsdokumentation (`enpalKontakte`) erscheint nur in der Enpal-Projektion, ihre Themen sind nur `pv`/`wp`.
+4. Die Enpal-Gesprächsdokumentation (`enpalKontakte`) erscheint nur in der Photovoltaik-Projektion und zeigt nur das Thema `pv`.
 6. Produkt-Markierungen (`kunde.produkte`) kommen nur in die Projektion, wenn ihr Bereich zur Gruppe gehört.
 5. Eigene Felder (Feldverwaltung) kommen nur in die Projektion, wenn ihre Kategorie `kontakt` oder eine Sparte der Gruppe ist. Ohne Felddefinitionen enthält die Projektion keine eigenen Werte. Ausgeblendete Felder erscheinen in keinem Text.
 Tests in `tests/core.test.mjs` sichern das ab. Diese Tests dürfen nie gelöscht oder abgeschwächt werden.

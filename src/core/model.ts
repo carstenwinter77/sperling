@@ -7,13 +7,13 @@ import { normalizeFeldEinstellungen, normalizeEigeneWerte } from './felder.ts';
 import { normalizeProduktMarkierung, type ProduktMarkierung } from './produkte.ts';
 import { normalizeBausteine } from './bausteine.ts';
 
-export const SCHEMA_VERSION = 6;
+export const SCHEMA_VERSION = 7;
 
-/** Die drei Geschäftszweige. Gruppe bestimmt, welcher Textgenerator sie sehen darf. */
+/** Die drei Geschäftszweige, jeder mit eigenem Anbieter und eigenem Textgenerator (R-TEXT). */
 export const SPARTEN = {
-  pv: { key: 'pv', label: 'Photovoltaik', kurz: 'PV', gruppe: 'enpal' },
-  wp: { key: 'wp', label: 'Wärmepumpe', kurz: 'WP', gruppe: 'enpal' },
-  vorwerk: { key: 'vorwerk', label: 'Vorwerk', kurz: 'VW', gruppe: 'vorwerk' },
+  pv: { key: 'pv', label: 'Photovoltaik', kurz: 'PV', anbieter: 'Enpal' },
+  wp: { key: 'wp', label: 'Wärmepumpe', kurz: 'WP', anbieter: 'GALVANY' },
+  vorwerk: { key: 'vorwerk', label: 'Vorwerk', kurz: 'VW', anbieter: 'Vorwerk' },
 };
 export type Sparte = keyof typeof SPARTEN;
 export const SPARTEN_KEYS = Object.keys(SPARTEN) as Sparte[];
@@ -90,9 +90,39 @@ export const FELDER: Record<Sparte, Feld[]> = {
   ],
 };
 
+const ENPAL_ALT = `Kundenanfrage {{sparten}}
+
+Kunde: {{name}}
+Adresse: {{adresse}}
+Telefon: {{telefon}}
+E-Mail: {{email}}
+
+{{daten}}
+
+Gesprächsnotizen:
+{{notizen}}
+
+Viele Grüße
+{{absender}}`;
+
 export const DEFAULT_VORLAGEN = {
-  enpal:
-`Kundenanfrage {{sparten}}
+  pv:
+`Kundenanfrage Photovoltaik
+
+Kunde: {{name}}
+Adresse: {{adresse}}
+Telefon: {{telefon}}
+E-Mail: {{email}}
+
+{{daten}}
+
+Gesprächsnotizen:
+{{notizen}}
+
+Viele Grüße
+{{absender}}`,
+  wp:
+`Kundenanfrage Wärmepumpe
 
 Kunde: {{name}}
 Adresse: {{adresse}}
@@ -484,6 +514,9 @@ export function normalizeZuletzt(v: unknown): ZuletztEintrag[] {
   return out;
 }
 
+/** Eigene Vorlage (nicht leer, nicht die alte Standardvorlage) oder ''. */
+const vorlage = (v: unknown) => (typeof v === 'string' && v.trim() && v !== ENPAL_ALT ? v : '');
+
 function normalizeEinstellungen(e: unknown) {
   const d = STANDARD_EINSTELLUNGEN;
   const src: Rec = e && typeof e === 'object' ? e : {};
@@ -494,9 +527,11 @@ function normalizeEinstellungen(e: unknown) {
   const kZoom = parseNumber(karte.zoom);
   return {
     absender: str(src.absender, 500),
+    // Ab Schema 7 je Bereich eine Vorlage. Eine eigene frühere Enpal-Vorlage gilt für PV und WP weiter.
     vorlagen: {
-      enpal: typeof src.vorlagen?.enpal === 'string' && src.vorlagen.enpal.trim() ? src.vorlagen.enpal as string : d.vorlagen.enpal,
-      vorwerk: typeof src.vorlagen?.vorwerk === 'string' && src.vorlagen.vorwerk.trim() ? src.vorlagen.vorwerk as string : d.vorlagen.vorwerk,
+      pv: vorlage(src.vorlagen?.pv) || vorlage(src.vorlagen?.enpal) || d.vorlagen.pv,
+      wp: vorlage(src.vorlagen?.wp) || vorlage(src.vorlagen?.enpal) || d.vorlagen.wp,
+      vorwerk: vorlage(src.vorlagen?.vorwerk) || d.vorlagen.vorwerk,
     },
     karte: {
       lat: kLat !== null && kLng !== null && isValidCoord(kLat, kLng) ? kLat : d.karte.lat,
@@ -507,7 +542,8 @@ function normalizeEinstellungen(e: unknown) {
     autoSperreMin: autoSperre !== null && autoSperre >= 0 && autoSperre <= 240 ? Math.round(autoSperre) : d.autoSperreMin,
     // früheres Feld „dropbox“ (App-Key, Token) wird bewusst nicht übernommen und verschwindet beim nächsten Speichern
     empfaenger: {
-      enpal: str(src.empfaenger?.enpal, 300),
+      pv: str(src.empfaenger?.pv ?? src.empfaenger?.enpal, 300),
+      wp: str(src.empfaenger?.wp ?? src.empfaenger?.enpal, 300),
       vorwerk: str(src.empfaenger?.vorwerk, 300),
     },
     kartenApp: (['auto', 'apple', 'google'].includes(src.kartenApp) ? src.kartenApp : 'auto') as 'auto' | 'apple' | 'google',
@@ -518,6 +554,8 @@ function normalizeEinstellungen(e: unknown) {
     zuletzt: normalizeZuletzt(src.zuletzt),
     /** Feldverwaltung (ab Schema 4): ausgeblendete Felder (Pfade) und eigene Felder */
     felder: normalizeFeldEinstellungen(src.felder),
+    /** Ansicht, mit der der Kalender startet (ab Schema 7) */
+    kalenderStart: (['liste', 'monat', 'woche', 'tag', 'geraete'].includes(src.kalenderStart) ? src.kalenderStart : 'monat') as 'liste' | 'monat' | 'woche' | 'tag' | 'geraete',
     /** Textbausteine je Bereich für die Gesprächsnotizen (ab Schema 6) */
     bausteine: normalizeBausteine(src.bausteine),
   };
@@ -537,7 +575,8 @@ export function migrate(input: unknown): Daten {
   // v3 → v4: kunde.eigene und einstellungen.felder (Feldverwaltung), beides leer ergänzt.
   // v4 → v5: kunde.produkte (Produkte im Gespräch markieren), leer ergänzt.
   // v5 → v6: einstellungen.bausteine (Textbausteine im Gesprächsmodus), mit Startliste ergänzt.
-  // Künftige Migrationen hier schrittweise: if (v < 7) { ... }
+  // v6 → v7: Texte je Bereich (PV, WP, Vorwerk): vorlagen/empfaenger.enpal → pv und wp (normalizeEinstellungen).
+  // Künftige Migrationen hier schrittweise: if (v < 8) { ... }
   const kunden = Array.isArray(data.kunden) ? data.kunden.map(normalizeKunde) : [];
   // Doppelte IDs verhindern (z. B. nach manuellem Zusammenführen)
   const seen = new Set();

@@ -17,7 +17,6 @@ import { bausteinAnhaengen } from '../../core/bausteine.ts';
 
 type Seite = 'notizen' | 'leitfaden' | 'abschluss';
 const SEITEN: [Seite, string][] = [['notizen', '📝 Notizen'], ['leitfaden', '💬 Leitfaden'], ['abschluss', '✓ Abschließen']];
-const GRUPPE_TEXT: Record<ablauf.Gruppe, string> = { enpal: 'Photovoltaik & Wärmepumpe', vorwerk: 'Vorwerk' };
 
 export function render(el: HTMLElement, params: URLSearchParams, [id = '']: string[]) {
   const k0 = store.findKunde(id);
@@ -86,18 +85,13 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
   markierenVerdrahten(links, id, (b) => markierenNeuZeichnen(links, id, b));
 
   // ---------- Rechts ----------
-  const gruppen = (): ablauf.Gruppe[] => (['enpal', 'vorwerk'] as ablauf.Gruppe[]).filter((g) => e.sparten.some((s) => ablauf.gruppeVon(s) === g) || e.notiz[g].trim());
+  const gruppen = (): ablauf.Gruppe[] => SPARTEN_KEYS.filter((g) => e.sparten.includes(g) || (e.notiz[g] || '').trim());
 
-  // Textbausteine der Bereiche dieser Gruppe (gewählte Themen, sonst alle der Gruppe)
+  // Textbausteine des Bereichs
   const bausteineHtml = (g: ablauf.Gruppe) => {
-    const alle = SPARTEN_KEYS.filter((s) => ablauf.gruppeVon(s) === g);
-    const gewaehlt = alle.filter((s) => e.sparten.includes(s));
-    const bs = store.getData().einstellungen.bausteine;
-    const zeigen = (gewaehlt.length ? gewaehlt : alle).filter((s) => bs[s].length);
-    if (!zeigen.length) return '';
-    return `<div class="gm-bausteine" data-gruppe="${g}">${zeigen.map((s) => `
-      <div class="gm-baustein-reihe" role="group" aria-label="Textbausteine ${esc(SPARTEN[s].label)}">${zeigen.length > 1 ? `<small class="tag tag-${s}">${esc(SPARTEN[s].label)}</small>` : ''}${bs[s].map((t, i) => `<button type="button" class="chip-wahl gm-baustein" data-baustein="${s}:${i}">+ ${esc(t)}</button>`).join('')}</div>`).join('')}
-    </div>`;
+    const bs = store.getData().einstellungen.bausteine[g] || [];
+    if (!bs.length) return '';
+    return `<div class="gm-bausteine" data-gruppe="${g}"><div class="gm-baustein-reihe" role="group" aria-label="Textbausteine ${esc(SPARTEN[g].label)}">${bs.map((t, i) => `<button type="button" class="chip-wahl gm-baustein" data-baustein="${g}:${i}">+ ${esc(t)}</button>`).join('')}</div></div>`;
   };
 
   const notizenZeichnen = () => {
@@ -111,13 +105,13 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
         </div>
       </div>
       ${gs.length ? gs.map((g) => `
-      <div class="karte-box gm-notiz">
-        <label for="gmNotiz-${g}">${gs.length > 1 ? `Notizen ${esc(GRUPPE_TEXT[g])}` : 'Notizen'}</label>
+      <div class="karte-box gm-notiz bereich-rand bereich-${g}">
+        <label for="gmNotiz-${g}">${gs.length > 1 ? `Notizen ${esc(SPARTEN[g].label)} <small>(${esc(SPARTEN[g].anbieter)})</small>` : 'Notizen'}</label>
         ${bausteineHtml(g)}
-        <textarea id="gmNotiz-${g}" data-gruppe="${g}" rows="${gs.length > 1 ? 7 : 12}" placeholder="Was sagt der Kunde? Wünsche, Bedenken, Absprachen … oder oben Bausteine antippen">${esc(e.notiz[g])}</textarea>
+        <textarea id="gmNotiz-${g}" data-gruppe="${g}" rows="${gs.length > 2 ? 5 : gs.length > 1 ? 7 : 12}" placeholder="Was sagt der Kunde? Wünsche, Bedenken, Absprachen … oder oben Bausteine antippen">${esc(e.notiz[g] || '')}</textarea>
       </div>`).join('') : '<p class="hinweis">Wähle oben, worüber ihr sprecht.</p>'}
       ${gs.length ? '<p class="hinweis gm-diktat">🎤 Lieber sprechen? Ins Notizfeld tippen und auf der Tastatur das Mikrofon antippen. Bausteine änderst du unter Einstellungen → Textbausteine.</p>' : ''}
-      ${gs.length > 1 ? '<p class="hinweis">Enpal und Vorwerk werden getrennt notiert, damit jede Seite nur ihren Teil im Text bekommt.</p>' : ''}
+      ${gs.length > 1 ? '<p class="hinweis">Jeder Bereich wird getrennt notiert, damit Enpal, GALVANY und Vorwerk nur ihren eigenen Teil im Text bekommen.</p>' : ''}
       <div class="knopfreihe">
         <button type="button" class="btn" data-geh="leitfaden">💬 Leitfaden öffnen</button>
         <button type="button" class="btn primary" data-geh="abschluss">Gespräch abschließen ›</button>
@@ -131,7 +125,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
       const text = store.getData().einstellungen.bausteine[s as Sparte]?.[Number(i)];
       const ta = rechts.querySelector<HTMLTextAreaElement>(`textarea[data-gruppe="${g}"]`);
       if (!text || !ta) return;
-      e.notiz[g] = bausteinAnhaengen(e.notiz[g], text);
+      e.notiz[g] = bausteinAnhaengen(e.notiz[g] || '', text);
       ta.value = e.notiz[g];
       ta.scrollTop = ta.scrollHeight;
       b.classList.add('benutzt');
