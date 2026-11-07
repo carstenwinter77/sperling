@@ -52,7 +52,7 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Beratungs-Schutz:** Beim Kunden unten rechts 🛡 tippen – alle anderen Kunden sind ausgeblendet. Aufheben mit Face ID oder Master-Passwort.
 - **Letzter Kontakt:** Beim Kunden oben; antippen trägt einen Kontakt von Hand nach. Kundenliste: Filter „Kontakt älter als …“ und Sortierung „Längster Kontakt zuerst“.
 - **Belegungskalender:** Kalender → „Geräte“ (oder Bestand → „Belegungskalender“). Über freie Tage wischen reserviert direkt.
-- **Auswertungen:** Bereich und Zeitraum wählen (Tag, Woche, Monat, 1 Monat, 3 Monate, ½ Jahr, Kalenderjahr, 365 Tage), mit ‹ › blättern. Bei „Alles zusammen“ zeigen die Säulen die Themen in ihren Farben. „PDF-Bericht“ (immer eine Seite) zum Teilen.
+- **Auswertungen:** Bereich und Zeitraum wählen (Tag, Woche, Monat, 1 Monat, 3 Monate, ½ Jahr, Kalenderjahr, 365 Tage), mit ‹ › blättern. Bei „Alles zusammen“ zeigen die Säulen die Themen in ihren Farben. „PDF-Bericht“ (immer eine Seite) zum Teilen. Bei „Alles zusammen“ zeigt „Fokus je Sparte“, wie sich deine Arbeit auf PV, WP und Vorwerk verteilt, die Entwicklung über die letzten sechs Zeiträume und einen Kurztipp, wenn eine Sparte zu kurz kommt (unter 15 % oder um 15 Punkte gesunken).
 - **Hilfe:** ?-Knopf neben jeder Überschrift; alles unter Einstellungen → Hilfe (dort auch abschaltbar und die Installationsanleitung).
 
 ## Drei getrennte Texte

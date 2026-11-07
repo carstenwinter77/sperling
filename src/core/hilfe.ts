@@ -109,8 +109,9 @@ export const THEMEN = {
     titel: 'Auswertungen',
     kurz: 'Gespräche, Abschlüsse, Termine und Verleihe für einen Zeitraum, mit Vergleich zum Zeitraum davor.',
     schritte: [
-      'Bereich wählen (alles, PV, WP oder Vorwerk) und den Zeitraum: Tag, Woche, Monat, Kalenderjahr oder letzte 365 Tage.',
+      'Bereich wählen (alles, PV, WP oder Vorwerk) und den Zeitraum: Tag, Woche, Monat, 1 Monat, 3 Monate, ½ Jahr, Kalenderjahr oder letzte 365 Tage.',
       'Mit ‹ und › blätterst du in die Vergangenheit.',
+      '„Fokus je Sparte“ (bei „Alles zusammen“) zeigt, wie sich deine Aufmerksamkeit auf PV, WP und Vorwerk verteilt, wie es sich über die letzten sechs Zeiträume entwickelt hat, und gibt einen Kurztipp, wenn eine Sparte zu kurz kommt.',
       '„PDF-Bericht“ erstellt einen Bericht zum Teilen oder Speichern.',
     ],
   },

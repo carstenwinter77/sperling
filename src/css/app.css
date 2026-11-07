@@ -1025,3 +1025,28 @@ tr.li-gleich { opacity: .7; }
   .btn { white-space: normal; text-align: center; max-width: 100%; }
 }
 @media (max-width: 379px) { .gm-art button { padding: .5rem .5rem; font-size: .85rem; } }
+
+/* Fokus je Sparte (Trend) */
+.aw-mein-anteil { margin: .3rem 0 0; font-size: .92rem; }
+.aw-fokus h3 { font-size: 1rem; margin: 1rem 0 .4rem; }
+.aw-anteile, .aw-reihe { list-style: none; margin: 0; padding: 0; display: grid; gap: .45rem; }
+.aw-anteil { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr) 5.2rem 5.2rem; align-items: center; gap: .5rem; }
+.aw-anteil-name { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aw-anteil-wert { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.aw-anteil .aw-delta { justify-self: end; white-space: nowrap; }
+.aw-anteil-hinweis { grid-column: 2 / -1; color: var(--text-2); margin-top: -.2rem; }
+.aw-anteil.knapp .aw-anteil-hinweis { color: var(--rot); font-weight: 600; }
+.aw-balken { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--feld); min-width: 0; }
+.aw-balken .aw-teil { height: 100%; flex-basis: auto; min-height: 0; }
+.aw-balken.aw-mix .aw-teil { flex-basis: 0; }
+.aw-reihe li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr) 2.5rem; align-items: center; gap: .5rem; font-size: .88rem; }
+.aw-reihe li.jetzt { font-weight: 700; }
+.aw-reihe-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.aw-reihe-summe { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-2); }
+.aw-tipp { margin: 1rem 0 .4rem; padding: .6rem .8rem; border-radius: 12px; background: color-mix(in srgb, var(--gruen) 10%, var(--karte)); border-left: 4px solid var(--gruen); }
+@media (max-width: 479px) {
+  .aw-anteil { grid-template-columns: minmax(0, 1fr) auto auto; }
+  .aw-anteil .aw-balken { grid-column: 1 / -1; grid-row: 2; }
+  .aw-anteil-hinweis { grid-column: 1 / -1; grid-row: 3; margin-top: 0; }
+  .aw-reihe li { grid-template-columns: 5.5rem minmax(0, 1fr) 2rem; }
+}

@@ -2,6 +2,13 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.13',
+    punkte: [
+      'Auswertungen → Alles zusammen → „Fokus je Sparte“: Wie viel Aufmerksamkeit bekamen PV, Wärmepumpe und Vorwerk, wie hat es sich entwickelt, und ist es im Gleichgewicht?',
+      'Kommt eine Sparte zu kurz, gibt Sperling einen Kurztipp mit offenen Kunden und überfälligen Wiedervorlagen zum Gegensteuern.',
+    ],
+  },
+  {
     version: '0.10.12',
     punkte: [
       'Zwischen iPad und iPhone wechseln: Beim Öffnen fragt Sperling, ob ein neuerer Stand aus iCloud geholt werden soll. Übernommen wird nur, was neuer ist.',

@@ -1216,3 +1216,51 @@ test('Abgleich über iCloud Drive: nur Neueres, Konflikt bei Änderungen auf bei
   assert.equal(a.beimStartFragen({ demo: false, abgeschaltet: true, schonGefragt: false }), false);
   assert.equal(a.beimStartFragen({ demo: false, abgeschaltet: false, schonGefragt: true }), false);
 });
+
+test('Fokus je Sparte: Anteile, Rückgang, Gleichgewicht, Kurztipp', async () => {
+  const a = await import('../src/core/auswertung.ts');
+  const { normalizeTermin, normalizeKunde: nk } = await import('../src/core/model.ts');
+  const t = (s, h = 10) => new Date(`${s}T${String(h).padStart(2, '0')}:00`).toISOString();
+  const leer = a.fokusBericht(emptyData(), 'monat', '2026-11-07', '2026-11-07');
+  assert.equal(leer.urteil, 'leer');
+  assert.equal(leer.reihe.length, 6);
+  assert.equal(leer.tipp, null);
+
+  const data = emptyData();
+  const pv = (tag) => ({ zeitpunkt: t(tag), art: 'telefon', erreicht: true, themen: ['pv'], ergebnis: '' });
+  const wp = (tag) => ({ zeitpunkt: t(tag), art: 'telefon', erreicht: true, themen: ['wp'], ergebnis: '' });
+  data.kunden = [
+    // Oktober ausgewogen PV/WP, November fast nur PV
+    nk({ id: 'k1', nachname: 'A', status: { pv: 'interesse', wp: 'angebot' },
+      enpalKontakte: [pv('2026-10-02'), wp('2026-10-03'), pv('2026-11-02'), pv('2026-11-03'), pv('2026-11-04'), pv('2026-11-05'), pv('2026-11-06'), wp('2026-11-06')] }),
+    nk({ id: 'k2', nachname: 'B', status: { wp: 'interesse', vorwerk: 'potenzial' } }),
+  ];
+  data.termine = [normalizeTermin({ kundeId: 'k2', sparte: 'wp', art: 'wiedervorlage', beginn: t('2026-11-01') })];
+  const f = a.fokusBericht(data, 'monat', '2026-11-07', '2026-11-07');
+  const je = Object.fromEntries(f.sparten.map((x) => [x.sparte, x]));
+  // November: PV 5, WP 1 + Wiedervorlage 1 = 2
+  assert.equal(je.pv.anzahl, 5);
+  assert.equal(je.wp.anzahl, 2);
+  assert.equal(f.gesamt, 7);
+  assert.equal(f.schwerpunkt, 'pv');
+  assert.equal(je.wp.deltaPkt, Math.round((2 / 7 - 1 / 2) * 100));
+  assert.equal(je.wp.ruecklaufig, 1);
+  assert.equal(je.wp.vernachlaessigt, true, 'WP um mehr als 15 Pkt. gefallen');
+  assert.equal(je.wp.offen, 2);
+  assert.equal(je.wp.ueberfaellig, 1, 'offene Wiedervorlage vor heute');
+  // Vorwerk: Potenzial-Kunde, aber gar keine Zuwendung -> kommt zuerst dran
+  assert.equal(je.vorwerk.vernachlaessigt, true);
+  assert.equal(f.urteil, 'einseitig', 'PV 71 %');
+  assert.match(f.tipp, /^Vorwerk kam mit 0 % zu kurz\. Gegensteuern: 1 Potenzial-Kunde ansprechen\.$/);
+  // ohne Vorwerk-Kunden: WP-Tipp mit Wiedervorlage und offenen Kunden
+  data.kunden[1].status.vorwerk = 'unbekannt';
+  const f2 = a.fokusBericht(data, 'monat', '2026-11-07', '2026-11-07');
+  assert.equal(f2.sparten.find((x) => x.sparte === 'vorwerk').vernachlaessigt, false, 'nicht genutzte Sparte wird nicht angemahnt');
+  assert.match(f2.tipp, /Wärmepumpe ist auf 29 % gefallen \(−21 Pkt\.\)\. Gegensteuern: 1 überfällige Wiedervorlage abarbeiten und 2 offene Kunden/);
+  // Oktober allein: ausgeglichen
+  const okt = a.fokusBericht(data, 'monat', '2026-10-15', '2026-10-15');
+  assert.equal(okt.urteil, 'ausgeglichen');
+  assert.equal(okt.reihe.at(-1).label, 'Okt 26');
+  assert.equal(a.periodenLabel('woche', a.zeitraum('woche', '2026-11-07')), 'KW 45');
+  assert.equal(a.periodenLabel('m3', a.zeitraum('m3', '2026-11-07')), 'Aug–Nov 26');
+});

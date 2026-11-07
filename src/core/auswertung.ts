@@ -1,7 +1,7 @@
 // Sperling – Auswertungen (rein, ohne DOM, in Node testbar).
 // Berichte je Bereich (PV, WP, Vorwerk) oder für alles zusammen, als Tag, Woche, Monat, Kalenderjahr
 // oder letzte 365 Tage bis zum gewählten Tag. Jeder Bericht kennt den Vorzeitraum zum Vergleich.
-import { AUSGANG, SPARTEN_KEYS, type Daten, type Sparte } from './model.ts';
+import { AUSGANG, SPARTEN, SPARTEN_KEYS, type Daten, type Sparte } from './model.ts';
 import { MARKIERUNG_KEYS, type Markierung } from './produkte.ts';
 import { tagVon, tagDatum, plusTage, wochenanfang, kalenderwoche, type Tag } from './belegung.ts';
 
@@ -227,3 +227,135 @@ export function bericht(data: Daten, bereich: Bereich, periode: Periode, anker: 
   return { bereich, periode, anker, zeitraum: z, vorzeitraum: vz, jetzt: kennzahlen(data, bereich, z.von, z.bis, periode), vorher: kennzahlen(data, bereich, vz.von, vz.bis, periode) };
 }
 export type Bericht = ReturnType<typeof bericht>;
+
+// ---------- Fokus je Sparte (Trend, Gleichgewicht, Kurztipp) ----------
+
+/** Zuwendung je Sparte: Gespräche (inkl. Enpal-Kontakte), Notizen, Termine und Wiedervorlagen im Zeitraum. */
+export function zuwendung(data: Daten, von: Tag, bis: Tag): Record<Sparte, number> {
+  const rein = (iso: string | null | undefined) => { if (!iso) return false; const t = tagVon(iso); return t >= von && t <= bis; };
+  const z = Object.fromEntries(SPARTEN_KEYS.map((s) => [s, 0])) as Record<Sparte, number>;
+  const zaehle = (sparten: readonly string[]) => { for (const s of new Set(sparten)) if (s in z) z[s as Sparte]++; };
+  for (const kd of data.kunden) {
+    for (const n of kd.notizen) if (rein(n.zeitpunkt)) zaehle(n.sparten);
+    for (const c of kd.enpalKontakte) if (rein(c.zeitpunkt)) zaehle(c.themen);
+    for (const g of kd.gespraeche) if (rein(g.zeitpunkt) && g.sparte) zaehle([g.sparte]);
+  }
+  for (const t of data.termine) if (rein(t.beginn) && t.sparte) zaehle([t.sparte]);
+  return z;
+}
+
+export interface FokusSparte {
+  sparte: Sparte;
+  anzahl: number;
+  /** Anteil 0..1 an allen Sparten; null wenn im Zeitraum gar nichts war */
+  anteil: number | null;
+  /** Veränderung des Anteils gegenüber dem Vorzeitraum in Prozentpunkten; null ohne Vergleich */
+  deltaPkt: number | null;
+  /** wie viele Perioden in Folge der Anteil zuletzt gesunken ist */
+  ruecklaufig: number;
+  /** offene Chancen: Kunden mit Interesse, Termin vereinbart oder Angebot */
+  offen: number;
+  potenzial: number;
+  /** überfällige, nicht erledigte Wiedervorlagen und Termine */
+  ueberfaellig: number;
+  /** zu kurz gekommen (Anteil < 15 % oder ≥ 15 Pkt. gesunken), nur wenn die Sparte überhaupt genutzt wird */
+  vernachlaessigt: boolean;
+}
+
+export interface Fokus {
+  gesamt: number;
+  sparten: FokusSparte[];
+  /** Sparte mit dem größten Anteil; null ohne Aktivität */
+  schwerpunkt: Sparte | null;
+  urteil: 'leer' | 'ausgeglichen' | 'schwerpunkt' | 'einseitig';
+  /** Entwicklung: die letzten Perioden (älteste zuerst), je Sparte die Anzahl */
+  reihe: { label: string; je: Record<Sparte, number>; summe: number }[];
+  tipp: string | null;
+}
+
+const MON_KURZ = (t: Tag) => `${MONATE[tagDatum(t).getMonth()]!.slice(0, 3)} ${String(tagDatum(t).getFullYear()).slice(2)}`;
+
+/** Kurzlabel einer Periode für die Entwicklungsreihe. */
+export function periodenLabel(periode: Periode, z: Zeitraum): string {
+  const d = tagDatum(z.bis);
+  switch (periode) {
+    case 'tag': return d.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
+    case 'woche': return `KW ${kalenderwoche(z.von)}`;
+    case 'monat': case 'm1': return MON_KURZ(z.bis);
+    case 'm3': case 'm6': return `${MONATE[tagDatum(z.von).getMonth()]!.slice(0, 3)}–${MON_KURZ(z.bis)}`;
+    case 'jahr': return String(d.getFullYear());
+    case '365': return `bis ${d.toLocaleDateString('de-DE', { month: '2-digit', year: '2-digit' })}`;
+  }
+}
+
+const SCHWELLE_ANTEIL = 0.15;
+const SCHWELLE_RUECKGANG = 15;
+const OFFEN = ['interesse', 'termin', 'angebot'];
+
+/** Wo lag der Fokus, ist es ausgewogen, was kam zu kurz – mit Entwicklung über `perioden` Perioden und Kurztipp. */
+export function fokusBericht(data: Daten, periode: Periode, anker: Tag, heute: Tag = tagVon(new Date()), perioden = 6): Fokus {
+  const reihe: Fokus['reihe'] = [];
+  for (let i = perioden - 1; i >= 0; i--) {
+    const z = zeitraum(periode, verschieben(periode, anker, -i));
+    const je = zuwendung(data, z.von, z.bis);
+    reihe.push({ label: periodenLabel(periode, z), je, summe: SPARTEN_KEYS.reduce((a, s) => a + je[s], 0) });
+  }
+  const jetzt = reihe[reihe.length - 1]!;
+  const vorher = reihe.length > 1 ? reihe[reihe.length - 2]! : null;
+  const anteil = (r: Fokus['reihe'][number] | null, s: Sparte) => (r && r.summe ? r.je[s] / r.summe : null);
+
+  const sparten: FokusSparte[] = SPARTEN_KEYS.map((s) => {
+    const a = anteil(jetzt, s);
+    const av = anteil(vorher, s);
+    let ruecklaufig = 0;
+    for (let i = reihe.length - 1; i > 0; i--) {
+      const x = anteil(reihe[i]!, s); const y = anteil(reihe[i - 1]!, s);
+      if (x === null || y === null || x >= y) break;
+      ruecklaufig++;
+    }
+    let offen = 0; let potenzial = 0;
+    for (const kd of data.kunden) {
+      const st = kd.status[s];
+      if (OFFEN.includes(st)) offen++; else if (st === 'potenzial') potenzial++;
+    }
+    const ueberfaellig = data.termine.filter((t) => t.sparte === s && !t.erledigt && tagVon(t.beginn) < heute).length;
+    const genutzt = reihe.some((r) => r.je[s] > 0) || offen + potenzial > 0;
+    const deltaPkt = a !== null && av !== null ? Math.round((a - av) * 100) : null;
+    const vernachlaessigt = genutzt && a !== null && (a < SCHWELLE_ANTEIL || (deltaPkt !== null && deltaPkt <= -SCHWELLE_RUECKGANG));
+    return { sparte: s, anzahl: jetzt.je[s], anteil: a, deltaPkt, ruecklaufig, offen, potenzial, ueberfaellig, vernachlaessigt };
+  });
+
+  const gesamt = jetzt.summe;
+  if (!gesamt) return { gesamt, sparten, schwerpunkt: null, urteil: 'leer', reihe, tipp: null };
+  const genutzte = sparten.filter((x) => x.anzahl > 0 || x.vernachlaessigt || x.offen + x.potenzial > 0);
+  const top = [...sparten].sort((a, b) => b.anzahl - a.anzahl)[0]!;
+  const max = top.anteil ?? 0;
+  const ideal = genutzte.length ? 1 / genutzte.length : 1;
+  const urteil: Fokus['urteil'] = genutzte.length <= 1 ? 'schwerpunkt'
+    : max >= 0.7 ? 'einseitig'
+    : sparten.some((x) => x.vernachlaessigt) || max - ideal > 0.12 ? 'schwerpunkt' : 'ausgeglichen';
+
+  // Tipp für die Sparte, die am meisten zu kurz kam (kleinster Anteil, dann stärkster Rückgang)
+  // Ohne „zu kurz“, aber mit Schwerpunkt: Hinweis zur kleinsten genutzten Sparte (falls ein Ausgleich gewollt ist).
+  const kleinste = (x: FokusSparte[]) => [...x].sort((a, b) => (a.anteil ?? 0) - (b.anteil ?? 0) || (a.deltaPkt ?? 0) - (b.deltaPkt ?? 0))[0];
+  const zuKurz = kleinste(sparten.filter((x) => x.vernachlaessigt));
+  const kandidat = zuKurz ?? (urteil !== 'ausgeglichen' && genutzte.length > 1 ? kleinste(genutzte.filter((x) => x.sparte !== top.sparte)) : undefined);
+  let tipp: string | null = null;
+  if (kandidat) {
+    const name = SPARTEN[kandidat.sparte].label;
+    const warum = !zuKurz
+      ? `${name} bekam mit ${Math.round(kandidat.anteil! * 100)} % am wenigsten Aufmerksamkeit`
+      : kandidat.deltaPkt !== null && kandidat.deltaPkt <= -SCHWELLE_RUECKGANG
+      ? `${name} ist auf ${Math.round(kandidat.anteil! * 100)} % gefallen (−${Math.abs(kandidat.deltaPkt)} Pkt.)`
+      : `${name} kam mit ${Math.round(kandidat.anteil! * 100)} % zu kurz`;
+    const teile: string[] = [];
+    if (kandidat.ueberfaellig) teile.push(`${kandidat.ueberfaellig} überfällige Wiedervorlage${kandidat.ueberfaellig === 1 ? '' : 'n'} abarbeiten`);
+    if (kandidat.offen) teile.push(`${kandidat.offen} offene Kunde${kandidat.offen === 1 ? '' : 'n'} (Interesse, Termin, Angebot) nachfassen`);
+    if (!kandidat.offen && kandidat.potenzial) teile.push(`${kandidat.potenzial} Potenzial-Kunde${kandidat.potenzial === 1 ? '' : 'n'} ansprechen`);
+    const was = teile.length ? teile.join(' und ') : 'gezielt neue Kontakte für diese Sparte einplanen';
+    tipp = zuKurz ? `${warum}. Gegensteuern: ${was}.` : `${warum}. Falls du ausgleichen willst: ${was}.`;
+  } else if (urteil === 'ausgeglichen') {
+    tipp = 'Gut verteilt: Keine Sparte kam zu kurz.';
+  }
+  return { gesamt, sparten, schwerpunkt: top.sparte, urteil, reihe, tipp };
+}

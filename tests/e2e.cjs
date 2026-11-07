@@ -573,6 +573,13 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('[data-bereich=alle]');
   await p.waitForFunction(() => document.querySelector('.aw-kopf')?.textContent.includes('Alles zusammen'));
   if (await p.$('.aw-verlauf') && (!(await p.$('.aw-legende')) || !(await p.$('.aw-stapel .aw-teil')))) fail('Gesprächssäulen nicht nach Thema gestapelt');
+  // Fokus je Sparte: drei Anteile, sechs Zeiträume in der Entwicklung; nur bei „Alles zusammen“
+  await p.waitForSelector('#awFokus');
+  if ((await p.$$('#awFokus .aw-anteil')).length !== 3 || (await p.$$('#awFokus .aw-reihe li')).length !== 6) fail('Fokus je Sparte unvollständig');
+  await p.click('[data-bereich=wp]');
+  await p.waitForFunction(() => !document.querySelector('#awFokus'));
+  await p.click('[data-bereich=alle]');
+  await p.waitForSelector('#awFokus');
   await p.click('#awPdf');
   await p.waitForFunction(() => /auswertung-alle-365-.*\.pdf/.test(document.querySelector('dialog')?.textContent || ''));
   await p.click('dialog .dlg-actions button.ghost');

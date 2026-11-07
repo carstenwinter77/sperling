@@ -4,8 +4,8 @@ import { esc } from '../../core/util.ts';
 import { AUSGANG, SPARTEN, SPARTEN_KEYS } from '../../core/model.ts';
 import { tagVon } from '../../core/belegung.ts';
 import {
-  bericht, verschieben, veraenderung, prozent, BEREICHE, PERIODEN, PERIODEN_REIHE,
-  type Bereich, type Periode, type Bericht, type Kennzahlen, type Ausgang,
+  bericht, fokusBericht, verschieben, veraenderung, prozent, BEREICHE, PERIODEN, PERIODEN_REIHE,
+  type Bereich, type Periode, type Bericht, type Kennzahlen, type Ausgang, type Fokus,
 } from '../../core/auswertung.ts';
 import * as store from '../../storage/store.ts';
 import { maskottchen, toast, dialog } from '../dom.ts';
@@ -53,6 +53,54 @@ function verlaufHtml(verlauf: Kennzahlen['verlauf'], bereich: Bereich, max: numb
   return `<div class="aw-verlauf bereich-${bereich}" style="--n:${verlauf.length}">${saeulen}</div>${legende}`;
 }
 
+const pkt = (d: number | null) => (d === null ? '' : d === 0 ? '±0 Pkt.' : `${d > 0 ? '+' : '−'}${Math.abs(d)} Pkt.`);
+/** Standardschrift im PDF kennt kein Unicode-Minus. */
+const ansi = (s: string) => s.replace(/−/g, '-');
+const anteilText = (a: number | null) => (a === null ? '–' : `${Math.round(a * 100)} %`);
+
+/** Ein Satz zum Gleichgewicht. */
+export function urteilText(f: Fokus): string {
+  const top = f.sparten.find((x) => x.sparte === f.schwerpunkt);
+  const name = f.schwerpunkt ? SPARTEN[f.schwerpunkt].label : '';
+  switch (f.urteil) {
+    case 'leer': return 'In diesem Zeitraum gab es keine Gespräche, Notizen oder Termine mit Sparte.';
+    case 'ausgeglichen': return `Ausgeglichen: Die Sparten bekamen ähnlich viel Aufmerksamkeit (am meisten ${name}, ${anteilText(top!.anteil)}).`;
+    case 'einseitig': return `Sehr einseitig: ${name} mit ${anteilText(top!.anteil)}.`;
+    default: return `Schwerpunkt: ${name} mit ${anteilText(top!.anteil)}.`;
+  }
+}
+
+/** „Fokus je Sparte“: Anteile mit Veränderung, Entwicklung über die letzten Zeiträume, Kurztipp. */
+function fokusHtml(f: Fokus): string {
+  const anteile = f.sparten.map((x) => {
+    const breite = Math.round((x.anteil ?? 0) * 100);
+    const richtung = x.deltaPkt === null || x.deltaPkt === 0 ? 'gleich' : x.deltaPkt > 0 ? 'auf' : 'ab';
+    const hinweis = [x.vernachlaessigt ? 'kam zu kurz' : '', x.ruecklaufig >= 2 ? `${x.ruecklaufig}× in Folge weniger` : ''].filter(Boolean).join(' · ');
+    return `<li class="aw-anteil${x.vernachlaessigt ? ' knapp' : ''}" data-fokus="${x.sparte}">
+      <span class="aw-anteil-name">${esc(SPARTEN[x.sparte].label)}</span>
+      <span class="aw-balken" role="img" aria-label="${esc(`${SPARTEN[x.sparte].label}: ${anteilText(x.anteil)}`)}"><i class="aw-teil aw-${x.sparte}" style="width:${breite}%"></i></span>
+      <span class="aw-anteil-wert"><b>${anteilText(x.anteil)}</b> <small>(${x.anzahl})</small></span>
+      ${x.deltaPkt !== null ? `<span class="aw-delta ${richtung}" title="gegenüber dem Vorzeitraum">${pkt(x.deltaPkt)}</span>` : '<span></span>'}
+      ${hinweis ? `<small class="aw-anteil-hinweis">${x.vernachlaessigt ? '⚠️ ' : ''}${esc(hinweis)}</small>` : ''}
+    </li>`;
+  }).join('');
+  const reihe = f.reihe.map((r, i) => {
+    const text = `${r.label}: ${r.summe ? SPARTEN_KEYS.filter((s) => r.je[s]).map((s) => `${SPARTEN[s].label} ${Math.round((r.je[s] / r.summe) * 100)} %`).join(', ') : 'nichts'}`;
+    return `<li${i === f.reihe.length - 1 ? ' class="jetzt"' : ''}><span class="aw-reihe-label">${esc(r.label)}</span>
+      <span class="aw-balken aw-mix" role="img" aria-label="${esc(text)}" title="${esc(text)}">${r.summe ? SPARTEN_KEYS.filter((s) => r.je[s]).map((s) => `<i class="aw-teil aw-${s}" style="flex-grow:${r.je[s]}"></i>`).join('') : ''}</span>
+      <span class="aw-reihe-summe">${r.summe}</span></li>`;
+  }).join('');
+  return `<section class="karte-box aw-fokus" id="awFokus">
+      <h2>Fokus je Sparte</h2>
+      <p>${esc(urteilText(f))}</p>
+      <ul class="aw-anteile">${anteile}</ul>
+      <h3>Entwicklung</h3>
+      <ul class="aw-reihe">${reihe}</ul>
+      ${f.tipp ? `<p class="aw-tipp">💡 ${esc(f.tipp)}</p>` : ''}
+      <p class="hinweis klein">Gezählt werden Gespräche, Notizen, Termine und Wiedervorlagen je Sparte. Ein Gespräch über zwei Sparten zählt bei beiden. „Zu kurz“ heißt: unter 15 % oder um 15 Punkte oder mehr gesunken.</p>
+    </section>`;
+}
+
 export function render(el: HTMLElement, params: URLSearchParams) {
   const p = (n: string) => params.get(n) || '';
   const bereich: Bereich = p('bereich') in BEREICHE ? p('bereich') as Bereich : 'alle';
@@ -65,6 +113,8 @@ export function render(el: HTMLElement, params: URLSearchParams) {
   };
   const ber = bericht(store.getData(), bereich, periode, anker);
   const { jetzt, vorher } = ber;
+  const fokus = fokusBericht(store.getData(), periode, anker);
+  const meinAnteil = bereich === 'alle' ? null : fokus.sparten.find((x) => x.sparte === bereich)!;
 
   const max = Math.max(1, ...jetzt.verlauf.map((v) => v.wert));
   const ergebnisse = (Object.keys(AUSGANG) as Ausgang[]).filter((a) => jetzt.ergebnisse[a] || vorher.ergebnisse[a]);
@@ -83,6 +133,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     <section class="karte-box aw-kopf bereich-${bereich}">
       <h2>${esc(ber.zeitraum.titel)}</h2>
       <p class="hinweis">${esc(BEREICHE[bereich])} · Vergleich mit ${esc(ber.vorzeitraum.titel)}</p>
+      ${meinAnteil && fokus.gesamt ? `<p class="aw-mein-anteil">Anteil an allem, was du in diesem Zeitraum gemacht hast: <b>${anteilText(meinAnteil.anteil)}</b>${meinAnteil.deltaPkt !== null ? ` (${pkt(meinAnteil.deltaPkt)})` : ''}${meinAnteil.vernachlaessigt ? ' · ⚠️ kam zu kurz' : ''}</p>` : ''}
     </section>
     <div class="aw-zahlen">${zahlenFuer(bereich).map((z) => {
     const v = veraenderung(z.wert(jetzt), z.wert(vorher), z.quote);
@@ -97,6 +148,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       <h2>Gespräche im Verlauf</h2>
       ${jetzt.gespraeche ? verlaufHtml(jetzt.verlauf, bereich, max) : '<p class="hinweis">In diesem Zeitraum gibt es keine Gespräche.</p>'}
     </section>
+    ${bereich === 'alle' ? fokusHtml(fokus) : ''}
     ${jetzt.topProdukte.length ? `<section class="karte-box">
       <h2>Meistgefragte Produkte</h2>
       <table class="aw-tabelle"><thead><tr><th>Produkt</th><th>Interesse</th></tr></thead><tbody>
@@ -120,12 +172,12 @@ export function render(el: HTMLElement, params: URLSearchParams) {
   });
   el.querySelector('#awDatum')!.addEventListener('change', (e) => { const v = (e.target as HTMLInputElement).value; if (/^\d{4}-\d{2}-\d{2}$/.test(v)) neu(bereich, periode, v); });
   el.querySelector('#awPdf')!.addEventListener('click', async () => {
-    try { await pdfAnbieten(await berichtPdf(ber), 'Bericht (PDF)', 'Der Bericht', dialog); } catch (err) { toast((err as Error).message, 'error'); }
+    try { await pdfAnbieten(await berichtPdf(ber, bereich === 'alle' ? fokus : null), 'Bericht (PDF)', 'Der Bericht', dialog); } catch (err) { toast((err as Error).message, 'error'); }
   });
 }
 
 /** Bericht als A4-PDF (jsPDF lokal). Enthält nur Zahlen, keine Kundennamen. */
-export async function berichtPdf(ber: Bericht): Promise<{ blob: Blob; dateiname: string }> {
+export async function berichtPdf(ber: Bericht, fokus: Fokus | null = null): Promise<{ blob: Blob; dateiname: string }> {
   const JsPDF = await jsPdfLaden();
   const doc = new JsPDF({ unit: 'mm', format: 'a4', compress: true });
   const B = 210; const R = 18; let y = 22;
@@ -141,7 +193,7 @@ export async function berichtPdf(ber: Bericht): Promise<{ blob: Blob; dateiname:
 
   // Immer genau eine Seite: Zeilenhöhe und Schrift schrumpfen, wenn es viele Zeilen sind.
   const kennzahlZeilen = zahlenFuer(ber.bereich).map((z) => [
-    z.titel, anzeigen(z, ber.jetzt), anzeigen(z, ber.vorher), veraenderung(z.wert(ber.jetzt), z.wert(ber.vorher), z.quote)?.text || '–',
+    z.titel, anzeigen(z, ber.jetzt), anzeigen(z, ber.vorher), ansi(veraenderung(z.wert(ber.jetzt), z.wert(ber.vorher), z.quote)?.text || '–'),
   ]);
   const erg = (Object.keys(AUSGANG) as Ausgang[]).filter((a) => ber.jetzt.ergebnisse[a] || ber.vorher.ergebnisse[a]);
   const top = ber.jetzt.topProdukte;
@@ -149,7 +201,9 @@ export async function berichtPdf(ber: Bericht): Promise<{ blob: Blob; dateiname:
   const diagramm = ber.jetzt.gespraeche ? 6 + 34 + 6 + (ber.bereich === 'alle' ? 6 : 0) : 0;
   const zweiSpalten = Math.max(erg.length, top.length);
   const zeilen = kennzahlZeilen.length + 1 + (zweiSpalten ? zweiSpalten + 1 : 0);
-  const fest = 6 + (zweiSpalten ? 7 + 6 : 0) + diagramm;
+  const mitFokus = !!fokus && fokus.gesamt > 0;
+  const fokusHoehe = mitFokus ? 6 + 6 + 5 + (fokus!.tipp ? 10 : 0) + 4 : 0;
+  const fest = 6 + (zweiSpalten ? 7 + 6 : 0) + diagramm + fokusHoehe;
   const zh = Math.max(3.6, Math.min(6, (unten - y - fest) / Math.max(1, zeilen)));
   const fs = Math.max(7, Math.min(10, zh * 1.7));
 
@@ -182,6 +236,29 @@ export async function berichtPdf(ber: Bericht): Promise<{ blob: Blob; dateiname:
     y = y0;
     if (top.length) yr = tabelle(['Produkt', 'Interesse'], top.map((x) => [x.name, String(x.anzahl)]), [mitte, B - R - 16], B - R);
     y = Math.max(yl, yr) + 4;
+  }
+  // Fokus je Sparte: Satz, Anteile mit Veränderung, Kurztipp
+  if (mitFokus) {
+    const f = fokus!;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(Math.min(12, fs + 2)); doc.text('Fokus je Sparte', R, y); y += 6;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+    doc.text(ansi(urteilText(f)), R, y); y += 6;
+    // ein 100-%-Balken mit den Anteilen, darunter die Zahlen
+    let bx = R; const bw = B - 2 * R;
+    for (const x of f.sparten) {
+      if (!x.anteil) continue;
+      doc.setFillColor(...PDF_FARBE[x.sparte]); doc.rect(bx, y - 3.5, bw * x.anteil, 4, 'F'); bx += bw * x.anteil;
+    }
+    y += 4.5;
+    doc.setFontSize(8);
+    doc.text(ansi(f.sparten.map((x) => `${SPARTEN[x.sparte].label} ${anteilText(x.anteil)}${x.deltaPkt !== null ? ` (${pkt(x.deltaPkt)})` : ''}${x.vernachlaessigt ? ' – zu kurz' : ''}`).join('   ·   ')), R, y);
+    y += 5;
+    if (f.tipp) {
+      doc.setFontSize(9);
+      const zeilenTipp = doc.splitTextToSize(ansi(`Tipp: ${f.tipp}`), bw).slice(0, 2);
+      doc.text(zeilenTipp, R, y); y += 4.5 * zeilenTipp.length + 1;
+    }
+    y += 4;
   }
   // Verlauf als einfache Säulen
   if (ber.jetzt.gespraeche) {

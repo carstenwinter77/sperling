@@ -1,5 +1,10 @@
 # Änderungsverlauf
 
+## 0.10.13 – 07.11.2026
+- **Auswertungen: Fokus je Sparte** (`fokusBericht` in `src/core/auswertung.ts`): Bei „Alles zusammen“ zeigt ein Abschnitt den Anteil von Photovoltaik, Wärmepumpe und Vorwerk an Gesprächen, Notizen, Terminen und Wiedervorlagen, mit Veränderung in Punkten gegenüber dem Vorzeitraum. Dazu die Entwicklung über die letzten sechs Zeiträume (Tage, Wochen, Monate oder Jahre, je nach gewähltem Zeitraum) und ein Urteil (ausgeglichen, Schwerpunkt, sehr einseitig).
+- **Kurztipp:** Kommt eine Sparte zu kurz (unter 15 % oder um 15 Punkte oder mehr gesunken), nennt Sperling überfällige Wiedervorlagen und offene Kunden (Interesse, Termin, Angebot) bzw. Potenzial-Kunden dieser Sparte zum Gegensteuern. Sparten ohne Kunden und Aktivität werden nicht angemahnt.
+- In den einzelnen Sparten steht oben der Anteil an allem, was im Zeitraum gemacht wurde. Der PDF-Bericht enthält den Fokus mit Tipp und bleibt auf einer Seite.
+
 ## 0.10.12 – 07.11.2026
 - **Abgleich über iCloud Drive** (`src/core/abgleich.ts`, `src/ui/abgleich.ts`): Nach dem Entsperren eine Leiste „Neueren Stand aus iCloud holen“ (einmal je Sitzung, abschaltbar unter Einstellungen → Datensicherung), bei Änderungen seit dem letzten Abgleich zusätzlich „Diesen Stand in iCloud sichern“. Übernommen wird nur ein neuerer Stand; wurde auf beiden Geräten geändert, fragt Sperling nach (der bisherige Stand bleibt in den Versionen). Merkt sich den Stand des letzten Abgleichs (`meta.abgleichStand`, nur auf dem Gerät). Safari erlaubt keinen automatischen Zugriff auf iCloud Drive, deshalb ein Tipp zum Wählen der Datei.
 - **Ersteinrichtung auf einem weiteren Gerät:** „Vom anderen Gerät übernehmen (iCloud)“ auf dem Startbildschirm. Sicherung wählen, bisheriges Passwort eingeben, fertig; kein neues Passwort (`store.einrichtenAusSicherung`).
