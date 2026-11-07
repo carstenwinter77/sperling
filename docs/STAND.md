@@ -9,7 +9,7 @@
 Alle Funktionen der Demo laufen auch in der echten App (gleicher Code; die Demo ist nur ein Modus mit Beispieldaten im Arbeitsspeicher). Geprüft am 07.11.2026 im Browser-Test: Einrichten mit Passwort, Kunde, Notiz, Termin/ICS, getrennte Texte, Enpal-Doku, Gesprächsleitfaden, Sperren/Neuladen, iCloud-/Datei-Sicherung und Einspielen, Versionshistorie, Offline-Start über den Service Worker.
 
 Was nur der Auftraggeber/Nutzer erledigen kann:
-- [ ] **Hosting einschalten:** Repo öffentlich + GitHub Pages (Anleitung Abschnitt 2). Adresse: `https://carstenwinter77.github.io/sperling/`
+- [x] **Hosting:** GitHub Pages ist seit 07.11.2026 live unter `https://carstenwinter77.github.io/sperling/` (Browser-Test gegen die Live-Seite grün, Kartenbilder und Adresssuche erreichbar)
 - [ ] **Dropbox-App anlegen** (nur wenn Dropbox-Abgleich gewünscht, Anleitung Abschnitt 3) – sonst iCloud-Sicherung nutzen
 - [ ] Auf dem Tablet „Zum Home-Bildschirm“ hinzufügen und Master-Passwort festlegen
 
