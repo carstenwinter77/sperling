@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.10.24 – 07.11.2026
+- **Kontaktseite** (`public/kontakt/index.html`): neue Abschnitte „Aus Lengede, für die Region“ (Über mich, Vorteile, Orte), „So arbeite ich“ (selbständig, Vergütung durch das Fachunternehmen, zweite Meinung mit Link zur Energieberatung der Verbraucherzentrale) und „Häufige Fragen“. Datenschutzerklärung: Satz zu externen Links.
+
 ## 0.10.23 – 07.11.2026
 - **Filter unter Kunden und Karte:** Jede aktive Auswahl ist jetzt sichtbar markiert, mit Farbe, kräftigem Rand und Haken ✓. Vorher sah man bei „Kein Kontakt“, „Produkte“ und eigenen Feldern nur am Text darunter, was gefiltert wird. Produkte in ihren Farben (Interesse grün, Später orange, Schon vorhanden blau, Kein Interesse rot), Bereiche und Status wie bisher in ihrer Farbe, zusätzlich mit Haken.
 
