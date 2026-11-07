@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.10.23 – 07.11.2026
+- **Filter unter Kunden und Karte:** Jede aktive Auswahl ist jetzt sichtbar markiert, mit Farbe, kräftigem Rand und Haken ✓. Vorher sah man bei „Kein Kontakt“, „Produkte“ und eigenen Feldern nur am Text darunter, was gefiltert wird. Produkte in ihren Farben (Interesse grün, Später orange, Schon vorhanden blau, Kein Interesse rot), Bereiche und Status wie bisher in ihrer Farbe, zusätzlich mit Haken.
+
 ## 0.10.22 – 07.11.2026
 - **Auswertungen: prozentuale Veränderung.** Jede Kennzahl zeigt neben der Differenz die Veränderung in Prozent zum Vorzeitraum, mit Pfeil (▲ ▼ ▶) und Vorzeichen, nicht nur über die Farbe erkennbar, z. B. „▼ −10 (−43 %)“. War der Vorzeitraum 0, steht „(neu)“; Quoten bleiben in Prozentpunkten. Bildschirmleser hören „gestiegen/gesunken, vorher …“. Im PDF-Bericht Spalte „Veränderung (%)“, grün/rot gefärbt (`veraenderung()` liefert `prozent`, neu `veraenderungText()`).
 - **Förderung-Symbol** jetzt als ganzes Logo mit Sperling und Blatt, in den Farben der übrigen Symbole (hell und dunkel).

@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.22
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.23
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,10 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.22)
+## Erledigt (Version 0.10.23)
+
+### Neu in 0.10.23
+- [x] Kunden-/Kartenfilter: aktive Auswahl einheitlich mit Farbe und Haken (auch „Kein Kontakt“, Produkte, eigene Felder).
 
 ### Neu in 0.10.22
 - [x] Auswertungen: prozentuale Veränderung zum Vorzeitraum mit Pfeil und Vorzeichen, auch im PDF.

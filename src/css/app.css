@@ -1263,3 +1263,16 @@ tr.li-gleich { opacity: .7; }
   .k-tag .k-feiertag { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .k-tag.feiertag .k-nr { color: var(--rot); }
 }
+
+/* Filter (Kunden, Karte): jede aktive Auswahl sichtbar – Farbe UND Haken, nicht nur Farbe */
+.karte-filter .chip-wahl.aktiv { background: var(--aktiv-bg); border-color: var(--braun); color: var(--text); box-shadow: inset 0 0 0 1px var(--braun); }
+.karte-filter .chip-wahl.aktiv::before { content: "✓ "; font-weight: 800; }
+.karte-filter .chip-wahl.aktiv.tag-pv { background: var(--tag-pv-bg); color: var(--tag-pv); border-color: var(--tag-pv); box-shadow: inset 0 0 0 1px var(--tag-pv); }
+.karte-filter .chip-wahl.aktiv.tag-wp { background: var(--tag-wp-bg); color: var(--tag-wp); border-color: var(--tag-wp); box-shadow: inset 0 0 0 1px var(--tag-wp); }
+.karte-filter .chip-wahl.aktiv.tag-vorwerk { background: var(--tag-vw-bg); color: var(--tag-vw); border-color: var(--tag-vw); box-shadow: inset 0 0 0 1px var(--tag-vw); }
+.karte-filter .kf-status.aktiv { border-color: var(--c); background: color-mix(in srgb, var(--c) 18%, var(--karte)); box-shadow: inset 0 0 0 1px var(--c); }
+.karte-filter .kf-produkt.markierung-interesse.aktiv { --m: var(--gruen); }
+.karte-filter .kf-produkt.markierung-spaeter.aktiv { --m: var(--orange); }
+.karte-filter .kf-produkt.markierung-vorhanden.aktiv { --m: var(--tag-wp); }
+.karte-filter .kf-produkt.markierung-kein.aktiv { --m: var(--rot); }
+.karte-filter .kf-produkt.aktiv { border-color: var(--m); background: color-mix(in srgb, var(--m) 18%, var(--karte)); color: var(--text); box-shadow: inset 0 0 0 1px var(--m); }

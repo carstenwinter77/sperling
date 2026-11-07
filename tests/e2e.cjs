@@ -524,6 +524,11 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.goto(BASE + '#/kunden');
   await p.click('#fKnopf');
   await p.click('#kFilter [data-f-kontakt=nie]');
+  for (const sel of ['#kFilter [data-f-kontakt=nie]', '#kFilter [data-f-produkt=interesse]']) {
+    if (sel.includes('produkt')) await p.click(sel);
+    const st = await p.$eval(sel, (e) => ({ vor: getComputedStyle(e, '::before').content, bg: getComputedStyle(e).backgroundColor, aus: getComputedStyle(e.parentElement.querySelector('.chip-wahl:not(.aktiv)')).backgroundColor }));
+    if (!st.vor.includes('✓') || st.bg === st.aus) fail('Aktiver Filter nicht hervorgehoben: ' + sel);
+  }
   if (!/von/.test(await p.textContent('#fAnzahl'))) fail('Kundenfilter zeigt keine Anzahl');
   await p.click('#kFilter [data-f-alle]');
   await p.selectOption('#sortierung', 'kontakt-alt');

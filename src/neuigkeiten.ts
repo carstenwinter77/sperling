@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.23',
+    punkte: [
+      'Filter bei Kunden und auf der Karte: Was gerade gewählt ist, ist jetzt farbig und mit ✓ markiert, auch bei „Kein Kontakt“ und „Produkte“.',
+    ],
+  },
+  {
     version: '0.10.22',
     punkte: [
       'Auswertungen: Neben jeder Zahl steht jetzt auch die Veränderung in Prozent zum Vorzeitraum, mit Pfeil, z. B. „▲ +1 (+50 %)“. Auch im PDF-Bericht.',

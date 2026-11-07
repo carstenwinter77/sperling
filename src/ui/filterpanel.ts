@@ -13,7 +13,7 @@ export function filterPanelHtml(id: string, fe?: FeldEinstellungen): string {
     <div class="kf-gruppe"><strong>Bereiche</strong>${SPARTEN_KEYS.map((s) => `<button type="button" class="chip-wahl tag-${s}" data-f-sparte="${s}" aria-pressed="false">${esc(SPARTEN[s].label)}</button>`).join('')}</div>
     <div class="kf-gruppe"><strong>Status</strong>${Object.entries(STATUS).map(([k, v]) => `<button type="button" class="chip-wahl kf-status" data-f-status="${k}" style="--c:${v.farbe}" aria-pressed="false"><i></i>${esc(v.label)}</button>`).join('')}</div>
     <div class="kf-gruppe"><strong>Kein Kontakt</strong>${KONTAKT_FILTER.map(([k, l]) => `<button type="button" class="chip-wahl" data-f-kontakt="${k}" aria-pressed="false">${esc(l)}</button>`).join('')}</div>
-    <div class="kf-gruppe"><strong>Produkte</strong>${MARKIERUNG_KEYS.map((m) => `<button type="button" class="chip-wahl" data-f-produkt="${m}" aria-pressed="false">${MARKIERUNGEN[m].kurz} ${esc(MARKIERUNGEN[m].label)}</button>`).join('')}</div>
+    <div class="kf-gruppe"><strong>Produkte</strong>${MARKIERUNG_KEYS.map((m) => `<button type="button" class="chip-wahl kf-produkt markierung-${m}" data-f-produkt="${m}" aria-pressed="false">${MARKIERUNGEN[m].kurz} ${esc(MARKIERUNGEN[m].label)}</button>`).join('')}</div>
     ${filterbareFelder(fe).map((x) => `<div class="kf-gruppe"><strong>${esc(x.label)}</strong>${(x.typ === 'bool' ? ['ja', 'nein', ''] : [...x.optionen, '']).map((w) => `<button type="button" class="chip-wahl" data-f-eigen="${esc(x.id)}" data-wert="${esc(w)}" aria-pressed="false">${esc(wertLabel(w))}</button>`).join('')}</div>`).join('')}
     <p class="hinweis kf-text"></p>
     <button type="button" class="btn klein ghost" data-f-alle>Alle zeigen</button>
