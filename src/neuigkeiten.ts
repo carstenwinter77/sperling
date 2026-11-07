@@ -2,6 +2,15 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.7',
+    punkte: [
+      '54 Beispielkunden rund um Lengede, Peine und Salzgitter, mit vielen Produkten, Terminen und Testgeräten.',
+      'Sicherheitsprüfung: Beispieldaten können echte Kunden und Geräte nie überschreiben.',
+      'Karte: Potenzial-Markierungen direkt in der Infobox über 🗑 löschen.',
+      'Sperren sitzt jetzt oben neben dem Logo, weit weg von den Einstellungen.',
+    ],
+  },
+  {
     version: '0.10.6',
     punkte: [
       'Der Gesprächsleitfaden führt jetzt in 7 Phasen durchs Gespräch, vom Vorbereiten bis zum nächsten Schritt. Oben siehst du, wo du stehst; wischen oder antippen wechselt die Phase.',

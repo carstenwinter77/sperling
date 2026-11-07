@@ -1,7 +1,7 @@
 // Einstellungen: Absender, Textvorlagen, Sicherung (iCloud), Historie, Passwort, Datenschutz.
 import { esc, formatDateTime, parseNumber } from '../../core/util.ts';
 import { DEFAULT_VORLAGEN, KUNDENANSICHT_TEILE, SPARTEN, SPARTEN_KEYS, migrate, normalizeGeraet, type KundenansichtTeil, type Sparte } from '../../core/model.ts';
-import { demoDaten, beispielAnzahl, beispielEinfuegen, beispielEntfernen, beispielBestand, bestandAnzahl, bestandEinfuegen, bestandEntfernen } from '../../demo.ts';
+import { demoDaten, beispielAnzahl, beispielEinfuegen, beispielEntfernen, beispielBestand, bestandAnzahl, bestandEinfuegen, bestandEntfernen, beispielSicher } from '../../demo.ts';
 import { PLATZHALTER } from '../../core/textgen.ts';
 import { validateEnvelope } from '../../core/crypto.ts';
 import * as store from '../../storage/store.ts';
@@ -140,6 +140,7 @@ export function render(el: HTMLElement) {
 
     <section class="karte-box ${demo ? 'aus' : ''}">
       <h2>Sicherheit</h2>
+      <p><button class="btn primary" id="jetztSperren">🔒 Jetzt sperren</button></p>
       <p class="hinweis" id="bioInfo"></p>
       <div class="knopfreihe">
         <button class="btn ghost" id="bio" hidden></button>
@@ -164,7 +165,7 @@ export function render(el: HTMLElement) {
     if (beispielAnzahl(store.getData()) && !(await bestaetigen('Beispielkunden neu laden?', 'Die vorhandenen Beispielkunden werden durch frische ersetzt (Änderungen daran gehen verloren). Echte Kunden bleiben unberührt.', 'Neu laden'))) return;
     try {
       const beispiel = migrate(demoDaten());
-      await store.mutate((d) => beispielEinfuegen(d, beispiel));
+      await store.mutate((d) => beispielSicher(d, (k) => beispielEinfuegen(k, beispiel)));
       toast('Beispielkunden geladen – siehe Kunden', 'ok');
       render(el);
     } catch (err) { toast(`Laden fehlgeschlagen: ${(err as Error).message}`, 'error'); }
@@ -172,23 +173,23 @@ export function render(el: HTMLElement) {
   el.querySelector('#bestandLaden').addEventListener('click', async () => {
     try {
       const geraete = beispielBestand().map(normalizeGeraet);
-      await store.mutate((d) => bestandEinfuegen(d, geraete));
+      await store.mutate((d) => beispielSicher(d, (k) => bestandEinfuegen(k, geraete)));
       toast('Beispielbestand geladen – siehe Bestand', 'ok');
       render(el);
     } catch (err) { toast(`Laden fehlgeschlagen: ${(err as Error).message}`, 'error'); }
   });
   el.querySelector('#bestandWeg').addEventListener('click', async () => {
-    if (!(await bestaetigen('Beispielbestand entfernen?', 'Die Beispielgeräte werden aus dem Bestand gelöscht. Geräte, die schon verliehen waren, bleiben wegen des Verlaufs erhalten.', 'Entfernen'))) return;
+    if (!(await bestaetigen('Beispielbestand entfernen?', 'Die Beispielgeräte werden aus dem Bestand gelöscht. Geräte, die schon verliehen oder reserviert sind, bleiben erhalten.', 'Entfernen'))) return;
     try {
-      await store.mutate((d) => bestandEntfernen(d));
-      toast(bestandAnzahl(store.getData()) ? 'Entfernt – verliehene Beispielgeräte bleiben wegen des Verlaufs' : 'Beispielbestand entfernt', 'ok', 5000);
+      await store.mutate((d) => beispielSicher(d, (k) => bestandEntfernen(k)));
+      toast(bestandAnzahl(store.getData()) ? 'Entfernt – verliehene oder reservierte Beispielgeräte bleiben erhalten' : 'Beispielbestand entfernt', 'ok', 5000);
       render(el);
     } catch (err) { toast(`Entfernen fehlgeschlagen: ${(err as Error).message}`, 'error'); }
   });
   el.querySelector('#beispielWeg').addEventListener('click', async () => {
     if (!(await bestaetigen('Beispielkunden entfernen?', 'Alle Beispielkunden samt ihrer Notizen, Termine und Beispielgeräte werden gelöscht. Echte Kunden bleiben unberührt.', 'Entfernen'))) return;
     try {
-      await store.mutate((d) => beispielEntfernen(d));
+      await store.mutate((d) => beispielSicher(d, (k) => beispielEntfernen(k)));
       toast('Beispielkunden entfernt', 'ok');
       render(el);
     } catch (err) { toast(`Entfernen fehlgeschlagen: ${(err as Error).message}`, 'error'); }
@@ -261,6 +262,8 @@ export function render(el: HTMLElement) {
       },
     });
   });
+  // Sperren auch dort, wo die Menüleiste keinen Sperr-Knopf hat (iPhone, iPad hochkant)
+  el.querySelector('#jetztSperren')?.addEventListener('click', () => document.getElementById('sperren')?.click());
   el.querySelector('#einstExport').addEventListener('click', async () => {
     let inhalt;
     try {

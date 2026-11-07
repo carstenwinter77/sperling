@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.6
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.7
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,13 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.6)
+## Erledigt (Version 0.10.7)
+
+### Neu in 0.10.7
+- [x] 54 Beispielkunden im Beratungsgebiet mit Produkten aus dem erweiterten Katalog (79 Produkte), Terminen, Testgeräten (`src/demo-gebiet.ts`).
+- [x] R-BEISPIEL: Sicherheitsprüfung `beispielSicher()`, Demo-Modus speichert nie.
+- [x] Karte: Potenzial-Markierung über 🗑 in der Infobox löschen (Papierkorb).
+- [x] Sperren oben neben dem Logo, Einstellungen unten mit Trennlinie; „Jetzt sperren“ in Einstellungen.
 
 ### Neu in 0.10.6
 - [x] **Geführter Gesprächsleitfaden** (`src/core/leitfragen.ts`, `src/ui/views/gespraech.ts`): 7 Phasen mit Phasenleiste (Wischen/Antippen), Leitfragen je Bereich mit Stichwort in die Notiz, Denkanstoß je Anbieter, Einwände mit Rückfrage vor Antwort, „Widerrufsrecht erklärt“, Gesprächsbilanz mit Maskottchen, Animationen mit „Bewegung reduzieren“. Zustand nur im Entwurf (Arbeitsspeicher), kein Schemawechsel. 2 neue Unit-Tests, Browser-Test erweitert. Grundlage: Vorschlagsdokument „Gesprächsleitfäden: Strategien erfolgreicher Berater“ (freigegeben 07.11.2026, ohne Konfetti).

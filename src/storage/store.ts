@@ -87,6 +87,8 @@ export function isDemo() {
 
 /** Demo starten: Beispieldaten nur im Speicher, keine Persistenz, kein Sync. */
 export function startDemo(demoDaten: unknown) {
+  // Sicherheit: Nie echte, entsperrte Daten im Speicher durch Beispieldaten ersetzen.
+  if (data && !demo) throw new Error('Demo nur im gesperrten Zustand.');
   demo = true;
   keyring = new KeyRing('demo');
   data = migrate(demoDaten);
@@ -190,6 +192,8 @@ async function doSave() {
   try {
     const updatedAt = nextTimestamp(stand);
     if (!keyring || !data) throw new Error('Gesperrt.');
+    // Sicherheit: Demo-Daten werden nie gespeichert (würden sonst den echten Bestand überschreiben).
+    if (demo) throw new Error('Demo-Modus: Speichern gesperrt.');
     const env = await keyring.encrypt(data, { updatedAt, deviceId: await getDeviceId() });
     await db.saveEnvelope(env);
     stand = updatedAt;

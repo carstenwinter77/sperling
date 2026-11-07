@@ -53,6 +53,7 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/gespraechsablauf.ts  laufendes Gespräch im Arbeitsspeicher
  ├─ src/ui/filterpanel.ts  Filterfeld für Karte und Kundenliste
  ├─ src/ui/bausteinverwaltung.ts  Einstellungen → Textbausteine
+ ├─ src/demo-gebiet.ts  Beispielkunden im Beratungsgebiet (fester Startwert)
  ├─ src/ui/ziehsortieren.ts  Listen per Griff umsortieren (Zeiger + Pfeiltasten)
  ├─ src/ui/produkte.ts ... Kacheln, Produktdetail, Markieren-Block (Kartei, Gesprächsmodus)
  ├─ src/ui/views/produkte.ts  Produktübersicht #/produkte (auch im Beratungs-Schutz)

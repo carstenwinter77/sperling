@@ -152,10 +152,28 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.selectOption('#kalenderStart', 'monat');
   // Beispielkunden laden und entfernen
   await p.click('#beispielLaden');
-  await p.waitForFunction(() => document.querySelector('#beispielInfo')?.textContent.includes('5 Beispielkunden'));
+  await p.waitForFunction(() => document.querySelector('#beispielInfo')?.textContent.includes('54 Beispielkunden'));
   await p.goto(BASE + '#/kunden');
   await p.waitForSelector('#liste .tag-beispiel');
-  if ((await p.locator('#liste .tag-beispiel').count()) !== 5) fail('Beispielkunden nicht markiert');
+  if ((await p.locator('#liste .tag-beispiel').count()) !== 54) fail(`Beispielkunden nicht markiert (${await p.locator('#liste .tag-beispiel').count()})`);
+  // Potenzial-Markierung auf der Karte über die Infobox löschen (mit Sicherheitsabfrage)
+  await p.goto(BASE + '#/karte');
+  await p.waitForSelector('.leaflet-marker-icon');
+  const pinsVorher = await p.locator('.leaflet-marker-icon').count();
+  await p.evaluate(() => { const m = [...document.querySelectorAll('.leaflet-marker-icon')].find((x) => (x.getAttribute('title') || '').includes('Lindenweg 8')); m.scrollIntoView(); m.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
+  await p.waitForSelector('.leaflet-popup [data-pin-loeschen]');
+  await p.click('.leaflet-popup [data-pin-loeschen]');
+  await p.click('dialog .dlg-actions button.ghost');
+  if ((await p.locator('.leaflet-marker-icon').count()) !== pinsVorher) fail('Markierung trotz Abbrechen gelöscht');
+  await p.evaluate(() => { const m = [...document.querySelectorAll('.leaflet-marker-icon')].find((x) => (x.getAttribute('title') || '').includes('Lindenweg 8')); m.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
+  await p.click('.leaflet-popup [data-pin-loeschen]');
+  await p.click('dialog button.danger');
+  await p.waitForFunction((n) => document.querySelectorAll('.leaflet-marker-icon').length === n - 1, pinsVorher);
+  if (await p.$('.leaflet-marker-icon[title*="Lindenweg 4"]') && !(await p.$('.leaflet-popup'))) {
+    await p.evaluate(() => { const m = [...document.querySelectorAll('.leaflet-marker-icon')].find((x) => (x.getAttribute('title') || '').includes('Anna Beispiel')); m?.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
+    await p.waitForSelector('.leaflet-popup');
+    if (await p.$('.leaflet-popup [data-pin-loeschen]')) fail('Papierkorb auch bei Kunden mit Abschluss');
+  }
   await p.goto(BASE + '#/einstellungen');
   await p.click('#beispielWeg');
   await p.click('dialog button.danger');
@@ -229,7 +247,8 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.goto(BASE + '#/einstellungen');
   await p.click('#bestandWeg');
   await p.click('dialog button.danger');
-  await p.waitForFunction(() => (document.querySelector('#bestandInfo')?.textContent || '').includes('Kein Beispielbestand'));
+  // reserviertes Beispielgerät bleibt (echte Reservierung), alle anderen sind weg
+  await p.waitForFunction(() => /bleiben erhalten|Beispielbestand entfernt/.test(document.querySelector('#toast')?.textContent || ''));
   // Historie vorhanden
   await p.waitForTimeout(500);
   if (!(await p.$('#historie [data-i]'))) fail('Keine Versionshistorie');

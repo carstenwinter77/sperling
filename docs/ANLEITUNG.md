@@ -41,7 +41,9 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Telefonat mit Einwänden:** Kunde → „Gesprächsleitfaden“ (oder Leiste → Gespräch). Sparte wählen, Einwand antippen, Gegenargumente vorlesen, Ergebnis markieren. Am Ende „Als Notiz speichern“.
 - **Enpal-Dokumentation:** Kunde → Enpal-Doku → „Telefonat dokumentieren“ bzw. „Hausbesuch dokumentieren“ → Speichern → „Text kopieren“ → in der Enpal-App beim Lead einfügen. Beim Gesprächsleitfaden entsteht der Eintrag automatisch.
 - **Anrufen / E-Mail:** Kunde → Übersicht → „Anrufen“ (mit Rückfrage) oder „E-Mail schreiben“. Mailprogramm wählen, Häkchen „merken“ setzt es als Vorauswahl. Änderbar unter Einstellungen → E-Mail.
-- **Beispielkunden zum Üben/Zeigen:** Einstellungen → Beispielkunden → „Beispielkunden laden“. Später „Beispielkunden entfernen“ – echte Kunden bleiben.
+- **Beispielkunden zum Üben/Zeigen:** Einstellungen → Beispielkunden → „Beispielkunden laden“. Später „Beispielkunden entfernen“ – echte Kunden bleiben. Es sind 54 erfundene Kunden rund um Lengede, Peine und Salzgitter mit Produkten, Terminen und Testgeräten. Eine Sicherheitsprüfung bricht ab, falls je ein echter Datensatz betroffen wäre.
+- **Potenzial-Markierung löschen:** Auf der Karte die Markierung antippen → 🗑 in der Infobox → bestätigen. Die Markierung landet unter Kunden › Gelöscht und lässt sich wiederherstellen. Der Papierkorb erscheint nur bei Markierungen ohne Fortschritt (Potenzial/unbekannt).
+- **Sperren:** am großen Knopf 🔒 oben neben dem Logo (iPad quer, Laptop) oder unter Einstellungen → Sicherheit → „Jetzt sperren“ (überall).
 - **Face ID / Touch ID:** Nach dem ersten Entsperren fragt Sperling, ob Face ID genutzt werden soll (oder Einstellungen → Sicherheit). Danach auf dem Sperrbildschirm „Mit Face ID entsperren“. Geht nur in der installierten App, iPhone/iPad ab iOS 18. Nach einem Passwortwechsel neu einrichten.
 - **Beispiel-Vorführbestand:** Einstellungen → Beispieldaten → „Beispielbestand laden“ (Kobold-Geräte zum Ausprobieren), später „entfernen“.
 - **Hell / Dunkel:** Einstellungen → Darstellung.

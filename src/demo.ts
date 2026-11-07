@@ -1,6 +1,7 @@
 // Sperling – Beispieldaten für den Demo-Modus (frei erfunden, nur im Arbeitsspeicher).
 import { emptyData, type Daten, type Geraet } from './core/model.ts';
 import type { Rec } from './core/util.ts';
+import { gebietsKunden } from './demo-gebiet.ts';
 
 function tageAb(tage: number, stunde = 10, minute = 0): string {
   const d = new Date();
@@ -13,11 +14,11 @@ function tageAb(tage: number, stunde = 10, minute = 0): string {
 export function demoDaten(): Rec {
   const d: Rec = emptyData();
   d.einstellungen.absender = 'Max Sperling · Außendienst';
-  d.einstellungen.karte = { lat: 52.3759, lng: 9.732, zoom: 15, layer: 'satellit' };
+  d.einstellungen.karte = { lat: 52.2058, lng: 10.3020, zoom: 13, layer: 'satellit' };
   d.kunden = [
     {
-      id: 'demo-1', vorname: 'Anna', nachname: 'Beispiel', strasse: 'Lindenweg 4', plz: '30159', ort: 'Hannover',
-      telefon: '0511 123456', email: 'anna@example.de', lat: 52.3768, lng: 9.7335,
+      id: 'demo-1', vorname: 'Anna', nachname: 'Beispiel', strasse: 'Lindenweg 4', plz: '38268', ort: 'Lengede',
+      telefon: '05344 123456', email: 'anna@example.de', lat: 52.2061, lng: 10.3002,
       status: { pv: 'abschluss', wp: 'interesse', vorwerk: 'potenzial' },
       pv: { dachflaeche: 62, ausrichtung: 'Süd', neigung: 35, dachform: 'Satteldach', eindeckung: 'Ziegel', verschattung: 'Gering', stromverbrauch: 4800, personen: 4, eauto: true, wallbox: true, speicher: true },
       wp: { heizungsart: 'Gas', heizungBaujahr: 2004, verbrauchMenge: 18000, verbrauchEinheit: 'kWh', wohnflaeche: 140, hausBaujahr: 1985, daemmung: 'Teilsaniert', waermeverteilung: 'Heizkörper', warmwasser: true },
@@ -43,8 +44,8 @@ export function demoDaten(): Rec {
       ],
     },
     {
-      id: 'demo-2', vorname: 'Bernd', nachname: 'Muster', strasse: 'Lindenweg 6', plz: '30159', ort: 'Hannover',
-      telefon: '0511 654321', lat: 52.3770, lng: 9.7342,
+      id: 'demo-2', vorname: 'Bernd', nachname: 'Muster', strasse: 'Lindenweg 6', plz: '38268', ort: 'Lengede',
+      telefon: '05344 654321', lat: 52.2063, lng: 10.3009,
       status: { pv: 'potenzial', wp: 'unbekannt', vorwerk: 'unbekannt' },
       pv: { dachflaeche: 55, ausrichtung: 'Süd-West', dachform: 'Satteldach' },
       enpalKontakte: [{ id: 'ek4', zeitpunkt: tageAb(-1, 10, 5), art: 'telefon', erreicht: false, themen: ['pv'], ergebnis: 'wiedervorlage',
@@ -52,32 +53,32 @@ export function demoDaten(): Rec {
       notizen: [{ id: 'n4', zeitpunkt: tageAb(-2, 18, 45), sparten: ['pv'], text: 'Nachbar von Frau Beispiel. Niemand angetroffen, Flyer eingeworfen. Großes Süddach.' }],
     },
     {
-      id: 'demo-3', vorname: 'Claudia', nachname: 'Probe', strasse: 'Am Markt 12', plz: '30159', ort: 'Hannover',
-      telefon: '0170 1112223', email: 'c.probe@example.de', lat: 52.3745, lng: 9.7368,
+      id: 'demo-3', vorname: 'Claudia', nachname: 'Probe', strasse: 'Am Markt 12', plz: '31224', ort: 'Peine',
+      telefon: '0170 1112223', email: 'c.probe@example.de', lat: 52.3207, lng: 10.2345,
       status: { pv: 'kein_interesse', wp: 'unbekannt', vorwerk: 'abschluss' },
       vorwerk: { interesseAn: 'Kobold Saugroboter', bodenbelaege: 'Parkett, Fliesen', flaeche: 95, allergien: true, vorfuehrung: true },
       notizen: [{ id: 'n5', zeitpunkt: tageAb(-7, 11, 0), sparten: ['vorwerk'], text: 'Saugroboter gekauft. Wohnung ist gemietet, deshalb kein PV-Thema.' }],
     },
     {
-      id: 'demo-4', vorname: 'Dieter', nachname: 'Test', firma: 'Bäckerei Test', strasse: 'Hauptstraße 20', plz: '30159', ort: 'Hannover',
-      telefon: '0511 999888', lat: 52.3752, lng: 9.7298,
+      id: 'demo-4', vorname: 'Dieter', nachname: 'Test', firma: 'Bäckerei Test', strasse: 'Hauptstraße 20', plz: '38159', ort: 'Vechelde',
+      telefon: '05302 999888', lat: 52.2612, lng: 10.3651,
       status: { pv: 'angebot', wp: 'termin', vorwerk: 'unbekannt' },
       pv: { dachflaeche: 180, ausrichtung: 'Ost/West', dachform: 'Flachdach', stromverbrauch: 28000, speicher: true },
       wp: { heizungsart: 'Öl', heizungBaujahr: 1998, verbrauchMenge: 4000, verbrauchEinheit: 'Liter', wohnflaeche: 220 },
       notizen: [{ id: 'n6', zeitpunkt: tageAb(-3, 9, 15), sparten: ['pv', 'wp'], text: 'Angebot PV übergeben. Für Wärmepumpe Vor-Ort-Termin mit Techniker vereinbart.' }],
     },
     {
-      id: 'demo-5', strasse: 'Lindenweg 8', plz: '30159', ort: 'Hannover', lat: 52.3772, lng: 9.7350,
+      id: 'demo-5', strasse: 'Lindenweg 8', plz: '38268', ort: 'Lengede', lat: 52.2065, lng: 10.3016,
       status: { pv: 'potenzial', wp: 'potenzial', vorwerk: 'unbekannt' },
       notizen: [{ id: 'n7', zeitpunkt: tageAb(-2, 19, 0), sparten: ['pv', 'wp'], text: 'Altbau mit Ölheizung (Tank im Garten sichtbar), Dach unbelegt. Nochmal klingeln.' }],
     },
   ];
   d.termine = [
-    { id: 't1', kundeId: 'demo-1', sparte: 'wp', art: 'termin', titel: 'WP-Beratung Anna Beispiel', beginn: tageAb(1, 17, 0), dauerMin: 60, ort: 'Lindenweg 4, 30159 Hannover' },
-    { id: 't2', kundeId: 'demo-1', sparte: 'vorwerk', art: 'termin', titel: 'Vorwerk-Vorführung Anna Beispiel', beginn: tageAb(9, 18, 0), dauerMin: 90, ort: 'Lindenweg 4, 30159 Hannover' },
+    { id: 't1', kundeId: 'demo-1', sparte: 'wp', art: 'termin', titel: 'WP-Beratung Anna Beispiel', beginn: tageAb(1, 17, 0), dauerMin: 60, ort: 'Lindenweg 4, 38268 Lengede' },
+    { id: 't2', kundeId: 'demo-1', sparte: 'vorwerk', art: 'termin', titel: 'Vorwerk-Vorführung Anna Beispiel', beginn: tageAb(9, 18, 0), dauerMin: 90, ort: 'Lindenweg 4, 38268 Lengede' },
     { id: 't3', kundeId: 'demo-5', sparte: 'pv', art: 'wiedervorlage', titel: 'Lindenweg 8 nochmal klingeln', beginn: tageAb(0, 18, 30), dauerMin: 60 },
     { id: 't4', kundeId: 'demo-2', sparte: 'pv', art: 'wiedervorlage', titel: 'Bernd Muster anrufen (Flyer)', beginn: tageAb(-1, 10, 0), dauerMin: 60 },
-    { id: 't5', kundeId: 'demo-4', sparte: 'wp', art: 'termin', titel: 'Bäckerei Test: Techniker vor Ort', beginn: tageAb(4, 8, 0), dauerMin: 120, ort: 'Hauptstraße 20, 30159 Hannover' },
+    { id: 't5', kundeId: 'demo-4', sparte: 'wp', art: 'termin', titel: 'Bäckerei Test: Techniker vor Ort', beginn: tageAb(4, 8, 0), dauerMin: 120, ort: 'Hauptstraße 20, 38159 Vechelde' },
   ];
   d.geraete = [
     { id: 'g1', name: 'Kobold VK7 Akku-Staubsauger', seriennummer: 'VK7-20391', zubehoer: 'Bodendüse, Polsterdüse, Ladestation' },
@@ -91,6 +92,8 @@ export function demoDaten(): Rec {
     { id: 'l3', geraetId: 'g2', kundeId: 'demo-3', ausgabe: tageAb(-20, 11, 0), rueckgabeGeplant: tageAb(-13, 10, 0), rueckgabe: tageAb(-7, 11, 0), kaufinteresse: 'gekauft' },
   ];
   d.termine.push({ id: 't6', kundeId: 'demo-4', sparte: 'vorwerk', art: 'wiedervorlage', titel: 'Nachfragen: Kobold SP7 Saugwischer bei Dieter Test (Bäckerei Test)', beginn: tageAb(-2, 10, 0), dauerMin: 60, notiz: 'Wie gefällt das Gerät? Kaufinteresse? Rückgabe abholen.' });
+  // Viele weitere Kunden im Beratungsgebiet (Lengede, Raum Peine bis Salzgitter)
+  gebietsKunden(d, tageAb);
   return d;
 }
 
@@ -101,6 +104,54 @@ export function demoDaten(): Rec {
 export const BEISPIEL_PRAEFIX = 'demo-';
 export const istBeispiel = (id) => typeof id === 'string' && id.startsWith(BEISPIEL_PRAEFIX);
 const mitPraefix = (id) => (istBeispiel(id) ? id : `${BEISPIEL_PRAEFIX}${id}`);
+
+// ---------- Sicherheitsprüfung: echte Daten werden von Beispielen nie angetastet ----------
+// Jede Änderung durch Beispielkunden/-bestand läuft über beispielSicher(): Sie arbeitet auf einer Kopie,
+// vergleicht danach jeden echten Datensatz (Kunden, Termine, Geräte, Leihvorgänge, Reservierungen,
+// Papierkorb, Einstellungen) mit dem Stand vorher und übernimmt das Ergebnis nur, wenn alles Echte
+// unverändert ist. Sonst bricht sie ab und es ändert sich gar nichts.
+
+const SAMMLUNGEN = ['kunden', 'termine', 'geraete', 'leihvorgaenge', 'reservierungen', 'papierkorb'] as const;
+const istBeispielId = (id) => istBeispiel(id) || (typeof id === 'string' && id.startsWith('demob-'));
+
+/** Echte Datensätze als Vergleichsabdruck. Bezüge auf Beispiele (kundeId/geraetId) zählen nicht als Inhalt. */
+function echterAbdruck(data: Daten): Map<string, string> {
+  const m = new Map<string, string>();
+  for (const s of SAMMLUNGEN) {
+    for (const x of (data[s] as Rec[] | undefined) || []) {
+      if (istBeispielId(x?.id)) continue;
+      const kopie: Rec = { ...x };
+      if (istBeispielId(kopie.kundeId)) kopie.kundeId = '';
+      const schluessel = `${s}:${x?.id}`;
+      if (m.has(schluessel)) throw new Error(`Sicherheitsprüfung: doppelte ID ${schluessel}.`);
+      m.set(schluessel, JSON.stringify(kopie));
+    }
+  }
+  m.set('einstellungen', JSON.stringify(data.einstellungen));
+  m.set('schemaVersion', String(data.schemaVersion));
+  return m;
+}
+
+export class BeispielSchutzFehler extends Error {}
+
+/**
+ * Führt eine Beispiel-Änderung aus, aber nur, wenn danach jeder echte Datensatz unverändert da ist
+ * und nichts Neues ohne Beispiel-Kennung dazukam. Sonst: Fehler, `data` bleibt wie es war.
+ */
+export function beispielSicher(data: Daten, aenderung: (kopie: Daten) => void): void {
+  const vorher = echterAbdruck(data);
+  const kopie: Daten = JSON.parse(JSON.stringify(data));
+  aenderung(kopie);
+  const nachher = echterAbdruck(kopie);
+  for (const [k, v] of vorher) {
+    if (!nachher.has(k)) throw new BeispielSchutzFehler(`Sicherheitsprüfung: Echter Datensatz würde fehlen (${k}). Nichts wurde geändert.`);
+    if (nachher.get(k) !== v) throw new BeispielSchutzFehler(`Sicherheitsprüfung: Echter Datensatz würde verändert (${k}). Nichts wurde geändert.`);
+  }
+  for (const k of nachher.keys()) {
+    if (!vorher.has(k)) throw new BeispielSchutzFehler(`Sicherheitsprüfung: Neuer Datensatz ohne Beispiel-Kennung (${k}). Nichts wurde geändert.`);
+  }
+  for (const s of SAMMLUNGEN) (data as Rec)[s] = (kopie as Rec)[s];
+}
 
 /** Anzahl der vorhandenen Beispielkunden. */
 export function beispielAnzahl(data: Daten) {
@@ -163,7 +214,8 @@ export function bestandEinfuegen(data: Daten, geraete: Geraet[]) {
 
 /** Entfernt Beispielgeräte. Geräte mit Verleih-Verlauf bleiben (sonst ginge echter Verlauf verloren, R-LOESCH). */
 export function bestandEntfernen(data: Daten) {
-  const mitVerlauf = new Set(data.leihvorgaenge.map((l) => l.geraetId));
+  // Geräte mit Verleih-Verlauf oder Reservierung bleiben (sonst ginge Echtes verloren, R-LOESCH)
+  const mitVerlauf = new Set([...data.leihvorgaenge.map((l) => l.geraetId), ...(data.reservierungen || []).map((r) => r.geraetId)]);
   data.geraete = data.geraete.filter((g) => !g.id.startsWith(BESTAND_PRAEFIX) || mitVerlauf.has(g.id));
   const bleiben = new Set(data.geraete.map((g) => g.id));
   data.reservierungen = (data.reservierungen || []).filter((r) => bleiben.has(r.geraetId));

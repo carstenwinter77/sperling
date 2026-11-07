@@ -264,12 +264,12 @@ import { demoDaten, beispielEinfuegen, beispielEntfernen, beispielAnzahl, istBei
 test('Beispielkunden laden und vollständig entfernen, echte Daten bleiben', () => {
   const d = migrate({ schemaVersion: 2, kunden: [{ id: 'echt', nachname: 'Echt' }], termine: [{ id: 'te', kundeId: 'echt', titel: 'Echt', beginn: '2026-11-10T10:00:00Z' }] });
   beispielEinfuegen(d, migrate(demoDaten()));
-  assert.equal(beispielAnzahl(d), 5);
+  assert.equal(beispielAnzahl(d), 54);
   assert.ok(d.termine.length > 1 && d.termine.filter((t) => t.id !== 'te').every((t) => istBeispiel(t.id) && istBeispiel(t.kundeId)));
   assert.ok(d.leihvorgaenge.every((l) => istBeispiel(l.geraetId) && istBeispiel(l.kundeId)));
   // doppelt laden ersetzt statt zu verdoppeln
   beispielEinfuegen(d, migrate(demoDaten()));
-  assert.equal(beispielAnzahl(d), 5);
+  assert.equal(beispielAnzahl(d), 54);
   // echter Termin bei Beispielkunde, echter Verleih eines Beispielgeräts
   d.termine.push({ id: 'te2', kundeId: 'demo-1', titel: 'Echt bei Beispiel' });
   d.leihvorgaenge.push({ id: 'le', geraetId: 'demo-g2', kundeId: 'echt' });
@@ -981,4 +981,57 @@ test('Geführter Ablauf: Navigation, Abhaken, Fortschritt, Stichpunkt', async ()
   const a = lf.neuerFluss(); const b = lf.neuerFluss();
   lf.umschalten(a, 'wp', 'wp-sit-heizung');
   assert.equal(b.gefragt.wp.length, 0);
+});
+
+test('Beispielkunden im Gebiet: viele, plausibel, Produkte aus dem Katalog, stabil', async () => {
+  const fs = await import('node:fs');
+  const { katalogPruefen } = await import('../src/core/produkte.ts');
+  const ids = new Set(katalogPruefen(JSON.parse(fs.readFileSync(new URL('../src/data/produkte.json', import.meta.url), 'utf8'))).produkte.map((p) => p.id));
+  const d = migrate(demoDaten());
+  assert.equal(d.kunden.length, 54);
+  const orte = new Set(d.kunden.map((k) => k.ort));
+  for (const o of ['Lengede', 'Peine', 'Vechelde', 'Ilsede', 'Salzgitter-Lebenstedt', 'Salzgitter-Bad']) assert.ok(orte.has(o), o);
+  assert.ok(d.kunden.every((k) => k.lat > 52 && k.lat < 52.45 && k.lng > 10 && k.lng < 10.5), 'alle im Gebiet');
+  const marken = d.kunden.flatMap((k) => k.produkte);
+  assert.ok(marken.length > 100);
+  assert.ok(marken.every((m) => ids.has(m.produktId)), 'nur Produkte aus dem Katalog');
+  assert.ok(new Set(marken.map((m) => m.produktId)).size >= 25, 'viele verschiedene Produkte');
+  for (const s of ['pv', 'wp', 'vorwerk']) for (const st of ['interesse', 'abschluss']) assert.ok(d.kunden.some((k) => k.status[s] === st), `${s} ${st}`);
+  assert.ok(d.termine.length > 40 && d.termine.every((t) => !t.kundeId || d.kunden.some((k) => k.id === t.kundeId)));
+  assert.ok(d.leihvorgaenge.every((l) => d.geraete.some((g) => g.id === l.geraetId)));
+  assert.equal(new Set(d.kunden.map((k) => k.id)).size, d.kunden.length);
+  // immer gleich (fester Startwert)
+  assert.deepEqual(migrate(demoDaten()).kunden.map((k) => k.nachname), d.kunden.map((k) => k.nachname));
+});
+
+test('Sicherheitsprüfung: Beispieldaten überschreiben nie echte Kunden oder Geräte', async () => {
+  const { beispielSicher, beispielBestand, bestandEinfuegen, bestandEntfernen } = await import('../src/demo.ts');
+  const { normalizeGeraet } = await import('../src/core/model.ts');
+  const d = migrate({ kunden: [{ id: 'echt', nachname: 'Echt', notizen: [{ id: 'n', text: 'ECHT' }] }], geraete: [{ id: 'echt-g', name: 'Eigenes Gerät' }], termine: [{ id: 'te', kundeId: 'echt', titel: 'Echt', beginn: '2026-11-10T10:00:00Z' }] });
+  const echt = JSON.stringify([d.kunden, d.geraete, d.termine, d.einstellungen]);
+  beispielSicher(d, (k) => beispielEinfuegen(k, migrate(demoDaten())));
+  beispielSicher(d, (k) => bestandEinfuegen(k, beispielBestand().map(normalizeGeraet)));
+  assert.equal(beispielAnzahl(d), 54);
+  beispielSicher(d, (k) => beispielEntfernen(k));
+  beispielSicher(d, (k) => bestandEntfernen(k));
+  assert.equal(JSON.stringify([d.kunden, d.geraete, d.termine, d.einstellungen]), echt, 'echte Daten unverändert');
+  // Fehlerhafte Beispiel-Änderungen werden abgelehnt, nichts ändert sich
+  const vorher = JSON.stringify(d);
+  const boese = [
+    (k) => { k.kunden = []; },
+    (k) => { k.kunden[0].nachname = 'Überschrieben'; },
+    (k) => { k.geraete = k.geraete.filter((g) => g.id !== 'echt-g'); },
+    (k) => { k.kunden.push({ id: 'neu-ohne-kennung', nachname: 'X' }); },
+    (k) => { k.einstellungen.absender = 'Fremd'; },
+    (k) => { k.kunden.push({ ...k.kunden[0], id: 'demo-1' }); k.kunden.shift(); },
+  ];
+  for (const f of boese) {
+    assert.throws(() => beispielSicher(d, f), /Sicherheitsprüfung/);
+    assert.equal(JSON.stringify(d), vorher);
+  }
+  // Echte Reservierung eines Beispielgeräts: Gerät bleibt beim Entfernen
+  beispielSicher(d, (k) => bestandEinfuegen(k, beispielBestand().map(normalizeGeraet)));
+  d.reservierungen.push({ id: 'r-echt', geraetId: 'demob-2', von: '2026-12-01', bis: '2026-12-02' });
+  beispielSicher(d, (k) => bestandEntfernen(k));
+  assert.ok(d.geraete.some((g) => g.id === 'demob-2') && d.reservierungen.some((r) => r.id === 'r-echt'));
 });

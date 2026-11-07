@@ -1,5 +1,12 @@
 # Änderungsverlauf
 
+## 0.10.7 – 07.11.2026
+- **Beispielkunden:** 54 erfundene Kunden im Beratungsgebiet (Lengede mit Ortsteilen, Peine, Vechelde, Ilsede, Hohenhameln, Söhlde, Wendeburg, Edemissen, Salzgitter), alle Bereiche und Status, Produkte aus dem erweiterten Katalog, Termine, Wiedervorlagen, Testgeräte. Fester Startwert, daher immer gleich.
+- **Produktkatalog** auf 79 Produkte erweitert (Enpal 20, GALVANY 10, Vorwerk 49).
+- **R-BEISPIEL:** `beispielSicher()` prüft jede Beispiel-Aktion gegen alle echten Datensätze und bricht sonst ohne Änderung ab. Demo-Modus speichert nie und startet nie über echte Daten. Beispielgeräte mit echter Reservierung bleiben.
+- **Karte:** 🗑 in der Infobox von Potenzial-Markierungen, mit Sicherheitsabfrage, landet im Papierkorb.
+- **Menü:** Sperren als eigener Knopf oben neben dem Logo, Einstellungen unten mit Trennlinie; „Jetzt sperren“ unter Einstellungen → Sicherheit.
+
 ## 0.10.6 – 07.11.2026
 - **Geführter Gesprächsleitfaden in 7 Phasen** (`src/core/leitfragen.ts`): Vorbereiten, Einstieg, Situation, Problem, Zusammenfassen, Lösung, Nächster Schritt. Grundlage sind seriöse Vertriebsmethoden (SPIN-Fragen, aktives Zuhören, ehrlicher Denkanstoß, offene Fragen, klarer nächster Schritt); keine Druck- oder Manipulationstechniken (R-LEITFADEN).
 - Leitfragen je Bereich (Enpal, GALVANY, Vorwerk) zum Antippen: Haken, das Stichwort fliegt in die Notiz des Bereichs, die Antwort wird dahinter getippt oder diktiert. Phasenleiste mit Fortschritt, Wischen oder Antippen wechselt die Phase, „Einwand?“ springt zur Einwandbehandlung.

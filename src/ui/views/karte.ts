@@ -3,7 +3,8 @@ import { esc, nowIso, isValidCoord } from '../../core/util.ts';
 import { SPARTEN, SPARTEN_KEYS, STATUS, hauptStatus, kundenTitel, kundenName, adresseEinzeilig, neuerKunde, neueNotiz } from '../../core/model.ts';
 import * as store from '../../storage/store.ts';
 import { adresseZuKoordinate, adressenSuchen } from '../../services/geo.ts';
-import { toast, maskottchen } from '../dom.ts';
+import { toast, maskottchen, bestaetigen } from '../dom.ts';
+import * as pk from '../../core/papierkorb.ts';
 import { statusChips } from '../parts.ts';
 import { passt, pinStatus, leererKartenFilter, filterAktiv, type KartenFilter } from '../../core/kartenfilter.ts';
 import { letzterKontakt, tageSeit, seitText } from '../../core/verlauf.ts';
@@ -116,7 +117,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       sichtbar++;
       const st = pinStatus(k, filter);
       const m = L.marker([k.lat, k.lng], { icon: pinIcon(L, STATUS[st].farbe), title: kundenTitel(k) });
-      m.bindPopup(() => `<div class="popup"><strong>${esc(kundenTitel(k))}</strong><br><small>${esc(adresseEinzeilig(k))}</small><br>${statusChips(k)}<br><small>Letzter Kontakt: ${esc(seitText(tageSeit(letzterKontakt(store.getData(), k))))}</small><br><a class="btn klein primary" href="#/kunde/${esc(k.id)}">Öffnen</a>${hinfahrenKnopf(k, 'btn klein')}</div>`);
+      m.bindPopup(() => `<div class="popup"><strong>${esc(kundenTitel(k))}</strong><br><small>${esc(adresseEinzeilig(k))}</small><br>${statusChips(k)}<br><small>Letzter Kontakt: ${esc(seitText(tageSeit(letzterKontakt(store.getData(), k))))}</small><br><a class="btn klein primary" href="#/kunde/${esc(k.id)}">Öffnen</a>${hinfahrenKnopf(k, 'btn klein')}${['potenzial', 'unbekannt'].includes(hauptStatus(k)) ? ` <button type="button" class="btn klein ghost" data-pin-loeschen="${esc(k.id)}" aria-label="Markierung löschen" title="Markierung löschen">🗑</button>` : ''}</div>`);
       pins.addLayer(m);
     }
     const aktiv = filterAktiv(filter);
@@ -125,6 +126,20 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     filterPanelZeigen(el.querySelector('#fPanel'), filter, sichtbar, gesamt, 'Kunden mit Standort', daten.einstellungen.felder);
   };
   zeichnen();
+  // Potenzial-Markierung direkt aus der Infobox löschen (mit Sicherheitsabfrage, landet im Papierkorb)
+  map.on('popupopen', (e) => {
+    const knopf = (e.popup.getElement() as HTMLElement | undefined)?.querySelector('[data-pin-loeschen]') as HTMLElement | null;
+    knopf?.addEventListener('click', async () => {
+      const id = knopf.dataset.pinLoeschen || '';
+      const k = id ? store.findKunde(id) : null;
+      if (!k) return;
+      map.closePopup();
+      if (!(await bestaetigen('Markierung löschen?', `${kundenTitel(k)} (${adresseEinzeilig(k) || 'ohne Adresse'}) kommt in die Liste „Gelöscht“ und lässt sich dort wiederherstellen.`, 'Löschen'))) return;
+      store.mutate((d) => { pk.kundeLoeschen(d, id); });
+      toast('Markierung gelöscht – unter Kunden › Gelöscht wiederherstellbar', 'ok', 5000);
+      zeichnen();
+    });
+  });
 
   el.querySelector('#fKnopf').addEventListener('click', (e) => {
     const panel = el.querySelector('#fPanel');

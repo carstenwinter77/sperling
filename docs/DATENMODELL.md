@@ -158,7 +158,7 @@ Belegt ist ein Gerät, wenn sich der Zeitraum mit einer Reservierung oder einem 
 
 ## Beispieldaten
 
-Beispielkunden, -termine, -geräte und -verleihe in der echten App erkennt man am ID-Präfix `demo-` (Beispiel-Vorführbestand: `demob-`) (kein eigenes Feld, keine Schemaänderung). `beispielEntfernen()` in `src/demo.ts` entfernt genau diese.
+Beispielkunden, -termine, -geräte und -verleihe in der echten App erkennt man am ID-Präfix `demo-` (Beispiel-Vorführbestand: `demob-`) (kein eigenes Feld, keine Schemaänderung). `beispielEntfernen()` in `src/demo.ts` entfernt genau diese. Alle Beispiel-Aktionen laufen über `beispielSicher()` (R-BEISPIEL). Ab 0.10.7 gibt es 54 Beispielkunden im Beratungsgebiet (Lengede, Raum Peine bis Salzgitter), erzeugt mit festem Startwert in `src/demo-gebiet.ts`.
 
 ## Migration
 

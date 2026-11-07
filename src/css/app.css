@@ -152,7 +152,7 @@ dialog.dlg::backdrop { background: var(--backdrop); }
   padding-bottom: env(safe-area-inset-bottom); background: var(--karte); border-top: 1px solid var(--linie);
   display: flex; justify-content: space-around; align-items: stretch;
 }
-.hauptnav .marke { display: none; }
+.hauptnav .marke, .marke-zeile { display: none; }
 .hauptnav a, .sperr-knopf {
   flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   text-decoration: none; color: var(--text-2); font-size: .7rem; font-weight: 600; background: none; border: 0; font-family: inherit; cursor: pointer; padding: 4px 0;
@@ -696,9 +696,16 @@ body.hilfe-aus .hilfe-knopf { display: none; }
 .hero-bild { border-radius: 22%; }
 .nav-version { display: block; font-size: .55rem; font-weight: 500; opacity: .75; }
 @media (min-width: 900px) {
-  /* unten links: Sperren, darunter Einstellungen mit der Programmversion */
-  .sperr-knopf { order: 50; }
-  .hauptnav .nav-einstellungen { order: 60; }
+  /* Sperren oben neben dem Logo, Einstellungen mit Programmversion ganz unten:
+     weit auseinander, damit man nicht versehentlich sperrt (Carsten 07.11.) */
+  .marke-zeile { display: flex; align-items: center; justify-content: space-between; gap: .4rem; padding: 0 0 .8rem .3rem; }
+  .marke-zeile .marke { padding: 0; }
+  .marke-zeile .marke-logo { width: 122px; }
+  .hauptnav .sperr-knopf { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; margin: 0; width: 56px; height: 56px; padding: 0;
+    border: 1.5px solid var(--linie); border-radius: 14px; background: var(--karte); color: var(--text-2); font-size: 1.25rem; line-height: 1; cursor: pointer; }
+  .hauptnav .sperr-knopf small { font-size: .62rem; font-weight: 600; margin-top: .2rem; }
+  .hauptnav .sperr-knopf:hover, .hauptnav .sperr-knopf:focus-visible { border-color: var(--braun); color: var(--text); }
+  .hauptnav .nav-einstellungen { order: 60; margin-top: auto; border-top: 1px solid var(--linie); border-radius: 0 0 12px 12px; padding-top: .7rem; min-height: 56px; }
   .hauptnav .nav-einstellungen > span { display: flex; flex-direction: column; line-height: 1.2; }
   .nav-version { font-size: .75rem; }
 }

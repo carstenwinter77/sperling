@@ -108,26 +108,36 @@
         {
           "schluessel": "stromherkunft",
           "bezeichnung": "Stromherkunft",
-          "wert": "100 % deutscher Ökostrom (laut Seite)"
+          "wert": "100 % Ökostrom, TÜV-zertifiziert (laut Seite)"
         },
         {
           "schluessel": "preisberechnung",
           "bezeichnung": "Preisberechnung",
-          "wert": "je nach Netzgebiet, inkl. Grundgebühr; Arbeitspreis wird vor Vertragsabschluss genannt"
+          "wert": "regional je nach Netzentgelt"
+        },
+        {
+          "schluessel": "laufzeit",
+          "bezeichnung": "Laufzeit",
+          "wert": "nach 12 Monaten jederzeit kündbar"
+        },
+        {
+          "schluessel": "voraussetzung",
+          "bezeichnung": "voraussetzung",
+          "wert": "nur mit Enpal Solaranlage, Enpal Stromspeicher und Enpal.One+"
         }
       ],
       "preis": {
         "modell": "tarif",
         "betragEuro": null,
         "einheit": null,
-        "text": null,
+        "text": "Dynamischer Tarif zum festen Preis (regional, kein ct/kWh veröffentlicht)",
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.enpal.de/enpal-one",
-      "bildUrl": null,
+      "quelleUrl": "https://www.enpal.de/stromtarif",
+      "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/6ad2218fb3149fe45f866c46_261013_product-hero-stromtarif.webp",
       "stand": "2026-11-07",
-      "hinweise": "Kein konkreter Arbeitspreis veröffentlicht."
+      "hinweise": "Kein ct/kWh-Wert veröffentlicht. Seite wirbt mit „dynamischer Tarif zum festen Preis“ und günstigstem Anbieter in 98 % der PLZ (Marketingvergleich)."
     },
     {
       "id": "enpal-wallbox",
@@ -243,42 +253,82 @@
       "kategorie": "sonstiges",
       "name": "Enpal Notstrom (EnergyProtect)",
       "kurzbeschreibung": "Notstromlösung, die bei Stromausfall die Versorgung im Haus absichern soll.",
-      "technischeDaten": [],
+      "technischeDaten": [
+        {
+          "schluessel": "funktion",
+          "bezeichnung": "Funktion",
+          "wert": "manuell umschaltbare Notstromversorgung für wichtige Geräte"
+        },
+        {
+          "schluessel": "dauer",
+          "bezeichnung": "dauer",
+          "wert": "abhängig von Speicherkapazität, Ladezustand und Verbrauch (keine Stundenangabe)"
+        },
+        {
+          "schluessel": "abmessungen",
+          "bezeichnung": "Abmessungen",
+          "wert": "508 × 400 × 200 mm"
+        },
+        {
+          "schluessel": "einbau",
+          "bezeichnung": "Einbau",
+          "wert": "im Zählerschrank oder separatem Unterverteiler"
+        },
+        {
+          "schluessel": "garantie",
+          "bezeichnung": "Garantie",
+          "wert": "bis zu 5 Jahre"
+        },
+        {
+          "schluessel": "voraussetzung",
+          "bezeichnung": "voraussetzung",
+          "wert": "Enpal-Speicher und inselfähiger Enpal-Wechselrichter"
+        }
+      ],
       "preis": null,
-      "quelleUrl": "https://www.enpal.de/photovoltaik/komponenten",
-      "bildUrl": null,
+      "quelleUrl": "https://www.enpal.de/notstrom",
+      "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/677bd1dea9b9b7460a86910d_enpal-energyprotect-notstrom-og.webp",
       "stand": "2026-11-07",
-      "hinweise": "Nur Teaser gelesen, /notstrom nicht abgerufen."
+      "passtZu": [
+        "enpal-speicher",
+        "enpal-wechselrichter"
+      ],
+      "hinweise": "Kein Preis, keine kW-Angabe."
     },
     {
       "id": "enpal-solarmodul",
       "quelle": "enpal",
       "bereich": "pv",
       "kategorie": "solarmodul",
-      "name": "Enpal Solarmodul (Glas-Glas)",
+      "name": "Enpal Full-Black Solarmodul (TOPCon, Glas-Glas)",
       "kurzbeschreibung": "Glas-Glas-Solarmodul, das in Enpal-Anlagen verbaut wird.",
       "technischeDaten": [
         {
+          "schluessel": "technologie",
+          "bezeichnung": "Technologie",
+          "wert": "TOPCon, Glas-Glas, bifazial"
+        },
+        {
           "schluessel": "nennleistung",
           "bezeichnung": "Nennleistung",
-          "wert": "460 Wp (Produktkarte); Ratgeberteil nennt 450 Wp"
+          "wert": "460 Wp (Haupttext: über 450 Wp)"
         },
         {
-          "schluessel": "bauweise",
-          "bezeichnung": "Bauweise",
-          "wert": "Glas-Glas"
+          "schluessel": "leistungsgarantie",
+          "bezeichnung": "leistungsgarantie",
+          "wert": "30 Jahre"
         },
         {
-          "schluessel": "degradation",
-          "bezeichnung": "Degradation",
-          "wert": "ca. 0,4–0,5 % pro Jahr (Ratgeberaussage)"
+          "schluessel": "klimabilanz",
+          "bezeichnung": "klimabilanz",
+          "wert": "energetische Amortisation unter 1,5 Jahren (Herstellerangabe)"
         }
       ],
       "preis": null,
-      "quelleUrl": "https://www.enpal.de/photovoltaik/komponenten",
+      "quelleUrl": "https://www.enpal.de/photovoltaik/solarmodul",
       "bildUrl": null,
       "stand": "2026-11-07",
-      "hinweise": "Kein Hersteller/Modell genannt; Leistungsangabe widersprüchlich."
+      "hinweise": "Hersteller und Wirkungsgrad nicht genannt."
     },
     {
       "id": "enpal-pv-miete",
@@ -385,9 +435,26 @@
           "schluessel": "eigentum",
           "bezeichnung": "Eigentum",
           "wert": "Mietvariante: nach 20 Jahren für 1 € im Eigentum"
+        },
+        {
+          "schluessel": "module",
+          "bezeichnung": "module",
+          "wert": "460 Wp Full-Black"
+        },
+        {
+          "schluessel": "wechselrichter",
+          "bezeichnung": "wechselrichter",
+          "wert": "Enpal Wechselrichter, notstromfähig mit EnergyProtect"
         }
       ],
-      "preis": null,
+      "preis": {
+        "modell": "unbekannt",
+        "betragEuro": 98,
+        "einheit": "pro Monat",
+        "text": "Schon ab 98 € pro Monat (Produktübersicht)",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
       "quelleUrl": "https://www.enpal.de/photovoltaik/komplettanlage",
       "bildUrl": null,
       "stand": "2026-11-07",
@@ -425,6 +492,11 @@
           "schluessel": "service",
           "bezeichnung": "Service",
           "wert": "Service-Paket zubuchbar, monatlich kündbar"
+        },
+        {
+          "schluessel": "modelle",
+          "bezeichnung": "modelle",
+          "wert": "kaufen, mieten oder finanzieren"
         }
       ],
       "preis": {
@@ -492,7 +564,8 @@
       "quelle": "enpal",
       "bereich": "wp",
       "kategorie": "waermepumpe",
-      "name": "Bosch Luftwärmepumpe (über Enpal)",
+      "name": "Bosch Compress 5800i AW (über Enpal)",
+      "modell": "Compress 5800i AW",
       "kurzbeschreibung": "Vollelektrische Luftwärmepumpe von Bosch, kompakt und leise; Lieferung und Montage im Preis enthalten.",
       "technischeDaten": [
         {
@@ -514,6 +587,11 @@
           "schluessel": "montage",
           "bezeichnung": "Montage",
           "wert": "im Preis enthalten"
+        },
+        {
+          "schluessel": "modell",
+          "bezeichnung": "Modell",
+          "wert": "Compress 5800i AW"
         }
       ],
       "preis": {
@@ -524,14 +602,14 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.enpal.de/waermepumpe/kaufen",
-      "bildUrl": "https://cdn.prod.website-files.com/5e9474e5c30754387e0538e9/6463486550e265ae2391d45e_Produktbild_Waermepumpe.jpg",
+      "quelleUrl": "https://www.enpal.de/waermepumpe/bosch",
+      "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/669544b6855a9e9f611edb74_6463486550e265ae2391d45e_Produktbild_Waermepumpe.jpeg",
       "stand": "2026-11-07",
       "passtZu": [
         "enpal-wp-ratenkauf",
         "enpal-wp-komplettset"
       ],
-      "hinweise": "Kein Modell, keine kW-Angabe, keine Garantie genannt."
+      "hinweise": "Laut Seite „leiseste Wärmepumpe von Bosch“; Zahlung erst nach Inbetriebnahme, Ratenzahlung möglich. Heizleistung, SCOP, Kältemittel nicht genannt."
     },
     {
       "id": "enpal-wp-komplettset",
@@ -577,15 +655,26 @@
       "kategorie": "sonstiges",
       "name": "Enpal Komplettpaket (PV, Wärmepumpe, Speicher, Wallbox, Energiemanager)",
       "kurzbeschreibung": "Gesamtlösung aus PV, Wärmepumpe, Speicher, Wallbox und Energiemanager aus einer Hand.",
-      "technischeDaten": [],
+      "technischeDaten": [
+        {
+          "schluessel": "komponenten",
+          "bezeichnung": "Komponenten",
+          "wert": "PV mit Speicher, Wärmepumpe, Wallbox, Energiemanager Enpal.One"
+        },
+        {
+          "schluessel": "module",
+          "bezeichnung": "module",
+          "wert": "460 Wp"
+        }
+      ],
       "preis": null,
-      "quelleUrl": "https://www.enpal.de/photovoltaik/komponenten",
-      "bildUrl": null,
+      "quelleUrl": "https://www.enpal.de/produkt",
+      "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/6ad2325eb8e5b55b62e84747_Komplettpaket.webp",
       "stand": "2026-11-07",
       "bereicheZusaetzlich": [
         "wp"
       ],
-      "hinweise": "Betrifft PV und Wärmepumpe; in der Übersicht unter beiden zeigen."
+      "hinweise": "Kein Paketpreis im Text. Förder- und Zeitplanangaben nur aus Zusammenfassung, nicht übernommen."
     },
     {
       "id": "enpal-service-paket",
@@ -612,23 +701,38 @@
       "quelle": "enpal",
       "bereich": "pv",
       "kategorie": "service",
-      "name": "Enpal Empfehlungsprogramm",
+      "name": "Enpal Heldenprogramm (Weiterempfehlung)",
       "kurzbeschreibung": "Prämie für Kunden, die Enpal weiterempfehlen, und für die neu Geworbenen.",
       "technischeDaten": [
         {
           "schluessel": "praemie",
           "bezeichnung": "Prämie",
-          "wert": "300 € für Empfehlende, 300 € für den neuen Kunden"
+          "wert": "300 € für Werbende + 300 € für Geworbene je Neukunde"
+        },
+        {
+          "schluessel": "ausloesung",
+          "bezeichnung": "ausloesung",
+          "wert": "Solaranlage oder Wärmepumpe installiert und erste Zahlung eingegangen"
+        },
+        {
+          "schluessel": "auszahlung",
+          "bezeichnung": "auszahlung",
+          "wert": "4–8 Wochen nach erster Zahlung"
+        },
+        {
+          "schluessel": "teilnahme",
+          "bezeichnung": "teilnahme",
+          "wert": "auch ohne Enpal-Kundenstatus, über persönlichen Link"
         }
       ],
       "preis": null,
-      "quelleUrl": "https://www.enpal.de/easyflex",
+      "quelleUrl": "https://www.enpal.de/weiterempfehlen",
       "bildUrl": null,
       "stand": "2026-11-07",
       "bereicheZusaetzlich": [
         "wp"
       ],
-      "hinweise": "Bedingungen nicht gelesen."
+      "hinweise": "Teilnahmebedingungen (PDF) nicht gelesen."
     },
     {
       "id": "enpal-app",
@@ -637,12 +741,89 @@
       "kategorie": "service",
       "name": "Enpal App",
       "kurzbeschreibung": "App für Stromproduktion, Ersparnis und Einnahmen; bedient auch die Wallbox.",
-      "technischeDaten": [],
+      "technischeDaten": [
+        {
+          "schluessel": "funktionen",
+          "bezeichnung": "Funktionen",
+          "wert": "PV-Leistung in Echtzeit, Stromfluss, Einnahmen und Ersparnis, Steuerung von Wärmepumpe und Wallbox, Ladehistorie mit Export für Dienstwagenabrechnung, Heiz-/Warmwasserzeitplan"
+        }
+      ],
       "preis": null,
-      "quelleUrl": "https://www.enpal.de/photovoltaik/komponenten",
+      "quelleUrl": "https://www.enpal.de/app",
+      "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/67a0f41b28b3a15eb083df08_b539d20c821a465b90dcd690ed74f248_enpal-app-hero_desktop.jpg",
+      "stand": "2026-11-07",
+      "hinweise": "Kostenlos für Enpal-Kunden vermutet, Preis nicht genannt."
+    },
+    {
+      "id": "enpal-wechselrichter",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "wechselrichter",
+      "name": "Enpal Wechselrichter",
+      "kurzbeschreibung": "Multistring-Wechselrichter mit drei MPP-Trackern, abgestimmt auf die Enpal-Anlage und notstromfähig; immer Teil der Energielösung.",
+      "technischeDaten": [
+        {
+          "schluessel": "typ",
+          "bezeichnung": "Typ",
+          "wert": "Multistring"
+        },
+        {
+          "schluessel": "mppt",
+          "bezeichnung": "mppt",
+          "wert": "3"
+        },
+        {
+          "schluessel": "leistung",
+          "bezeichnung": "leistung",
+          "wert": "bis 22 kWp"
+        },
+        {
+          "schluessel": "garantie",
+          "bezeichnung": "Garantie",
+          "wert": "bis 10 Jahre Herstellergarantie"
+        },
+        {
+          "schluessel": "notstrom",
+          "bezeichnung": "notstrom",
+          "wert": "mit Enpal EnergyProtect"
+        }
+      ],
+      "preis": {
+        "modell": "unbekannt",
+        "betragEuro": null,
+        "einheit": null,
+        "text": "in der Energielösung inklusive",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.enpal.de/photovoltaik/wechselrichter",
+      "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/67a61034ab9fb2f01a028272_250207_wechselrichter-hero.jpg",
+      "stand": "2026-11-07",
+      "passtZu": [
+        "enpal-notstrom",
+        "enpal-speicher"
+      ],
+      "hinweise": "Nicht einzeln erhältlich; Hersteller/Modell nicht genannt. Seite nennt im Schnitt 6 Wochen bis zur Installation (PV)."
+    },
+    {
+      "id": "enpal-mieterstrom",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "pv-anlage",
+      "name": "Enpal Mieterstrom",
+      "kurzbeschreibung": "Angebot für Vermieter von Mehrfamilienhäusern: Solarstrom vom Dach wird an die Mieter verkauft, Enpal übernimmt Planung bis Betrieb.",
+      "technischeDaten": [
+        {
+          "schluessel": "zielgruppe",
+          "bezeichnung": "zielgruppe",
+          "wert": "Vermieter, Mehrfamilienhäuser"
+        }
+      ],
+      "preis": null,
+      "quelleUrl": "https://www.enpal.de/produkt",
       "bildUrl": null,
       "stand": "2026-11-07",
-      "hinweise": "Aus Produktkarten, /app nicht abgerufen."
+      "hinweise": "Nur Kurzangabe; /mieterstrom nicht gelesen."
     },
     {
       "id": "galvany-wp",
@@ -703,7 +884,7 @@
       "technischeDaten": [],
       "preis": null,
       "quelleUrl": "https://galvany.de/produkte",
-      "bildUrl": "https://a.storyblok.com/f/288501411354765/1688x1808/7949a24590/galvany_productshots_v9_still_galvany_cube_alpha_cropped.webp/m/1500x0",
+      "bildUrl": "https://a.storyblok.com/f/288501411354765/3840x3840/fd9b0eaa08/galvany-cube.png/m/1500x0",
       "stand": "2026-11-07",
       "verfuegbarkeit": "demnaechst",
       "hinweise": "Noch nicht verfügbar („demnächst“). Laut SmartCare-Seite Teil des Systems (Innenmodul, Außengerät, Cube)."
@@ -735,6 +916,11 @@
           "schluessel": "stufen",
           "bezeichnung": "Tarifstufen",
           "wert": "BASIC 0 € (enthalten: App, Monitoring, manuelle WP-Steuerung) · OPTIMIZE 9,99 €/Monat (dynamischer Stromvertrag, KI-Optimierung) · COMPLETE 49,99 €/Monat (dazu SmartCare+ Flex, KI-Fernwartung, Garantie bis 15 Jahre)"
+        },
+        {
+          "schluessel": "funktion",
+          "bezeichnung": "Funktion",
+          "wert": "wertet Wetterdaten und Börsenstrompreise aus und bezieht Strom zu günstigen Zeiten (laut FAQ)"
         }
       ],
       "preis": {
@@ -768,6 +954,11 @@
           "schluessel": "laufzeit",
           "bezeichnung": "Laufzeit",
           "wert": "13 bzw. 15 Jahre (Seiten widersprechen sich)"
+        },
+        {
+          "schluessel": "leistung",
+          "bezeichnung": "leistung",
+          "wert": "Reparatur oder Austausch abgesicherter Komponenten, Früherkennung von Auffälligkeiten"
         }
       ],
       "preis": {
@@ -779,7 +970,7 @@
         "laufzeitMonate": null
       },
       "quelleUrl": "https://galvany.de/smartcare",
-      "bildUrl": null,
+      "bildUrl": "https://a.storyblok.com/f/288501411354765/4800x3200/444784e50d/smartcare.png/m/2560x0",
       "stand": "2026-11-07",
       "hinweise": "Preis und Laufzeit widersprechen sich zwischen /smartcare und /produkte; vor Nennung prüfen."
     },
@@ -817,7 +1008,18 @@
       "kategorie": "service",
       "name": "GALVANY Full-Service",
       "kurzbeschreibung": "Beratung, Förderantrag, Planung, Montage, Elektrik und Wartung aus einer Hand mit regionalen Teams.",
-      "technischeDaten": [],
+      "technischeDaten": [
+        {
+          "schluessel": "umfang",
+          "bezeichnung": "umfang",
+          "wert": "Beratung, Planung, Montage, Elektrik, Wartung"
+        },
+        {
+          "schluessel": "foerderung",
+          "bezeichnung": "foerderung",
+          "wert": "Betreuung der Förderung bis zur Auszahlung"
+        }
+      ],
       "preis": null,
       "quelleUrl": "https://galvany.de/waermepumpe",
       "bildUrl": null,
@@ -831,7 +1033,13 @@
       "kategorie": "finanzierung",
       "name": "GALVANY Finanzierung über Partner",
       "kurzbeschreibung": "Finanzierung über einen nicht genannten Partner; Konditionen im Vor-Ort-Termin.",
-      "technischeDaten": [],
+      "technischeDaten": [
+        {
+          "schluessel": "konditionen",
+          "bezeichnung": "konditionen",
+          "wert": "Laufzeit, Raten und Voraussetzungen im Vor-Ort-Termin"
+        }
+      ],
       "preis": {
         "modell": "finanzierung",
         "betragEuro": null,
@@ -843,7 +1051,54 @@
       "quelleUrl": "https://galvany.de/waermepumpe",
       "bildUrl": null,
       "stand": "2026-11-07",
-      "hinweise": "Keine Raten oder Zinsen veröffentlicht."
+      "hinweise": "Partner laut FAQ-Link vermutlich Cloover (nicht geprüft). Keine Raten oder Zinsen veröffentlicht."
+    },
+    {
+      "id": "galvany-heizungswechsel-check",
+      "quelle": "galvany",
+      "bereich": "wp",
+      "kategorie": "service",
+      "name": "GALVANY Heizungswechsel-Check",
+      "kurzbeschreibung": "Kostenloser Online-Check (ca. 1 Minute) zu Ersparnis und Verfügbarkeit; danach Rückmeldung, Vor-Ort-Termin und Angebot.",
+      "technischeDaten": [
+        {
+          "schluessel": "dauer",
+          "bezeichnung": "dauer",
+          "wert": "ca. 1 Minute"
+        },
+        {
+          "schluessel": "ablauf",
+          "bezeichnung": "ablauf",
+          "wert": "Anfrage, Rückmeldung, Vor-Ort-Termin, individuelles Angebot"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 0,
+        "einheit": "einmalig",
+        "text": "kostenlos und unverbindlich",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://galvany.de/waermepumpe-kosten",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Gut als Einstieg im Kundengespräch."
+    },
+    {
+      "id": "galvany-app",
+      "quelle": "galvany",
+      "bereich": "wp",
+      "kategorie": "sonstiges",
+      "name": "GALVANY App",
+      "kurzbeschreibung": "Angekündigte App für Ersparnis-Übersicht und Gerätesteuerung.",
+      "technischeDaten": [],
+      "preis": null,
+      "quelleUrl": "https://galvany.de/faq",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "verfuegbarkeit": "demnaechst",
+      "hinweise": "Laut FAQ noch nicht verfügbar."
     },
     {
       "id": "vorwerk-vk7-saugwischer-set",
@@ -880,7 +1135,7 @@
           "wert": "3 (Saugwischer)"
         },
         {
-          "schluessel": "reichweite_tank",
+          "schluessel": "reichweite-tank",
           "bezeichnung": "Reichweite pro Tankfüllung",
           "wert": "bis zu 60 m² Wohnfläche pro Tankfüllung"
         },
@@ -946,7 +1201,7 @@
           "wert": "VK7 Titanium Set inkl. 2. Akku"
         },
         {
-          "schluessel": "lieferumfang_extra",
+          "schluessel": "lieferumfang-extra",
           "bezeichnung": "Zusätzlich enthalten",
           "wert": "2. BY7 Akku und CA7 Ladeadapter"
         }
@@ -1373,43 +1628,6 @@
       "hinweise": "Set mit CM7 Wandhalterung und Titanium-Varianten existieren, Preise nicht genannt."
     },
     {
-      "id": "vorwerk-zubehoer-vk7-duesen",
-      "quelle": "vorwerk",
-      "bereich": "vorwerk",
-      "kategorie": "aufsatz-zubehoer",
-      "name": "Düsen und Bürsten für VK7",
-      "kurzbeschreibung": "Aufsätze für den VK7: Elektro-Polsterbürste, Hartbodendüse und kleine Düsen für Fläche, Auto, Polster und Textil.",
-      "technischeDaten": [
-        {
-          "schluessel": "PB7 Elektro-Polsterbürste",
-          "bezeichnung": "PB7 Elektro-Polsterbürste",
-          "wert": "299,00 €"
-        },
-        {
-          "schluessel": "HD7 Hartbodendüse",
-          "bezeichnung": "HD7 Hartbodendüse",
-          "wert": "89,00 €"
-        },
-        {
-          "schluessel": "FD7 / CD7 / VD7 / TD7",
-          "bezeichnung": "FD7 / CD7 / VD7 / TD7",
-          "wert": "je 25,00 € zzgl. Versand"
-        }
-      ],
-      "preis": {
-        "modell": "kauf",
-        "betragEuro": 25.0,
-        "einheit": "einmalig",
-        "text": "ab 25,00 €",
-        "uvp": null,
-        "laufzeitMonate": null
-      },
-      "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vk7-akku-staubsauger-eb7-elektrobuerste-sp7-saugwischer",
-      "bildUrl": null,
-      "stand": "2026-11-07",
-      "hinweise": "Sammeleintrag aus Produktkacheln, Detailseiten nicht abgerufen."
-    },
-    {
       "id": "vorwerk-zubehoer-vt300-duesen",
       "quelle": "vorwerk",
       "bereich": "vorwerk",
@@ -1418,12 +1636,12 @@
       "kurzbeschreibung": "Zusatzdüsen für den VT300 (Variodüse, Softdüse).",
       "technischeDaten": [
         {
-          "schluessel": "VD15 Variodüse",
+          "schluessel": "vd15-varioduese",
           "bezeichnung": "VD15 Variodüse",
           "wert": "25,00 €"
         },
         {
-          "schluessel": "SD15 Softdüse",
+          "schluessel": "sd15-softduese",
           "bezeichnung": "SD15 Softdüse",
           "wert": "25,00 €"
         }
@@ -1442,104 +1660,1105 @@
       "hinweise": "Sammeleintrag aus Produktkacheln."
     },
     {
-      "id": "vorwerk-zubehoer-akku",
+      "id": "vorwerk-vk7-akku-staubsauger-eb7",
       "quelle": "vorwerk",
       "bereich": "vorwerk",
-      "kategorie": "aufsatz-zubehoer",
-      "name": "Akku und Service für VK7",
-      "kurzbeschreibung": "Ersatzakku BY7 und Service-Set für den VK7.",
+      "kategorie": "akkusauger",
+      "name": "Kobold VK7 Akku-Staubsauger mit EB7 Elektrobürste",
+      "kurzbeschreibung": "Kabelloser Akku-Staubsauger mit automatischer Bodenerkennung und flacher Elektrobürste, laut Seite Testsieger der Stiftung Warentest. Einklappbar und mit weiteren Aufsätzen erweiterbar.",
       "technischeDaten": [
         {
-          "schluessel": "BY7 Akku",
-          "bezeichnung": "BY7 Akku",
-          "wert": "159,00 €"
+          "schluessel": "gewicht",
+          "bezeichnung": "Gewicht",
+          "wert": "2,3 kg (Grundgerät ohne Aufsatz)"
         },
         {
-          "schluessel": "VK7 Service-Set plus (U)",
-          "bezeichnung": "VK7 Service-Set plus (U)",
-          "wert": "119,00 €"
+          "schluessel": "akkulaufzeit",
+          "bezeichnung": "Akkulaufzeit",
+          "wert": "bis zu 30 Minuten"
+        },
+        {
+          "schluessel": "saugstufen",
+          "bezeichnung": "Saugstufen",
+          "wert": "4 inkl. Boost"
+        },
+        {
+          "schluessel": "bauhoehe-elektrobuerste",
+          "bezeichnung": "Bauhöhe Elektrobürste",
+          "wert": "8 cm"
+        },
+        {
+          "schluessel": "lieferumfang",
+          "bezeichnung": "Lieferumfang",
+          "wert": "VK7 inkl. BY7 Akku, EB7 Elektrobürste, SC7 Ladegerät, 6 FP7 Filtertüten"
         }
       ],
       "preis": {
         "modell": "kauf",
-        "betragEuro": 119.0,
+        "betragEuro": 1049.0,
         "einheit": "einmalig",
-        "text": "ab 119,00 €",
+        "text": "1.049,00 € inkl. 19% MwSt.",
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vk7-akku-staubsauger-eb7-elektrobuerste-sp7-saugwischer",
-      "bildUrl": null,
+      "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vk7-akku-staubsauger-eb7-elektrobuerste",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/10410_KS_b?wid=633&hei=633",
       "stand": "2026-11-07",
-      "hinweise": "Sammeleintrag aus Produktkacheln."
+      "passtZu": [
+        "vorwerk-eb7-elektrobuerste",
+        "vorwerk-hd7-hartbodenduese",
+        "vorwerk-pb7-elektro-polsterbuerste",
+        "vorwerk-sp7-saugwischer-universal-basis-set",
+        "vorwerk-by7-akku",
+        "vorwerk-fp7-filtertueten-set",
+        "vorwerk-fk7-frischer-kit-set",
+        "vorwerk-vk7-service-set"
+      ],
+      "hinweise": "Kobold Garantie optional 119,00 € (nur Zusammenfassung)."
     },
     {
-      "id": "vorwerk-zubehoer-fk7",
+      "id": "vorwerk-vr7-saugroboter-cb7",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "saugroboter",
+      "name": "Kobold VR7 Saugroboter mit CB7 Ladestation",
+      "kurzbeschreibung": "Saugroboter mit einfacher Ladestation, der selbst nachlädt und bis zu 2 Stunden am Stück saugt; flach gebaut und per MyKobold App steuerbar.",
+      "technischeDaten": [
+        {
+          "schluessel": "akkulaufzeit",
+          "bezeichnung": "Akkulaufzeit",
+          "wert": "bis zu 2 Stunden (ECO-Modus)"
+        },
+        {
+          "schluessel": "bauhoehe",
+          "bezeichnung": "Bauhöhe",
+          "wert": "11 cm"
+        },
+        {
+          "schluessel": "standby-verbrauch",
+          "bezeichnung": "Standby-Verbrauch",
+          "wert": "0,5 W"
+        },
+        {
+          "schluessel": "lieferumfang",
+          "bezeichnung": "Lieferumfang",
+          "wert": "VR7, CB7 Ladestation inkl. Netzteil"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 999.0,
+        "einheit": "einmalig",
+        "text": "999,00 € inkl. 19% MwSt.",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vr7-saugroboter-cb7-ladestation",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/10247_KS_b?wid=633&hei=633",
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vr7",
+        "vorwerk-kachel-vr7-seitenbuerste",
+        "vorwerk-kachel-vr7-filter"
+      ]
+    },
+    {
+      "id": "vorwerk-hd7-hartbodenduese",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "aufsatz-zubehoer",
+      "name": "Kobold HD7 Hartbodendüse",
+      "kurzbeschreibung": "Schmale Hartbodendüse mit 90°-Schwenkgelenk für Ecken, Kanten und unter Möbeln; nur für Hartböden.",
+      "technischeDaten": [
+        {
+          "schluessel": "gewicht",
+          "bezeichnung": "Gewicht",
+          "wert": "ca. 950 g"
+        },
+        {
+          "schluessel": "duesenbreite",
+          "bezeichnung": "Düsenbreite",
+          "wert": "ca. 270 mm"
+        },
+        {
+          "schluessel": "duesenhoehe",
+          "bezeichnung": "Düsenhöhe",
+          "wert": "ca. 75 mm (liegendes Gelenk)"
+        },
+        {
+          "schluessel": "schallleistungspegel",
+          "bezeichnung": "Schallleistungspegel",
+          "wert": "78 dB(A) mit VK7 auf Hartboden"
+        },
+        {
+          "schluessel": "kompatibel-zu",
+          "bezeichnung": "Kompatibel zu",
+          "wert": "VK7"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 89.0,
+        "einheit": "einmalig",
+        "text": "89,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-hd7-hartbodenduese-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_HD7_02.109:1x1?wid=576&hei=576&fmt=png-alpha",
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vk7-akku-staubsauger-eb7"
+      ]
+    },
+    {
+      "id": "vorwerk-eb7-elektrobuerste",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "aufsatz-zubehoer",
+      "name": "Kobold EB7 Elektrobürste",
+      "kurzbeschreibung": "Flache Elektrobürste mit eigenem Motor und automatischer Bodenerkennung für Teppich und Hartboden; kommt auch unter tiefe Möbel.",
+      "technischeDaten": [
+        {
+          "schluessel": "nennleistung",
+          "bezeichnung": "Nennleistung",
+          "wert": "80 W"
+        },
+        {
+          "schluessel": "spannung",
+          "bezeichnung": "Spannung",
+          "wert": "28,8 V"
+        },
+        {
+          "schluessel": "motor",
+          "bezeichnung": "Motor",
+          "wert": "DC-Motor, ca. 9.400 U/min"
+        },
+        {
+          "schluessel": "rundbuersten",
+          "bezeichnung": "Rundbürsten",
+          "wert": "2 austauschbar; 4.700 / 1.550 / 0 U/min"
+        },
+        {
+          "schluessel": "arbeitsbreite",
+          "bezeichnung": "Arbeitsbreite",
+          "wert": "ca. 25 cm"
+        },
+        {
+          "schluessel": "gewicht",
+          "bezeichnung": "Gewicht",
+          "wert": "ca. 1,65 kg"
+        },
+        {
+          "schluessel": "abmessungen",
+          "bezeichnung": "Abmessungen",
+          "wert": "ca. 25 × 44 × 8 cm"
+        },
+        {
+          "schluessel": "schallleistungspegel",
+          "bezeichnung": "Schallleistungspegel",
+          "wert": "Teppich 78 dB(A), Hartboden 79 dB(A)"
+        },
+        {
+          "schluessel": "kompatibel-zu",
+          "bezeichnung": "Kompatibel zu",
+          "wert": "VK7, FK7"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 420.0,
+        "einheit": "einmalig",
+        "text": "420,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-eb7-elektrobuerste-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_EB7_02.125A:1x1?wid=576&hei=576&fmt=png-alpha",
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vk7-akku-staubsauger-eb7",
+        "vorwerk-fk7-frischer-kit-set"
+      ],
+      "hinweise": "Garantie-Zusatz 49,00 €. FK7-Kompatibilität hängt laut Seite vom Typenschild ab. Special Edition Black existiert."
+    },
+    {
+      "id": "vorwerk-sp7-saugwischer-universal-basis-set",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "saugwischer",
+      "name": "Kobold SP7 Saugwischer Universal Basis-Set",
+      "kurzbeschreibung": "Saugwischer-Aufsatz SP7 für den VK7 mit drei MF-Tüchern; saugt und wischt Hartböden in einem Arbeitsgang.",
+      "technischeDaten": [
+        {
+          "schluessel": "nennleistung",
+          "bezeichnung": "Nennleistung",
+          "wert": "55 W"
+        },
+        {
+          "schluessel": "spannung",
+          "bezeichnung": "Spannung",
+          "wert": "28,8 V"
+        },
+        {
+          "schluessel": "gewicht",
+          "bezeichnung": "Gewicht",
+          "wert": "ca. 3,5 kg (ohne Tuch, Tank leer)"
+        },
+        {
+          "schluessel": "tankvolumen",
+          "bezeichnung": "Tankvolumen",
+          "wert": "ca. 300 ml"
+        },
+        {
+          "schluessel": "schallleistungspegel",
+          "bezeichnung": "Schallleistungspegel",
+          "wert": "82 dB(A)"
+        },
+        {
+          "schluessel": "abmessungen",
+          "bezeichnung": "Abmessungen",
+          "wert": "ca. 10 × 32 × 38 cm"
+        },
+        {
+          "schluessel": "kompatibel-zu",
+          "bezeichnung": "Kompatibel zu",
+          "wert": "VK7"
+        },
+        {
+          "schluessel": "lieferumfang",
+          "bezeichnung": "Lieferumfang",
+          "wert": "SP7, 3 MF Reinigungstücher Universal"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 499.0,
+        "einheit": "einmalig",
+        "text": "499,00 €",
+        "uvp": 538.9,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-sp7-saugwischer-universal-basis-set-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/kobold_set_sp7-universal-basis-set_b:1x1?wid=576&hei=576&fmt=png-alpha",
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vk7-akku-staubsauger-eb7",
+        "vorwerk-koboclean-universal-500ml"
+      ]
+    },
+    {
+      "id": "vorwerk-pb7-elektro-polsterbuerste",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "aufsatz-zubehoer",
+      "name": "Kobold PB7 Elektro-Polsterbürste",
+      "kurzbeschreibung": "Elektrische Polsterbürste mit zwei gegenläufigen Rundbürsten für Polster, Matratzen und Autositze, auch gegen Tierhaare.",
+      "technischeDaten": [
+        {
+          "schluessel": "nennleistung",
+          "bezeichnung": "Nennleistung",
+          "wert": "35 W"
+        },
+        {
+          "schluessel": "buersten",
+          "bezeichnung": "Bürsten",
+          "wert": "2 gegenläufig, ca. 4.000 U/min"
+        },
+        {
+          "schluessel": "gewicht",
+          "bezeichnung": "Gewicht",
+          "wert": "ca. 1.200 g"
+        },
+        {
+          "schluessel": "laenge-mit-schlauch",
+          "bezeichnung": "Länge mit Schlauch",
+          "wert": "ca. 154 cm"
+        },
+        {
+          "schluessel": "spannung",
+          "bezeichnung": "Spannung",
+          "wert": "28,8 V"
+        },
+        {
+          "schluessel": "schallleistungspegel",
+          "bezeichnung": "Schallleistungspegel",
+          "wert": "82 dB(A) mit VK7 auf Polster"
+        },
+        {
+          "schluessel": "kompatibel-zu",
+          "bezeichnung": "Kompatibel zu",
+          "wert": "VK7"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 299.0,
+        "einheit": "einmalig",
+        "text": "299,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-pb7-elektro-polsterbuerste-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_PB7_01.7:1x1?wid=576&hei=576&fmt=png-alpha",
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vk7-akku-staubsauger-eb7"
+      ],
+      "hinweise": "Garantie-Zusatz 35,00 €."
+    },
+    {
+      "id": "vorwerk-fk7-frischer-kit-set",
       "quelle": "vorwerk",
       "bereich": "vorwerk",
       "kategorie": "set",
-      "name": "Kobold FK7 Frischer-Kit Set (Teppich)",
-      "kurzbeschreibung": "Teppichpflege-Set für den VK7.",
-      "technischeDaten": [],
+      "name": "Kobold FK7 Frischer-Kit Set",
+      "kurzbeschreibung": "Teppichpflege: FK7 Frischer-Kit zum Einarbeiten von Kobosan-Pulver, wird in die EB7 gesetzt; mit Kobosan und Filtertüten.",
+      "technischeDaten": [
+        {
+          "schluessel": "reichweite",
+          "bezeichnung": "Reichweite",
+          "wert": "2,5 kg Kobosan für bis zu 35–40 m² Teppich"
+        },
+        {
+          "schluessel": "kompatibel-zu",
+          "bezeichnung": "Kompatibel zu",
+          "wert": "EB7"
+        },
+        {
+          "schluessel": "lieferumfang",
+          "bezeichnung": "Lieferumfang",
+          "wert": "FK7, Kobosan 2,5 kg (5 × 500 g), 2 × 6 FP7 Filtertüten"
+        }
+      ],
       "preis": {
         "modell": "kauf",
         "betragEuro": 143.0,
         "einheit": "einmalig",
         "text": "143,00 €",
-        "uvp": null,
+        "uvp": 148.7,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vk7-akku-staubsauger-eb7-elektrobuerste-sp7-saugwischer",
-      "bildUrl": null,
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-fk7-frischer-kit-set-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/ks-accessory-set_fk-kobosan-fp7_b:1x1?wid=576&hei=576&fmt=png-alpha",
       "stand": "2026-11-07",
-      "hinweise": "Nur aus Kachel bekannt."
+      "passtZu": [
+        "vorwerk-eb7-elektrobuerste"
+      ],
+      "hinweise": "FK7 einzeln 89,00 € (Kachel)."
     },
     {
-      "id": "vorwerk-verbrauch",
+      "id": "vorwerk-by7-akku",
       "quelle": "vorwerk",
       "bereich": "vorwerk",
-      "kategorie": "reinigungsmittel",
-      "name": "Verbrauchsmaterial (Filtertüten, Tücher, Reiniger, Duft)",
-      "kurzbeschreibung": "Filtertüten, Mikrofasertücher, Kalkreiniger und Duftchips.",
+      "kategorie": "aufsatz-zubehoer",
+      "name": "Kobold BY7 Akku",
+      "kurzbeschreibung": "Zusätzlicher Lithium-Ionen-Akku mit Display für den VK7, für längeres Saugen ohne Ladepause.",
       "technischeDaten": [
         {
-          "schluessel": "FP265-300 Premium-Filtertüte (5 Stk.)",
-          "bezeichnung": "FP265-300 Premium-Filtertüte (5 Stk.)",
-          "wert": "23,00 €"
+          "schluessel": "typ",
+          "bezeichnung": "Typ",
+          "wert": "Lithium-Ionen"
         },
         {
-          "schluessel": "MF100 Reinigungstücher (2 Stk.)",
-          "bezeichnung": "MF100 Reinigungstücher (2 Stk.)",
-          "wert": "25,00 €"
+          "schluessel": "ladezeit",
+          "bezeichnung": "Ladezeit",
+          "wert": "ca. 2 Stunden"
         },
         {
-          "schluessel": "DA100 Kalkreiniger 200 ml",
-          "bezeichnung": "DA100 Kalkreiniger 200 ml",
-          "wert": "9,00 €"
-        },
-        {
-          "schluessel": "airumo Duftchips",
-          "bezeichnung": "airumo Duftchips",
-          "wert": "11,90 €"
-        },
-        {
-          "schluessel": "Teleskopstiel VG100+",
-          "bezeichnung": "Teleskopstiel VG100+",
-          "wert": "60,00 €"
+          "schluessel": "kompatibel-zu",
+          "bezeichnung": "Kompatibel zu",
+          "wert": "VK7, PC7, CA7"
         }
       ],
       "preis": {
         "modell": "kauf",
-        "betragEuro": 9.0,
+        "betragEuro": 159.0,
         "einheit": "einmalig",
-        "text": "ab 9,00 € zzgl. Versand",
+        "text": "159,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-by7-akku-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_BY7_02.176A:1x1?wid=576&hei=576&fmt=png-alpha",
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vk7-akku-staubsauger-eb7"
+      ]
+    },
+    {
+      "id": "vorwerk-vk7-service-set",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "set",
+      "name": "Kobold VK7 Service-Set",
+      "kurzbeschreibung": "Wartungsset für VK7 mit EB7: Ersatz-Rundbürsten, Motorschutzfilter, Duftchips und zwölf Filtertüten.",
+      "technischeDaten": [
+        {
+          "schluessel": "lieferumfang",
+          "bezeichnung": "Lieferumfang",
+          "wert": "2 EB7 Rundbürsten, 1 MF7 Motorschutzfilter, 1 airumo Mix-Set, 12 FP7 Filtertüten"
+        },
+        {
+          "schluessel": "kompatibel-zu",
+          "bezeichnung": "Kompatibel zu",
+          "wert": "VK7, EB7"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 73.0,
+        "einheit": "einmalig",
+        "text": "73,00 €",
+        "uvp": 81.9,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vk7-service-set-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/Kobold_VK7-Service-Set_b_regular:1x1?wid=576&hei=576&fmt=png-alpha",
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vk7-akku-staubsauger-eb7"
+      ],
+      "hinweise": "Service-Set plus (U) 119,00 € (Kachel)."
+    },
+    {
+      "id": "vorwerk-fp7-filtertueten-set",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "reinigungsmittel",
+      "name": "Kobold FP7 Premium-Filtertüten (12 Stk.)",
+      "kurzbeschreibung": "Filtertüten für den VK7 aus bis zu 80 % Rezyklat, filtern laut Seite 99,9 % Feinstaub und Milbenkot (TÜV Nord).",
+      "technischeDaten": [
+        {
+          "schluessel": "inhalt",
+          "bezeichnung": "Inhalt",
+          "wert": "2 × 6 Stück"
+        },
+        {
+          "schluessel": "rezyklatanteil",
+          "bezeichnung": "Rezyklatanteil",
+          "wert": "bis 80 %"
+        },
+        {
+          "schluessel": "filterwirkung",
+          "bezeichnung": "Filterwirkung",
+          "wert": "99,9 % (laut Seite)"
+        },
+        {
+          "schluessel": "kompatibel-zu",
+          "bezeichnung": "Kompatibel zu",
+          "wert": "VK7"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 38.0,
+        "einheit": "einmalig",
+        "text": "38,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-fp7-premium-filtertueten-set-12stk-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_FP7_01.834_12x_b-1:1x1?wid=576&hei=576&fmt=png-alpha",
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vk7-akku-staubsauger-eb7"
+      ],
+      "hinweise": "6er-Packung 23,00 € (Kachel)."
+    },
+    {
+      "id": "vorwerk-koboclean-universal-500ml",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "reinigungsmittel",
+      "name": "Koboclean Universal (500 ml)",
+      "kurzbeschreibung": "Reinigungskonzentrat zum Saugwischen von Fliesen, Linoleum, Vinyl, Laminat und Granit; reicht für bis zu 100 Anwendungen.",
+      "technischeDaten": [
+        {
+          "schluessel": "dosierung",
+          "bezeichnung": "Dosierung",
+          "wert": "3 ml in den Tankdeckel (SP7, SP600, SPB100)"
+        },
+        {
+          "schluessel": "grundpreis",
+          "bezeichnung": "Grundpreis",
+          "wert": "19,80 €/l"
+        },
+        {
+          "schluessel": "kompatibel-zu",
+          "bezeichnung": "Kompatibel zu",
+          "wert": "SPB100, SP7, SP600, SP530, SP520"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 9.9,
+        "einheit": "einmalig",
+        "text": "9,90 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-koboclean-universal-500ml-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/Kobold_Koboclean_Universal_bottle_75066:1x1?wid=576&hei=576&fmt=png-alpha",
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-sp7-saugwischer-universal-basis-set",
+        "vorwerk-sp600-basis"
+      ]
+    },
+    {
+      "id": "vorwerk-airumo-wild-heart",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "reinigungsmittel",
+      "name": "airumo Duftchips „wild heart“ (6 Stk.)",
+      "kurzbeschreibung": "Duftchips (blumig) für den Motorschutzfilter, verteilen beim Saugen Duft. Weitere Sorten zum gleichen Preis.",
+      "technischeDaten": [
+        {
+          "schluessel": "duftrichtung",
+          "bezeichnung": "Duftrichtung",
+          "wert": "blumig"
+        },
+        {
+          "schluessel": "kompatibel-zu",
+          "bezeichnung": "Kompatibel zu",
+          "wert": "VT300, VR7, VM7, VK7, VB100 und ältere VT/VK-Modelle"
+        },
+        {
+          "schluessel": "weitere-sorten",
+          "bezeichnung": "Weitere Sorten",
+          "wert": "mystic woods, happy place, golden hour, summer delight, dovina classic, Mix-Set (je 11,90 €)"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 11.9,
+        "einheit": "einmalig",
+        "text": "11,90 € zzgl. Versand",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/airumo-duftchip-wild-heart-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/int_kobold_airumo_wh_short_packaging_blister_steeper_left:1x1?wid=576&hei=576&fmt=png-alpha",
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vt300",
+        "vorwerk-vr7",
+        "vorwerk-vm7",
+        "vorwerk-vk7-akku-staubsauger-eb7"
+      ]
+    },
+    {
+      "id": "vorwerk-vm7-cm7-set",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "set",
+      "name": "Kobold VM7 Akku-Handstaubsauger Set mit CM7 Wandhalterung",
+      "kurzbeschreibung": "VM7 Handstaubsauger mit Wandhalterung CM7, die zugleich Ladestation ist.",
+      "technischeDaten": [
+        {
+          "schluessel": "laufzeit",
+          "bezeichnung": "Laufzeit",
+          "wert": "bis zu 20 Minuten"
+        },
+        {
+          "schluessel": "saugstufen",
+          "bezeichnung": "Saugstufen",
+          "wert": "2 inkl. Boost"
+        },
+        {
+          "schluessel": "lieferumfang",
+          "bezeichnung": "Lieferumfang",
+          "wert": "VM7, CM7 Wandhalterung, USB-C-Ladegerät, 2 USB-C-Kabel (150 und 120 cm)"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 229.0,
+        "einheit": "einmalig",
+        "text": "229,00 €",
+        "uvp": 238.0,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vm7-akku-handstaubsauger-set",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/DE302408_b?wid=633&hei=633",
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vm7"
+      ]
+    },
+    {
+      "id": "vorwerk-kachel-vk7-hartboeden",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "akkusauger",
+      "name": "Kobold VK7 Akku-Staubsauger für Hartböden",
+      "kurzbeschreibung": "VK7-Variante für Haushalte mit überwiegend Hartböden.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 699.0,
+        "einheit": "einmalig",
+        "text": "699,00 €",
         "uvp": null,
         "laufzeitMonate": null
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
       "bildUrl": null,
       "stand": "2026-11-07",
-      "hinweise": "Sammeleintrag aus Produktkacheln."
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-fk7-einzeln",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "aufsatz-zubehoer",
+      "name": "Kobold FK7 Frischer-Kit (einzeln)",
+      "kurzbeschreibung": "Frischer-Kit zur Teppichpflege, wird in die EB7 gesetzt.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 89.0,
+        "einheit": "einmalig",
+        "text": "89,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-eb7-elektrobuerste"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-vk7-service-set-plus",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "set",
+      "name": "Kobold VK7 Service-Set plus (U)",
+      "kurzbeschreibung": "Erweitertes Wartungsset für VK7 mit SP7 und EB7.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 119.0,
+        "einheit": "einmalig",
+        "text": "119,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vk7-akku-staubsauger-eb7"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-eb7-ersatzteile",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "aufsatz-zubehoer",
+      "name": "EB7 Ersatzteile (Dichtlippe, Rundbürsten, Klappen)",
+      "kurzbeschreibung": "Verschleißteile für die EB7: Dichtlippe 8 €, Rundbürsten 2 Stk. 15 €, Revisionsklappe 6 €, Seitenklappen-Set 10 €.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 6.0,
+        "einheit": "einmalig",
+        "text": "ab 6,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-eb7-elektrobuerste"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-vk7-kleinduesen",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "aufsatz-zubehoer",
+      "name": "Kleindüsen für VK7 (FD7, CD7, VD7, TD7)",
+      "kurzbeschreibung": "Flächen-, Auto-, Vario- und Textildüse, je 25 €.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 25.0,
+        "einheit": "einmalig",
+        "text": "25,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vk7-akku-staubsauger-eb7"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-ac7-zubehoer-set",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "set",
+      "name": "Kobold AC7 Zubehör-Set",
+      "kurzbeschreibung": "Zubehör-Set für den VK7; als Box 89 €, als Komplett-Set 239 €.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 99.0,
+        "einheit": "einmalig",
+        "text": "99,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vk7-akku-staubsauger-eb7"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-hd7-borstentraeger",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "aufsatz-zubehoer",
+      "name": "HD7 Borstenträgerplatte",
+      "kurzbeschreibung": "Ersatz-Borstenträger für die HD7 Hartbodendüse.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 25.0,
+        "einheit": "einmalig",
+        "text": "25,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-hd7-hartbodenduese"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-sc7-ladegeraet",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "aufsatz-zubehoer",
+      "name": "Kobold SC7 Ladegerät",
+      "kurzbeschreibung": "Ladegerät für VK7-Akkus. Dazu CA7 Ladeadapter 20 €, CA7-Set 49 €, PC7-Set 119 €.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 29.0,
+        "einheit": "einmalig",
+        "text": "29,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-by7-akku"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-mf7-motorschutzfilter",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "aufsatz-zubehoer",
+      "name": "Kobold MF7 Motorschutzfilter",
+      "kurzbeschreibung": "Ersatz-Motorschutzfilter für den VK7.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 9.0,
+        "einheit": "einmalig",
+        "text": "9,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vk7-akku-staubsauger-eb7"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-mf-tuecher",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "reinigungsmittel",
+      "name": "Kobold MF Reinigungstücher Universal (3 Stk.)",
+      "kurzbeschreibung": "Wischtücher für den Saugwischer; auch als Soft-Variante 39,90 € und Tücher-Set 99 €.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 39.9,
+        "einheit": "einmalig",
+        "text": "39,90 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-sp7-saugwischer-universal-basis-set",
+        "vorwerk-sp600-basis"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-koboclean-parkett",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "reinigungsmittel",
+      "name": "Koboclean Parkett (500 ml)",
+      "kurzbeschreibung": "Reinigungskonzentrat für versiegeltes Parkett beim Saugwischen.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 9.9,
+        "einheit": "einmalig",
+        "text": "9,90 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-sp7-saugwischer-universal-basis-set"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-kobosan",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "reinigungsmittel",
+      "name": "Kobosan Active Reinigungspulver 2,5 kg",
+      "kurzbeschreibung": "Teppichreinigungspulver für das Frischer-Kit; 5 kg für 33,90 €.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 19.9,
+        "einheit": "einmalig",
+        "text": "19,90 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-fk7-frischer-kit-set"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-lavenia",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "reinigungsmittel",
+      "name": "Lavenia Matratzenpulver (6 × 120 g)",
+      "kurzbeschreibung": "Pflegepulver für Matratzen.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 15.9,
+        "einheit": "einmalig",
+        "text": "15,90 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-pb7-elektro-polsterbuerste"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-vr7-seitenbuerste",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "aufsatz-zubehoer",
+      "name": "Kobold VR7 Seitenbürste",
+      "kurzbeschreibung": "Ersatz-Seitenbürste für den Saugroboter.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 9.9,
+        "einheit": "einmalig",
+        "text": "9,90 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vr7"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-vr7-filter",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "aufsatz-zubehoer",
+      "name": "Kobold VR7 Filter",
+      "kurzbeschreibung": "Ersatzfilter für den Saugroboter.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 19.9,
+        "einheit": "einmalig",
+        "text": "19,90 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vr7"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-spb100",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "saugwischer",
+      "name": "Kobold SPB100 Akku-Saugwischer Basis-Set",
+      "kurzbeschreibung": "Eigenständiger Akku-Saugwischer als Basis-Set.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 499.0,
+        "einheit": "einmalig",
+        "text": "499,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-teleskopstiel",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "aufsatz-zubehoer",
+      "name": "Teleskopstiel für VG100+",
+      "kurzbeschreibung": "Ausziehbarer Stiel bis 120 cm für hohe Fenster.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 60.0,
+        "einheit": "einmalig",
+        "text": "60,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vg100plus"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-fp300",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "reinigungsmittel",
+      "name": "Kobold FP265-300 Premium-Filtertüten (5 Stk.)",
+      "kurzbeschreibung": "Filtertüten für VT300 und ältere Bodenstaubsauger.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 23.0,
+        "einheit": "einmalig",
+        "text": "23,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vt300"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-da100",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "reinigungsmittel",
+      "name": "DA100 Kalkreiniger (200 ml)",
+      "kurzbeschreibung": "Kalkreiniger.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 9.0,
+        "einheit": "einmalig",
+        "text": "9,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-kachel-garantie",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "service",
+      "name": "Kobold Garantie (Zusatz)",
+      "kurzbeschreibung": "Optionale Garantieverlängerung beim Kauf: 119 € für VK7/VR7, 49 € für EB7, 35 € für PB7 bzw. VG100+.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 35.0,
+        "einheit": "einmalig",
+        "text": "ab 35,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "vorwerk-vk7-akku-staubsauger-eb7",
+        "vorwerk-vr7"
+      ],
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
     }
   ]
 }
