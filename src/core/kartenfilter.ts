@@ -4,15 +4,26 @@
 // (also nicht „unbekannt“ und nicht „kein Interesse“).
 import { SPARTEN_KEYS, hauptStatus, type Kunde, type Sparte, type StatusKey } from './model.ts';
 import { filterbareFelder, filterWert, type FeldEinstellungen } from './felder.ts';
+import { aktuelleMarkierungen, type Markierung, type ProduktMarkierung } from './produkte.ts';
 
 /** Kontakt-Filter: '' = egal, Zahl = länger als so viele Tage kein Kontakt (oder noch nie), 'nie' = noch nie */
 export type KontaktFilter = '' | '30' | '60' | '90' | '180' | '365' | 'nie';
 export const KONTAKT_FILTER: [KontaktFilter, string][] = [['30', 'über 30 Tage'], ['60', 'über 60 Tage'], ['90', 'über 90 Tage'], ['180', 'über ½ Jahr'], ['365', 'über 1 Jahr'], ['nie', 'noch nie']];
 
 /** `eigen`: je eigenem Feld (ID) die gewählten Werte ('ja'/'nein', Option, '' = ohne Angabe). */
-export interface KartenFilter { sparten: Sparte[]; status: StatusKey[]; kontakt: KontaktFilter; eigen: Record<string, string[]> }
-export const leererKartenFilter = (): KartenFilter => ({ sparten: [], status: [], kontakt: '', eigen: {} });
-export const filterAktiv = (f: KartenFilter) => f.sparten.length + f.status.length + (f.kontakt ? 1 : 0) + Object.values(f.eigen || {}).filter((w) => w.length).length;
+/** `produkt`: Kunde hat mindestens ein Produkt (der gewählten Bereiche) mit einer dieser Markierungen. */
+export interface KartenFilter { sparten: Sparte[]; status: StatusKey[]; kontakt: KontaktFilter; eigen: Record<string, string[]>; produkt: Markierung[] }
+export const leererKartenFilter = (): KartenFilter => ({ sparten: [], status: [], kontakt: '', eigen: {}, produkt: [] });
+export const filterAktiv = (f: KartenFilter) => f.sparten.length + f.status.length + (f.kontakt ? 1 : 0) + Object.values(f.eigen || {}).filter((w) => w.length).length + (f.produkt?.length ? 1 : 0);
+
+/** Passen die Produkt-Markierungen? */
+export function produktPasst(k: { produkte?: ProduktMarkierung[] }, f: KartenFilter): boolean {
+  if (!f.produkt?.length) return true;
+  for (const m of aktuelleMarkierungen(k.produkte).values()) {
+    if ((!f.sparten.length || f.sparten.includes(m.bereich)) && m.markierung && f.produkt.includes(m.markierung)) return true;
+  }
+  return false;
+}
 
 /** Passt der Kontakt-Stand? `tage` = Tage seit letztem Kontakt, null = noch nie. */
 export function kontaktPasst(tage: number | null, f: KontaktFilter): boolean {
@@ -32,9 +43,12 @@ export function eigenePassen(k: { eigene?: Record<string, unknown> }, f: KartenF
   return true;
 }
 
-export function passt(k: Pick<Kunde, 'status'> & { eigene?: Record<string, unknown> }, f: KartenFilter, tageSeitKontakt: number | null = null, fe?: FeldEinstellungen): boolean {
+export function passt(k: Pick<Kunde, 'status'> & { eigene?: Record<string, unknown>; produkte?: ProduktMarkierung[] }, f: KartenFilter, tageSeitKontakt: number | null = null, fe?: FeldEinstellungen): boolean {
   if (!kontaktPasst(tageSeitKontakt, f.kontakt)) return false;
   if (!eigenePassen(k, f, fe)) return false;
+  if (!produktPasst(k, f)) return false;
+  // Nur Produktfilter gewählt (Bereiche dienen dann nur zur Eingrenzung der Produkte)
+  if (f.produkt?.length && !f.status.length) return true;
   if (!f.sparten.length && !f.status.length) return true;
   const sparten = f.sparten.length ? f.sparten : SPARTEN_KEYS;
   return sparten.some((s) => (f.status.length ? f.status.includes(k.status[s]) : !['unbekannt', 'kein_interesse'].includes(k.status[s])));

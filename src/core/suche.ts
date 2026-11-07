@@ -4,32 +4,22 @@
 // Durchsucht nur die entsperrten Daten im Speicher; nichts verlässt das Gerät.
 import { SPARTEN, SPARTEN_KEYS, STATUS, ZULETZT_MAX, normalizeZuletzt, kundenTitel, adresseEinzeilig, offenerVerleih, type Daten, type Kunde, type ZuletztEintrag } from './model.ts';
 import { LEITFADEN } from './einwaende.ts';
-import { formatDateTime } from './util.ts';
+import { formatDateTime, suchText } from './util.ts';
+export { suchText };
 
 // ---------- Normalisierung ----------
-
-/** Klein, Umlaute ausgeschrieben, Akzente weg, Satzzeichen → Leerzeichen, „e-mail“ → „email“. */
-export function suchText(s: unknown): string {
-  return String(s ?? '')
-    .toLowerCase()
-    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/\be-mail/g, 'email')
-    .replace(/[^a-z0-9@]+/g, ' ')
-    .trim();
-}
 
 /** Nur Ziffern (Telefonnummern ohne Leerzeichen, Striche, Klammern). */
 export const ziffern = (s: unknown) => String(s ?? '').replace(/\D/g, '');
 
 // ---------- Einträge ----------
 
-export type Art = 'befehl' | 'kunde' | 'geraet' | 'termin' | 'notiz' | 'einwand' | 'bereich';
+export type Art = 'befehl' | 'kunde' | 'geraet' | 'termin' | 'notiz' | 'einwand' | 'produkt' | 'bereich';
 export const ARTEN: Record<Art, string> = {
-  befehl: 'Befehle', kunde: 'Kunden', geraet: 'Vorführgeräte', termin: 'Termine', notiz: 'Notizen und Gespräche', einwand: 'Einwände', bereich: 'Bereiche',
+  befehl: 'Befehle', kunde: 'Kunden', geraet: 'Vorführgeräte', termin: 'Termine', notiz: 'Notizen und Gespräche', einwand: 'Einwände', produkt: 'Produkte', bereich: 'Bereiche',
 };
 /** Reihenfolge bei gleicher Punktzahl. */
-const ART_REIHE: Art[] = ['befehl', 'kunde', 'geraet', 'termin', 'notiz', 'einwand', 'bereich'];
+const ART_REIHE: Art[] = ['befehl', 'kunde', 'geraet', 'termin', 'notiz', 'einwand', 'produkt', 'bereich'];
 
 export type KundenAktion = 'anrufen' | 'email' | 'hinfahren' | 'notiz' | 'termin' | 'doku' | 'gespraech';
 export type GeraeteAktion = 'verleihen' | 'reservieren' | 'zuruecknehmen';
@@ -72,6 +62,7 @@ const BEREICHE: [string, string, string][] = [
   ['Vorführbestand', '#/bestand', 'geraete auto vorwerk leihgaben'],
   ['Belegungskalender', '#/belegung', 'reservierungen frei belegt'],
   ['Auswertungen', '#/auswertung', 'statistik bericht zahlen'],
+  ['Produkte', '#/produkte', 'produktuebersicht katalog preise enpal galvany kobold'],
   ['Gelöschte Kunden', '#/geloescht', 'papierkorb wiederherstellen geloescht'],
   ['Einstellungen', '#/einstellungen', 'optionen sicherung icloud passwort vorlagen'],
   ['Hilfe', '#/hilfe', 'anleitung fragen begriffe faq erklaerung'],
@@ -88,8 +79,10 @@ export const BEFEHLE: { befehl: Befehl; titel: string; such: string }[] = [
 ];
 
 /** Alle durchsuchbaren Einträge aus den (entsperrten) Daten. */
-export function index(data: Daten): Eintrag[] {
+/** `produkte`: Katalog-Einträge (öffentlich, keine Kundendaten), optional. */
+export function index(data: Daten, produkte: { id: string; name: string; kategorieLabel: string; bereich: string; such: string }[] = []): Eintrag[] {
   const out: Eintrag[] = [];
+  for (const p of produkte) out.push(eintrag({ art: 'produkt', id: p.id, titel: p.name, unter: `${p.kategorieLabel} · ${SPARTEN[p.bereich as keyof typeof SPARTEN]?.label || ''}`, href: `#/produkte?produkt=${p.id}`, such: [p.such] }));
   for (const b of BEFEHLE) out.push(eintrag({ art: 'befehl', id: b.befehl, titel: b.titel, unter: '', href: '', befehl: b.befehl, such: [b.such] }));
   for (const [titel, href, such] of BEREICHE) out.push(eintrag({ art: 'bereich', id: href, titel, unter: 'Bereich öffnen', href, such: [such] }));
 

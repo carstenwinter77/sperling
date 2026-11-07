@@ -720,3 +720,89 @@ test('Feldverwaltung und Texte: eigene Felder nur im Text ihres Bereichs (R-TEXT
   assert.equal(projizieren(k, 'vorwerk', einst.felder).eigene.carport, undefined);
   assert.deepEqual(projizieren(k, 'enpal').eigene, {}, 'ohne Felddefinition keine eigenen Werte');
 });
+
+test('Produktkatalog: Datei prüft sauber, Unsinn wird übersprungen', async () => {
+  const pr = await import('../src/core/produkte.ts');
+  const roh = JSON.parse((await import('node:fs')).readFileSync(new URL('../src/data/produkte.json', import.meta.url), 'utf8'));
+  const kat = pr.katalogPruefen(roh);
+  assert.equal(kat.uebersprungen, 0, 'alle Katalogeinträge gültig');
+  assert.ok(kat.produkte.length >= 40);
+  assert.equal(new Set(kat.produkte.map((p) => p.id)).size, kat.produkte.length, 'IDs eindeutig');
+  for (const p of kat.produkte) {
+    assert.ok(p.stand && p.quelleUrl?.startsWith('https://'), p.id);
+    assert.ok(!p.bildUrl || p.bildUrl.startsWith('https://'), p.id);
+  }
+  for (const b of ['pv', 'wp', 'vorwerk']) assert.ok(pr.produkteFuer(kat, b).length > 0, b);
+  assert.ok(kat.produkte.some((p) => p.quelle === 'galvany' && p.bereich === 'wp'));
+  assert.ok(kat.produkte.some((p) => p.demnaechst), 'bald verfügbar');
+  // Komplettpakete erscheinen zusätzlich unter WP
+  const zus = kat.produkte.find((p) => p.bereiche.length > 1);
+  assert.ok(zus && pr.produkteFuer(kat, zus.bereiche[1]).includes(zus));
+  assert.ok(pr.produktSuchen(kat.produkte, 'wärmepumpe').length > 0);
+  // Ungültiges wird verworfen, gefährliche URLs entfernt
+  const k2 = pr.katalogPruefen({ produkte: [
+    { id: 'ok', name: 'OK', bereich: 'pv', kategorie: 'speicher', quelleUrl: 'javascript:alert(1)', bildUrl: 'http://x/y.png', passtZu: ['gibtsnicht', 'ok'] },
+    { id: 'ok', name: 'doppelt', bereich: 'pv', kategorie: 'speicher' },
+    { id: 'x', name: 'falscher Bereich', bereich: 'auto', kategorie: 'speicher' },
+    { id: 'y', name: 'falsche Kategorie', bereich: 'pv', kategorie: 'rakete' },
+    null,
+  ] });
+  assert.equal(k2.produkte.length, 1);
+  assert.equal(k2.uebersprungen, 4);
+  assert.equal(k2.produkte[0].quelleUrl, null);
+  assert.equal(k2.produkte[0].bildUrl, null);
+  assert.deepEqual(k2.produkte[0].passtZu, []);
+  assert.equal(pr.preisText({ preis: { modell: 'kauf', betragEuro: 1299, einheit: 'einmalig', text: null } }), '1.299 €');
+  assert.equal(pr.preisText({ preis: { modell: 'tarif', betragEuro: 99, einheit: 'pro Monat', text: null } }), '99 € pro Monat');
+  assert.equal(pr.preisText({ preis: null }), '');
+});
+
+test('Produkte im Gespräch: markieren, umentscheiden, aufheben, Verlauf, Texte (R-TEXT), Filter, Auswertung', async () => {
+  const pr = await import('../src/core/produkte.ts');
+  const { kundenVerlauf } = await import('../src/core/verlauf.ts');
+  const { passt, leererKartenFilter } = await import('../src/core/kartenfilter.ts');
+  const { kennzahlen } = await import('../src/core/auswertung.ts');
+  const k = normalizeKunde({ id: 'k', vorname: 'A', status: { pv: 'interesse' } });
+  const speicher = { id: 'enpal-speicher', name: 'Enpal Speicher', bereich: 'pv' };
+  const vk7 = { id: 'vorwerk-vk7', name: 'Kobold VK7', bereich: 'vorwerk' };
+  pr.markierungSetzen(k.produkte, speicher, 'spaeter', '2026-11-01T10:00:00.000Z');
+  pr.markierungSetzen(k.produkte, speicher, 'interesse', '2026-11-01T10:05:00.000Z');
+  pr.markierungSetzen(k.produkte, vk7, 'vorhanden', '2026-11-01T10:06:00.000Z');
+  let akt = pr.aktuelleMarkierungen(k.produkte);
+  assert.equal(akt.get('enpal-speicher').markierung, 'interesse');
+  // gleiche Markierung erneut = aufheben
+  pr.markierungSetzen(k.produkte, vk7, 'vorhanden', '2026-11-01T10:07:00.000Z');
+  akt = pr.aktuelleMarkierungen(k.produkte);
+  assert.equal(akt.has('vorwerk-vk7'), false);
+  pr.markierungSetzen(k.produkte, vk7, 'kein', '2026-11-01T10:08:00.000Z');
+  // Laden/Speichern übersteht die Markierungen, Unsinn fällt weg
+  const d = migrate({ kunden: [{ ...k, produkte: [...k.produkte, { produktId: '', bereich: 'pv' }, { produktId: 'x', bereich: 'mond' }] }] });
+  const k2 = d.kunden[0];
+  assert.equal(k2.produkte.length, 5);
+  assert.equal(pr.markierungenText(k2.produkte, 'pv'), 'Interesse: Enpal Speicher');
+  // Verlauf: ein Eintrag pro Tag, letzter Stand je Produkt
+  const v = kundenVerlauf(d, k2).filter((e) => e.art === 'produkt');
+  assert.equal(v.length, 1);
+  assert.ok(v[0].zeilen.includes('Enpal Speicher: Interesse') && v[0].zeilen.includes('Kobold VK7: Kein Interesse'));
+  assert.ok(!v[0].zeilen.some((z) => z.includes('Später')));
+  // Texte: Vorwerk-Produkte nie im Enpal-Text und umgekehrt
+  const enpal = generiereText(k2, 'enpal', d.einstellungen);
+  const vorwerk = generiereText(k2, 'vorwerk', d.einstellungen);
+  assert.ok(enpal.includes('Produkte – Interesse: Enpal Speicher'));
+  assert.ok(!enpal.includes('Kobold'));
+  assert.ok(vorwerk.includes('Kein Interesse: Kobold VK7'));
+  assert.ok(!vorwerk.includes('Enpal Speicher'));
+  assert.equal(projizieren(k2, 'vorwerk').produkte.length, 3);
+  assert.ok(projizieren(k2, 'vorwerk').produkte.every((m) => m.bereich === 'vorwerk'));
+  // Filter
+  assert.equal(passt(k2, { ...leererKartenFilter(), produkt: ['interesse'] }), true);
+  assert.equal(passt(k2, { ...leererKartenFilter(), produkt: ['interesse'], sparten: ['vorwerk'] }), false);
+  assert.equal(passt(k2, { ...leererKartenFilter(), produkt: ['kein'], sparten: ['vorwerk'] }), true);
+  // Auswertung: letzter Stand im Zeitraum
+  const kz = kennzahlen(d, 'alle', '2026-11-01', '2026-11-01', 'tag');
+  assert.equal(kz.produkte.interesse, 1);
+  assert.equal(kz.produkte.kein, 1);
+  assert.equal(kz.produkte.spaeter, 0);
+  assert.deepEqual(kz.topProdukte, [{ name: 'Enpal Speicher', anzahl: 1 }]);
+  assert.equal(kennzahlen(d, 'vorwerk', '2026-11-01', '2026-11-01', 'tag').produkte.interesse, 0);
+});

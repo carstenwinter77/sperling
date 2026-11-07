@@ -133,7 +133,7 @@ export function render(el: HTMLElement) {
 
     <section class="karte-box">
       <h2>Datenschutz</h2>
-      <p class="hinweis">Sperling speichert alle Kundendaten ausschließlich verschlüsselt auf diesem Gerät und – falls eingerichtet – als verschlüsselte Sicherungsdatei, die du selbst in iCloud Drive ablegst. Es gibt keinen Sperling-Server. Für Kartenbilder werden Kartenausschnitte bei Esri bzw. OpenStreetMap geladen, für Adressvorschläge werden Koordinaten bzw. Adressen an OpenStreetMap Nominatim gesendet – niemals Namen oder Notizen. Kunden können auf Wunsch jederzeit vollständig gelöscht werden (Kunde öffnen → Kunde löschen).</p>
+      <p class="hinweis">Sperling speichert alle Kundendaten ausschließlich verschlüsselt auf diesem Gerät und – falls eingerichtet – als verschlüsselte Sicherungsdatei, die du selbst in iCloud Drive ablegst. Es gibt keinen Sperling-Server. Für Kartenbilder werden Kartenausschnitte bei Esri bzw. OpenStreetMap geladen, für Adressvorschläge werden Koordinaten bzw. Adressen an OpenStreetMap Nominatim gesendet – niemals Namen oder Notizen. Produktbilder in der Produktübersicht kommen direkt von den Hersteller-Websites (ohne Angaben über Kunden). Kunden können auf Wunsch jederzeit vollständig gelöscht werden (Kunde öffnen → Kunde löschen).</p>
       <p><small>Sperling ${APP_VERSION} · Kartenbibliothek Leaflet (BSD-2)</small></p>
     </section>`;
 

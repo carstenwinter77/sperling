@@ -732,3 +732,41 @@ body.hilfe-aus .hilfe-knopf { display: none; }
 .felder-liste li { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
 .felder-liste li label.check { flex: 1 1 auto; min-width: 0; }
 .felder-liste .tag { font-size: .75rem; }
+
+/* ===== Produktübersicht und Produkte im Gespräch ===== */
+.hauptnav .nav-produkte { display: none; }
+@media (min-width: 900px) { .hauptnav .nav-produkte { display: flex; } }
+.produkt-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .75rem; margin-bottom: 1rem; }
+.produkt-kachel { display: flex; flex-direction: column; text-align: left; gap: .5rem; padding: .6rem; border: 1px solid var(--linie); border-radius: 14px; background: var(--karte); color: var(--text); font: inherit; cursor: pointer; min-height: 44px; }
+.produkt-kachel.bereich-rand { border-left-width: 5px; }
+.produkt-kachel:hover, .produkt-kachel:focus-visible { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+.produkt-bild { width: 100%; aspect-ratio: 4 / 3; object-fit: contain; background: #fff; border-radius: 10px; }
+.produkt-bild.gross { max-height: 260px; }
+.produkt-ersatz { display: flex; align-items: center; justify-content: center; background: var(--a-bg, var(--feld)); object-fit: scale-down; padding: 18%; }
+.produkt-ersatz .maskottchen { width: 64px; height: 64px; }
+.produkt-text { display: flex; flex-direction: column; gap: .2rem; }
+.produkt-text small { color: var(--text-2); }
+.produkt-preis { font-weight: 700; color: var(--braun); }
+.produkt-preis.leer { font-weight: 500; color: var(--text-2); }
+.bald { color: var(--orange); font-weight: 700; }
+.tag.bald { border-color: var(--orange); }
+dialog.dlg.dlg-produkt { width: min(680px, calc(100vw - 24px)); }
+.produkt-detail { display: flex; flex-direction: column; gap: .5rem; }
+.produkt-detail h3 { margin: .5rem 0 0; }
+.produkt-passt { display: flex; flex-wrap: wrap; gap: .4rem; }
+.produkte-markieren { margin-top: .75rem; border-top: 1px solid var(--linie); padding-top: .4rem; }
+.produkte-markieren > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.produkte-markieren > summary small { color: var(--text-2); }
+.pm-gruppe h4 { margin: .6rem 0 .2rem; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-2); }
+.pm-zeile { display: flex; align-items: center; justify-content: space-between; gap: .4rem; flex-wrap: wrap; padding: .25rem 0; border-bottom: 1px dashed var(--linie); }
+.pm-name { background: none; border: 0; font: inherit; color: var(--text); text-align: left; cursor: pointer; padding: .3rem 0; flex: 1 1 200px; min-height: 40px; }
+.pm-name:hover { text-decoration: underline; }
+.pm-wahl { display: flex; gap: .25rem; flex-wrap: wrap; }
+.pm-wahl .chip-wahl { padding: .3rem .55rem; min-height: 40px; min-width: 40px; }
+.pm-label { font-size: .8rem; }
+@media (max-width: 1100px) { .pm-label { display: none; } }
+.chip-wahl.markierung-interesse.aktiv { background: var(--gruen); border-color: var(--gruen); color: #fff; }
+.chip-wahl.markierung-spaeter.aktiv { background: var(--orange); border-color: var(--orange); color: #fff; }
+.chip-wahl.markierung-vorhanden.aktiv { background: var(--tag-wp); border-color: var(--tag-wp); color: var(--karte); }
+.chip-wahl.markierung-kein.aktiv { background: var(--rot); border-color: var(--rot); color: #fff; }
+.chip.markierung-interesse { border-color: var(--gruen); } .chip.markierung-kein { border-color: var(--rot); }

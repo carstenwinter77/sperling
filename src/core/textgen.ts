@@ -21,8 +21,11 @@ export interface Projektion extends Pick<Kunde, 'anrede' | 'vorname' | 'nachname
   pv?: Record<string, unknown>; wp?: Record<string, unknown>; vorwerk?: Record<string, unknown>;
   /** nur Werte eigener Felder der Kategorien Kontakt + eigene Sparten */
   eigene: Record<string, unknown>;
+  /** nur Produkt-Markierungen der eigenen Sparten */
+  produkte: ProduktMarkierung[];
 }
 import { formatDateTime } from './util.ts';
+import { markierungenText, type ProduktMarkierung } from './produkte.ts';
 import { sichtbareFelder, feldText, feldWertLesen, type FeldEinstellungen } from './felder.ts';
 
 interface GruppeInfo { key: Gruppe; label: string; sparten: Sparte[] }
@@ -57,6 +60,7 @@ export function projizieren(kunde: Kunde, gruppe: string, fe?: FeldEinstellungen
     status: {},
     notizen: (kunde.notizen || []).filter((n) => notizErlaubt(n, gruppe)).map((n) => ({ ...n })),
     eigene,
+    produkte: (kunde.produkte || []).filter((m) => g.sparten.includes(m.bereich)).map((m) => ({ ...m })),
   };
   for (const s of g.sparten) {
     p.status[s] = kunde.status?.[s] ?? 'unbekannt';
@@ -85,6 +89,8 @@ function datenBlock(p: Projektion, g: GruppeInfo, nur: Sparte[] = g.sparten, fe?
     const zeilen: string[] = [];
     const st = p.status[s];
     if (st && st !== 'unbekannt') zeilen.push(`Status: ${STATUS[st].label}`);
+    const prod = markierungenText(p.produkte, s);
+    if (prod) zeilen.push(`Produkte – ${prod}`);
     if (fe) {
       for (const f of sichtbareFelder(s, fe)) {
         const w = feldText(f, feldWertLesen(p, f));

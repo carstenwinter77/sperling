@@ -140,6 +140,17 @@ export const THEMEN = {
     kurz: 'Eine aufgeräumte Seite nur mit dem, was der Kunde sehen darf. Zum Aus-der-Hand-Geben.',
     schritte: ['Was sichtbar ist, legst du in den Einstellungen fest.', 'Beenden nur mit Master-Passwort oder Face ID.'],
   },
+  produkte: {
+    titel: 'Produktübersicht',
+    kurz: 'Alle Produkte von Enpal, GALVANY und Vorwerk Kobold mit Kurzbeschreibung, technischen Daten und Preis – als Nachschlagewerk im Gespräch.',
+    schritte: [
+      'Oben den Bereich wählen (Photovoltaik, Wärmepumpe, Vorwerk), darunter eine Kategorie oder suchen.',
+      'Produkt antippen: Beschreibung, Daten, Preis mit Stand-Datum, „Passt dazu“ und Link zum Hersteller.',
+      'Preise sind Momentaufnahmen der Hersteller-Websites. Vor dem Nennen beim Kunden auf der Quellseite prüfen.',
+      'Beim Kunden (Enpal/Vorwerk-Reiter und Gesprächsmodus) unter „🏷️ Produkte“ je Produkt markieren: 👍 Interesse, ⏳ Später, ✓ Schon vorhanden, ✕ Kein Interesse. Nochmal antippen hebt auf.',
+      'Markierungen stehen im Verlauf, in den Texten ihres Bereichs, im Filter und in den Auswertungen.',
+    ],
+  },
   felder: {
     titel: 'Felder ein- und ausblenden, eigene Felder',
     kurz: 'Bestimme selbst, welche Felder die Kundenkartei zeigt, und lege eigene Felder an. Ausgeblendete Felder behalten ihre Daten.',

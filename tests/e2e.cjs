@@ -278,7 +278,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('.gm-seiten [data-seite=abschluss]');
   await p.click('#gmVerwerfen');
   await p.click('dialog button.danger');
-  await p.waitForFunction(() => /^#\/kunde\/[\w-]+$/.test(location.hash));
+  await p.waitForFunction(() => /^#\/kunde\/[\w-]+(\?|$)/.test(location.hash));
   // Beratungs-Schutz: nur der beratene Kunde, andere Seiten führen zu ihm zurück, Aufheben nur mit Passwort
   await p.goto(BASE + '#/kunden');
   await p.click('#liste .zeile');
@@ -429,6 +429,39 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.goto(BASE + '#/einstellungen');
   await p.click('#felderEinstellungen details[data-kat=kontakt] summary');
   await p.check('[data-feld-an="kontakt.firma"]');
+  // Produktübersicht: Reiter, Kategorie, Suche, Detail
+  await p.goto(BASE + '#/produkte?bereich=vorwerk');
+  await p.waitForSelector('.produkt-kachel');
+  if ((await p.textContent('#pListe')).includes('Enpal')) fail('Vorwerk-Reiter zeigt Enpal-Produkte');
+  await p.fill('#pSuche', 'vk7');
+  await p.waitForTimeout(100);
+  const vk = await p.$$('.produkt-kachel');
+  if (!vk.length) fail('Produktsuche VK7 ohne Treffer');
+  await vk[0].click();
+  await p.waitForSelector('dialog .produkt-detail');
+  if (!(await p.textContent('dialog .produkt-detail')).includes('Stand')) fail('Produktdetail ohne Stand-Datum');
+  await p.click('dialog .dlg-actions button.primary');
+  await p.fill('#pSuche', '');
+  // Produkte im Gespräch markieren: beim Kunden, dann Verlauf, Text und Filter
+  await p.goto(BASE + '#/kunden');
+  await p.click('#liste a.zeile');
+  await p.waitForSelector('[data-feld="vorname"]');
+  await p.click('button[data-tab=enpal]');
+  await p.click('.produkte-markieren[data-bereich=pv] summary');
+  await p.click('.produkte-markieren[data-bereich=pv] [data-mark=interesse]');
+  await p.waitForSelector('.produkte-markieren[data-bereich=pv][open] .chip-wahl.aktiv[data-mark=interesse]');
+  const markiert = await p.getAttribute('.produkte-markieren[data-bereich=pv] .chip-wahl.aktiv', 'data-produkt-mark');
+  await p.click('button[data-tab=verlauf]');
+  await p.waitForSelector('.verlauf-eintrag.art-produkt');
+  await p.click('button[data-tab=texte]');
+  if (!(await p.inputValue('#text-enpal')).includes('Produkte – Interesse:')) fail('Produkt-Interesse fehlt im Enpal-Text');
+  if ((await p.inputValue('#text-vorwerk')).includes('Produkte – Interesse:')) fail('PV-Produkt im Vorwerk-Text (R-TEXT)');
+  await p.goto(BASE + '#/kunden');
+  await p.click('#fKnopf');
+  await p.click('[data-f-produkt=interesse]');
+  if ((await p.$$('#liste a.zeile')).length !== 1) fail('Produktfilter Interesse falsch');
+  await p.click('[data-f-alle]');
+  if (!markiert) fail('Markiertes Produkt nicht erkennbar');
   // Unbekannte Route / unbekannter Kunde stürzen nicht ab
   await p.goto(BASE + '#/kunde/gibtsnicht');
   await p.waitForSelector('.leer');

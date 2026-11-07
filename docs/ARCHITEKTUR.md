@@ -19,6 +19,7 @@ Browser (Tablet / Handy / Laptop)
  │   ├─ gespraech.ts ..... Gesprächsmodus speichern (je Bereich, Notiz je Firma, R-TEXT)
  │   ├─ verlauf.ts ....... Gesprächshistorie, letzter Kontakt
  │   ├─ kartenfilter.ts .. Mehrfachfilter für Karte und Kundenliste (auch eigene Ja/Nein- und Auswahlfelder)
+ │   ├─ produkte.ts ...... Produktkatalog prüfen, filtern, suchen; Markierungen „Produkte im Gespräch“
  │   ├─ felder.ts ........ Feldverwaltung: Kontaktfelder, eigene Felder, sichtbare Felder, Anzeige je Typ
  │   ├─ suche.ts ......... Kommandozeile: Normalisierung, Bewertung, Gruppen, Verben, Zuletzt
  │   ├─ hilfe.ts ......... Hilfetexte (Themen, Begriffe, Fragen) und Hilfe-Suche
@@ -46,6 +47,9 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/hilfe.ts ...... ?-Knöpfe, Installieren-Angebot, Installationshinweis
  ├─ src/ui/gespraechsablauf.ts  laufendes Gespräch im Arbeitsspeicher
  ├─ src/ui/filterpanel.ts  Filterfeld für Karte und Kundenliste
+ ├─ src/ui/produkte.ts ... Kacheln, Produktdetail, Markieren-Block (Kartei, Gesprächsmodus)
+ ├─ src/ui/views/produkte.ts  Produktübersicht #/produkte (auch im Beratungs-Schutz)
+ ├─ src/data/produkte.json  Produktkatalog (statisch, im Paket)
  ├─ src/ui/felder.ts ..... Formularfelder der Kartei aus der Feldverwaltung (Kartei, Gesprächsmodus)
  ├─ src/ui/feldverwaltung.ts  Einstellungen → Felder (ein-/ausblenden, eigene Felder anlegen/bearbeiten/löschen)
  ├─ src/ui/zeitraum.ts ... Zeitraum wischen mit gesperrten Tagen

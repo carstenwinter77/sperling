@@ -2,6 +2,7 @@
 // Berichte je Bereich (PV, WP, Vorwerk) oder für alles zusammen, als Tag, Woche, Monat, Kalenderjahr
 // oder letzte 365 Tage bis zum gewählten Tag. Jeder Bericht kennt den Vorzeitraum zum Vergleich.
 import { AUSGANG, type Daten, type Sparte } from './model.ts';
+import { MARKIERUNG_KEYS, type Markierung } from './produkte.ts';
 import { tagVon, tagDatum, plusTage, wochenanfang, kalenderwoche, type Tag } from './belegung.ts';
 
 export type Bereich = 'alle' | Sparte;
@@ -82,6 +83,10 @@ export interface Kennzahlen {
   kaeufe: number;
   /** Käufe / Verleihe im Zeitraum; null ohne Verleihe */
   kaufquote: number | null;
+  /** Produkte im Gespräch: je Kunde und Produkt der letzte Stand im Zeitraum */
+  produkte: Record<Markierung, number>;
+  /** meistgefragte Produkte (Interesse) im Zeitraum, höchstens 5 */
+  topProdukte: { name: string; anzahl: number }[];
   /** Gespräche je Abschnitt (Stunden-/Tages-/Monatsbalken) */
   verlauf: { label: string; wert: number }[];
 }
@@ -96,7 +101,9 @@ export function kennzahlen(data: Daten, bereich: Bereich, von: Tag, bis: Tag, pe
     gespraeche: 0, erreicht: 0, telefon: 0, hausbesuch: 0, ergebnisse: leereErgebnisse(), abschluesse: 0, abschlussquote: null,
     neueKunden: 0, notizen: 0, termine: 0, termineErledigt: 0, wiedervorlagen: 0, wiedervorlagenErledigt: 0,
     verleihe: 0, rueckgaben: 0, kaeufe: 0, kaufquote: null, verlauf: [],
+    produkte: Object.fromEntries(MARKIERUNG_KEYS.map((m) => [m, 0])) as Record<Markierung, number>, topProdukte: [],
   };
+  const interesse = new Map<string, number>();
   const abschnitte = verlaufAbschnitte(periode, von, bis);
   const imVerlauf = (iso: string) => {
     const i = abschnitte.findIndex((a) => a.passt(iso));
@@ -122,7 +129,20 @@ export function kennzahlen(data: Daten, bereich: Bereich, von: Tag, bis: Tag, pe
       if (!rein(g.zeitpunkt) || !passt([g.sparte])) continue;
       gespraech(g.zeitpunkt, true, g.ausgang, '');
     }
+    // Produkte: jüngste Markierung je Produkt innerhalb des Zeitraums
+    const letzte = new Map<string, { name: string; markierung: string; zeitpunkt: string }>();
+    for (const m of kd.produkte || []) {
+      if (!rein(m.zeitpunkt) || !passt([m.bereich])) continue;
+      const alt = letzte.get(m.produktId);
+      if (!alt || m.zeitpunkt >= alt.zeitpunkt) letzte.set(m.produktId, m);
+    }
+    for (const m of letzte.values()) {
+      if (!m.markierung) continue;
+      k.produkte[m.markierung as Markierung]++;
+      if (m.markierung === 'interesse') interesse.set(m.name, (interesse.get(m.name) || 0) + 1);
+    }
   }
+  k.topProdukte = [...interesse].map(([name, anzahl]) => ({ name, anzahl })).sort((a, b) => b.anzahl - a.anzahl || a.name.localeCompare(b.name, 'de')).slice(0, 5);
   k.abschluesse = k.ergebnisse.abschluss;
   k.abschlussquote = k.erreicht ? k.abschluesse / k.erreicht : null;
 

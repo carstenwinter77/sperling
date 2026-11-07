@@ -8,6 +8,7 @@ import { koordinateZuAdresse } from '../../services/geo.ts';
 import { maskottchen, toast, kopieren, bestaetigen, dialog } from '../dom.ts';
 import { anrufen, emailSchreiben } from '../kontakt.ts';
 import { felderHtml } from '../felder.ts';
+import { markierenHtml, markierenVerdrahten, markierenNeuZeichnen } from '../produkte.ts';
 import * as enpalDoku from '../enpaldoku.ts';
 import * as pk from '../../core/papierkorb.ts';
 import { hinfahrenKnopf } from '../navi.ts';
@@ -372,8 +373,10 @@ function bogen(el, k, sparten, kopf) {
       <h2>${maskottchen(spartenIcon(s), 'titel-bild')} ${esc(SPARTEN[s].label)}</h2>
       <label class="status-zeile">Status <select data-feld="status.${s}">${statusOptions(k.status[s])}</select></label>
       <div class="formgrid">${felderHtml(s, k, store.getData().einstellungen.felder)}</div>
+      ${markierenHtml(k, s)}
     </section>`).join('');
   bindeFelder(el, k.id, kopf);
+  markierenVerdrahten(el, k.id, (b) => markierenNeuZeichnen(el, k.id, b));
 }
 
 const enpal = (el, k, kopf) => bogen(el, k, ['pv', 'wp'], kopf);
@@ -428,8 +431,8 @@ function texte(el, k) {
   }));
 }
 
-const VERLAUF_FILTER = [['alle', 'Alles'], ['gespraech', 'Gespräche'], ['notiz', 'Notizen'], ['termin', 'Termine'], ['verleih', 'Geräte']] as const;
-const VERLAUF_SYMBOL: Record<VerlaufEintrag['art'], string> = { gespraech: '💬', notiz: '📝', termin: '📅', verleih: '📦' };
+const VERLAUF_FILTER = [['alle', 'Alles'], ['gespraech', 'Gespräche'], ['notiz', 'Notizen'], ['termin', 'Termine'], ['verleih', 'Geräte'], ['produkt', 'Produkte']] as const;
+const VERLAUF_SYMBOL: Record<VerlaufEintrag['art'], string> = { gespraech: '💬', notiz: '📝', termin: '📅', verleih: '📦', produkt: '🏷️' };
 
 function verlaufHtml(v: VerlaufEintrag) {
   return `<li class="verlauf-eintrag art-${v.art}${v.zukunft ? ' zukunft' : ''}${v.erledigt ? ' erledigt' : ''}">

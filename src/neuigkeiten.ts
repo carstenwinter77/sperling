@@ -1,6 +1,13 @@
 // Sperling – „Was ist neu“: kurze, verständliche Liste je Version (neueste zuerst).
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
+  {
+    version: '0.10.0',
+    punkte: [
+      'Produktübersicht: alle Produkte von Enpal, GALVANY und Vorwerk Kobold mit Daten, Preis (mit Stand) und Link zum Hersteller.',
+      'Produkte im Gespräch markieren: beim Kunden und im Gesprächsmodus je Produkt Interesse, Später, Schon vorhanden oder Kein Interesse antippen – steht im Verlauf, in den Texten, im Filter und in den Auswertungen.',
+    ],
+  },
   { version: '0.9.9', punkte: ['Kontaktseite: Titel unter dem Foto zweizeilig „Selbständiger Berater / für Photovoltaik und Wärmepumpe“.'] },
   {
     version: '0.9.8',

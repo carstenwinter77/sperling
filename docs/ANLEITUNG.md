@@ -50,6 +50,12 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Auswertungen:** Bereich und Zeitraum wählen, mit ‹ › blättern, „PDF-Bericht“ zum Teilen.
 - **Hilfe:** ?-Knopf neben jeder Überschrift; alles unter Einstellungen → Hilfe (dort auch abschaltbar und die Installationsanleitung).
 
+## Produkte
+
+- **Produkte** (Seitenleiste, am Handy über Gespräch oder die Suche): Reiter Photovoltaik, Wärmepumpe, Vorwerk, Kategorien und Suche. Produkt antippen für Daten, Preis mit Stand und Link zum Hersteller.
+- Beim Kunden im Reiter Enpal bzw. Vorwerk und im Gesprächsmodus unter **„🏷️ Produkte“** je Produkt antippen: 👍 Interesse, ⏳ Später, ✓ Schon vorhanden, ✕ Kein Interesse. Nochmal antippen hebt auf.
+- Markierungen stehen im Verlauf, in den Texten des Bereichs, im Filter (Gruppe „Produkte“) und in den Auswertungen („Produkt-Interessen“, „Meistgefragte Produkte“).
+
 ## Felder anpassen
 
 - Einstellungen → **Felder**: je Bereich (Kontakt, Photovoltaik, Wärmepumpe, Vorwerk) Häkchen weg = Feld ausgeblendet. Die eingetragenen Werte bleiben erhalten.

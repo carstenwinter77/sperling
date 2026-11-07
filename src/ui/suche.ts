@@ -5,6 +5,8 @@ import { esc } from '../core/util.ts';
 import { kundenTitel, neuerKunde } from '../core/model.ts';
 import { index, suchen, ausschnitt, zuletztHinzu, zuletztAufloesen, AKTION_LABEL, type Aktion, type Eintrag, type Treffer, type Befehl } from '../core/suche.ts';
 import * as store from '../storage/store.ts';
+import { katalog } from './produkte.ts';
+import { KATEGORIEN } from '../core/produkte.ts';
 import * as theme from './theme.ts';
 import { toast } from './dom.ts';
 import { anrufen, emailSchreiben } from './kontakt.ts';
@@ -52,7 +54,7 @@ export function oeffnen(vorgabe = '') {
   if (!store.isUnlocked()) return;
   if (store.schutzKunde()) { toast('Im Beratungs-Schutz ist die Suche aus.', 'error'); return; }
   if (dlg?.open) { feld()?.focus(); return; }
-  eintraege = index(store.getData());
+  eintraege = index(store.getData(), katalog().produkte.map((p) => ({ id: p.id, name: p.name, kategorieLabel: KATEGORIEN[p.kategorie], bereich: p.bereich, such: [p.modell, KATEGORIEN[p.kategorie], p.quelle, ...p.stichworte].join(' ') })));
   dlg = document.createElement('dialog');
   dlg.className = 'such-dlg';
   dlg.setAttribute('aria-label', 'Suchen und Befehle');

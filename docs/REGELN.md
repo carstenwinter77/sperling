@@ -10,6 +10,7 @@ Der Enpal-Text darf nur Stammdaten + Photovoltaik + Wärmepumpe enthalten, der V
 2. Notizen kommen nur in einen Text, wenn sie mindestens eine Sparte haben und **alle** Sparten zur Gruppe gehören. Gemischte oder unmarkierte Notizen erscheinen in keinem Text (die UI zeigt „nicht in Texten“).
 3. Vorlagen können nur feste Platzhalter (`PLATZHALTER`) nutzen, keine Objektpfade.
 4. Die Enpal-Gesprächsdokumentation (`enpalKontakte`) erscheint nur in der Enpal-Projektion, ihre Themen sind nur `pv`/`wp`.
+6. Produkt-Markierungen (`kunde.produkte`) kommen nur in die Projektion, wenn ihr Bereich zur Gruppe gehört.
 5. Eigene Felder (Feldverwaltung) kommen nur in die Projektion, wenn ihre Kategorie `kontakt` oder eine Sparte der Gruppe ist. Ohne Felddefinitionen enthält die Projektion keine eigenen Werte. Ausgeblendete Felder erscheinen in keinem Text.
 Tests in `tests/core.test.mjs` sichern das ab. Diese Tests dürfen nie gelöscht oder abgeschwächt werden.
 
@@ -29,7 +30,7 @@ Tests in `tests/core.test.mjs` sichern das ab. Diese Tests dürfen nie gelöscht
 
 **R-XSS** – Jeder Nutzertext, der in `innerHTML` landet, geht durch `esc()` aus `src/core/util.ts`. Auch Attribute (`value="${esc(x)}"`). Neue Ansichten werden im E2E-Test mit einem `<img onerror>`-Namen geprüft.
 
-**R-EXTERN** – An Dritte gehen nur: Kartenausschnitte (Esri/OSM), Koordinaten oder eingegebene Adresse (Nominatim). Die verschlüsselte Sicherungsdatei verlässt das Gerät nur, wenn der Nutzer sie selbst teilt (iCloud Drive). Nie Namen, Telefonnummern oder Notizen. Die Adresssuche der Karte prüft deshalb zuerst lokal, ob der Suchtext ein Kundenname ist; dann geht keine Anfrage raus.
+**R-EXTERN** – An Dritte gehen nur: Kartenausschnitte (Esri/OSM), Koordinaten oder eingegebene Adresse (Nominatim), Abrufe der Produktbilder bei den Herstellern (nur verlinkt, ohne Referrer, ohne Kundenbezug). Die verschlüsselte Sicherungsdatei verlässt das Gerät nur, wenn der Nutzer sie selbst teilt (iCloud Drive). Nie Namen, Telefonnummern oder Notizen. Die Adresssuche der Karte prüft deshalb zuerst lokal, ob der Suchtext ein Kundenname ist; dann geht keine Anfrage raus.
 
 **R-PASSWORT** – Mindestens 8 Zeichen. Keine Wiederherstellung, keine Hintertür. Face ID/Touch ID ist nur eine Abkürzung: Das Passwort liegt dafür AES-verschlüsselt mit einem Schlüssel aus der Passkey-PRF-Erweiterung in IndexedDB (`meta.biometrie`), nie im Klartext. Ohne PRF kein Face ID. Passwortwechsel löscht diesen Eintrag.
 

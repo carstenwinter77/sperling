@@ -26,6 +26,7 @@ import * as schutz from './ui/schutz.ts';
 import * as suche from './ui/suche.ts';
 import * as hilfe from './ui/hilfe.ts';
 import * as vHilfe from './ui/views/hilfe.ts';
+import * as vProdukte from './ui/views/produkte.ts';
 import type { ThemaId } from './core/hilfe.ts';
 
 interface Ansicht { render(el: HTMLElement, params: URLSearchParams, treffer: string[]): void | (() => void) }
@@ -44,6 +45,7 @@ const ROUTEN: Route[] = [
   { muster: /^\/geloescht$/, view: vGeloescht, nav: 'kunden', hilfe: 'geloescht' },
   { muster: /^\/gespraech$/, view: vGespraech, nav: 'gespraech', hilfe: 'gespraech' },
   { muster: /^\/hilfe$/, view: vHilfe, nav: 'einstellungen' },
+  { muster: /^\/produkte$/, view: vProdukte, nav: 'produkte', hilfe: 'produkte' },
 ];
 
 const NAV = [
@@ -53,6 +55,7 @@ const NAV = [
   { key: 'termine', href: '#/termine', label: 'Termine', bild: 'termine' },
   { key: 'gespraech', href: '#/gespraech', label: 'Gespräch', bild: 'notizen' },
   { key: 'bestand', href: '#/bestand', label: 'Bestand', bild: 'vorwerk' },
+  { key: 'produkte', href: '#/produkte', label: 'Produkte', bild: '' },
   { key: 'auswertung', href: '#/auswertung', label: 'Auswertungen', bild: 'statistik' },
   { key: 'einstellungen', href: '#/einstellungen', label: 'Einstellungen', bild: 'einstellungen' },
 ];
@@ -189,7 +192,7 @@ function shell() {
     <nav class="hauptnav" aria-label="Hauptnavigation">
       <a class="marke" href="#/" aria-label="Sperling – zur Übersicht">${logo('marke-logo')}</a>
       <button type="button" class="nav-suche" id="navSuche" title="Suchen (${suche.kuerzel()})"><span class="nav-bild nav-lupe" aria-hidden="true">🔍</span><span>Suchen</span></button>
-      ${NAV.map((n) => `<a href="${n.href}" data-nav="${n.key}"${n.key === 'einstellungen' ? ' class="nav-einstellungen"' : ''}>${maskottchen(n.bild, 'nav-bild')}<span>${n.label}${n.key === 'einstellungen' ? `<small class="nav-version">Version ${esc(APP_VERSION)}</small>` : ''}</span></a>`).join('')}
+      ${NAV.map((n) => `<a href="${n.href}" data-nav="${n.key}"${n.key === 'einstellungen' ? ' class="nav-einstellungen"' : n.key === 'produkte' ? ' class="nav-produkte"' : ''}>${n.bild ? maskottchen(n.bild, 'nav-bild') : '<span class="nav-bild nav-lupe" aria-hidden="true">🏷️</span>'}<span>${n.label}${n.key === 'einstellungen' ? `<small class="nav-version">Version ${esc(APP_VERSION)}</small>` : ''}</span></a>`).join('')}
       <button class="sperr-knopf" id="sperren" title="Sperren">🔒<span>Sperren</span></button>
     </nav>
     <div class="schutz-band" id="schutzBand" role="status" hidden></div>

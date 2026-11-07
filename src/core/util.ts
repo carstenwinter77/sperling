@@ -118,3 +118,14 @@ export function isValidCoord(lat: unknown, lng: unknown): lat is number {
     lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180
   );
 }
+
+/** Suchtext normalisieren: klein, Umlaute ausgeschrieben, ohne Akzente und Satzzeichen (Kommandozeile, Produktsuche). */
+export function suchText(s: unknown): string {
+  return String(s ?? '')
+    .toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/\be-mail/g, 'email')
+    .replace(/[^a-z0-9@]+/g, ' ')
+    .trim();
+}

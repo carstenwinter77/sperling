@@ -3,8 +3,9 @@
 // trägt denselben Zeitstempel und wird zu EINEM Eintrag zusammengefasst.
 import { AUSGANG, KONTAKTART, SPARTEN, KAUFINTERESSE, type Daten, type Kunde, type Sparte } from './model.ts';
 import { ERGEBNIS } from './einwaende.ts';
+import { MARKIERUNGEN } from './produkte.ts';
 
-export type VerlaufArt = 'gespraech' | 'notiz' | 'termin' | 'verleih';
+export type VerlaufArt = 'gespraech' | 'notiz' | 'termin' | 'verleih' | 'produkt';
 export interface VerlaufEintrag {
   zeitpunkt: string;
   art: VerlaufArt;
@@ -92,6 +93,20 @@ export function kundenVerlauf(data: Daten, k: Kunde, jetzt = new Date().toISOStr
     const zeilen = [l.rueckgabe ? `zurück am ${l.rueckgabe.slice(0, 10).split('-').reverse().join('.')}` : 'noch beim Kunden', `Kaufinteresse: ${KAUFINTERESSE[l.kaufinteresse]}`];
     if (l.notiz) zeilen.push(l.notiz);
     out.push({ zeitpunkt: l.ausgabe, art: 'verleih', titel: `Verliehen: ${g?.name || 'Gerät'}`, zeilen: [zeilen.join(' · ')], sparten: ['vorwerk'], notizIds: [], enpalIds: [], leihId: l.id });
+  }
+  // Produkte im Gespräch: alle Markierungen eines Tages als ein Eintrag (Tag in Ortszeit)
+  const tage = new Map<string, VerlaufEintrag>();
+  for (const m of [...(k.produkte || [])].sort((a, b) => (a.zeitpunkt < b.zeitpunkt ? -1 : 1))) {
+    const d = new Date(m.zeitpunkt);
+    const tag = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    let e = tage.get(tag);
+    if (!e) { e = { zeitpunkt: m.zeitpunkt, art: 'produkt', titel: 'Produkte im Gespräch', zeilen: [], sparten: [], notizIds: [], enpalIds: [] }; tage.set(tag, e); out.push(e); }
+    e.zeitpunkt = m.zeitpunkt;
+    sparteDazu(e, [m.bereich]);
+    const zeile = `${m.name}: ${m.markierung ? MARKIERUNGEN[m.markierung].label : 'Markierung aufgehoben'}`;
+    // Mehrfaches Umentscheiden am selben Tag: nur der letzte Stand je Produkt
+    e.zeilen = e.zeilen.filter((z) => !z.startsWith(`${m.name}: `));
+    e.zeilen.push(zeile);
   }
   return out.sort((a, b) => (a.zeitpunkt < b.zeitpunkt ? 1 : a.zeitpunkt > b.zeitpunkt ? -1 : 0));
 }

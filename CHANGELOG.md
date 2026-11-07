@@ -1,5 +1,11 @@
 # Änderungsverlauf
 
+## 0.10.0 – 07.11.2026
+- **Produktübersicht** `#/produkte`: 46 Produkte (Enpal PV/WP, GALVANY WP, Vorwerk Kobold) aus `src/data/produkte.json`, Reiter je Bereich, Kategorien, Suche, Detail mit technischen Daten, Preis mit Stand, „Passt dazu“, Link zum Hersteller, Kennzeichen „bald verfügbar“. Bilder nur verlinkt, offline Bereichs-Icon. Im Beratungs-Schutz erlaubt, in der Kommandozeile suchbar.
+- **Produkte im Gespräch markieren:** Kartei (Enpal/Vorwerk) und Gesprächsmodus, je Produkt Interesse / Später / Schon vorhanden / Kein Interesse; Verlauf, Texte (R-TEXT), Filter „Produkte“, Auswertungen „Produkt-Interessen“ und „Meistgefragte Produkte“ (auch im PDF). Schema 5.
+- Kontaktseite: Schritt 2 „Beratung vor Ort“ richtet sich nach dem Vorhaben.
+- Test: E2E wartet nach „Gespräch verwerfen“ robust auf die Kundenseite.
+
 ## 0.9.9 – 07.11.2026
 - Kontaktseite: Titel unter dem Foto zweizeilig.
 

@@ -1,4 +1,4 @@
-# Datenmodell (Schema-Version 4)
+# Datenmodell (Schema-Version 5)
 
 Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Menschen. Bei Abweichungen gilt der Code, und diese Datei wird nachgezogen.
 
@@ -6,7 +6,7 @@ Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Mensch
 
 | Feld | Typ | Beschreibung |
 |---|---|---|
-| `schemaVersion` | Zahl | aktuell `4` |
+| `schemaVersion` | Zahl | aktuell `5` |
 | `kunden` | Kunde[] | alle Kunden und markierten Standorte |
 | `termine` | Termin[] | Termine und Wiedervorlagen |
 | `einstellungen` | Objekt | siehe unten |
@@ -30,6 +30,7 @@ Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Mensch
 | `gespraeche` | Gespräch[] | Gespräche mit dem Leitfaden, je Sparte ein Eintrag |
 | `enpalKontakte` | EnpalKontakt[] | Gesprächsdokumentation für Enpal (ab Schema 2) |
 | `letzterKontaktManuell` | ISO-Datum \| null | von Hand nachgetragener Kontakt (ab 0.9.0). Angezeigt wird der jüngste aus diesem Feld, Gesprächen, Enpal-Kontakten, Notizen, erledigten Terminen und Verleihen (`letzterKontakt()` in `src/core/verlauf.ts`). |
+| `produkte` | ProduktMarkierung[] | Produkte im Gespräch (ab Schema 5): Ereignisse `{id, produktId, name, bereich, markierung, zeitpunkt}`; `markierung` ist `interesse`, `spaeter`, `vorhanden`, `kein` oder `''` (aufgehoben). Es gilt das jüngste Ereignis je Produkt. Name und Bereich sind mitgespeichert, damit Verlauf und Texte auch ohne Katalogeintrag funktionieren. Höchstens 2000 Ereignisse je Kunde. |
 | `eigene` | Objekt | Werte der eigenen Felder (ab Schema 4): Schlüssel = Feld-ID aus `einstellungen.felder.eigene`, Wert = Text, Zahl oder `true`/`false`. Datum als `JJJJ-MM-TT`. Werte gelöschter Felder werden beim Löschen entfernt; ausgeblendete bleiben. |
 
 ### Status je Sparte
@@ -150,6 +151,10 @@ Belegt ist ein Gerät, wenn sich der Zeitraum mit einer Reservierung oder einem 
 | `felder` | `{aus, eigene}` – Feldverwaltung (ab Schema 4). `aus`: Pfade ausgeblendeter Felder (`kontakt.firma`, `pv.neigung`, `eigene.<id>`). `eigene`: höchstens 100 eigene Felder `{id, kategorie: kontakt\|pv\|wp\|vorwerk, label, typ, einheit, optionen}`; `typ` ist `text`, `textarea`, `number` (mit `einheit`), `date`, `bool`, `select` (mit `optionen`), `tel`, `email` oder `url`. Logik in `src/core/felder.ts`. |
 | `zuletzt` | `[{art: 'kunde' \| 'geraet', id}]` – „Zuletzt geöffnet“ der Kommandozeile, höchstens 8, neueste zuerst (ab 0.9.0). Titel werden beim Anzeigen frisch aus den Daten geholt; Gelöschtes fällt weg. |
 
+## Produktkatalog (nicht im Store)
+
+`src/data/produkte.json` ist öffentliches Nachschlagewissen (Enpal, GALVANY, Vorwerk Kobold) und liegt im App-Paket, nicht im verschlüsselten Bestand. Format und Erfassung: `katalogVersion`, `stand`, `hinweis`, `quellen[]`, `produkte[]` mit `id`, `quelle`, `bereich`, `bereicheZusaetzlich`, `kategorie`, `name`, `modell`, `kurzbeschreibung`, `technischeDaten[]`, `preis{modell, betragEuro, einheit, text, uvp}`, `quelleUrl`, `bildUrl`, `stand`, `passtZu[]`, `verfuegbarkeit` (`demnaechst`), `hinweise`. `katalogPruefen()` in `src/core/produkte.ts` überspringt Ungültiges und lässt nur `https://`-Adressen zu. Aktualisieren = neue JSON + neue App-Version.
+
 ## Beispieldaten
 
 Beispielkunden, -termine, -geräte und -verleihe in der echten App erkennt man am ID-Präfix `demo-` (Beispiel-Vorführbestand: `demob-`) (kein eigenes Feld, keine Schemaänderung). `beispielEntfernen()` in `src/demo.ts` entfernt genau diese.
@@ -162,4 +167,4 @@ Beispielkunden, -termine, -geräte und -verleihe in der echten App erkennt man a
 - entfernt doppelte Kunden-IDs,
 - hängt verwaiste Termine vom Kunden ab, statt sie zu löschen.
 
-Schema 1 → 2: `enpalKontakte` und `einstellungen.empfaenger` kommen hinzu; die Normalisierung ergänzt sie leer. Schema 2 → 3: `reservierungen`, `papierkorb`, `einstellungen.kartenApp` und die Beleg-Felder am Leihvorgang kommen hinzu (leer). 0.9.0 bleibt bei Schema 3: die neuen Felder (`letzterKontaktManuell`, `kundenansicht`, `nachbarRadiusM`, `zuletzt`) ergänzt die Normalisierung mit Standardwerten. Schema 3 → 4 (Feldverwaltung): `kunde.eigene` und `einstellungen.felder` kommen hinzu (leer); das frühere `einstellungen.dropbox` wird verworfen. Künftige Versionen ergänzen schrittweise Blöcke `if (v < 5) { … }`.
+Schema 1 → 2: `enpalKontakte` und `einstellungen.empfaenger` kommen hinzu; die Normalisierung ergänzt sie leer. Schema 2 → 3: `reservierungen`, `papierkorb`, `einstellungen.kartenApp` und die Beleg-Felder am Leihvorgang kommen hinzu (leer). 0.9.0 bleibt bei Schema 3: die neuen Felder (`letzterKontaktManuell`, `kundenansicht`, `nachbarRadiusM`, `zuletzt`) ergänzt die Normalisierung mit Standardwerten. Schema 4 → 5 (Produkte im Gespräch): `kunde.produkte` kommt hinzu (leer). Schema 3 → 4 (Feldverwaltung): `kunde.eigene` und `einstellungen.felder` kommen hinzu (leer); das frühere `einstellungen.dropbox` wird verworfen. Künftige Versionen ergänzen schrittweise Blöcke `if (v < 5) { … }`.

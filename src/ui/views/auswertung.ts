@@ -21,6 +21,7 @@ const ZAHLEN: Zahl[] = [
   { titel: 'Termine', wert: (k) => k.termine, sub: (k) => `${k.termineErledigt} erledigt · ${k.termine - k.termineErledigt} offen` },
   { titel: 'Wiedervorlagen', wert: (k) => k.wiedervorlagen, sub: (k) => `${k.wiedervorlagenErledigt} erledigt · ${k.wiedervorlagen - k.wiedervorlagenErledigt} offen` },
   { titel: 'Notizen', wert: (k) => k.notizen },
+  { titel: 'Produkt-Interessen', wert: (k) => k.produkte.interesse, sub: (k) => `${k.produkte.spaeter} später · ${k.produkte.vorhanden} vorhanden · ${k.produkte.kein} kein Interesse` },
   { titel: 'Geräte verliehen', wert: (k) => k.verleihe, nurVorwerk: true },
   { titel: 'Rückgaben', wert: (k) => k.rueckgaben, nurVorwerk: true },
   { titel: 'Käufe nach Test', wert: (k) => k.kaeufe, nurVorwerk: true },
@@ -75,6 +76,12 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       ${jetzt.gespraeche ? `<div class="aw-verlauf bereich-${bereich}" style="--n:${jetzt.verlauf.length}">${jetzt.verlauf.map((v) => `<div class="aw-saeule" title="${esc(v.label)}: ${v.wert}"><span style="height:${Math.round((v.wert / max) * 100)}%"></span><em>${esc(v.label)}</em></div>`).join('')}</div>`
     : '<p class="hinweis">In diesem Zeitraum gibt es keine Gespräche.</p>'}
     </section>
+    ${jetzt.topProdukte.length ? `<section class="karte-box">
+      <h2>Meistgefragte Produkte</h2>
+      <table class="aw-tabelle"><thead><tr><th>Produkt</th><th>Interesse</th></tr></thead><tbody>
+        ${jetzt.topProdukte.map((x) => `<tr><td>${esc(x.name)}</td><td>${x.anzahl}</td></tr>`).join('')}
+      </tbody></table>
+    </section>` : ''}
     <section class="karte-box">
       <h2>Ergebnisse der Gespräche</h2>
       ${ergebnisse.length ? `<table class="aw-tabelle"><thead><tr><th>Ergebnis</th><th>Jetzt</th><th>Vorher</th></tr></thead><tbody>
@@ -131,6 +138,11 @@ export async function berichtPdf(ber: Bericht): Promise<{ blob: Blob; dateiname:
   if (erg.length) {
     doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.text('Ergebnisse der Gespräche', R, y); y += 7;
     tabelle(['Ergebnis', 'Jetzt', 'Vorher', ''], erg.map((a) => [AUSGANG[a], String(ber.jetzt.ergebnisse[a]), String(ber.vorher.ergebnisse[a]), '']));
+  }
+  if (ber.jetzt.topProdukte.length) {
+    if (y > 240) { doc.addPage(); y = 20; }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.text('Meistgefragte Produkte', R, y); y += 7;
+    tabelle(['Produkt', 'Interesse', '', ''], ber.jetzt.topProdukte.map((x) => [x.name.length > 55 ? `${x.name.slice(0, 54)}…` : x.name, String(x.anzahl), '', '']));
   }
   // Verlauf als einfache Säulen
   if (ber.jetzt.gespraeche) {

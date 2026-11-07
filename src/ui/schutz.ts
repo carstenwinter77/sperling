@@ -11,7 +11,7 @@ import { toast } from './dom.ts';
 import { knopf as hilfeKnopf } from './hilfe.ts';
 
 /** Routen, die im Schutz erreichbar sind (alles andere führt zurück zum Kunden). */
-const ERLAUBT = [/^\/kunde\/([\w-]+)(\/gespraech)?$/, /^\/gespraech$/, /^\/termine$/, /^\/bestand$/, /^\/belegung$/, /^\/hilfe$/];
+const ERLAUBT = [/^\/kunde\/([\w-]+)(\/gespraech)?$/, /^\/gespraech$/, /^\/termine$/, /^\/bestand$/, /^\/belegung$/, /^\/hilfe$/, /^\/produkte$/];
 
 export const aktiv = () => !!store.schutzKunde();
 store.subscribe((d) => { if (!d) document.body.classList.remove('schutz-aktiv'); });

@@ -76,6 +76,7 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
     <div id="gInhalt"></div>` : `
     <header class="seitenkopf">
       <h1>${maskottchen('notizen', 'titel-bild')} Gesprächsleitfaden</h1>
+      <a class="btn ghost" href="#/produkte">🏷️ Produkte</a>
     </header>
     <section class="karte-box">
       <label>Gespräch mit<select id="gKunde"><option value="">– ohne Kunde (nur nachschlagen) –</option>${kundenOpts}</select></label>

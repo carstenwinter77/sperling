@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.9
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.0
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,11 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.9.8)
+## Erledigt (Version 0.10.0)
+
+### Neu in 0.10.0
+- [x] **Produktübersicht** (`src/core/produkte.ts`, `src/ui/views/produkte.ts`, Katalog `src/data/produkte.json`, 46 Einträge inkl. GALVANY).
+- [x] **Produkte im Gespräch markieren** (`kunde.produkte`, Schema 5): Kartei, Gesprächsmodus, Verlauf, Texte, Filter, Auswertungen. 39 Unit-Tests.
 
 ### Neu in 0.9.8
 - [x] **Feldverwaltung** (`src/core/felder.ts`, `src/ui/feldverwaltung.ts`): Felder je Kategorie ein-/ausblenden (Daten bleiben), eigene Felder mit 9 Typen; in Kartei, Gesprächsmodus, Texten (R-TEXT), Kundenansicht, Suche und Filter. Schema 4. 37 Unit-Tests.
@@ -152,8 +156,8 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 
 ### Geplant: Version 0.10.0 (Wünsche vom 07.11.2026)
 - [x] **Feldverwaltung** (seit 0.9.8). Offen: Zuordnung eigener Felder beim Vorwerk-Listenimport (kommt mit dem Import).
-- [ ] **Produktübersicht** (`#/produkte`, Daten Enpal, GALVANY für Wärmepumpen, Vorwerk; Bilder nur verlinkt, Preise mit Stand).
-- [ ] **Produkte im Gespräch markieren:** Interesse, kein Interesse, schon vorhanden, später – beim Kunden gespeichert, filter- und auswertbar.
+- [x] **Produktübersicht** (seit 0.10.0; `#/produkte`, Daten Enpal, GALVANY für Wärmepumpen, Vorwerk; Bilder nur verlinkt, Preise mit Stand).
+- [x] **Produkte im Gespräch markieren** (seit 0.10.0): Interesse, kein Interesse, schon vorhanden, später – beim Kunden gespeichert, filter- und auswertbar.
 - [ ] **Vorwerk-Listenimport** aus PDF (pdf.js lokal), Abgleich neu/geändert/gleich/fehlt, Dubletten zusammenführen.
 - [ ] **Gekaufte Vorwerk-Geräte** mit Servicewartung nach 1 Jahr und **Zubehör-Nachbestellungen**.
 - [x] ~~Umstellung auf TypeScript~~ (erledigt in 0.9.0)

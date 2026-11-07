@@ -12,6 +12,7 @@ import * as ablauf from '../gespraechsablauf.ts';
 import * as leitfaden from './gespraech.ts';
 import { bindeFelder } from './kunde.ts';
 import { felderHtml } from '../felder.ts';
+import { markierenHtml, markierenVerdrahten, markierenNeuZeichnen } from '../produkte.ts';
 
 type Seite = 'notizen' | 'leitfaden' | 'abschluss';
 const SEITEN: [Seite, string][] = [['notizen', '📝 Notizen'], ['leitfaden', '💬 Leitfaden'], ['abschluss', '✓ Abschließen']];
@@ -65,6 +66,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
         <summary>${maskottchen(spartenIcon(s), 'mini')} ${esc(SPARTEN[s].label)} <small>${esc(STATUS[k.status[s]].label)}</small></summary>
         <label class="status-zeile">Status <select data-feld="status.${s}">${statusOptions(k.status[s])}</select></label>
         <div class="formgrid">${felderHtml(s, k, store.getData().einstellungen.felder)}</div>
+        ${markierenHtml(k, s, e.sparten.includes(s))}
       </details>`).join('')}`;
     links.querySelector('#gmAnrufen')?.addEventListener('click', () => {
       const akt = store.findKunde(id);
@@ -80,6 +82,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
     el.querySelector('#gmName').textContent = kundenTitel(k);
     if (pfad.startsWith('status.')) { links.querySelector('.gm-chips').innerHTML = statusChips(k); if (seite === 'abschluss') rechtsZeichnen(); }
   });
+  markierenVerdrahten(links, id, (b) => markierenNeuZeichnen(links, id, b));
 
   // ---------- Rechts ----------
   const gruppen = (): ablauf.Gruppe[] => (['enpal', 'vorwerk'] as ablauf.Gruppe[]).filter((g) => e.sparten.some((s) => ablauf.gruppeVon(s) === g) || e.notiz[g].trim());

@@ -1,0 +1,1545 @@
+{
+  "katalogVersion": 1,
+  "stand": "2026-11-07",
+  "hinweis": "Momentaufnahme der Hersteller-Websites. Preise und Daten ohne Gewähr, vor Nennung beim Kunden auf der Quellseite prüfen. Bilder nur verlinkt, nicht kopiert.",
+  "quellen": [
+    {
+      "id": "enpal",
+      "name": "Enpal",
+      "startUrl": "https://www.enpal.de/",
+      "robotsGeprueft": "2026-11-07",
+      "hinweis": "robots.txt sperrt nur /test/, /alpha/, /datenschutz-bewerber/. 1 robots + 3 Sitemap- + 14 Seitenabrufe, nacheinander."
+    },
+    {
+      "id": "vorwerk",
+      "name": "Vorwerk Kobold",
+      "startUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "robotsGeprueft": "2026-11-07",
+      "hinweis": "robots.txt sperrt nur Warenkorb, Login, Konto, Suche; kein Crawl-delay. 7 Abrufe, nacheinander."
+    },
+    {
+      "id": "galvany",
+      "name": "GALVANY",
+      "startUrl": "https://galvany.de/waermepumpe",
+      "robotsGeprueft": "2026-11-07",
+      "hinweis": "robots.txt sperrt nur /check/, /s/, /portal/; kein Crawl-delay. 6 Abrufe, nacheinander."
+    }
+  ],
+  "produkte": [
+    {
+      "id": "enpal-one-plus",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "energiemanager",
+      "name": "Enpal.One+ (Energiemanager)",
+      "kurzbeschreibung": "Energiemanager, der Verbrauch, Speicher, Wallbox und Wärmepumpe steuert, bei Bedarf günstigen Netzstrom zukauft und überschüssigen Strom an der Strombörse verkauft.",
+      "technischeDaten": [
+        {
+          "schluessel": "verguetung",
+          "bezeichnung": "Vergütung",
+          "wert": "bis zu 2.000 € pro Jahr (Ertragsangabe, abhängig von Anlage, Batteriegröße und Strommarkt)"
+        },
+        {
+          "schluessel": "marktteilnahme",
+          "bezeichnung": "Marktteilnahme",
+          "wert": "Day-Ahead- und Intraday-Markt"
+        }
+      ],
+      "preis": null,
+      "quelleUrl": "https://www.enpal.de/enpal-one",
+      "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/6a3147752c7fd94074191a49_260615_enpalone-hero.webp",
+      "stand": "2026-11-07",
+      "passtZu": [
+        "enpal-one-box",
+        "enpal-stromtarif",
+        "enpal-speicher",
+        "enpal-wallbox"
+      ],
+      "hinweise": "Kein Preis genannt. Die 2.000 € sind eine mögliche Vergütung, kein Preis. /energiemanager zeigt denselben Inhalt."
+    },
+    {
+      "id": "enpal-one-box",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "energiemanager",
+      "name": "Enpal.One Box (Home Energy Management System)",
+      "kurzbeschreibung": "Hardware-Box, die PV-Anlage, Speicher, Wärmepumpe und Wallbox verbindet und ihr Zusammenspiel steuert.",
+      "technischeDaten": [
+        {
+          "schluessel": "funktionen",
+          "bezeichnung": "Funktionen",
+          "wert": "Eigenverbrauchsoptimierung für PV, E-Auto, Batterie und Wärmepumpe"
+        },
+        {
+          "schluessel": "konnektivitaet",
+          "bezeichnung": "Konnektivität",
+          "wert": "LAN, LTE, WLAN, Bluetooth LE, Zigbee"
+        },
+        {
+          "schluessel": "abmessungen",
+          "bezeichnung": "Abmessungen",
+          "wert": "233 × 1600 × 64 mm (so auf der Seite, wirkt ungewöhnlich)"
+        },
+        {
+          "schluessel": "einbau",
+          "bezeichnung": "Einbau",
+          "wert": "Plug & Play, bei Defekt ohne Techniker tauschbar"
+        },
+        {
+          "schluessel": "garantie",
+          "bezeichnung": "Garantie",
+          "wert": "5 Jahre"
+        }
+      ],
+      "preis": null,
+      "quelleUrl": "https://www.enpal.de/enpal-one",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Teil der Energielösung, nicht einzeln verkauft. Maßangabe prüfen."
+    },
+    {
+      "id": "enpal-stromtarif",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "stromtarif",
+      "name": "Enpal Stromtarif (mit Enpal.One+)",
+      "kurzbeschreibung": "Ökostromtarif, der im Verbund mit Enpal.One+ den fehlenden Netzstrom liefert; Preis je nach Netzgebiet mit Grundgebühr.",
+      "technischeDaten": [
+        {
+          "schluessel": "stromherkunft",
+          "bezeichnung": "Stromherkunft",
+          "wert": "100 % deutscher Ökostrom (laut Seite)"
+        },
+        {
+          "schluessel": "preisberechnung",
+          "bezeichnung": "Preisberechnung",
+          "wert": "je nach Netzgebiet, inkl. Grundgebühr; Arbeitspreis wird vor Vertragsabschluss genannt"
+        }
+      ],
+      "preis": {
+        "modell": "tarif",
+        "betragEuro": null,
+        "einheit": null,
+        "text": null,
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.enpal.de/enpal-one",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Kein konkreter Arbeitspreis veröffentlicht."
+    },
+    {
+      "id": "enpal-wallbox",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "wallbox",
+      "name": "Enpal Wallbox (11 kW)",
+      "kurzbeschreibung": "11-kW-Wallbox mit drei Lademodi, die bevorzugt Solarstrom lädt; Bedienung über die Enpal App und Enpal.One+.",
+      "technischeDaten": [
+        {
+          "schluessel": "ladeleistung",
+          "bezeichnung": "Ladeleistung",
+          "wert": "bis 11 kW"
+        },
+        {
+          "schluessel": "steckertyp",
+          "bezeichnung": "Steckertyp",
+          "wert": "Typ 2"
+        },
+        {
+          "schluessel": "ladekabel",
+          "bezeichnung": "Ladekabel",
+          "wert": "7,5 m, abnehmbar"
+        },
+        {
+          "schluessel": "abmessungen",
+          "bezeichnung": "Abmessungen",
+          "wert": "bis 420 × 208 × 150 mm"
+        },
+        {
+          "schluessel": "schutzklasse",
+          "bezeichnung": "Schutzklasse",
+          "wert": "IP55 (außen geeignet)"
+        },
+        {
+          "schluessel": "zaehler",
+          "bezeichnung": "Zähler",
+          "wert": "MID-geeicht (Dienstwagenabrechnung)"
+        },
+        {
+          "schluessel": "lademodi",
+          "bezeichnung": "Lademodi",
+          "wert": "Eco (ab 4,2 kW, Solar bevorzugt), Solar (nur Solarstrom ab 4,2 kW), Schnell (bis 11 kW)"
+        },
+        {
+          "schluessel": "garantie",
+          "bezeichnung": "Garantie",
+          "wert": "8 Jahre Herstellergarantie"
+        }
+      ],
+      "preis": null,
+      "quelleUrl": "https://www.enpal.de/wallbox",
+      "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/6acf4a015aafccbb9466583e_260928_product-hero-Wallbox.webp",
+      "stand": "2026-11-07",
+      "hinweise": "Kein Einzelpreis. „0 € Anzahlung im Komplettpaket, Installation inklusive“ nur aus Zusammenfassung, nicht wörtlich geprüft. Kein Modellname."
+    },
+    {
+      "id": "enpal-speicher",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "speicher",
+      "name": "Enpal Stromspeicher (LFP)",
+      "kurzbeschreibung": "Lithium-Eisenphosphat-Batteriespeicher für Solarstrom am Abend und in der Nacht, gesteuert über Enpal.One+.",
+      "technischeDaten": [
+        {
+          "schluessel": "kapazitaet",
+          "bezeichnung": "Kapazität",
+          "wert": "9,6 bis 28,8 kWh"
+        },
+        {
+          "schluessel": "technologie",
+          "bezeichnung": "Technologie",
+          "wert": "Lithium-Eisenphosphat (LFP)"
+        },
+        {
+          "schluessel": "wirkungsgrad",
+          "bezeichnung": "Wirkungsgrad",
+          "wert": "über 95 %"
+        },
+        {
+          "schluessel": "zyklen",
+          "bezeichnung": "Ladezyklen",
+          "wert": "über 6.000 Ladezyklen"
+        },
+        {
+          "schluessel": "schutzklasse",
+          "bezeichnung": "Schutzklasse",
+          "wert": "IP65"
+        },
+        {
+          "schluessel": "steuerung",
+          "bezeichnung": "Steuerung",
+          "wert": "Enpal.One+"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 11000,
+        "einheit": "einmalig",
+        "text": "ab 11.000 € (Komplettmodernisierung mit Speicher, Wechselrichter und Enpal.One+ inkl. Montage)",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.enpal.de/stromspeicher",
+      "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/6ace046c38c1810b2c8bf5fd_260928_product-hero-Speicher.webp",
+      "stand": "2026-11-07",
+      "hinweise": "Preis gilt für das Nachrüst-Paket, nicht für den Speicher allein. Seite nennt außerdem Festpreis und 0 € Anzahlung."
+    },
+    {
+      "id": "enpal-notstrom",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "sonstiges",
+      "name": "Enpal Notstrom (EnergyProtect)",
+      "kurzbeschreibung": "Notstromlösung, die bei Stromausfall die Versorgung im Haus absichern soll.",
+      "technischeDaten": [],
+      "preis": null,
+      "quelleUrl": "https://www.enpal.de/photovoltaik/komponenten",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Nur Teaser gelesen, /notstrom nicht abgerufen."
+    },
+    {
+      "id": "enpal-solarmodul",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "solarmodul",
+      "name": "Enpal Solarmodul (Glas-Glas)",
+      "kurzbeschreibung": "Glas-Glas-Solarmodul, das in Enpal-Anlagen verbaut wird.",
+      "technischeDaten": [
+        {
+          "schluessel": "nennleistung",
+          "bezeichnung": "Nennleistung",
+          "wert": "460 Wp (Produktkarte); Ratgeberteil nennt 450 Wp"
+        },
+        {
+          "schluessel": "bauweise",
+          "bezeichnung": "Bauweise",
+          "wert": "Glas-Glas"
+        },
+        {
+          "schluessel": "degradation",
+          "bezeichnung": "Degradation",
+          "wert": "ca. 0,4–0,5 % pro Jahr (Ratgeberaussage)"
+        }
+      ],
+      "preis": null,
+      "quelleUrl": "https://www.enpal.de/photovoltaik/komponenten",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Kein Hersteller/Modell genannt; Leistungsangabe widersprüchlich."
+    },
+    {
+      "id": "enpal-pv-miete",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "pv-anlage",
+      "name": "Enpal Solaranlage mieten",
+      "kurzbeschreibung": "PV-Anlage zur Miete inkl. Planung, Installation, Reparatur und Versicherung; nach 20 Jahren Übernahme für einen symbolischen Euro.",
+      "technischeDaten": [
+        {
+          "schluessel": "laufzeit",
+          "bezeichnung": "Laufzeit",
+          "wert": "20 Jahre"
+        },
+        {
+          "schluessel": "uebernahme",
+          "bezeichnung": "Übernahme",
+          "wert": "nach 20 Jahren für 1 €"
+        },
+        {
+          "schluessel": "festpreis",
+          "bezeichnung": "Festpreis",
+          "wert": "Festpreisgarantie (laut Seite)"
+        },
+        {
+          "schluessel": "enthalten",
+          "bezeichnung": "Enthalten",
+          "wert": "Installation, Reparatur, Versicherung, Fernüberwachung"
+        },
+        {
+          "schluessel": "optional",
+          "bezeichnung": "Optional",
+          "wert": "Speicher und Wallbox nachrüstbar"
+        }
+      ],
+      "preis": {
+        "modell": "miete",
+        "betragEuro": 98,
+        "einheit": "pro Monat",
+        "text": "ab 98 € pro Monat",
+        "uvp": null,
+        "laufzeitMonate": 240
+      },
+      "quelleUrl": "https://www.enpal.de/photovoltaik/solaranlage-mieten",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "enpal-speicher",
+        "enpal-wallbox",
+        "enpal-one-plus"
+      ],
+      "hinweise": "„ab“-Preis, abhängig von der Anlagengröße."
+    },
+    {
+      "id": "enpal-pv-speicher-paket",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "pv-anlage",
+      "name": "Enpal Solaranlage mit Speicher (Komplettpaket)",
+      "kurzbeschreibung": "PV-Komplettpaket aus Modulen, Wechselrichter, Zähler und Enpal.One, optional mit Speicher und Wallbox; Kauf oder Miete.",
+      "technischeDaten": [
+        {
+          "schluessel": "komponenten",
+          "bezeichnung": "Komponenten",
+          "wert": "Solarmodule, Wechselrichter, Stromzähler, Enpal.One; Speicher und Wallbox optional"
+        },
+        {
+          "schluessel": "installation",
+          "bezeichnung": "Installation",
+          "wert": "inkl. Montage"
+        }
+      ],
+      "preis": {
+        "modell": "miete",
+        "betragEuro": 98,
+        "einheit": "pro Monat",
+        "text": "ab 98 € monatlich",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.enpal.de/photovoltaik/solaranlage-mit-speicher",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "passtZu": [
+        "enpal-speicher",
+        "enpal-wallbox"
+      ],
+      "hinweise": "Kaufpreis nicht Enpal-spezifisch genannt (nur Marktrichtwerte im Ratgeber). Überschneidet sich mit Komplettanlage."
+    },
+    {
+      "id": "enpal-pv-komplettanlage",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "pv-anlage",
+      "name": "Enpal PV-Komplettanlage",
+      "kurzbeschreibung": "PV-Komplettanlage mit allen Bauteilen und Montage, als Paket auch mit Speicher und Wallbox, auch im Mietmodell.",
+      "technischeDaten": [
+        {
+          "schluessel": "service",
+          "bezeichnung": "Service",
+          "wert": "Installation, Reparatur und Versicherung inklusive"
+        },
+        {
+          "schluessel": "eigentum",
+          "bezeichnung": "Eigentum",
+          "wert": "Mietvariante: nach 20 Jahren für 1 € im Eigentum"
+        }
+      ],
+      "preis": null,
+      "quelleUrl": "https://www.enpal.de/photovoltaik/komplettanlage",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Keine Enpal-Preisangabe."
+    },
+    {
+      "id": "enpal-easyflex",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "finanzierung",
+      "name": "Enpal EasyFlex Finanzierung",
+      "kurzbeschreibung": "Ratenfinanzierung für Enpal-Energielösungen mit 0 € Anzahlung, festem Zins und kostenlosen Sondertilgungen.",
+      "technischeDaten": [
+        {
+          "schluessel": "zinssatz",
+          "bezeichnung": "Zinssatz",
+          "wert": "6,49 % gebunden (laut FAQ)"
+        },
+        {
+          "schluessel": "laufzeit",
+          "bezeichnung": "Laufzeit",
+          "wert": "bis 25 Jahre"
+        },
+        {
+          "schluessel": "anzahlung",
+          "bezeichnung": "Anzahlung",
+          "wert": "0 €"
+        },
+        {
+          "schluessel": "sondertilgung",
+          "bezeichnung": "Sondertilgung",
+          "wert": "jederzeit kostenlos"
+        },
+        {
+          "schluessel": "service",
+          "bezeichnung": "Service",
+          "wert": "Service-Paket zubuchbar, monatlich kündbar"
+        }
+      ],
+      "preis": {
+        "modell": "finanzierung",
+        "betragEuro": null,
+        "einheit": null,
+        "text": "0 € Anzahlung",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.enpal.de/easyflex",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Zinssatz ohne Gültigkeitsdatum; vor Nennung beim Kunden prüfen."
+    },
+    {
+      "id": "enpal-wp-ratenkauf",
+      "quelle": "enpal",
+      "bereich": "wp",
+      "kategorie": "finanzierung",
+      "name": "Enpal Ratenkauf Wärmepumpe",
+      "kurzbeschreibung": "Ratenkauf für Wärmepumpen mit 0 € Anzahlung, gedeckelter Monatsrate und Laufzeit bis 15 Jahre.",
+      "technischeDaten": [
+        {
+          "schluessel": "laufzeit",
+          "bezeichnung": "Laufzeit",
+          "wert": "bis 15 Jahre"
+        },
+        {
+          "schluessel": "monatsrate",
+          "bezeichnung": "Monatsrate",
+          "wert": "höchstens 200 € (Vergleichstabelle: 66–200 €)"
+        },
+        {
+          "schluessel": "anzahlung",
+          "bezeichnung": "Anzahlung",
+          "wert": "0 €"
+        },
+        {
+          "schluessel": "sondertilgung",
+          "bezeichnung": "Sondertilgung",
+          "wert": "jederzeit ohne Aufpreis"
+        },
+        {
+          "schluessel": "service",
+          "bezeichnung": "Service",
+          "wert": "Wartung optional buchbar"
+        }
+      ],
+      "preis": {
+        "modell": "finanzierung",
+        "betragEuro": 200,
+        "einheit": "pro Monat",
+        "text": "max. 200 € pro Monat",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.enpal.de/waermepumpe/kaufen",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "200 € ist eine Obergrenze. Eine echte WP-Miete bietet Enpal laut /waermepumpe/mieten nicht an."
+    },
+    {
+      "id": "enpal-wp-bosch",
+      "quelle": "enpal",
+      "bereich": "wp",
+      "kategorie": "waermepumpe",
+      "name": "Bosch Luftwärmepumpe (über Enpal)",
+      "kurzbeschreibung": "Vollelektrische Luftwärmepumpe von Bosch, kompakt und leise; Lieferung und Montage im Preis enthalten.",
+      "technischeDaten": [
+        {
+          "schluessel": "hersteller",
+          "bezeichnung": "Hersteller",
+          "wert": "Bosch"
+        },
+        {
+          "schluessel": "typ",
+          "bezeichnung": "Typ",
+          "wert": "Luft-Wasser, vollelektrisch"
+        },
+        {
+          "schluessel": "lieferzeit",
+          "bezeichnung": "Lieferzeit",
+          "wert": "im Schnitt 4 Wochen von Anfrage bis Installation"
+        },
+        {
+          "schluessel": "montage",
+          "bezeichnung": "Montage",
+          "wert": "im Preis enthalten"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 7999,
+        "einheit": "einmalig",
+        "text": "ab 7.999 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.enpal.de/waermepumpe/kaufen",
+      "bildUrl": "https://cdn.prod.website-files.com/5e9474e5c30754387e0538e9/6463486550e265ae2391d45e_Produktbild_Waermepumpe.jpg",
+      "stand": "2026-11-07",
+      "passtZu": [
+        "enpal-wp-ratenkauf",
+        "enpal-wp-komplettset"
+      ],
+      "hinweise": "Kein Modell, keine kW-Angabe, keine Garantie genannt."
+    },
+    {
+      "id": "enpal-wp-komplettset",
+      "quelle": "enpal",
+      "bereich": "wp",
+      "kategorie": "waermepumpe",
+      "name": "Enpal Wärmepumpe Komplettset inkl. Montage",
+      "kurzbeschreibung": "Wärmepumpen-Paket mit Planung, Förderberatung, Lieferung, Installation und Energiemanager, wahlweise finanziert.",
+      "technischeDaten": [
+        {
+          "schluessel": "enthalten",
+          "bezeichnung": "Enthalten",
+          "wert": "Planung, Förderberatung, Lieferung, Installation, Finanzierungsoptionen"
+        },
+        {
+          "schluessel": "lieferzeit",
+          "bezeichnung": "Lieferzeit",
+          "wert": "im Schnitt 4 Wochen"
+        },
+        {
+          "schluessel": "energiemanager",
+          "bezeichnung": "Energiemanager",
+          "wert": "im Set enthalten (laut Seite)"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 7999,
+        "einheit": "einmalig",
+        "text": "ab 7.999 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.enpal.de/waermepumpe/komplettset",
+      "bildUrl": "https://cdn.prod.website-files.com/5e9474e5c30754387e0538e9/660fe51c9e120b905d0d41ea_enpal-waermepumpe-aufbau.jpg",
+      "stand": "2026-11-07",
+      "hinweise": "Unklar, ob Kauf- oder Ratenkauf-Basis."
+    },
+    {
+      "id": "enpal-komplettpaket",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "sonstiges",
+      "name": "Enpal Komplettpaket (PV, Wärmepumpe, Speicher, Wallbox, Energiemanager)",
+      "kurzbeschreibung": "Gesamtlösung aus PV, Wärmepumpe, Speicher, Wallbox und Energiemanager aus einer Hand.",
+      "technischeDaten": [],
+      "preis": null,
+      "quelleUrl": "https://www.enpal.de/photovoltaik/komponenten",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "bereicheZusaetzlich": [
+        "wp"
+      ],
+      "hinweise": "Betrifft PV und Wärmepumpe; in der Übersicht unter beiden zeigen."
+    },
+    {
+      "id": "enpal-service-paket",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "service",
+      "name": "Enpal Service-Paket",
+      "kurzbeschreibung": "Zubuchbares, monatlich kündbares Servicepaket mit Versicherung und Fernwartung.",
+      "technischeDaten": [
+        {
+          "schluessel": "kuendigung",
+          "bezeichnung": "Kündigung",
+          "wert": "monatlich"
+        }
+      ],
+      "preis": null,
+      "quelleUrl": "https://www.enpal.de/easyflex",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Kein Preis genannt."
+    },
+    {
+      "id": "enpal-empfehlung",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "service",
+      "name": "Enpal Empfehlungsprogramm",
+      "kurzbeschreibung": "Prämie für Kunden, die Enpal weiterempfehlen, und für die neu Geworbenen.",
+      "technischeDaten": [
+        {
+          "schluessel": "praemie",
+          "bezeichnung": "Prämie",
+          "wert": "300 € für Empfehlende, 300 € für den neuen Kunden"
+        }
+      ],
+      "preis": null,
+      "quelleUrl": "https://www.enpal.de/easyflex",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "bereicheZusaetzlich": [
+        "wp"
+      ],
+      "hinweise": "Bedingungen nicht gelesen."
+    },
+    {
+      "id": "enpal-app",
+      "quelle": "enpal",
+      "bereich": "pv",
+      "kategorie": "service",
+      "name": "Enpal App",
+      "kurzbeschreibung": "App für Stromproduktion, Ersparnis und Einnahmen; bedient auch die Wallbox.",
+      "technischeDaten": [],
+      "preis": null,
+      "quelleUrl": "https://www.enpal.de/photovoltaik/komponenten",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Aus Produktkarten, /app nicht abgerufen."
+    },
+    {
+      "id": "galvany-wp",
+      "quelle": "galvany",
+      "bereich": "wp",
+      "kategorie": "waermepumpe",
+      "name": "GALVANY Wärmepumpe (Panasonic Aquarea T-CAP M)",
+      "modell": "Aquarea T-CAP M-Serie",
+      "kurzbeschreibung": "Luft-Wasser-Wärmepumpe als Kern des GALVANY-Systems, laut Anbieter auch für Altbau und Bestand geeignet; besteht aus Außengerät und eigenem GALVANY-Innengerät.",
+      "technischeDaten": [
+        {
+          "schluessel": "hersteller",
+          "bezeichnung": "Hersteller",
+          "wert": "Panasonic"
+        },
+        {
+          "schluessel": "modell",
+          "bezeichnung": "Modell",
+          "wert": "Aquarea T-CAP M-Serie"
+        },
+        {
+          "schluessel": "vorlauftemperatur",
+          "bezeichnung": "Vorlauftemperatur",
+          "wert": "bis 75 °C"
+        },
+        {
+          "schluessel": "innengeraet",
+          "bezeichnung": "Innengerät",
+          "wert": "exklusives GALVANY-Innengerät"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 9000,
+        "einheit": "einmalig",
+        "text": "ab 9.000 € nach Förderung (abhängig von Projekt und Voraussetzungen)",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://galvany.de/waermepumpe",
+      "bildUrl": "https://a.storyblok.com/f/288501411354765/3840x3840/7b16477aa7/galvany-warmepumpe.png/m/1500x0",
+      "stand": "2026-11-07",
+      "passtZu": [
+        "galvany-smartcare-premium",
+        "galvany-smartcare-flex",
+        "galvany-fusion",
+        "galvany-finanzierung"
+      ],
+      "hinweise": "Preis nach Förderung; Förderquote auf den Seiten uneinheitlich (bis 80 % bzw. 70 %). Keine Heizleistung, SCOP, Kältemittel oder Schallwerte genannt. Kauf als Preismodell angenommen. Werte über Seitenzusammenfassung gelesen."
+    },
+    {
+      "id": "galvany-cube",
+      "quelle": "galvany",
+      "bereich": "wp",
+      "kategorie": "waermepumpe-zubehoer",
+      "name": "GALVANY Cube",
+      "kurzbeschreibung": "Systemkomponente zur Wärmepumpe; Funktion auf der Seite nicht beschrieben.",
+      "technischeDaten": [],
+      "preis": null,
+      "quelleUrl": "https://galvany.de/produkte",
+      "bildUrl": "https://a.storyblok.com/f/288501411354765/1688x1808/7949a24590/galvany_productshots_v9_still_galvany_cube_alpha_cropped.webp/m/1500x0",
+      "stand": "2026-11-07",
+      "verfuegbarkeit": "demnaechst",
+      "hinweise": "Noch nicht verfügbar („demnächst“). Laut SmartCare-Seite Teil des Systems (Innenmodul, Außengerät, Cube)."
+    },
+    {
+      "id": "galvany-speicher",
+      "quelle": "galvany",
+      "bereich": "wp",
+      "kategorie": "speicher",
+      "name": "GALVANY Batteriespeicher",
+      "kurzbeschreibung": "Angekündigter Batteriespeicher für das GALVANY-System.",
+      "technischeDaten": [],
+      "preis": null,
+      "quelleUrl": "https://galvany.de/produkte",
+      "bildUrl": "https://a.storyblok.com/f/288501411354765/3840x2986/7f826c5e60/prop_batterie-still-p_main-rgba-v003-1001-1.png/m/1500x0",
+      "stand": "2026-11-07",
+      "verfuegbarkeit": "demnaechst",
+      "hinweise": "Noch nicht verfügbar; keine Kapazität genannt."
+    },
+    {
+      "id": "galvany-fusion",
+      "quelle": "galvany",
+      "bereich": "wp",
+      "kategorie": "energiemanager",
+      "name": "GALVANY Fusion (Energiemanagement)",
+      "kurzbeschreibung": "Energiemanagement, das Wärmepumpe und Batteriespeicher mit einem dynamischen Stromtarif verbindet; Aktivierung per Software-Update oder kleiner Box.",
+      "technischeDaten": [
+        {
+          "schluessel": "stufen",
+          "bezeichnung": "Tarifstufen",
+          "wert": "BASIC 0 € (enthalten: App, Monitoring, manuelle WP-Steuerung) · OPTIMIZE 9,99 €/Monat (dynamischer Stromvertrag, KI-Optimierung) · COMPLETE 49,99 €/Monat (dazu SmartCare+ Flex, KI-Fernwartung, Garantie bis 15 Jahre)"
+        }
+      ],
+      "preis": {
+        "modell": "tarif",
+        "betragEuro": 0,
+        "einheit": "pro Monat",
+        "text": "BASIC 0 € · OPTIMIZE 9,99 €/Monat · COMPLETE 49,99 €/Monat",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://galvany.de/fusion",
+      "bildUrl": "https://a.storyblok.com/f/288501411354765/3896x3358/af5090ca80/galvany-fusion.png/m/1500x0",
+      "stand": "2026-11-07",
+      "verfuegbarkeit": "demnaechst",
+      "hinweise": "„Bald verfügbar“, OPTIMIZE und COMPLETE nur Voranmeldung. Stromanbieter nicht genannt."
+    },
+    {
+      "id": "galvany-smartcare-premium",
+      "quelle": "galvany",
+      "bereich": "wp",
+      "kategorie": "service",
+      "name": "SmartCare+ Premium",
+      "kurzbeschreibung": "Garantieverlängerung für die Wärmepumpe mit digitalem Monitoring und vorausschauender Wartung als Einmalzahlung.",
+      "technischeDaten": [
+        {
+          "schluessel": "garantie",
+          "bezeichnung": "Garantie",
+          "wert": "15 Jahre auf die Geräte"
+        },
+        {
+          "schluessel": "laufzeit",
+          "bezeichnung": "Laufzeit",
+          "wert": "13 bzw. 15 Jahre (Seiten widersprechen sich)"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 4848,
+        "einheit": "einmalig",
+        "text": "Einmalzahlung 4.848 € brutto (Produktseite nennt 5.569 €)",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://galvany.de/smartcare",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Preis und Laufzeit widersprechen sich zwischen /smartcare und /produkte; vor Nennung prüfen."
+    },
+    {
+      "id": "galvany-smartcare-flex",
+      "quelle": "galvany",
+      "bereich": "wp",
+      "kategorie": "service",
+      "name": "SmartCare+ Flex",
+      "kurzbeschreibung": "Jährlich kündbare Garantieverlängerung mit Monitoring; Zahlung beginnt nach Inbetriebnahme.",
+      "technischeDaten": [
+        {
+          "schluessel": "kuendigung",
+          "bezeichnung": "Kündigung",
+          "wert": "jährlich, 1 Monat zum Laufzeitende"
+        }
+      ],
+      "preis": {
+        "modell": "tarif",
+        "betragEuro": 299,
+        "einheit": "pro Jahr",
+        "text": "299 €/Jahr brutto in Jahr 1–5, 449 €/Jahr ab Jahr 6 (Produktseite nennt 49 €/Monat)",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://galvany.de/smartcare",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Preisangaben zwischen den Seiten widersprüchlich."
+    },
+    {
+      "id": "galvany-fullservice",
+      "quelle": "galvany",
+      "bereich": "wp",
+      "kategorie": "service",
+      "name": "GALVANY Full-Service",
+      "kurzbeschreibung": "Beratung, Förderantrag, Planung, Montage, Elektrik und Wartung aus einer Hand mit regionalen Teams.",
+      "technischeDaten": [],
+      "preis": null,
+      "quelleUrl": "https://galvany.de/waermepumpe",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Leistungsumfang nicht genau beschrieben."
+    },
+    {
+      "id": "galvany-finanzierung",
+      "quelle": "galvany",
+      "bereich": "wp",
+      "kategorie": "finanzierung",
+      "name": "GALVANY Finanzierung über Partner",
+      "kurzbeschreibung": "Finanzierung über einen nicht genannten Partner; Konditionen im Vor-Ort-Termin.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "finanzierung",
+        "betragEuro": null,
+        "einheit": null,
+        "text": null,
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://galvany.de/waermepumpe",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Keine Raten oder Zinsen veröffentlicht."
+    },
+    {
+      "id": "vorwerk-vk7-saugwischer-set",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "set",
+      "name": "Kobold VK7 Akku-Saugwischer (VK7 mit EB7 Elektrobürste und SP7 Saugwischer)",
+      "modell": "VK7 mit EB7 Elektrobürste und SP7 Saugwischer",
+      "kurzbeschreibung": "Kabelloser Akku-Staubsauger, der mit einem Aufsatz gleichzeitig saugt und wischt, für Hartböden. Enthält die Elektrobürste EB7.",
+      "technischeDaten": [
+        {
+          "schluessel": "modell",
+          "bezeichnung": "Modell",
+          "wert": "VK7 mit EB7 Elektrobürste und SP7 Saugwischer"
+        },
+        {
+          "schluessel": "gewicht",
+          "bezeichnung": "Gewicht",
+          "wert": "2,3 kg (Grundgerät ohne Aufsatz)"
+        },
+        {
+          "schluessel": "akkulaufzeit",
+          "bezeichnung": "Akkulaufzeit",
+          "wert": "bis zu 30 Minuten staubsaugen oder bis zu 23 Minuten saugwischen (volle Akkuladung)"
+        },
+        {
+          "schluessel": "saugstufen",
+          "bezeichnung": "Saugstufen",
+          "wert": "4 Saugstufen inkl. Boost-Funktion (EB7)"
+        },
+        {
+          "schluessel": "befeuchtungsstufen",
+          "bezeichnung": "Befeuchtungsstufen",
+          "wert": "3 (Saugwischer)"
+        },
+        {
+          "schluessel": "reichweite_tank",
+          "bezeichnung": "Reichweite pro Tankfüllung",
+          "wert": "bis zu 60 m² Wohnfläche pro Tankfüllung"
+        },
+        {
+          "schluessel": "filtertuete",
+          "bezeichnung": "Filtertüte",
+          "wert": "Kobold FP7 Premium Filtertüten"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 1499.0,
+        "einheit": "einmalig",
+        "text": "1.499,00 € inkl. 19% MwSt., versandkostenfrei",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vk7-akku-staubsauger-eb7-elektrobuerste-sp7-saugwischer",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_DE303483_b?wid=633&hei=633&tmst=1790345932352",
+      "stand": "2026-11-07",
+      "hinweise": "Seite nennt den Saugwischer als Testsieger der Stiftung Warentest (veröffentlicht 18.06.2025, getestete Kombination inkl. BY7 Akku und SC7 Ladegerät). Lieferumfang: VK7, BY7 Akku, SC7 Ladegerät, SP7, EB7, 3 MF Reinigungstücher Universal, Koboclean Universal 500 ml, 6 FP7 Filtertüten. Kobold Garantie optional 149,00 €."
+    },
+    {
+      "id": "vorwerk-vk7-titanium",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "akkusauger",
+      "name": "Kobold VK7 Akku-Staubsauger – Titanium Limited Edition",
+      "modell": "VK7 Akku-Staubsauger Titanium Limited Edition",
+      "kurzbeschreibung": "Limitierte Titanium-Variante des kabellosen VK7 Akku-Staubsaugers.",
+      "technischeDaten": [
+        {
+          "schluessel": "modell",
+          "bezeichnung": "Modell",
+          "wert": "VK7 Akku-Staubsauger Titanium Limited Edition"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 1099.0,
+        "einheit": "einmalig",
+        "text": "1.099,00 € inkl. 19% MwSt., versandkostenfrei, Lieferzeit 3-5 Werktage",
+        "uvp": 1112.0,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vk7-akku-staubsauger-titanium-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_DE303371_b:1x1?wid=600&hei=600&tmst=1790342191442",
+      "stand": "2026-11-07",
+      "hinweise": "Preis aus der Angebotskachel; Aktion. Technische Daten der Variante nicht gesondert bestätigt."
+    },
+    {
+      "id": "vorwerk-vk7-titanium-set-2akku",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "set",
+      "name": "Kobold VK7 Akku-Staubsauger & Saugwischer inkl. 2. Akku – Titanium Limited Edition",
+      "modell": "VK7 Titanium Set inkl. 2. Akku",
+      "kurzbeschreibung": "Titanium-Set aus VK7 Akku-Staubsauger mit Saugwischer und einem zweiten Akku.",
+      "technischeDaten": [
+        {
+          "schluessel": "modell",
+          "bezeichnung": "Modell",
+          "wert": "VK7 Titanium Set inkl. 2. Akku"
+        },
+        {
+          "schluessel": "lieferumfang_extra",
+          "bezeichnung": "Zusätzlich enthalten",
+          "wert": "2. BY7 Akku und CA7 Ladeadapter"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 1574.0,
+        "einheit": "einmalig",
+        "text": "1.574,00 € inkl. 19% MwSt., versandkostenfrei, Lieferzeit 3-5 Werktage",
+        "uvp": 1864.8,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vk7-akku-staubsauger-saugwischer-akku-titanium-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_DE303449_b:1x1?wid=600&hei=600&tmst=1790327891079",
+      "stand": "2026-11-07",
+      "hinweise": "Aktion 05.10.26 bis 10.01.27, solange Vorrat reicht."
+    },
+    {
+      "id": "vorwerk-vt300",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "bodenstaubsauger",
+      "name": "Kobold VT300 Bodenstaubsauger mit EB400 Automatik-Elektrobürste",
+      "modell": "VT300 mit EB400 Automatik-Elektrobürste",
+      "kurzbeschreibung": "Kabelgebundener Bodenstaubsauger mit automatischer Bodenerkennung für Teppich und Hartboden, mit Beutel und 360°-Schlauchgelenk.",
+      "technischeDaten": [
+        {
+          "schluessel": "modell",
+          "bezeichnung": "Modell",
+          "wert": "VT300 mit EB400 Automatik-Elektrobürste"
+        },
+        {
+          "schluessel": "aktionsradius",
+          "bezeichnung": "Aktionsradius",
+          "wert": "fast 11 m"
+        },
+        {
+          "schluessel": "filtertuete",
+          "bezeichnung": "Filtertüte",
+          "wert": "FP300 Premium-Filtertüte, 4,5 Liter (laut Seite TÜV Nord „Für Allergiker geeignet“)"
+        },
+        {
+          "schluessel": "anzeige",
+          "bezeichnung": "Anzeige",
+          "wert": "LED-Anzeige für den Filtertütenwechsel"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 1099.0,
+        "einheit": "einmalig",
+        "text": "1.099,00 € inkl. 19% MwSt., versandkostenfrei, Lieferzeit 3-5 Werktage",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vt300-bodenstaubsauger",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/5274_KS_b?wid=633&hei=633&tmst=1779357040678",
+      "stand": "2026-11-07",
+      "hinweise": "Lieferumfang: VT300, ESS300 Elektrosaugschlauch, ESR300 Elektrosaugrohr, EB400, 5 FP300. Kobold Garantie optional 119,00 €."
+    },
+    {
+      "id": "vorwerk-vt300-besserwischer",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "set",
+      "name": "Kobold VT300 – Besserwischer mit Kabel (Saugwisch-Set)",
+      "modell": "VT300 Besserwischer mit Kabel",
+      "kurzbeschreibung": "Saugwisch-Set für Hartböden auf Basis des VT300.",
+      "technischeDaten": [
+        {
+          "schluessel": "modell",
+          "bezeichnung": "Modell",
+          "wert": "VT300 Besserwischer mit Kabel"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 1479.0,
+        "einheit": "einmalig",
+        "text": "1.479,00 € inkl. 19% MwSt., versandkostenfrei",
+        "uvp": 1590.8,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vt300-bodenstaubsauger-der-besserwischer-mit-kabel-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/2673_KS_b-1:1x1?wid=600&hei=600&tmst=1779180962843",
+      "stand": "2026-11-07",
+      "hinweise": "Inhalt nur aus der Kachel bekannt."
+    },
+    {
+      "id": "vorwerk-vt300-mehr-flaeche",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "set",
+      "name": "Kobold VT300 – Set für mehr Fläche",
+      "modell": "VT300 Set für mehr Fläche",
+      "kurzbeschreibung": "Set auf Basis des VT300 für größere Haushalte und Gewerbe.",
+      "technischeDaten": [
+        {
+          "schluessel": "modell",
+          "bezeichnung": "Modell",
+          "wert": "VT300 Set für mehr Fläche"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 1179.0,
+        "einheit": "einmalig",
+        "text": "1.179,00 € inkl. 19% MwSt., versandkostenfrei",
+        "uvp": 1263.0,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vt300-der-bodenstaubsauger-fuer-mehr-flaeche-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/2862_KS_b:1x1?wid=600&hei=600&tmst=1779356992583",
+      "stand": "2026-11-07",
+      "hinweise": "Inhalt nur aus der Kachel bekannt."
+    },
+    {
+      "id": "vorwerk-vt300-kleine-felle",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "set",
+      "name": "Kobold VT300 – Set für kleine Felle",
+      "modell": "VT300 Set für kleine Felle",
+      "kurzbeschreibung": "Set mit VT300, Polster-Aufsatz und Düsen, unter anderem für Tierhaare.",
+      "technischeDaten": [
+        {
+          "schluessel": "modell",
+          "bezeichnung": "Modell",
+          "wert": "VT300 Set für kleine Felle"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 1319.0,
+        "einheit": "einmalig",
+        "text": "1.319,00 € inkl. 19% MwSt., versandkostenfrei",
+        "uvp": 1420.0,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vt300-der-bodenstaubsauger-fuer-kleine-felle-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/2636_KS_b:1x1?wid=600&hei=600&tmst=1779356694925",
+      "stand": "2026-11-07",
+      "hinweise": "Inhalt nur aus der Kachel bekannt."
+    },
+    {
+      "id": "vorwerk-sp600-basis",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "saugwischer",
+      "name": "Kobold SP600 Saugwischer Universal Basis-Set",
+      "modell": "SP600 Universal Basis-Set",
+      "kurzbeschreibung": "Basis-Set des Saugwischer-Aufsatzes SP600 für Hartböden wie Fliesen, Linoleum und Vinyl.",
+      "technischeDaten": [
+        {
+          "schluessel": "modell",
+          "bezeichnung": "Modell",
+          "wert": "SP600 Universal Basis-Set"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 449.0,
+        "einheit": "einmalig",
+        "text": "449,00 € inkl. 19% MwSt., versandkostenfrei",
+        "uvp": 459.9,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-sp600-saugwischer-universal-basis-set-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/kobold_set_sp600-basis-set_b:1x1?wid=600&hei=600&tmst=1779366208820",
+      "stand": "2026-11-07",
+      "hinweise": "Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-pb440-set",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "set",
+      "name": "Kobold PB440 Matratzen- und Polster-Set",
+      "modell": "PB440 Matratzen- und Polster-Set",
+      "kurzbeschreibung": "Set für die Reinigung von Matratzen und Polstern.",
+      "technischeDaten": [
+        {
+          "schluessel": "modell",
+          "bezeichnung": "Modell",
+          "wert": "PB440 Matratzen- und Polster-Set"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 349.0,
+        "einheit": "einmalig",
+        "text": "349,00 € inkl. 19% MwSt., versandkostenfrei",
+        "uvp": 367.0,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-pb440-matratzen-polster-set-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/kobold-set-kobold-vt-matratzen-polster-set_b:1x1?wid=600&hei=600&tmst=1779369055334",
+      "stand": "2026-11-07",
+      "hinweise": "Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-vr7",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "saugroboter",
+      "name": "Kobold VR7 Saugroboter mit RB7 Absaugstation",
+      "modell": "VR7 mit RB7 Absaugstation",
+      "kurzbeschreibung": "Saugroboter mit Absaugstation, die den Behälter automatisch leert. Navigiert nach gespeicherter Karte und lässt sich per App steuern.",
+      "technischeDaten": [
+        {
+          "schluessel": "modell",
+          "bezeichnung": "Modell",
+          "wert": "VR7 mit RB7 Absaugstation"
+        },
+        {
+          "schluessel": "akkulaufzeit",
+          "bezeichnung": "Akkulaufzeit",
+          "wert": "bis zu 2 Stunden"
+        },
+        {
+          "schluessel": "grundrisse",
+          "bezeichnung": "Grundrisse",
+          "wert": "bis zu 5 speicherbar"
+        },
+        {
+          "schluessel": "absaugstation",
+          "bezeichnung": "Absaugstation",
+          "wert": "bis zu 60 Tage ohne Kontakt zu Schmutz"
+        },
+        {
+          "schluessel": "steuerung",
+          "bezeichnung": "Steuerung",
+          "wert": "MyKobold App"
+        }
+      ],
+      "preis": null,
+      "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vr7-saugroboter",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/10801_KS_a?wid=633&hei=633&tmst=1779205422986",
+      "stand": "2026-11-07",
+      "hinweise": "Seitentext ohne Preis. Variante mit einfacher Ladestation existiert (Preis nicht genannt). Kobold Garantie optional 149,00 €."
+    },
+    {
+      "id": "vorwerk-vr7-titanium-set",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "set",
+      "name": "Kobold VR7 Saugroboter & RB7 Servicestation – Titanium Limited Edition",
+      "modell": "VR7 mit RB7 Servicestation, Titanium",
+      "kurzbeschreibung": "Titanium-Set aus VR7 Saugroboter und RB7 Servicestation.",
+      "technischeDaten": [
+        {
+          "schluessel": "modell",
+          "bezeichnung": "Modell",
+          "wert": "VR7 mit RB7 Servicestation, Titanium"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 1299.0,
+        "einheit": "einmalig",
+        "text": "1.299,00 € inkl. 19% MwSt., versandkostenfrei, Lieferzeit 3-5 Werktage",
+        "uvp": 1462.0,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vr7-saugroboter-rb7-servicestation-titanium-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_DE303518_b:1x1?wid=600&hei=600&tmst=1791797048868",
+      "stand": "2026-11-07",
+      "hinweise": "Aktion 13.10.26 bis 10.01.27."
+    },
+    {
+      "id": "vorwerk-vg100plus",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "fenstersauger",
+      "name": "Kobold VG100+ Flächenreiniger (Akku-Fenstersauger)",
+      "modell": "VG100+",
+      "kurzbeschreibung": "Kabelloser Flächenreiniger für Fenster, Glas, Spiegel und glatte Flächen; befeuchtet, reinigt und saugt das Schmutzwasser ab.",
+      "technischeDaten": [
+        {
+          "schluessel": "modell",
+          "bezeichnung": "Modell",
+          "wert": "VG100+"
+        },
+        {
+          "schluessel": "akkulaufzeit",
+          "bezeichnung": "Akkulaufzeit",
+          "wert": "bis zu 30 Minuten"
+        },
+        {
+          "schluessel": "gewicht",
+          "bezeichnung": "Gewicht",
+          "wert": "1 kg"
+        },
+        {
+          "schluessel": "motor",
+          "bezeichnung": "Motor",
+          "wert": "30 Watt"
+        },
+        {
+          "schluessel": "wasserverbrauch",
+          "bezeichnung": "Wasserverbrauch",
+          "wert": "ca. 80 ml Wasser + 5 ml Konzentrat für ca. 20 m²"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 269.0,
+        "einheit": "einmalig",
+        "text": "269,00 € inkl. 19% MwSt., versandkostenfrei, Lieferzeit 3-5 Werktage",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vg100-plus-flaechenreiniger-fenstersauger",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/int_kobold_VG100plus_standalone_2-2?wid=633&hei=633&tmst=1775812956721",
+      "stand": "2026-11-07",
+      "hinweise": "Lieferumfang: VG100+, Ladegerät, Abstellschale, 2 MF100 Mikrofasertücher, 1 Softfasertuch, GC100 Konzentrat. Kobold Garantie optional 35,00 €."
+    },
+    {
+      "id": "vorwerk-vg100plus-komplett",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "set",
+      "name": "Kobold VG100+ Komplett-Set mit Teleskopstiel",
+      "modell": "VG100+ Komplett-Set",
+      "kurzbeschreibung": "VG100+ Flächenreiniger zusammen mit Teleskopstiel (bis 120 cm).",
+      "technischeDaten": [
+        {
+          "schluessel": "modell",
+          "bezeichnung": "Modell",
+          "wert": "VG100+ Komplett-Set"
+        },
+        {
+          "schluessel": "teleskopstiel",
+          "bezeichnung": "Teleskopstiel",
+          "wert": "ausziehbar bis 120 cm"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 319.0,
+        "einheit": "einmalig",
+        "text": "319,00 € inkl. 19% MwSt., versandkostenfrei",
+        "uvp": 329.0,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vg100-plus-flaechenreiniger-komplett-set-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/int_kobold_folletto_VG100plus_telescopic_tube_standalone_collage_b:1x1?wid=600&hei=600&tmst=1779359589809",
+      "stand": "2026-11-07",
+      "hinweise": "Teleskopstiel einzeln 60,00 €."
+    },
+    {
+      "id": "vorwerk-ck7",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "reinigungsmittel",
+      "name": "Kobold CK7 Clean Kit",
+      "kurzbeschreibung": "Reinigungsset für Fliesen, Glas, Spiegel und Armaturen, passend zum VG100+.",
+      "technischeDaten": [
+        {
+          "schluessel": "inhalt",
+          "bezeichnung": "Inhalt",
+          "wert": "3 Premium-Reinigungstücher, 2 Glassprühflaschen, Konzentrat, Bürste, Aufbewahrungsbox"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 119.0,
+        "einheit": "einmalig",
+        "text": "119,00 € inkl. 19% MwSt., versandkostenfrei, Lieferzeit 3-5 Werktage",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-ck7-clean-kit-de",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_DE302659_a:1x1?wid=600&hei=600&tmst=1779369094648",
+      "stand": "2026-11-07",
+      "hinweise": "Detailseite nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-vm7",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "akkusauger",
+      "name": "Kobold VM7 Akku-Handstaubsauger",
+      "modell": "VM7",
+      "kurzbeschreibung": "Kompakter kabelloser Handstaubsauger mit Boost und vergrößerbarer 2-in-1-Düse für Krümel, Tische und Auto.",
+      "technischeDaten": [
+        {
+          "schluessel": "modell",
+          "bezeichnung": "Modell",
+          "wert": "VM7"
+        },
+        {
+          "schluessel": "saugstufen",
+          "bezeichnung": "Saugstufen",
+          "wert": "2 inkl. Boost"
+        },
+        {
+          "schluessel": "laufzeit",
+          "bezeichnung": "Laufzeit",
+          "wert": "bis zu 20 Minuten"
+        },
+        {
+          "schluessel": "akku",
+          "bezeichnung": "Akku",
+          "wert": "wechselbar"
+        },
+        {
+          "schluessel": "anzeige",
+          "bezeichnung": "Anzeige",
+          "wert": "LED-Display für Akkustand"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 199.0,
+        "einheit": "einmalig",
+        "text": "199,00 € inkl. 19% MwSt., versandkostenfrei, Lieferzeit 3-5 Werktage",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vm7-akku-handstaubsauger",
+      "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_DE302407_a?wid=633&hei=633&tmst=1779369083382",
+      "stand": "2026-11-07",
+      "hinweise": "Set mit CM7 Wandhalterung und Titanium-Varianten existieren, Preise nicht genannt."
+    },
+    {
+      "id": "vorwerk-zubehoer-vk7-duesen",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "aufsatz-zubehoer",
+      "name": "Düsen und Bürsten für VK7",
+      "kurzbeschreibung": "Aufsätze für den VK7: Elektro-Polsterbürste, Hartbodendüse und kleine Düsen für Fläche, Auto, Polster und Textil.",
+      "technischeDaten": [
+        {
+          "schluessel": "PB7 Elektro-Polsterbürste",
+          "bezeichnung": "PB7 Elektro-Polsterbürste",
+          "wert": "299,00 €"
+        },
+        {
+          "schluessel": "HD7 Hartbodendüse",
+          "bezeichnung": "HD7 Hartbodendüse",
+          "wert": "89,00 €"
+        },
+        {
+          "schluessel": "FD7 / CD7 / VD7 / TD7",
+          "bezeichnung": "FD7 / CD7 / VD7 / TD7",
+          "wert": "je 25,00 € zzgl. Versand"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 25.0,
+        "einheit": "einmalig",
+        "text": "ab 25,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vk7-akku-staubsauger-eb7-elektrobuerste-sp7-saugwischer",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Sammeleintrag aus Produktkacheln, Detailseiten nicht abgerufen."
+    },
+    {
+      "id": "vorwerk-zubehoer-vt300-duesen",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "aufsatz-zubehoer",
+      "name": "Düsen für VT300",
+      "kurzbeschreibung": "Zusatzdüsen für den VT300 (Variodüse, Softdüse).",
+      "technischeDaten": [
+        {
+          "schluessel": "VD15 Variodüse",
+          "bezeichnung": "VD15 Variodüse",
+          "wert": "25,00 €"
+        },
+        {
+          "schluessel": "SD15 Softdüse",
+          "bezeichnung": "SD15 Softdüse",
+          "wert": "25,00 €"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 25.0,
+        "einheit": "einmalig",
+        "text": "je 25,00 € zzgl. Versand",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vt300-bodenstaubsauger",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Sammeleintrag aus Produktkacheln."
+    },
+    {
+      "id": "vorwerk-zubehoer-akku",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "aufsatz-zubehoer",
+      "name": "Akku und Service für VK7",
+      "kurzbeschreibung": "Ersatzakku BY7 und Service-Set für den VK7.",
+      "technischeDaten": [
+        {
+          "schluessel": "BY7 Akku",
+          "bezeichnung": "BY7 Akku",
+          "wert": "159,00 €"
+        },
+        {
+          "schluessel": "VK7 Service-Set plus (U)",
+          "bezeichnung": "VK7 Service-Set plus (U)",
+          "wert": "119,00 €"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 119.0,
+        "einheit": "einmalig",
+        "text": "ab 119,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vk7-akku-staubsauger-eb7-elektrobuerste-sp7-saugwischer",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Sammeleintrag aus Produktkacheln."
+    },
+    {
+      "id": "vorwerk-zubehoer-fk7",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "set",
+      "name": "Kobold FK7 Frischer-Kit Set (Teppich)",
+      "kurzbeschreibung": "Teppichpflege-Set für den VK7.",
+      "technischeDaten": [],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 143.0,
+        "einheit": "einmalig",
+        "text": "143,00 €",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vk7-akku-staubsauger-eb7-elektrobuerste-sp7-saugwischer",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Nur aus Kachel bekannt."
+    },
+    {
+      "id": "vorwerk-verbrauch",
+      "quelle": "vorwerk",
+      "bereich": "vorwerk",
+      "kategorie": "reinigungsmittel",
+      "name": "Verbrauchsmaterial (Filtertüten, Tücher, Reiniger, Duft)",
+      "kurzbeschreibung": "Filtertüten, Mikrofasertücher, Kalkreiniger und Duftchips.",
+      "technischeDaten": [
+        {
+          "schluessel": "FP265-300 Premium-Filtertüte (5 Stk.)",
+          "bezeichnung": "FP265-300 Premium-Filtertüte (5 Stk.)",
+          "wert": "23,00 €"
+        },
+        {
+          "schluessel": "MF100 Reinigungstücher (2 Stk.)",
+          "bezeichnung": "MF100 Reinigungstücher (2 Stk.)",
+          "wert": "25,00 €"
+        },
+        {
+          "schluessel": "DA100 Kalkreiniger 200 ml",
+          "bezeichnung": "DA100 Kalkreiniger 200 ml",
+          "wert": "9,00 €"
+        },
+        {
+          "schluessel": "airumo Duftchips",
+          "bezeichnung": "airumo Duftchips",
+          "wert": "11,90 €"
+        },
+        {
+          "schluessel": "Teleskopstiel VG100+",
+          "bezeichnung": "Teleskopstiel VG100+",
+          "wert": "60,00 €"
+        }
+      ],
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 9.0,
+        "einheit": "einmalig",
+        "text": "ab 9,00 € zzgl. Versand",
+        "uvp": null,
+        "laufzeitMonate": null
+      },
+      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "bildUrl": null,
+      "stand": "2026-11-07",
+      "hinweise": "Sammeleintrag aus Produktkacheln."
+    }
+  ]
+}
