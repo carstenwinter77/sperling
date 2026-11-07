@@ -164,6 +164,7 @@ export const THEMEN = {
       'Oben Photovoltaik oder Wärmepumpe wählen, darunter ein Thema (Gesetze, Zuschuss, Steuern, Netz, Region) oder suchen.',
       'Abschnitt antippen: wichtigste Punkte, Tabelle, „Gut zu wissen“ und die Quellen (amtliche sind markiert).',
       '„📋 Kopieren“ legt den Abschnitt mit Quellen, Stand und Hinweis in die Zwischenablage, zum Weiterleiten per Mail oder Nachricht.',
+      '„🧮 Wann rechnet sich das?“: grober Rechner für PV und Wärmepumpe. Annahmen anpassen, Ergebnis mit Säulen je Jahr und Tabelle für andere Anschaffungspreise. Ohne Gewähr, wird nicht gespeichert.',
       '„Was kommt wann“ zeigt Stichtage; ein Tipp springt zum passenden Abschnitt. „Wusstest du?“ zeigt zufällige Fakten.',
       'Förderung ändert sich oft. Vor dem Nennen beim Kunden die Quelle öffnen und den aktuellen Stand prüfen.',
     ],

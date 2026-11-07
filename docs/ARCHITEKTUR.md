@@ -25,6 +25,7 @@ Browser (Tablet / Handy / Laptop)
  │   ├─ einstellungsdatei.ts  Einstellungen ohne Kunden übertragen (Paket bauen/prüfen)
  │   ├─ produkte.ts ...... Produktkatalog prüfen, filtern, suchen; Markierungen „Produkte im Gespräch“
  │   ├─ foerderung.ts .... Förderung/Rechtsgrundlagen PV + WP: Abschnitte mit Quellen, Zeitleiste, Filter, Kopiertext
+ │   ├─ amortisation.ts .. grober Amortisationsrechner PV/WP (Annahmen, Jahreswerte, Staffel, Höchstpreis, Kopiertext)
  │   ├─ felder.ts ........ Feldverwaltung: Kontaktfelder, eigene Felder, sichtbare Felder, Anzeige je Typ
  │   ├─ suche.ts ......... Kommandozeile: Normalisierung, Bewertung, Gruppen, Verben, Zuletzt
  │   ├─ hilfe.ts ......... Hilfetexte (Themen, Begriffe, Fragen) und Hilfe-Suche
@@ -77,6 +78,7 @@ Browser (Tablet / Handy / Laptop)
  ├─ tests/testliste-pdf.cjs  erzeugt eine Beispiel-PDF mit erfundenen Daten für die Tests
  ├─ src/ui/produkte.ts ... Kacheln, Produktdetail, Markieren-Block (Kartei, Gesprächsmodus)
  ├─ src/ui/views/produkte.ts  Produktübersicht #/produkte (auch im Beratungs-Schutz)
+ ├─ src/ui/rechner.ts .... Rechner „Wann rechnet sich das?“ im Reiter Förderung (nur Arbeitsspeicher)
  ├─ src/ui/views/foerderung.ts  Förderung #/foerderung (auch im Beratungs-Schutz, iPhone unter „Mehr“)
  ├─ src/data/produkte.json  Produktkatalog (statisch, im Paket)
  ├─ src/ui/felder.ts ..... Formularfelder der Kartei aus der Feldverwaltung (Kartei, Gesprächsmodus)

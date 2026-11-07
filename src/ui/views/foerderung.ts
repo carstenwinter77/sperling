@@ -7,6 +7,7 @@ import {
   type Abschnitt, type FoeKategorie,
 } from '../../core/foerderung.ts';
 import { kopieren, maskottchen, toast } from '../dom.ts';
+import * as rechner from '../rechner.ts';
 
 let bereich: 'alle' | 'pv' | 'wp' = 'alle';
 let kategorie: FoeKategorie | '' = '';
@@ -96,12 +97,22 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       ${(Object.keys(KATEGORIEN) as FoeKategorie[]).map((k) => `<button type="button" data-kat="${k}">${esc(KATEGORIEN[k])}</button>`).join('')}
     </div>
     <div id="foeOben"></div>
+    <div id="foeRechner"></div>
     <p class="sr-only" aria-live="polite" id="foeAnzahl"></p>
     <div id="foeListe" class="foe-liste"></div>
     <p class="hinweis foe-schluss">${esc(HINWEIS)}</p>`;
 
   const liste = el.querySelector<HTMLElement>('#foeListe')!;
   const oben = el.querySelector<HTMLElement>('#foeOben')!;
+  const rechnerBox = el.querySelector<HTMLElement>('#foeRechner')!;
+  const rechnerZeichnen = () => {
+    const offen = (rechnerBox.querySelector('#rechner') as HTMLDetailsElement | null)?.open ?? params.has('rechner');
+    rechner.artSetzen(bereich);
+    rechnerBox.innerHTML = rechner.html();
+    (rechnerBox.querySelector('#rechner') as HTMLDetailsElement).open = offen;
+  };
+  rechnerZeichnen();
+  rechner.binden(rechnerBox);
 
   const obenZeichnen = () => {
     if (suche.trim() || kategorie) { oben.innerHTML = ''; return; }
@@ -139,6 +150,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     el.querySelectorAll<HTMLElement>('#foeBereiche [data-bereich]').forEach((x) => { const an = x.dataset.bereich === bereich; x.classList.toggle('aktiv', an); x.setAttribute('aria-selected', String(an)); });
     el.querySelectorAll<HTMLElement>('#foeKategorien [data-kat]').forEach((x) => { const an = (x.dataset.kat || '') === kategorie; x.classList.toggle('aktiv', an); x.setAttribute('aria-pressed', String(an)); });
     obenZeichnen();
+    rechnerBox.hidden = !!(suche.trim() || kategorie);
     const woerter = suchText(suche).split(/\s+/).filter(Boolean);
     const treffer = foerderungFiltern(ABSCHNITTE, { bereich, kategorie, q: suche });
     const offenAlle = woerter.length > 0 && treffer.length <= 3;
@@ -167,6 +179,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     bereich = x.dataset.bereich as typeof bereich;
     wusstestNr = -1;
     history.replaceState(null, '', `#/foerderung?bereich=${bereich}`);
+    rechnerZeichnen();
     zeichnen();
   });
   el.querySelector('#foeKategorien')!.addEventListener('click', (ev) => {

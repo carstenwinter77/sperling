@@ -1390,3 +1390,39 @@ test('Förderung: seriöser Ton ohne Verkaufsdruck (R-LEITFADEN)', () => {
     assert.ok(!alles.includes(w), `verbotene Formulierung: ${w}`);
   }
 });
+
+import { PV_STANDARD, WP_STANDARD, PV_FELDER, rechnePv, rechneWp, wpZuschuss, staffel, hoechstpreis, zahlLesen, rechnerText } from '../src/core/amortisation.ts';
+
+test('Rechner: PV-Beispiel macht sich in plausibler Zeit bezahlt, teurer = später', () => {
+  const e = rechnePv(PV_STANDARD);
+  assert.equal(e.kumuliert.length, PV_STANDARD.jahre);
+  assert.equal(e.kumuliert[0], -PV_STANDARD.investition + e.jahr[0]);
+  assert.ok(e.amortisation > 8 && e.amortisation < 18, `Amortisation ${e.amortisation}`);
+  const st = staffel('pv', PV_STANDARD);
+  for (let i = 1; i < st.length; i++) assert.ok((st[i].ergebnis.amortisation ?? 99) >= (st[i - 1].ergebnis.amortisation ?? 99));
+  assert.equal(rechnePv({ ...PV_STANDARD, investition: 0 }).amortisation, 0);
+  assert.equal(rechnePv({ ...PV_STANDARD, strompreis: 0, verguetung: 0 }).amortisation, null, 'ohne Erlöse nie bezahlt');
+  const g = hoechstpreis('pv', PV_STANDARD, 15);
+  assert.ok(rechnePv({ ...PV_STANDARD, investition: g }).amortisation <= 15);
+  assert.ok(rechnePv({ ...PV_STANDARD, investition: g + 1000 }).amortisation > 15);
+});
+
+test('Rechner: Wärmepumpe mit Zuschussdeckel und „ohnehin fällig“', () => {
+  assert.equal(wpZuschuss({ investition: 40000, foerderung: 50 }), 14000, 'nur 28.000 € förderfähig');
+  const e = rechneWp(WP_STANDARD);
+  assert.equal(e.eigenanteil, 30000 - 14000);
+  assert.ok(e.vorteilJahr1 > 0);
+  assert.ok(rechneWp({ ...WP_STANDARD, sowieso: 12000 }).amortisation < e.amortisation);
+  assert.equal(rechneWp({ ...WP_STANDARD, jaz: 1.5, wpstrompreis: 60 }).amortisation, null);
+});
+
+test('Rechner: Eingaben in deutscher Schreibweise, Grenzen, Kopiertext', () => {
+  const f = PV_FELDER.find((x) => x.key === 'investition');
+  assert.equal(zahlLesen('15.000', f, 1), 15000);
+  assert.equal(zahlLesen('15.000,50 €', f, 1), 15000.5);
+  assert.equal(zahlLesen('abc', f, 7), 7);
+  assert.equal(zahlLesen('-5', f, 7), 0);
+  assert.equal(zahlLesen('7,7', PV_FELDER.find((x) => x.key === 'verguetung'), 1), 7.7);
+  const t = rechnerText('pv', PV_STANDARD, rechnePv(PV_STANDARD));
+  assert.ok(t.includes('ohne Gewähr') && t.includes('Annahmen:') && t.includes('Eigenverbrauch'));
+});

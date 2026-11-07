@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.17
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.18
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,11 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.17)
+## Erledigt (Version 0.10.18)
+
+### Neu in 0.10.18
+- [x] Rechner „Wann rechnet sich das?“ (PV und Wärmepumpe) im Reiter Förderung (`src/core/amortisation.ts`, `src/ui/rechner.ts`), Annahmen änderbar, Staffel nach Anschaffungssumme, Kopieren mit Annahmen, ohne Gewähr. 3 Unit-Tests, Browser-Test erweitert.
+- [ ] Beispielwerte (Strompreis 35 ct, WP-Tarif 28 ct, Gas 11 ct, 900 kWh/kWp) mit dem Nutzer abstimmen.
 
 ### Neu in 0.10.17
 - [x] Reiter **Förderung** (`src/core/foerderung.ts`, `src/ui/views/foerderung.ts`): 22 Abschnitte zu EEG, Solarspitzengesetz, Steuern, KfW/BAFA, GModG, § 14a EnWG, CO2-Preis und Förderlage in Niedersachsen/Region, jeweils mit Quellen und Prüfdatum; Suche, Filter, Zeitleiste, „Wusstest du?“, Kopieren mit Quellen; Station in der Rund-Tour. Stand 07.11.2026, recherchiert über Bundestag, BNetzA, BMWE, KfW, BAFA, gesetze-im-internet.de, KEAN, NBank, Landkreis Peine. 5 Unit-Tests, Browser-Test erweitert.

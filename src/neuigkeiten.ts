@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.18',
+    punkte: [
+      'Förderung → „Wann rechnet sich das?“: grober Rechner für Photovoltaik und Wärmepumpe. Annahmen anpassen und sehen, nach wie vielen Jahren sich die Anlage bezahlt macht, auch für andere Anschaffungspreise. Ohne Gewähr.',
+    ],
+  },
+  {
     version: '0.10.17',
     punkte: [
       'Neu: Reiter „Förderung“ mit Gesetzen, Zuschüssen und Steuern für Photovoltaik und Wärmepumpe, in einfacher Sprache und mit Quellen.',

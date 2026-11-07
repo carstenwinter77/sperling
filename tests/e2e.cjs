@@ -800,6 +800,18 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   if (!foeText.includes('Quellen:') || !foeText.includes('https://www.gmodg.bund.de') || !foeText.includes('Stand:')) fail('Förderung: Kopiertext ohne Quellen/Stand');
   await p.click('#foeWeiter');
   await p.waitForSelector('#foeWusstestText');
+  // Rechner: Anschaffung ändern, Ergebnis rechnet neu, Wärmepumpe, Kopieren mit Annahmen
+  await p.click('#rechner > summary');
+  await p.waitForSelector('#rechner[open] #rz-investition');
+  const vorher = await p.textContent('.rz-haupt b');
+  await p.fill('#rz-investition', '40.000');
+  await p.waitForFunction((v) => document.querySelector('.rz-haupt b')?.textContent !== v, vorher);
+  await p.click('[data-rz-art=wp]');
+  await p.waitForSelector('#rechner[open] #rz-jaz');
+  await p.click('[data-rz-kopieren]');
+  await p.waitForFunction(() => document.querySelector('#toast')?.textContent.includes('Rechnung'));
+  const rzText = await p.evaluate(() => navigator.clipboard.readText());
+  if (!rzText.includes('Wärmepumpe') || !rzText.includes('ohne Gewähr') || !rzText.includes('Jahresarbeitszahl')) fail('Rechner: Kopiertext unvollständig');
   // Produkte im Gespräch markieren: beim Kunden, dann Verlauf, Text und Filter
   await p.goto(BASE + '#/kunden');
   await p.click('#liste a.zeile');

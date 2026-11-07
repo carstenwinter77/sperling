@@ -1,5 +1,9 @@
 # Änderungsverlauf
 
+## 0.10.18 – 07.11.2026
+- **Rechner „Wann rechnet sich das?“** im Reiter Förderung (`src/core/amortisation.ts`, `src/ui/rechner.ts`): grobe Amortisation für Photovoltaik (Eigenverbrauch, Einspeisevergütung 20 Jahre, Ertragsverlust 0,5 %/Jahr, laufende Kosten) und Wärmepumpe (Vergleich mit Weiterheizen mit Gas/Öl, KfW-Zuschuss auf höchstens 28.000 €, „ohnehin fällig“ für eine sonst nötige neue Heizung). Alle Annahmen änderbar, deutsche Zahlen („15.000“, „7,7“), Grenzen je Feld.
+- Ergebnis: Eigenanteil, Vorteil im 1. Jahr, „bezahlt gemacht nach etwa … Jahren“, Stand am Ende, Säulendiagramm je Jahr (mit Textbeschreibung), Tabelle „Bei welcher Anschaffungssumme?“ (−30 % bis +30 %) und Höchstpreis für 15 Jahre. „📋 Kopieren“ mit allen Annahmen und dem Hinweis „ohne Gewähr“. Werte werden nicht gespeichert.
+
 ## 0.10.17 – 07.11.2026
 - **Neuer Reiter „Förderung“** (`#/foerderung`, `src/core/foerderung.ts`, `src/ui/views/foerderung.ts`): Gesetze, Zuschüsse, Steuern und Netzregeln für Photovoltaik und Wärmepumpe in einfacher Sprache, Stand 07.11.2026. 22 Abschnitte, u. a. Einspeisevergütung (Sätze ab 01.08.2026), geplante EEG-Reform 2027, Solarspitzengesetz, 0 % Umsatzsteuer, § 3 Nr. 72 EStG, KfW 270, Marktstammdatenregister, Balkonkraftwerk, Solarpflicht Niedersachsen, Energy Sharing, Gebäudemodernisierungsgesetz, KfW 458 seit 21.07.2026 und Änderungen 2027, Antragsablauf, BAFA, § 35c EStG, § 14a EnWG, Grenzabstand Wärmepumpe, Wärmeplanung, CO2-Preis, Förderlage in Niedersachsen/Peine/Lengede/Salzgitter.
 - Jeder Abschnitt mit Bereich (PV gelb, WP blau, beide), Status (gilt, geplant, ändert sich, läuft aus), Prüfdatum und verlinkten Quellen (amtliche markiert). „📋 Kopieren“ legt Text, Quellen, Stand und Hinweis „keine Rechts- oder Steuerberatung“ in die Zwischenablage.
