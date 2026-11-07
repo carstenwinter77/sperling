@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.10.25 – 07.11.2026
+- Kontaktseite: Unterzeile bei „So arbeite ich“ freundlicher („Offen und transparent: So läuft die Zusammenarbeit mit mir.“).
+
 ## 0.10.24 – 07.11.2026
 - **Kontaktseite** (`public/kontakt/index.html`): neue Abschnitte „Aus Lengede, für die Region“ (Über mich, Vorteile, Orte), „So arbeite ich“ (selbständig, Vergütung durch das Fachunternehmen, zweite Meinung mit Link zur Energieberatung der Verbraucherzentrale) und „Häufige Fragen“. Datenschutzerklärung: Satz zu externen Links.
 

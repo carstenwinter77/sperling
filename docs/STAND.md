@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.24
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.25
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,10 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.24)
+## Erledigt (Version 0.10.25)
+
+### Neu in 0.10.25
+- [x] Kontaktseite: Unterzeile „So arbeite ich“ freundlicher formuliert.
 
 ### Neu in 0.10.24
 - [x] Kontaktseite: „Aus Lengede, für die Region“, „So arbeite ich“ (mit Zweite-Meinung-Kasten), „Häufige Fragen“; Datenschutz um externe Links ergänzt.
