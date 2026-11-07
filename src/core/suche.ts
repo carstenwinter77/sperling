@@ -63,6 +63,7 @@ const BEREICHE: [string, string, string][] = [
   ['Kalender: Geräte', '#/belegung', 'belegungskalender reservierungen frei belegt'],
   ['Auswertungen', '#/auswertung', 'statistik bericht zahlen'],
   ['Produkte', '#/produkte', 'produktuebersicht katalog preise enpal galvany kobold'],
+  ['Förderung', '#/foerderung', 'foerderung zuschuss kfw bafa eeg einspeiseverguetung steuer gesetz gmodg heizungsgesetz recht'],
   ['Gelöschte Kunden', '#/geloescht', 'papierkorb wiederherstellen geloescht'],
   ['Einstellungen', '#/einstellungen', 'optionen sicherung icloud passwort vorlagen'],
   ['Hilfe', '#/hilfe', 'anleitung fragen begriffe faq erklaerung'],

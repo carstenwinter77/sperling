@@ -31,6 +31,7 @@ import * as suche from './ui/suche.ts';
 import * as hilfe from './ui/hilfe.ts';
 import * as vHilfe from './ui/views/hilfe.ts';
 import * as vProdukte from './ui/views/produkte.ts';
+import * as vFoerderung from './ui/views/foerderung.ts';
 import type { ThemaId } from './core/hilfe.ts';
 
 interface Ansicht { render(el: HTMLElement, params: URLSearchParams, treffer: string[]): void | (() => void) }
@@ -50,6 +51,7 @@ const ROUTEN: Route[] = [
   { muster: /^\/gespraech$/, view: vGespraech, nav: 'gespraech', hilfe: 'gespraech' },
   { muster: /^\/hilfe$/, view: vHilfe, nav: 'einstellungen' },
   { muster: /^\/produkte$/, view: vProdukte, nav: 'produkte', hilfe: 'produkte' },
+  { muster: /^\/foerderung$/, view: vFoerderung, nav: 'foerderung', hilfe: 'foerderung' },
 ];
 
 const NAV = [
@@ -60,12 +62,13 @@ const NAV = [
   { key: 'gespraech', href: '#/gespraech', label: 'Gespräch', bild: 'notizen' },
   { key: 'bestand', href: '#/bestand', label: 'Bestand', bild: 'vorwerk' },
   { key: 'produkte', href: '#/produkte', label: 'Produkte', bild: 'produkte' },
+  { key: 'foerderung', href: '#/foerderung', label: 'Förderung', bild: 'foerderung' },
   { key: 'auswertung', href: '#/auswertung', label: 'Auswertungen', bild: 'statistik' },
   { key: 'einstellungen', href: '#/einstellungen', label: 'Einstellungen', bild: 'einstellungen' },
 ];
 
 /** Auf dem Handy stehen diese Bereiche unter „Mehr“, damit die Leiste unten große Tippflächen behält. */
-const NEBEN = ['gespraech', 'bestand', 'auswertung', 'einstellungen'];
+const NEBEN = ['gespraech', 'bestand', 'foerderung', 'auswertung', 'einstellungen'];
 
 /** „Mehr“-Menü (Handy): übrige Bereiche, Suchen, Sperren. */
 function mehrMenue() {

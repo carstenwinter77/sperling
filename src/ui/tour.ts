@@ -25,6 +25,7 @@ export const SCHRITTE: Schritt[] = [
   { ziel: nav('gespraech'), titel: 'Gespräch', text: 'Der Gesprächsleitfaden in sieben Phasen mit Einwandbehandlung. Ergebnis und Wiedervorlage landen direkt beim Kunden.', mehr: 'Auf dem iPhone unter „Mehr“.' },
   { ziel: nav('bestand'), titel: 'Bestand', text: 'Vorführgeräte im Auto, Leihgaben mit Leihschein, Reservierungen und Verbrauchsmaterial mit Mindestbestand.', mehr: 'Auf dem iPhone unter „Mehr“.' },
   { ziel: nav('produkte'), titel: 'Produkte', text: 'Die Produktübersicht von Enpal, GALVANY und Vorwerk mit Preisen und technischen Daten, zum Zeigen beim Kunden.', mehr: 'Auf dem iPhone unter „Mehr“.' },
+  { ziel: nav('foerderung'), titel: 'Förderung', text: 'Gesetze, Zuschüsse und Steuern für Photovoltaik und Wärmepumpe in einfacher Sprache, mit Quellen. Jeder Abschnitt lässt sich zum Weiterleiten kopieren.', mehr: 'Auf dem iPhone unter „Mehr“.' },
   { ziel: nav('auswertung'), titel: 'Auswertungen', text: 'Gespräche, Abschlüsse und Termine je Zeitraum, mit „Fokus je Sparte“ und Kurztipp. Als PDF auf einer Seite.', mehr: 'Auf dem iPhone unter „Mehr“.' },
   { ziel: nav('einstellungen'), titel: 'Einstellungen', text: 'Sicherung in iCloud, Felder, Textvorlagen, Face ID und Darstellung. Hier startest du diese Tour auch wieder.', mehr: 'Auf dem iPhone unter „Mehr“.' },
   { ziel: ['#sperren', '#navMehr'], titel: 'Sperren', text: 'Ein Tipp sperrt Sperling. Danach nur mit Passwort oder Face ID wieder öffnen. Alle Daten sind auf dem Gerät verschlüsselt.' },

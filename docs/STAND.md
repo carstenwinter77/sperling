@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.16
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.17
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,12 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.16)
+## Erledigt (Version 0.10.17)
+
+### Neu in 0.10.17
+- [x] Reiter **Förderung** (`src/core/foerderung.ts`, `src/ui/views/foerderung.ts`): 22 Abschnitte zu EEG, Solarspitzengesetz, Steuern, KfW/BAFA, GModG, § 14a EnWG, CO2-Preis und Förderlage in Niedersachsen/Region, jeweils mit Quellen und Prüfdatum; Suche, Filter, Zeitleiste, „Wusstest du?“, Kopieren mit Quellen; Station in der Rund-Tour. Stand 07.11.2026, recherchiert über Bundestag, BNetzA, BMWE, KfW, BAFA, gesetze-im-internet.de, KEAN, NBank, Landkreis Peine. 5 Unit-Tests, Browser-Test erweitert.
+- [ ] Inhalte regelmäßig prüfen (`STAND` und `geprueft` in `src/core/foerderung.ts`), spätestens nach Beschluss der EEG-Reform (Drucksache 21/7867), zum 01.02.2027 (KfW-Absenkung) und wenn die Wärmepumpen-Sätze ab 1. Quartal 2027 feststehen.
+- [ ] Nicht geprüft und deshalb weggelassen: Smart-Meter-Pflicht ab 7 kW, Netzbetreiber für Lengede/Salzgitter, Beträge Modul 1 nach § 14a.
 
 ### Neu in 0.10.16
 - [x] Kundenfotos je Sparte, verkleinert und verschlüsselt, Vollansicht mit Zoom, in der iCloud-Sicherung (abschaltbar), alte Fotos löschen.

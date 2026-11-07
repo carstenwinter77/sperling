@@ -1125,3 +1125,69 @@ tr.li-gleich { opacity: .7; }
 .fv-zurueck { left: .4rem; } .fv-weiter { right: .4rem; }
 .foto-voll.gezoomt .fv-pfeil { display: none; }
 @media (hover: none) { .fv-pfeil { background: rgba(0,0,0,.35); } }
+/* Förderung (#/foerderung): Abschnitte je Bereich, Zeitleiste, „Wusstest du?“ */
+.foe-intro p { margin: 0 0 .6rem; }
+.foe-intro p:last-child { margin-bottom: 0; }
+.foe-hinweis { display: flex; gap: .5rem; align-items: flex-start; background: var(--flaeche-2); border-radius: 10px; padding: .6rem .75rem; font-size: .92rem; }
+.bereich-alle, .foe-beide { --foe-a: var(--braun); --foe-bg: var(--aktiv-bg); --foe-t: var(--text); }
+.foe-pv, .foe-zeit-pv { --foe-a: var(--pv); --foe-bg: var(--tag-pv-bg); --foe-t: var(--tag-pv); }
+.foe-wp, .foe-zeit-wp { --foe-a: var(--wp); --foe-bg: var(--tag-wp-bg); --foe-t: var(--tag-wp); }
+.foe-zeit-beide { --foe-a: var(--braun-hell); }
+.foe-liste { display: grid; gap: .75rem; margin-bottom: 1rem; }
+.foe-abschnitt { position: relative; background: var(--karte); border-radius: var(--radius); box-shadow: var(--schatten); border: 1px solid var(--linie); overflow: hidden; }
+.foe-abschnitt::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 6px; background: var(--foe-a); }
+.foe-abschnitt.foe-beide::before { background: linear-gradient(var(--pv) 0 50%, var(--wp) 50% 100%); }
+.foe-abschnitt > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: .2rem .75rem; padding: .85rem 1rem .85rem 1.25rem; min-height: 44px; }
+.foe-abschnitt > summary::-webkit-details-marker { display: none; }
+.foe-abschnitt > summary:focus-visible { outline: 3px solid var(--braun-hell); outline-offset: -3px; }
+.foe-titel { font-weight: 800; font-size: 1.05rem; }
+.foe-titel::after { content: ' ›'; color: var(--text-2); display: inline-block; transition: transform .15s; }
+.foe-abschnitt[open] .foe-titel::after { transform: rotate(90deg); }
+.foe-marken { display: flex; gap: .3rem; flex-wrap: wrap; justify-content: flex-end; align-items: flex-start; }
+.foe-kurz { grid-column: 1 / -1; color: var(--text-2); }
+.foe-bereich, .foe-status, .foe-amtlich { font-size: .72rem; font-weight: 700; padding: .15rem .5rem; border-radius: 999px; border: 1px solid var(--linie); white-space: nowrap; }
+.foe-bereich-pv { background: var(--tag-pv-bg); color: var(--tag-pv); border-color: var(--pv); }
+.foe-bereich-wp { background: var(--tag-wp-bg); color: var(--tag-wp); border-color: var(--wp); }
+.foe-bereich-beide { background: linear-gradient(90deg, var(--tag-pv-bg) 50%, var(--tag-wp-bg) 50%); color: var(--text); }
+.foe-status-gilt { background: color-mix(in srgb, var(--gruen) 14%, var(--karte)); color: var(--text); border-color: var(--gruen); }
+.foe-status-geplant { border-style: dashed; color: var(--text); }
+.foe-status-aendert, .foe-status-endet { background: color-mix(in srgb, var(--orange) 16%, var(--karte)); color: var(--text); border-color: var(--orange); }
+.foe-inhalt { padding: 0 1rem 1rem 1.25rem; }
+.foe-punkte { margin: .25rem 0 .75rem; padding-left: 1.2rem; display: grid; gap: .35rem; line-height: 1.45; }
+.foe-tabelle-rahmen { overflow-x: auto; margin-bottom: .75rem; }
+.foe-tabelle { border-collapse: collapse; width: 100%; min-width: 320px; font-size: .95rem; }
+.foe-tabelle th, .foe-tabelle td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--linie); }
+.foe-tabelle thead th { background: var(--foe-bg); color: var(--foe-t); }
+.foe-tabelle tbody th { font-weight: 600; }
+.foe-merke { background: var(--foe-bg); color: var(--text); border-radius: 10px; padding: .6rem .75rem; margin: 0 0 .75rem; }
+.foe-quellen h3 { font-size: .9rem; margin: .25rem 0 .3rem; color: var(--text-2); }
+.foe-quellen ul { margin: 0 0 .5rem; padding-left: 1.2rem; display: grid; gap: .3rem; font-size: .92rem; }
+.foe-quellen a { color: var(--braun); text-underline-offset: 2px; overflow-wrap: anywhere; }
+.foe-amtlich { background: var(--flaeche-2); color: var(--text-2); margin-left: .2rem; }
+.foe-fuss { display: flex; justify-content: space-between; align-items: center; gap: .5rem; flex-wrap: wrap; border-top: 1px solid var(--linie); padding-top: .6rem; }
+.foe-fuss .btn { min-height: 44px; }
+.foe-liste mark { background: color-mix(in srgb, var(--pv) 45%, transparent); color: inherit; border-radius: 3px; padding: 0 .1em; }
+.foe-wusstest { display: flex; gap: .9rem; align-items: center; background: linear-gradient(135deg, var(--tag-pv-bg), var(--tag-wp-bg)); }
+.foe-wusstest h2 { margin: 0 0 .25rem; font-size: 1.05rem; }
+.foe-wusstest p { margin: 0 0 .5rem; }
+.foe-wusstest-bild { width: 56px; height: 56px; flex: none; }
+.foe-wusstest-knoepfe { display: flex; gap: .4rem; flex-wrap: wrap; }
+.foe-wusstest-knoepfe .btn { min-height: 44px; }
+.foe-zeit > summary { cursor: pointer; list-style: none; min-height: 44px; display: flex; align-items: center; }
+.foe-zeit > summary::-webkit-details-marker { display: none; }
+.foe-zeit > summary h2 { margin: 0; font-size: 1.05rem; }
+.foe-zeit > summary h2::after { content: ' ›'; color: var(--text-2); display: inline-block; transition: transform .15s; }
+.foe-zeit[open] > summary h2::after { transform: rotate(90deg); }
+.foe-zeitleiste { list-style: none; margin: .5rem 0 0; padding: 0 0 0 .4rem; border-left: 3px solid var(--linie); display: grid; gap: .15rem; }
+.foe-zeitleiste li { position: relative; }
+.foe-zeitleiste li::before { content: ''; position: absolute; left: -.72rem; top: 1rem; width: .75rem; height: .75rem; border-radius: 50%; background: var(--foe-a); border: 2px solid var(--karte); }
+.foe-zeitleiste li.unsicher::before { background: var(--karte); border: 2px dashed var(--foe-a); }
+.foe-zeitleiste button { display: grid; grid-template-columns: 6.2rem 1fr; gap: .5rem; width: 100%; text-align: left; background: none; border: 0; font: inherit; color: var(--text); padding: .55rem .5rem .55rem .9rem; border-radius: 8px; cursor: pointer; min-height: 44px; }
+.foe-zeitleiste button:hover, .foe-zeitleiste button:focus-visible { background: var(--flaeche-2); }
+.foe-zeitleiste time { font-weight: 700; font-variant-numeric: tabular-nums; }
+.foe-zeitleiste li.vorbei button { color: var(--text-2); }
+.foe-zeitleiste li.naechster button { background: var(--aktiv-bg); }
+.foe-als-naechstes { display: inline-block; margin-left: .3rem; font-size: .72rem; padding: .05rem .45rem; border-radius: 999px; background: var(--braun); color: var(--auf-akzent); }
+.foe-schluss { margin-top: .5rem; }
+@media (max-width: 639px) { .foe-zeitleiste button { grid-template-columns: 1fr; gap: .1rem; } .foe-abschnitt > summary { grid-template-columns: 1fr; } .foe-marken { justify-content: flex-start; } }
+@media (prefers-reduced-motion: reduce) { .foe-titel::after, .foe-zeit > summary h2::after { transition: none; } }

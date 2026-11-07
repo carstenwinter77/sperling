@@ -2,6 +2,13 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.17',
+    punkte: [
+      'Neu: Reiter „Förderung“ mit Gesetzen, Zuschüssen und Steuern für Photovoltaik und Wärmepumpe, in einfacher Sprache und mit Quellen.',
+      'Suchen, nach Bereich und Thema filtern, „Was kommt wann“ und „Wusstest du?“. Jeder Abschnitt lässt sich mit Quellen kopieren und weiterleiten.',
+    ],
+  },
+  {
     version: '0.10.16',
     punkte: [
       'Neu beim Kunden: Reiter „Fotos“, getrennt nach Photovoltaik, Wärmepumpe und Vorwerk. Aufnehmen oder mehrere auf einmal auswählen.',

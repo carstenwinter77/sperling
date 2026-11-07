@@ -1337,3 +1337,56 @@ test('Kundenfotos: Beschreibung, Schlüssel, Alter, benutzte Bilddaten auch im P
   assert.equal(migrate({}).einstellungen.fotosMitsichern, true, 'Standard: Fotos mitsichern');
   assert.equal(migrate({ einstellungen: { fotosMitsichern: false } }).einstellungen.fotosMitsichern, false);
 });
+
+import { ABSCHNITTE, ZEITLEISTE, STAND, HINWEIS, foerderungFiltern, abschnittText, zeitleiste, wusstestDu } from '../src/core/foerderung.ts';
+
+test('Förderung: jeder Abschnitt hat Quelle, Prüfdatum und eindeutige ID', () => {
+  const ids = new Set();
+  for (const a of ABSCHNITTE) {
+    assert.ok(!ids.has(a.id), `doppelte ID ${a.id}`); ids.add(a.id);
+    assert.ok(a.quellen.length >= 1, `${a.id} ohne Quelle`);
+    for (const q of a.quellen) assert.match(q.url, /^https:\/\/[^\s"<>]+$/, `${a.id}: Quelle ${q.url}`);
+    assert.match(a.geprueft, /^\d{4}-\d{2}-\d{2}$/);
+    assert.ok(a.geprueft <= STAND, `${a.id}: Prüfdatum nach Stand`);
+    assert.ok(a.punkte.length >= 2 && a.kurz && a.titel);
+    if (a.tabelle) assert.ok(a.tabelle.every((z) => z.length === a.tabelle[0].length), `${a.id}: Tabelle ungleich breit`);
+  }
+  for (const t of ZEITLEISTE) assert.ok(ids.has(t.abschnitt), `Zeitleiste verweist auf ${t.abschnitt}`);
+  assert.match(HINWEIS, /keine Rechts- oder Steuerberatung/);
+});
+
+test('Förderung: Filter nach Bereich, Thema und Suche', () => {
+  const pv = foerderungFiltern(ABSCHNITTE, { bereich: 'pv' });
+  assert.ok(pv.length > 0 && pv.every((a) => a.bereich !== 'wp'));
+  assert.ok(pv.some((a) => a.bereich === 'beide'), '„beide“ erscheint auch unter PV');
+  const steuer = foerderungFiltern(ABSCHNITTE, { kategorie: 'steuer' });
+  assert.ok(steuer.every((a) => a.kategorie === 'steuer') && steuer.length >= 2);
+  assert.ok(foerderungFiltern(ABSCHNITTE, { q: 'Wärmepumpe Zuschuss' }).some((a) => a.id === 'wp-kfw458'), 'Umlaute in der Suche');
+  assert.ok(foerderungFiltern(ABSCHNITTE, { q: 'Balkonkraftwerk' }).some((a) => a.id === 'pv-balkon'));
+  assert.equal(foerderungFiltern(ABSCHNITTE, { q: 'xyzgibtsnicht' }).length, 0);
+});
+
+test('Förderung: Kopiertext enthält Quellen, Stand und Hinweis', () => {
+  const a = ABSCHNITTE.find((x) => x.id === 'pv-verguetung');
+  const t = abschnittText(a);
+  assert.ok(t.startsWith(a.titel));
+  assert.ok(t.includes('Quellen:') && t.includes(a.quellen[0].url));
+  assert.ok(t.includes('Stand: 07.11.2026'));
+  assert.ok(t.includes('keine Rechts- oder Steuerberatung'));
+  assert.ok(t.includes('7,70 ct/kWh'));
+});
+
+test('Förderung: Zeitleiste sortiert und markiert Vergangenes', () => {
+  const z = zeitleiste('2026-11-07');
+  for (let i = 1; i < z.length; i++) assert.ok(z[i - 1].datum <= z[i].datum);
+  assert.ok(z.find((t) => t.datum === '2025-02-25').vorbei);
+  assert.ok(!z.find((t) => t.datum === '2027-02-01').vorbei);
+  assert.ok(wusstestDu().length >= 5);
+});
+
+test('Förderung: seriöser Ton ohne Verkaufsdruck (R-LEITFADEN)', () => {
+  const alles = ABSCHNITTE.map((a) => abschnittText(a)).join('\n').toLowerCase();
+  for (const w of ['nur noch heute', 'jetzt zuschlagen', 'schnell sein', 'letzte chance', 'garantiert', 'sofort unterschreiben', 'rendite von']) {
+    assert.ok(!alles.includes(w), `verbotene Formulierung: ${w}`);
+  }
+});

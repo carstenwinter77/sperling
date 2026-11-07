@@ -157,6 +157,17 @@ export const THEMEN = {
       'Markierungen stehen im Verlauf, in den Texten ihres Bereichs, im Filter und in den Auswertungen.',
     ],
   },
+  foerderung: {
+    titel: 'Förderung und Rechtsgrundlagen',
+    kurz: 'Gesetze, Zuschüsse, Steuern und Netzregeln für Photovoltaik und Wärmepumpe in einfacher Sprache, jeweils mit Quelle und Prüfdatum. Keine Rechts- oder Steuerberatung.',
+    schritte: [
+      'Oben Photovoltaik oder Wärmepumpe wählen, darunter ein Thema (Gesetze, Zuschuss, Steuern, Netz, Region) oder suchen.',
+      'Abschnitt antippen: wichtigste Punkte, Tabelle, „Gut zu wissen“ und die Quellen (amtliche sind markiert).',
+      '„📋 Kopieren“ legt den Abschnitt mit Quellen, Stand und Hinweis in die Zwischenablage, zum Weiterleiten per Mail oder Nachricht.',
+      '„Was kommt wann“ zeigt Stichtage; ein Tipp springt zum passenden Abschnitt. „Wusstest du?“ zeigt zufällige Fakten.',
+      'Förderung ändert sich oft. Vor dem Nennen beim Kunden die Quelle öffnen und den aktuellen Stand prüfen.',
+    ],
+  },
   felder: {
     titel: 'Felder ein- und ausblenden, eigene Felder',
     kurz: 'Bestimme selbst, welche Felder die Kundenkartei zeigt, und lege eigene Felder an. Ausgeblendete Felder behalten ihre Daten.',

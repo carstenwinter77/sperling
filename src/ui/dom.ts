@@ -183,7 +183,7 @@ export function dateiWaehlen(accept = ''): Promise<string | null> {
 }
 
 /** Bereichs-Icons aus dem Branding (assets/marke/), je mit heller Fassung für das dunkle Farbschema. */
-const MARKE_ICONS = ['kunde-neu', 'karte', 'notizen', 'termine', 'vorwerk', 'waermepumpe', 'photovoltaik', 'statistik', 'einstellungen', 'produkte'];
+const MARKE_ICONS = ['kunde-neu', 'karte', 'notizen', 'termine', 'vorwerk', 'waermepumpe', 'photovoltaik', 'statistik', 'einstellungen', 'produkte', 'foerderung'];
 
 /** Icon bzw. Zeichen („sperling“ = App-Zeichen). Hell/Dunkel schaltet per CSS zwischen den Fassungen um. */
 export function maskottchen(name: string, klasse = '', alt = ''): string {

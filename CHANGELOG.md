@@ -1,5 +1,11 @@
 # Änderungsverlauf
 
+## 0.10.17 – 07.11.2026
+- **Neuer Reiter „Förderung“** (`#/foerderung`, `src/core/foerderung.ts`, `src/ui/views/foerderung.ts`): Gesetze, Zuschüsse, Steuern und Netzregeln für Photovoltaik und Wärmepumpe in einfacher Sprache, Stand 07.11.2026. 22 Abschnitte, u. a. Einspeisevergütung (Sätze ab 01.08.2026), geplante EEG-Reform 2027, Solarspitzengesetz, 0 % Umsatzsteuer, § 3 Nr. 72 EStG, KfW 270, Marktstammdatenregister, Balkonkraftwerk, Solarpflicht Niedersachsen, Energy Sharing, Gebäudemodernisierungsgesetz, KfW 458 seit 21.07.2026 und Änderungen 2027, Antragsablauf, BAFA, § 35c EStG, § 14a EnWG, Grenzabstand Wärmepumpe, Wärmeplanung, CO2-Preis, Förderlage in Niedersachsen/Peine/Lengede/Salzgitter.
+- Jeder Abschnitt mit Bereich (PV gelb, WP blau, beide), Status (gilt, geplant, ändert sich, läuft aus), Prüfdatum und verlinkten Quellen (amtliche markiert). „📋 Kopieren“ legt Text, Quellen, Stand und Hinweis „keine Rechts- oder Steuerberatung“ in die Zwischenablage.
+- Suche mit Hervorhebung, Filter nach Bereich und Thema, „Wusstest du?“, Zeitleiste „Was kommt wann“ (2025 bis 2045, Geplantes gestrichelt, „als Nächstes“ markiert, Tipp springt zum Abschnitt). Barrierefrei: echte Überschriften, Tabellen mit Kopfzellen, Fokus sichtbar, Trefferzahl für Screenreader, „Bewegung reduzieren“ beachtet.
+- Eigenes Symbol (`public/assets/marke/foerderung(-hell).png`, Original in `docs/bilder/foerderung-original.png`). Auf dem iPhone unter „Mehr“, auch im Beratungs-Schutz erreichbar, Station in der Rund-Tour, Eintrag in Suche und Hilfe.
+
 ## 0.10.16 – 07.11.2026
 - **Kundenfotos** (`src/core/fotos.ts`, `src/storage/fotos.ts`, `src/ui/kundenfotos.ts`): neuer Reiter „Fotos“ beim Kunden, getrennt nach Photovoltaik, Wärmepumpe und Vorwerk. Aufnehmen oder mehrere aus den Fotos wählen; bis 200 Fotos je Kunde. Verkleinert auf 1600 px (JPEG) plus Vorschaubild, zusammen etwa 150 bis 300 KB je Foto.
 - **Vollansicht:** Tipp aufs Foto; Zoom mit zwei Fingern, Doppeltipp, Mausrad oder + und −; Wischen bzw. Pfeiltasten zum nächsten Foto; Löschen.
