@@ -483,8 +483,16 @@ test('Auswertungen: Zeiträume, Navigation, Kennzahlen je Bereich, Vergleich', a
   // Vergleich mit Vorzeitraum
   const ber = a.bericht(data, 'wp', 'woche', '2026-10-26');
   assert.equal(ber.jetzt.gespraeche, 0); assert.equal(ber.vorher.gespraeche, 1);
-  assert.deepEqual(a.veraenderung(ber.jetzt.gespraeche, ber.vorher.gespraeche), { text: '−1', richtung: 'ab' });
-  assert.deepEqual(a.veraenderung(0.5, 0.25, true), { text: '+25 Pkt.', richtung: 'auf' });
+  assert.deepEqual(a.veraenderung(ber.jetzt.gespraeche, ber.vorher.gespraeche), { text: '−1', richtung: 'ab', prozent: `−${Math.round(100 / ber.vorher.gespraeche)} %` });
+  assert.deepEqual(a.veraenderung(0.5, 0.25, true), { text: '+25 Pkt.', richtung: 'auf', prozent: null });
+  assert.deepEqual(a.veraenderung(5, 4), { text: '+1', richtung: 'auf', prozent: '+25 %' });
+  assert.deepEqual(a.veraenderung(2, 0), { text: '+2', richtung: 'auf', prozent: 'neu' });
+  assert.deepEqual(a.veraenderung(0, 0), { text: '±0', richtung: 'gleich', prozent: null });
+  assert.deepEqual(a.veraenderung(3, 3), { text: '±0', richtung: 'gleich', prozent: '±0 %' });
+  assert.deepEqual(a.veraenderung(0, 4), { text: '−4', richtung: 'ab', prozent: '−100 %' });
+  assert.equal(a.veraenderungText(a.veraenderung(5, 4)), '+1 (+25 %)');
+  assert.equal(a.veraenderungText(a.veraenderung(0.5, 0.25, true)), '+25 Pkt.');
+  assert.equal(a.veraenderungText(null), '–');
   assert.equal(a.veraenderung(null, 1), null);
   // Jahr/365: Monatsverlauf, leere Daten stürzen nicht ab
   assert.equal(a.kennzahlen(emptyData(), 'alle', '2026-01-01', '2026-12-31', 'jahr').verlauf.length, 12);

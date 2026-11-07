@@ -509,6 +509,9 @@ body.ka-aktiv { overflow: hidden; }
 .aw-delta.auf { color: color-mix(in srgb, var(--gruen) 75%, var(--text)); background: color-mix(in srgb, var(--gruen) 14%, transparent); }
 .aw-delta.ab { color: color-mix(in srgb, var(--rot) 75%, var(--text)); background: color-mix(in srgb, var(--rot) 14%, transparent); }
 .aw-delta.gleich { color: var(--text-2); }
+.aw-zahl .aw-delta { display: inline-flex; align-items: baseline; gap: .25rem; flex-wrap: wrap; }
+.aw-pfeil { font-size: .7em; }
+.aw-prozent { font-weight: 600; opacity: .9; }
 .aw-verlauf { display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 2px; height: 160px; align-items: end; padding-bottom: 1.2rem; }
 .aw-saeule { position: relative; height: 100%; display: flex; align-items: flex-end; }
 .aw-saeule span { display: block; width: 100%; background: var(--bereich); border-radius: 4px 4px 0 0; min-height: 0; }

@@ -2,6 +2,13 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.22',
+    punkte: [
+      'Auswertungen: Neben jeder Zahl steht jetzt auch die Veränderung in Prozent zum Vorzeitraum, mit Pfeil, z. B. „▲ +1 (+50 %)“. Auch im PDF-Bericht.',
+      'Das Symbol für Förderung hat jetzt den Sperling dabei, wie die anderen Symbole.',
+    ],
+  },
+  {
     version: '0.10.21',
     punkte: [
       'iPad hochkant: Unten gibt es jetzt „Mehr“ mit Produkte, Förderung, Sperren und den übrigen Bereichen.',

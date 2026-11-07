@@ -1,5 +1,9 @@
 # Änderungsverlauf
 
+## 0.10.22 – 07.11.2026
+- **Auswertungen: prozentuale Veränderung.** Jede Kennzahl zeigt neben der Differenz die Veränderung in Prozent zum Vorzeitraum, mit Pfeil (▲ ▼ ▶) und Vorzeichen, nicht nur über die Farbe erkennbar, z. B. „▼ −10 (−43 %)“. War der Vorzeitraum 0, steht „(neu)“; Quoten bleiben in Prozentpunkten. Bildschirmleser hören „gestiegen/gesunken, vorher …“. Im PDF-Bericht Spalte „Veränderung (%)“, grün/rot gefärbt (`veraenderung()` liefert `prozent`, neu `veraenderungText()`).
+- **Förderung-Symbol** jetzt als ganzes Logo mit Sperling und Blatt, in den Farben der übrigen Symbole (hell und dunkel).
+
 ## 0.10.21 – 07.11.2026
 - **iPad hochkant (640–899 px):** Leiste unten wie am iPhone mit „Mehr“; Produkte, Förderung, Sperren und die übrigen Bereiche sind dort wieder erreichbar. Rund-Tour: „Zu finden unter „Mehr““ statt „Auf dem iPhone …“.
 - **Kundenliste und Kundenkartei am Handy:** Name bekommt die ganze Breite und bricht um; Kontakt-Alter und PV/WP/VW stehen darunter.

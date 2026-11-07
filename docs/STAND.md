@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.21
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.22
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,11 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.21)
+## Erledigt (Version 0.10.22)
+
+### Neu in 0.10.22
+- [x] Auswertungen: prozentuale Veränderung zum Vorzeitraum mit Pfeil und Vorzeichen, auch im PDF.
+- [x] Förderung-Symbol mit Sperling und Blatt wie die übrigen Symbole.
 
 ### Neu in 0.10.21 (Befunde aus dem Rundumcheck)
 - [x] iPad hochkant: „Mehr“ in der Leiste (Produkte, Sperren erreichbar), Tour-Texte angepasst.

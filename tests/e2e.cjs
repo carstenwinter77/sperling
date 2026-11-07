@@ -669,6 +669,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   // Fokus je Sparte: drei Anteile, sechs Zeiträume in der Entwicklung; nur bei „Alles zusammen“
   await p.waitForSelector('#awFokus');
   if ((await p.$$('#awFokus .aw-anteil')).length !== 3 || (await p.$$('#awFokus .aw-reihe li')).length !== 6) fail('Fokus je Sparte unvollständig');
+  if (!(await p.$$eval('.aw-zahl .aw-delta', (x) => x.some((e) => /\((?:[+−±]\d+ %|neu)\)/.test(e.textContent) && e.querySelector('.aw-pfeil'))))) fail('Prozentuale Veränderung mit Pfeil fehlt');
   await p.click('[data-bereich=wp]');
   await p.waitForFunction(() => !document.querySelector('#awFokus'));
   await p.click('[data-bereich=alle]');

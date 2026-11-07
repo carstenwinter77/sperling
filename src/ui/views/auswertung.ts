@@ -4,7 +4,7 @@ import { esc } from '../../core/util.ts';
 import { AUSGANG, SPARTEN, SPARTEN_KEYS } from '../../core/model.ts';
 import { tagVon } from '../../core/belegung.ts';
 import {
-  bericht, fokusBericht, verschieben, veraenderung, prozent, BEREICHE, PERIODEN, PERIODEN_REIHE,
+  bericht, fokusBericht, verschieben, veraenderung, veraenderungText, prozent, BEREICHE, PERIODEN, PERIODEN_REIHE,
   type Bereich, type Periode, type Bericht, type Kennzahlen, type Ausgang, type Fokus,
 } from '../../core/auswertung.ts';
 import * as store from '../../storage/store.ts';
@@ -56,6 +56,9 @@ function verlaufHtml(verlauf: Kennzahlen['verlauf'], bereich: Bereich, max: numb
 const pkt = (d: number | null) => (d === null ? '' : d === 0 ? '±0 Pkt.' : `${d > 0 ? '+' : '−'}${Math.abs(d)} Pkt.`);
 /** Standardschrift im PDF kennt kein Unicode-Minus. */
 const ansi = (s: string) => s.replace(/−/g, '-');
+const PFEIL = { auf: '▲', ab: '▼', gleich: '▶' } as const;
+const RICHTUNG = { auf: 'gestiegen', ab: 'gesunken', gleich: 'gleich geblieben' } as const;
+const PDF_RICHTUNG: Record<'auf' | 'ab' | 'gleich', [number, number, number]> = { auf: [36, 120, 30], ab: [180, 45, 45], gleich: [90, 100, 95] };
 const anteilText = (a: number | null) => (a === null ? '–' : `${Math.round(a * 100)} %`);
 
 /** Ein Satz zum Gleichgewicht. */
@@ -140,7 +143,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     return `<div class="aw-zahl">
         <span class="aw-titel">${z.titel}</span>
         <strong>${anzeigen(z, jetzt)}</strong>
-        ${v ? `<span class="aw-delta ${v.richtung}" title="Vorzeitraum: ${anzeigen(z, vorher)}">${v.text}</span>` : '<span class="aw-delta gleich">–</span>'}
+        ${v ? `<span class="aw-delta ${v.richtung}" title="Vorzeitraum: ${anzeigen(z, vorher)}"><span class="aw-pfeil" aria-hidden="true">${PFEIL[v.richtung]}</span> ${v.text}${v.prozent ? ` <span class="aw-prozent">(${v.prozent})</span>` : ''}<span class="sr-only"> ${RICHTUNG[v.richtung]}, vorher ${anzeigen(z, vorher)}</span></span>` : '<span class="aw-delta gleich">–</span>'}
         ${z.sub ? `<small>${esc(z.sub(jetzt))}</small>` : ''}
       </div>`;
   }).join('')}</div>
@@ -192,8 +195,9 @@ export async function berichtPdf(ber: Bericht, fokus: Fokus | null = null): Prom
   doc.setTextColor(0);
 
   // Immer genau eine Seite: Zeilenhöhe und Schrift schrumpfen, wenn es viele Zeilen sind.
-  const kennzahlZeilen = zahlenFuer(ber.bereich).map((z) => [
-    z.titel, anzeigen(z, ber.jetzt), anzeigen(z, ber.vorher), ansi(veraenderung(z.wert(ber.jetzt), z.wert(ber.vorher), z.quote)?.text || '–'),
+  const kennzahlVer = zahlenFuer(ber.bereich).map((z) => veraenderung(z.wert(ber.jetzt), z.wert(ber.vorher), z.quote));
+  const kennzahlZeilen = zahlenFuer(ber.bereich).map((z, i) => [
+    z.titel, anzeigen(z, ber.jetzt), anzeigen(z, ber.vorher), ansi(veraenderungText(kennzahlVer[i]!)),
   ]);
   const erg = (Object.keys(AUSGANG) as Ausgang[]).filter((a) => ber.jetzt.ergebnisse[a] || ber.vorher.ergebnisse[a]);
   const top = ber.jetzt.topProdukte;
@@ -207,7 +211,7 @@ export async function berichtPdf(ber: Bericht, fokus: Fokus | null = null): Prom
   const zh = Math.max(3.6, Math.min(6, (unten - y - fest) / Math.max(1, zeilen)));
   const fs = Math.max(7, Math.min(10, zh * 1.7));
 
-  const tabelle = (kopf: string[], reihe: string[][], sp: number[], bis: number) => {
+  const tabelle = (kopf: string[], reihe: string[][], sp: number[], bis: number, farbe?: (zeile: number, spalte: number) => [number, number, number] | null) => {
     doc.setFont('helvetica', 'bold'); doc.setFontSize(fs);
     kopf.forEach((t, i) => { if (t) doc.text(t, sp[i]!, y); });
     doc.setDrawColor(180); doc.line(sp[0]!, y + 1.5, bis, y + 1.5);
@@ -220,10 +224,11 @@ export async function berichtPdf(ber: Bericht, fokus: Fokus | null = null): Prom
       while (x.length > 1 && doc.getTextWidth(`${x}…`) > breite) x = x.slice(0, -1);
       return `${x.trimEnd()}…`;
     };
-    for (const z of reihe) { z.forEach((t, i) => { if (t) doc.text(passend(t, (sp[i + 1] ?? bis) - sp[i]! - 2), sp[i]!, yy); }); yy += zh; }
+    reihe.forEach((z, n) => { z.forEach((t, i) => { if (!t) return; const f = farbe?.(n, i); if (f) doc.setTextColor(...f); doc.text(passend(t, (sp[i + 1] ?? bis) - sp[i]! - 2), sp[i]!, yy); if (f) doc.setTextColor(0); }); yy += zh; });
     return yy;
   };
-  y = tabelle(['Kennzahl', 'Jetzt', 'Vorher', 'Veränderung'], kennzahlZeilen, [R, R + 92, R + 118, R + 144], B - R) + 4;
+  y = tabelle(['Kennzahl', 'Jetzt', 'Vorher', 'Veränderung (%)'], kennzahlZeilen, [R, R + 88, R + 110, R + 132], B - R,
+    (n, i) => (i === 3 && kennzahlVer[n] ? PDF_RICHTUNG[kennzahlVer[n]!.richtung] : null)) + 4;
   if (zweiSpalten) {
     const mitte = R + 90;
     doc.setFont('helvetica', 'bold'); doc.setFontSize(Math.min(12, fs + 2));

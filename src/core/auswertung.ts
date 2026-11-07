@@ -209,14 +209,31 @@ function verlaufAbschnitte(periode: Periode, von: Tag, bis: Tag) {
   return out;
 }
 
-/** Veränderung gegenüber dem Vorzeitraum, z. B. „+3“ oder „−12 %“. Quoten in Prozentpunkten. */
-export function veraenderung(jetzt: number | null, vorher: number | null, quote = false): { text: string; richtung: 'auf' | 'ab' | 'gleich' } | null {
+export interface Veraenderung {
+  /** Differenz, z. B. „+3“, „−1“, „±0“; bei Quoten „+25 Pkt.“ */
+  text: string;
+  richtung: 'auf' | 'ab' | 'gleich';
+  /** Prozentuale Veränderung zum Vorzeitraum, z. B. „+25 %“; „neu“, wenn vorher 0 war; null bei Quoten und 0 → 0 */
+  prozent: string | null;
+}
+
+/** Veränderung gegenüber dem Vorzeitraum: Differenz und prozentuale Veränderung. Quoten nur in Prozentpunkten. */
+export function veraenderung(jetzt: number | null, vorher: number | null, quote = false): Veraenderung | null {
   if (jetzt === null || vorher === null) return null;
   const diff = quote ? Math.round((jetzt - vorher) * 100) : jetzt - vorher;
-  if (diff === 0) return { text: '±0', richtung: 'gleich' };
-  const zahl = `${diff > 0 ? '+' : '−'}${Math.abs(diff)}`;
-  return { text: quote ? `${zahl} Pkt.` : zahl, richtung: diff > 0 ? 'auf' : 'ab' };
+  const vz = (n: number) => (n > 0 ? '+' : n < 0 ? '−' : '±');
+  let prozent: string | null = null;
+  if (!quote) {
+    if (vorher > 0) { const p = Math.round(((jetzt - vorher) / vorher) * 100); prozent = `${vz(p)}${Math.abs(p).toLocaleString('de-DE')} %`; }
+    else if (jetzt > 0) prozent = 'neu';
+  }
+  if (diff === 0) return { text: '±0', richtung: 'gleich', prozent };
+  const zahl = `${vz(diff)}${Math.abs(diff)}`;
+  return { text: quote ? `${zahl} Pkt.` : zahl, richtung: diff > 0 ? 'auf' : 'ab', prozent };
 }
+
+/** Veränderung als ein Text, z. B. „+3 (+25 %)“, „+2 (neu)“, „+5 Pkt.“ */
+export const veraenderungText = (v: Veraenderung | null) => (!v ? '–' : v.prozent ? `${v.text} (${v.prozent})` : v.text);
 
 export const prozent = (q: number | null) => (q === null ? '–' : `${Math.round(q * 100)} %`);
 
