@@ -55,6 +55,11 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/bausteinverwaltung.ts  Einstellungen → Textbausteine
  ├─ src/demo-gebiet.ts  Beispielkunden im Beratungsgebiet (fester Startwert)
  ├─ src/ui/ziehsortieren.ts  Listen per Griff umsortieren (Zeiger + Pfeiltasten)
+ ├─ src/core/listenimport.ts  Vorwerk-PDF-Liste: Zeilen aus Textstücken, Abgleich, Übernahme (rein, in Node getestet)
+ ├─ src/ui/listenimport.ts  PDF wählen, mit pdf.js lesen (lazy geladen), Vorschau-Dialog
+ ├─ src/core/kundenwahl.ts  Kundensuche und „zuletzt benutzt“ für Auswahlfelder (rein)
+ ├─ src/ui/kundenwahl.ts  Suchfeld mit Treffern; verstecktes Feld behält den alten Namen
+ ├─ tests/testliste-pdf.cjs  erzeugt eine Beispiel-PDF mit erfundenen Daten für die Tests
  ├─ src/ui/produkte.ts ... Kacheln, Produktdetail, Markieren-Block (Kartei, Gesprächsmodus)
  ├─ src/ui/views/produkte.ts  Produktübersicht #/produkte (auch im Beratungs-Schutz)
  ├─ src/data/produkte.json  Produktkatalog (statisch, im Paket)

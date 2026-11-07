@@ -1,5 +1,9 @@
 # Änderungsverlauf
 
+## 0.10.8 – 07.11.2026
+- **Vorwerk-Liste als PDF importieren** (Kunden → „📄 PDF-Liste importieren“): Die Tabelle (Name, Straße, PLZ/Ort, Telefon, Sperre, EWE, EWE-Datum, BNW, Notizen) wird mit pdf.js auf dem Gerät gelesen (`src/core/listenimport.ts`, `src/ui/listenimport.ts`). Vorschau mit Neu/Geändert/Gleich, Auswahl je Zeile, Liste der Kunden, die nicht mehr in der Liste stehen (es wird nichts gelöscht). Doppelte Zeilen werden zusammengeführt; gleiche Telefonnummer und Adresse mit anderem Namen gilt als Haushalt. Sperre/EWE/EWE-Datum/BNW landen in eigenen Vorwerk-Feldern (`vwliste-*`), neue Kunden bekommen Vorwerk „Potenzial“ und eine Notiz. Standorte werden nur über die Adresse gesucht. Test mit selbst erzeugter Beispiel-PDF (`tests/testliste-pdf.cjs`, erfundene Daten).
+- **Kundenauswahl per Suche** überall (Termin, Reservieren, Verleihen, Gesprächsleitfaden): Suchfeld nach Name, Straße, Ort oder Telefon, ohne Eingabe die zuletzt benutzten Kunden; gleichnamige Kunden sind markiert und über Adresse/Telefon unterscheidbar (`src/core/kundenwahl.ts`, `src/ui/kundenwahl.ts`).
+
 ## 0.10.7 – 07.11.2026
 - **Beispielkunden:** 54 erfundene Kunden im Beratungsgebiet (Lengede mit Ortsteilen, Peine, Vechelde, Ilsede, Hohenhameln, Söhlde, Wendeburg, Edemissen, Salzgitter), alle Bereiche und Status, Produkte aus dem erweiterten Katalog, Termine, Wiedervorlagen, Testgeräte. Fester Startwert, daher immer gleich.
 - **Produktkatalog** auf 79 Produkte erweitert (Enpal 20, GALVANY 10, Vorwerk 49).

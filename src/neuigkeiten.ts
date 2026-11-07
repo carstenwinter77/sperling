@@ -2,6 +2,13 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.8',
+    punkte: [
+      'Kunden: „📄 PDF-Liste importieren“ liest die Vorwerk-Liste ein. Du siehst vorher, wer neu ist und was sich geändert hat, und wählst selbst aus.',
+      'Kunden wählen geht jetzt überall per Suche: Name, Straße, Ort oder Telefon eintippen. Ohne Eingabe stehen die zuletzt benutzten Kunden oben, gleiche Namen sind markiert.',
+    ],
+  },
+  {
     version: '0.10.7',
     punkte: [
       '54 Beispielkunden rund um Lengede, Peine und Salzgitter, mit vielen Produkten, Terminen und Testgeräten.',

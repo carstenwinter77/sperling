@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.7
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.10.8
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,12 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.7)
+## Erledigt (Version 0.10.8)
+
+### Neu in 0.10.8
+- [x] Vorwerk-Liste als PDF importieren (`src/core/listenimport.ts`, `src/ui/listenimport.ts`, pdf.js lokal). Vorschau mit Auswahl, Abgleich gegen den Bestand, nichts wird gelöscht. Getestet mit erzeugter Beispiel-PDF (`tests/testliste-pdf.cjs`).
+- [ ] Mit einer echten Vorwerk-PDF prüfen (Spaltenerkennung), echte PDF nie ins Repo.
+- [x] Kundenauswahl per Suche statt langer Liste in Termin, Reservieren, Verleihen und Gesprächsleitfaden (`src/ui/kundenwahl.ts`).
 
 ### Neu in 0.10.7
 - [x] 54 Beispielkunden im Beratungsgebiet mit Produkten aus dem erweiterten Katalog (79 Produkte), Terminen, Testgeräten (`src/demo-gebiet.ts`).

@@ -1,4 +1,5 @@
 // Sperling – wiederverwendbare UI-Bausteine.
+import * as kundenwahl from './kundenwahl.ts';
 import { esc, isoToLocalInput, localInputToIso, formatDateTime, parseNumber } from '../core/util.ts';
 import { SPARTEN, SPARTEN_KEYS, STATUS, kundenTitel, adresseEinzeilig, neuerTermin, normalizeTermin, type Termin } from '../core/model.ts';
 import { erzeugeIcs } from '../core/ics.ts';
@@ -36,14 +37,12 @@ export async function terminDialog({ termin = null as Termin | null, kundeId = '
   if (!termin && k) {
     t.ort = adresseEinzeilig(k);
   }
-  const kundenOpts = [...d.kunden].sort((a, b) => kundenTitel(a).localeCompare(kundenTitel(b), 'de'))
-    .map((x) => `<option value="${esc(x.id)}" ${x.id === t.kundeId ? 'selected' : ''}>${esc(kundenTitel(x))}</option>`).join('');
   const html = `
     <label>Art
       <select name="art"><option value="wiedervorlage" ${t.art === 'wiedervorlage' ? 'selected' : ''}>Wiedervorlage</option><option value="termin" ${t.art === 'termin' ? 'selected' : ''}>Termin</option></select>
     </label>
     <label>Titel <input name="titel" value="${esc(t.titel)}" placeholder="z. B. Vorwerk-Vorführung" required maxlength="300"></label>
-    <label>Kunde <select name="kundeId"><option value="">– ohne Kunde –</option>${kundenOpts}</select></label>
+    ${kundenwahl.html('kundeId', 'Kunde', t.kundeId)}
     <label>Sparte <select name="sparte"><option value="">– keine –</option>${SPARTEN_KEYS.map((s) => `<option value="${s}" ${s === t.sparte ? 'selected' : ''}>${esc(SPARTEN[s].label)}</option>`).join('')}</select></label>
     <div class="row2">
       <label>Beginn <input type="datetime-local" name="beginn" value="${esc(isoToLocalInput(t.beginn))}" required></label>
@@ -54,6 +53,7 @@ export async function terminDialog({ termin = null as Termin | null, kundeId = '
   const res = await dialog({
     titel: termin ? 'Termin bearbeiten' : 'Neue Wiedervorlage / Termin',
     html,
+    onOpen: (dlg) => kundenwahl.verdrahten(dlg),
     knoepfe: [{
       label: 'Speichern', primaer: true,
       pruefen: (dlg) => {

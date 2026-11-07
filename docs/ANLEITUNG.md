@@ -80,6 +80,16 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **„+ Eigenes Feld“**: Bezeichnung, Bereich und Art (Text, langer Text, Zahl mit Einheit, Datum, Ja/Nein, Auswahlliste, Telefon, E-Mail, Link). Eigene Felder stehen in Kartei, Gesprächsmodus, den Texten ihres Bereichs, Kundenansicht und Suche; Ja/Nein und Auswahllisten auch im Filter.
 - 🗑 löscht ein eigenes Feld samt Werten (mit Rückfrage). Zum Behalten nur ausblenden.
 
+## Vorwerk-Liste importieren
+
+- Kunden → **„📄 PDF-Liste importieren“** und die PDF wählen. Sie wird nur auf dem Gerät gelesen.
+- Die Vorschau zeigt je Zeile **neu**, **geändert** (mit den Änderungen) oder **gleich**. Häkchen weg = Zeile wird nicht übernommen. Unten stehen Kunden, die nicht mehr in der Liste sind; gelöscht wird nichts.
+- Sperre, EWE, EWE-Datum und BNW stehen danach in eigenen Vorwerk-Feldern, Notizen als Vorwerk-Notiz. Neue Kunden bekommen Vorwerk „Potenzial“ und einen Kartenpunkt, wenn die Adresse gefunden wird.
+
+## Kunden auswählen
+
+- Bei Termin, Reservieren, Verleihen und im Gesprächsleitfaden: Name, Straße, Ort oder Telefon eintippen und den Treffer antippen. Ohne Eingabe stehen die zuletzt benutzten Kunden oben. „gleicher Name“ zeigt Namensvettern; Adresse und Telefon stehen darunter. „Ändern“ wählt neu.
+
 ## 4. Datensicherung
 
 - **iCloud (iPad/iPhone):** Einstellungen → **„In iCloud / Dateien sichern“** → „Jetzt sichern“ → im Teilen-Menü **„In Dateien sichern“** → iCloud Drive → Ordner (z. B. „Sperling“) → Sichern. Die Datei ist verschlüsselt.

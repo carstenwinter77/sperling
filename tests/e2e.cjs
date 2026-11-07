@@ -191,7 +191,8 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   // Reservieren: für den Kunden, zweite Reservierung im selben Zeitraum wird abgelehnt
   const karte = p.locator('article.geraet').first();
   await karte.locator('[data-aktion=reservieren]').click();
-  await p.selectOption('dialog [name=kunde]', { index: 1 });
+  await p.fill('dialog .kw-eingabe', 'Prüfer');
+  await p.click('dialog .kw-treffer [data-kw-id]:not(.kw-ohne)');
   await p.click('dialog button.primary');
   await p.waitForSelector('article.geraet [data-resv]');
   await karte.locator('[data-aktion=reservieren]').click();
@@ -410,7 +411,8 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   if (!(await p.textContent('.verlauf')).includes('Wiedervorlage vereinbart')) fail('Ergebnis fehlt im Verlauf');
   // Vom Leitfaden aus nahtlos in die geteilte Ansicht
   await p.goto(BASE + '#/gespraech');
-  await p.selectOption('#gKunde', { index: 1 });
+  await p.fill('#gKunde .kw-eingabe', 'Prüfer');
+  await p.click('#gKunde .kw-treffer [data-kw-id]:not(.kw-ohne)');
   await p.click('#gInhalt .gl-einwand-sprung');
   await p.click('#gInhalt .einwand >> nth=1');
   await p.click('#gGeteilt');
@@ -430,7 +432,9 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForFunction(() => /^#\/kunde\//.test(location.hash));
   await p.evaluate(() => { location.hash = '#/gespraech'; });
   await p.waitForSelector('#gKunde');
-  if ((await p.$$eval('#gKunde option', (o) => o.length)) !== 2) fail('Im Schutz sind andere Kunden im Leitfaden wählbar');
+  if (await p.isVisible('#gKunde [data-kw-aendern]')) await p.click('#gKunde [data-kw-aendern]');
+  await p.fill('#gKunde .kw-eingabe', 'e');
+  if ((await p.$$('#gKunde .kw-treffer [data-kw-id]:not(.kw-ohne)')).length > 1) fail('Im Schutz sind andere Kunden im Leitfaden wählbar');
   await p.click('#schutzKnopf');
   await p.fill('.schutz-sperre [name=pw]', 'falsch');
   await p.click('.schutz-sperre button.primary');
@@ -654,6 +658,32 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('#gmVerwerfen');
   await p.click('dialog button.danger');
   await p.waitForFunction(() => /^#\/kunde\/[\w-]+(\?|$)/.test(location.hash));
+  // Vorwerk-PDF-Liste importieren (selbst erzeugte Test-PDF, erfundene Namen)
+  {
+    const pdfPfad = require('path').join(require('os').tmpdir(), 'sperling-testliste.pdf');
+    require('fs').writeFileSync(pdfPfad, require('./testliste-pdf.cjs').erzeugen());
+    await p.goto(BASE + '#/kunden');
+    const [pfc] = await Promise.all([p.waitForEvent('filechooser'), p.click('#pdfImport')]);
+    await pfc.setFiles(pdfPfad);
+    await p.waitForSelector('dialog .li-tabelle', { timeout: 20000 });
+    const kopfText = await p.textContent('dialog .dlg-body');
+    if (!kopfText.includes('32 Kunden erkannt') || !kopfText.includes('1 doppelte')) fail(`PDF-Import: Erkennung falsch (${kopfText.slice(0, 120)})`);
+    await p.uncheck('dialog [data-li="0"]');
+    await p.click('dialog button.primary');
+    await p.waitForFunction(() => document.querySelector('#toast')?.textContent.includes('31 neue'));
+    await p.fill('#suche', 'Fricke');
+    await p.waitForFunction(() => document.querySelectorAll('#liste .zeile').length === 2);
+    await p.fill('#suche', 'Ahrens');
+    await p.waitForTimeout(300);
+    if (await p.$('#liste .zeile')) fail('Abgewählter Eintrag trotzdem übernommen');
+    // Zweiter Import: nur noch Ahrens neu, Rest unverändert
+    const [pfc2] = await Promise.all([p.waitForEvent('filechooser'), p.click('#pdfImport')]);
+    await pfc2.setFiles(pdfPfad);
+    await p.waitForSelector('dialog .li-tabelle', { timeout: 20000 });
+    if (!(await p.textContent('dialog .li-summe')).includes('1 neu')) fail('PDF-Import: zweiter Abgleich falsch');
+    await p.click('dialog .dlg-actions button.ghost');
+    await p.fill('#suche', '');
+  }
   // Unbekannte Route / unbekannter Kunde stürzen nicht ab
   await p.goto(BASE + '#/kunde/gibtsnicht');
   await p.waitForSelector('.leer');

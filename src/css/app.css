@@ -918,3 +918,34 @@ dialog.dlg.dlg-termin { width: min(560px, calc(100vw - 24px)); }
   .gl-leiste::after, .gl-dot, .gl-haken::after, .gm-bilanz-bild { transition: none; }
 }
 @keyframes gl-blende { from { opacity: 0; } to { opacity: 1; } }
+
+/* Vorwerk-PDF-Liste importieren */
+dialog.dlg.dlg-breit { width: min(980px, calc(100vw - 24px)); }
+.li-summe { display: flex; flex-wrap: wrap; gap: .4rem; }
+.li-summe .chip, .li-art { font-weight: 600; }
+.chip.li-neu, tr.li-neu .li-art { background: var(--tag-vw-bg); }
+.chip.li-geaendert, tr.li-geaendert .li-art { background: var(--tag-pv-bg); }
+.chip.li-gleich, tr.li-gleich .li-art { background: var(--flaeche-2); }
+.chip.li-fehlt { background: var(--tag-wp-bg); }
+.li-tabelle-rahmen { max-height: 50dvh; overflow: auto; border: 1px solid var(--linie); border-radius: 12px; }
+.li-tabelle { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.li-tabelle th { position: sticky; top: 0; background: var(--karte); text-align: left; padding: .4rem; border-bottom: 1px solid var(--linie); }
+.li-tabelle td { padding: .4rem; border-bottom: 1px solid var(--linie); vertical-align: top; }
+.li-tabelle input[type=checkbox] { width: 22px; height: 22px; }
+tr.li-gleich { opacity: .7; }
+@media (max-width: 640px) { .li-tabelle th:nth-child(4), .li-tabelle td:nth-child(4) { display: none; } }
+
+/* Kundenauswahl (Suche statt langer Liste) */
+.kundenwahl { display: flex; flex-direction: column; gap: .3rem; }
+.kw-label { font-weight: 600; font-size: .9rem; }
+.kw-gewaehlt { display: flex; align-items: center; justify-content: space-between; gap: .5rem; border: 1px solid var(--linie); border-radius: 12px; padding: .5rem .7rem; background: var(--feld); }
+.kw-gewaehlt[hidden], .kw-suche[hidden] { display: none; }
+.kw-text, .kw-treffer li { display: flex; flex-direction: column; }
+.kw-text small, .kw-treffer small { color: var(--text-2); font-size: .8rem; }
+.kw-treffer { list-style: none; margin: .3rem 0 0; padding: 0; max-height: 240px; overflow: auto; border: 1px solid var(--linie); border-radius: 12px; }
+.kw-treffer:empty { display: none; }
+.kw-treffer li { padding: .55rem .7rem; min-height: 44px; justify-content: center; border-bottom: 1px solid var(--linie); cursor: pointer; }
+.kw-treffer li:last-child { border-bottom: 0; }
+.kw-treffer li[data-kw-id]:hover { background: var(--aktiv-bg); }
+.kw-treffer li.kw-kopf { cursor: default; min-height: 0; font-size: .75rem; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: .04em; }
+.kw-treffer .chip { align-self: flex-start; font-size: .7rem; }

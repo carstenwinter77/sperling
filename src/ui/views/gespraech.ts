@@ -1,5 +1,6 @@
 // Gesprächsleitfaden: Einstiegsfragen, Einwände anklicken → Gegenargumente, Überleitungen.
 // Gespeichert wird je Sparte eine EIGENE Notiz (R-TEXT: nie Sparten mischen).
+import * as kundenwahl from '../kundenwahl.ts';
 import { esc, nowIso, formatDateTime, localInputToIso } from '../../core/util.ts';
 import { SPARTEN, SPARTEN_KEYS, kundenTitel, neueNotiz, neuerTermin, normalizeGespraech, normalizeEnpalKontakt, KONTAKTART, kundenName, adresseEinzeilig, STATUS, AUSGANG, type Sparte, type StatusKey, type Kunde } from '../../core/model.ts';
 import { LEITFADEN, UEBERLEITUNG, ERGEBNIS, TECHNIKEN, gespraechsNotiz } from '../../core/einwaende.ts';
@@ -112,8 +113,6 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
     zustand.aufgedeckt.add(p('einwand'));
     fluss.phase = 'loesung';
   }
-  const kundenOpts = [...d.kunden].sort((a, b) => kundenTitel(a).localeCompare(kundenTitel(b), 'de'))
-    .map((k) => `<option value="${esc(k.id)}" ${k.id === zustand.kundeId ? 'selected' : ''}>${esc(kundenTitel(k))}</option>`).join('');
 
   el.innerHTML = einb ? `
     <nav class="tabs" id="gTabs">${SPARTEN_KEYS.map((s) => `<button data-sparte="${s}" class="${s === zustand.sparte ? 'aktiv' : ''}">${esc(SPARTEN[s].label)}</button>`).join('')}</nav>
@@ -123,7 +122,7 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
       <a class="btn ghost" href="#/produkte">🏷️ Produkte</a>
     </header>
     <section class="karte-box">
-      <label>Gespräch mit<select id="gKunde"><option value="">– ohne Kunde (nur nachschlagen) –</option>${kundenOpts}</select></label>
+      ${kundenwahl.html('gKunde', 'Gespräch mit', zustand.kundeId, { id: 'gKunde', leerText: '– ohne Kunde (nur nachschlagen) –' })}
     </section>
     <nav class="tabs" id="gTabs">${SPARTEN_KEYS.map((s) => `<button data-sparte="${s}" class="${s === zustand.sparte ? 'aktiv' : ''}">${esc(SPARTEN[s].label)}</button>`).join('')}</nav>
     <div id="gInhalt"></div>
@@ -389,7 +388,8 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
     });
   };
 
-  el.querySelector('#gKunde')?.addEventListener('change', (ev) => { zustand.kundeId = (ev.target as HTMLInputElement).value; zeichnen(); });
+  const kw = el.querySelector('#gKunde');
+  if (kw) { kundenwahl.verdrahten(kw.parentElement!); kw.querySelector('[name=gKunde]')!.addEventListener('change', (ev) => { zustand.kundeId = (ev.target as HTMLInputElement).value; zeichnen(); }); }
   const tabWechsel = (s: Sparte) => {
     zustand.sparte = s;
     zustand.offenerEinwand = null;

@@ -34,7 +34,10 @@ export function render(el: HTMLElement, params: URLSearchParams) {
   el.innerHTML = `
     <header class="seitenkopf">
       <h1>${maskottchen('kunde-neu', 'titel-bild')} Kunden</h1>
-      <button class="btn primary" id="neu">+ Neuer Kunde</button>
+      <div class="knopfreihe">
+        <button class="btn ghost" id="pdfImport" ${store.isDemo() ? 'disabled title="Im Demo-Modus nicht verfügbar"' : ''}>📄 PDF-Liste importieren</button>
+        <button class="btn primary" id="neu">+ Neuer Kunde</button>
+      </div>
     </header>
     <div class="filterleiste">
       <input type="search" id="suche" placeholder="Name, Adresse, Telefon …" value="${esc(suche)}" autocomplete="off">
@@ -82,6 +85,10 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     (e.currentTarget as HTMLElement).setAttribute('aria-expanded', String(!panel.hidden));
   });
   filterPanelVerdrahten(panel, filter, zeichnen);
+  el.querySelector('#pdfImport').addEventListener('click', async () => {
+    const { importieren } = await import('../listenimport.ts');
+    await importieren(() => render(el, params));
+  });
   el.querySelector('#neu').addEventListener('click', () => {
     const k = neuerKunde();
     store.mutate((d) => { d.kunden.push(k); });

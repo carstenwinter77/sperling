@@ -1,4 +1,5 @@
 // Vorführbestand (Vorwerk-Geräte im Auto): verleihen, zurücknehmen, Erinnerung, Kaufinteresse.
+import * as kundenwahl from '../kundenwahl.ts';
 import { esc, nowIso, formatDate, isValidDate } from '../../core/util.ts';
 import { KAUFINTERESSE, kundenTitel, adresseEinzeilig, neuesGeraet, neuerLeihvorgang, neueNotiz, neuerTermin, offenerVerleih, STATUS_KEYS, normalizeReservierung, geraetBelegung, type Geraet, type Kunde, type Leihvorgang, type Reservierung, type Belegung, type Daten, type StatusKey } from '../../core/model.ts';
 import * as store from '../../storage/store.ts';
@@ -214,8 +215,6 @@ function konfliktText(konflikte: Belegung[], d: Daten): string {
 /** Gerät für einen künftigen Zeitraum vormerken. Belegte Tage werden abgelehnt. */
 export async function reservierenDialog(g: Geraet, vorgabe: { kundeId?: string; von?: string; bis?: string } = {}): Promise<boolean> {
   const d = store.getData();
-  const opts = [...d.kunden].sort((a, b) => kundenTitel(a).localeCompare(kundenTitel(b), 'de'))
-    .map((k) => `<option value="${esc(k.id)}" ${vorgabe.kundeId === k.id ? 'selected' : ''}>${esc(kundenTitel(k))}</option>`).join('');
   // Gesperrt: Verleihe und andere Reservierungen dieses Geräts
   const heute = tagVon(new Date());
   const balken = balkenFuer(d, g.id, heute);
@@ -227,7 +226,7 @@ export async function reservierenDialog(g: Geraet, vorgabe: { kundeId?: string; 
   const res = await dialog({
     titel: `${g.name} reservieren`,
     html: `
-      <label>Für Kunde (optional)<select name="kunde"><option value="">– ohne Kunde –</option>${opts}</select></label>
+      ${kundenwahl.html('kunde', 'Für Kunde (optional)', vorgabe.kundeId || '')}
       <div class="zr-platz"></div>
       <details class="zr-tippen"><summary>Datum eintippen</summary>
       <div class="row2">
@@ -236,7 +235,7 @@ export async function reservierenDialog(g: Geraet, vorgabe: { kundeId?: string; 
       </div>
       </details>
       <label>Notiz<input name="notiz" maxlength="2000" placeholder="z. B. Vorführung beim Hausbesuch"></label>`,
-    onOpen: (dlg) => { zeitraumAnbinden(dlg, 'von', 'bis', { von: start, bis: vorgabe.bis ? tagVon(vorgabe.bis) : start, belegt, info, min: heute, vorgabeTage: 1 }); },
+    onOpen: (dlg) => { kundenwahl.verdrahten(dlg); zeitraumAnbinden(dlg, 'von', 'bis', { von: start, bis: vorgabe.bis ? tagVon(vorgabe.bis) : start, belegt, info, min: heute, vorgabeTage: 1 }); },
     knoepfe: [{
       label: 'Reservieren', primaer: true,
       pruefen: (dlg) => {
@@ -262,14 +261,12 @@ export async function reservierenDialog(g: Geraet, vorgabe: { kundeId?: string; 
 export async function verleihDialog(g: Geraet, reservierung: Reservierung | null = null, vorgabeBis = ''): Promise<boolean> {
   const d = store.getData();
   if (!d.kunden.length) { toast('Bitte zuerst einen Kunden anlegen.', 'error'); return false; }
-  const opts = [...d.kunden].sort((a, b) => kundenTitel(a).localeCompare(kundenTitel(b), 'de'))
-    .map((k) => `<option value="${esc(k.id)}" ${reservierung?.kundeId === k.id ? 'selected' : ''}>${esc(kundenTitel(k))}</option>`).join('');
   let holeFotos = (): string[] => [];
   let holeUnterschrift = () => ({ bild: '', name: '' });
   const res = await dialog({
     titel: `${g.name} verleihen`,
     html: `
-      <label>An Kunde<select name="kunde" required><option value="">– bitte wählen –</option>${opts}</select></label>
+      ${kundenwahl.html('kunde', 'An Kunde', reservierung?.kundeId || '', { leerErlaubt: false })}
       <div class="zr-platz"></div>
       <details class="zr-tippen"><summary>Datum eintippen</summary>
       <div class="row2">
@@ -282,9 +279,10 @@ export async function verleihDialog(g: Geraet, reservierung: Reservierung | null
       ${fotosHtml('Fotos vom Zustand bei Übergabe')}
       ${unterschriftHtml(reservierung?.kundeId ? kundenName(d.kunden.find((x) => x.id === reservierung.kundeId) || {}) : '')}`,
     onOpen: (dlg) => {
+      kundenwahl.verdrahten(dlg);
       holeFotos = fotosVerdrahten(dlg);
       holeUnterschrift = unterschriftVerdrahten(dlg);
-      const sel = dlg.querySelector('[name=kunde]');
+      const sel = dlg.querySelector<HTMLInputElement>('[name=kunde]');
       // Gesperrt sind Reservierungen anderer Kunden (die eigene bzw. die erfüllte zählt nicht)
       const heute = tagVon(new Date());
       const sperren = () => {

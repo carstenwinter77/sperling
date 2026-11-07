@@ -1035,3 +1035,74 @@ test('Sicherheitsprüfung: Beispieldaten überschreiben nie echte Kunden oder Ge
   beispielSicher(d, (k) => bestandEntfernen(k));
   assert.ok(d.geraete.some((g) => g.id === 'demob-2') && d.reservierungen.some((r) => r.id === 'r-echt'));
 });
+
+test('Vorwerk-PDF-Liste: Spalten erkennen, Dubletten, Haushalt, Abgleich und Übernahme', async () => {
+  const { createRequire } = await import('node:module');
+  const { erzeugen } = createRequire(import.meta.url)('./testliste-pdf.cjs');
+  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  const li = await import('../src/core/listenimport.ts');
+  const doc = await pdfjs.getDocument({ data: new Uint8Array(erzeugen()), disableFontFace: true }).promise;
+  const seiten = [];
+  for (let i = 1; i <= doc.numPages; i++) seiten.push((await (await doc.getPage(i)).getTextContent()).items.map((t) => ({ str: t.str, x: t.transform[4], y: t.transform[5] })));
+  assert.equal(seiten.length, 2, 'zwei Seiten mit Kopfzeile');
+  const { zeilen, kopf } = li.zeilenAusSeiten(seiten);
+  assert.deepEqual(kopf.spalten.map((s) => s.spalte), ['name', 'strasse', 'plz', 'ort', 'telefon', 'sperre', 'ewe', 'eweDatum', 'bnw', 'notiz']);
+  assert.equal(zeilen.length, 33, 'keine Kopf-/Fußzeilen als Kunden');
+  assert.equal(zeilen[2].notiz, 'Service fällig, bitte im Frühjahr anrufen, Wartung', 'umbrochene Notiz zusammengesetzt');
+  const eintraege = zeilen.map(li.eintragAusZeile).filter(Boolean);
+  const d = migrate({});
+  const a = li.abgleichen(d, eintraege);
+  assert.equal(a.zusammengefasst, 1, 'doppelte Zeile zusammengeführt');
+  assert.equal(a.posten.length, 32);
+  assert.ok(a.posten.every((p) => p.art === 'neu'));
+  const fricke = a.posten.filter((p) => p.eintrag.nachname === 'Fricke');
+  assert.equal(fricke.length, 2, 'gleiche Telefonnummer, gleiche Adresse = Haushalt, keine Dublette');
+  // Übernahme ohne einen Eintrag
+  const erg = li.uebernehmen(d, a, (p) => p.eintrag.nachname !== 'Kassebaum', '2026-11-07T12:00:00.000Z');
+  assert.deepEqual(erg, { neu: 31, geaendert: 0 });
+  const ahrens = d.kunden.find((k) => k.nachname === 'Ahrens');
+  assert.equal(ahrens.vorname, 'Gisela');
+  assert.deepEqual(ahrens.eigene, { 'vwliste-ewe': 'ja', 'vwliste-ewe-datum': '12.03.2025', 'vwliste-bnw': '1' }, 'EWE/BNW unverändert');
+  assert.equal(ahrens.status.vorwerk, 'potenzial');
+  assert.ok(ahrens.notizen[0].text.includes('VK7 seit 2023') && ahrens.notizen[0].sparten.join() === 'vorwerk');
+  assert.equal(d.kunden.find((k) => k.nachname === 'Bode').eigene['vwliste-sperre'], 'X');
+  assert.ok(li.LISTEN_FELDER.every((f) => d.einstellungen.felder.eigene.some((e) => e.id === f.id && e.kategorie === 'vorwerk')));
+  // Zweiter Import: alles gleich, Kassebaum neu; geänderte Telefonnummer wird erkannt
+  const a2 = li.abgleichen(d, eintraege);
+  assert.equal(a2.posten.filter((p) => p.art === 'gleich').length, 31);
+  assert.equal(a2.posten.filter((p) => p.art === 'neu').length, 1);
+  const anders = eintraege.map((e) => (e.nachname === 'Ahrens' ? { ...e, telefon: '0170 999', werte: { ...e.werte, 'vwliste-bnw': '3' } } : e)).filter((e) => !e.nachname.startsWith('Testkunde1'));
+  const a3 = li.abgleichen(d, anders);
+  const p3 = a3.posten.find((p) => p.eintrag.nachname === 'Ahrens');
+  assert.equal(p3.art, 'geaendert');
+  assert.deepEqual(p3.aenderungen, ['Telefon', 'BNW']);
+  assert.ok(a3.fehlen.some((f) => f.titel === 'Erika Testkunde1'), 'fehlende Listenkunden werden gemeldet');
+  const anzahl = d.kunden.length;
+  li.uebernehmen(d, a3);
+  assert.equal(d.kunden.find((k) => k.nachname === 'Ahrens').telefon, '0170 999');
+  assert.equal(d.kunden.find((k) => k.nachname === 'Ahrens').notizen.length, 1, 'Notiz nicht doppelt');
+  assert.ok(d.kunden.length === anzahl + 1 && d.kunden.some((k) => k.nachname === 'Testkunde1'), 'nichts gelöscht');
+  // Kaputtes bleibt harmlos
+  assert.deepEqual(li.zeilenAusSeiten([[{ str: 'Irgendwas', x: 1, y: 1 }]]).zeilen, []);
+  assert.equal(li.eintragAusZeile({ strasse: 'X' }), null);
+  assert.deepEqual(li.nameTeilen('Anna Maria Muster'), { vorname: 'Anna Maria', nachname: 'Muster' });
+});
+
+test('Kundenauswahl: Suche statt Liste, gleiche Namen unterscheidbar, zuletzt benutzte zuerst', async () => {
+  const kw = await import('../src/core/kundenwahl.ts');
+  const d = migrate({ kunden: [
+    { id: 'a', vorname: 'Anna', nachname: 'Meyer', strasse: 'Lindenweg 4', plz: '38268', ort: 'Lengede', telefon: '05344 1234' },
+    { id: 'b', vorname: 'Anna', nachname: 'Meyer', strasse: 'Am Markt 2', plz: '31224', ort: 'Peine' },
+    { id: 'c', vorname: 'Bernd', nachname: 'Schulz', ort: 'Vechelde' },
+  ], termine: [{ id: 't', kundeId: 'c', titel: 'X', beginn: '2026-11-10T10:00:00Z', updatedAt: '2026-11-07T10:00:00Z' }] });
+  const t = kw.kundenSuchen(d, 'anna meyer');
+  assert.deepEqual(t.map((x) => x.id).sort(), ['a', 'b']);
+  assert.ok(t.every((x) => x.doppelt), 'gleicher Name wird markiert');
+  assert.ok(t.find((x) => x.id === 'a').zusatz.includes('Lindenweg 4') && t.find((x) => x.id === 'b').zusatz.includes('Peine'));
+  assert.deepEqual(kw.kundenSuchen(d, 'meyer peine').map((x) => x.id), ['b'], 'Ort grenzt ein');
+  assert.deepEqual(kw.kundenSuchen(d, '1234').map((x) => x.id), ['a'], 'Telefon');
+  assert.deepEqual(kw.kundenSuchen(d, '').map((x) => x.id), ['c'], 'leer: zuletzt benutzte');
+  assert.deepEqual(kw.kundenSuchen(d, 'gibtsnicht'), []);
+  const viele = migrate({ kunden: Array.from({ length: 500 }, (_, i) => ({ id: `k${i}`, nachname: `Kunde${i}` })) });
+  assert.equal(kw.kundenSuchen(viele, 'kunde').length, 8, 'nie endlose Liste');
+});
