@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.10.30 – 07.11.2026
+- **Kontaktseite:** Neben dem Sperling-Logo steht jetzt dezent der volle Name „Jan Sperling“ mit „Berater für Photovoltaik und Wärmepumpe“, abgetrennt durch einen feinen Strich (Name aus `daten.js`). Auf dem Handy nur der Name. Die Datenschutzerklärung zeigt den Namen ebenfalls neben dem Logo. Hintergrund: Vorsicht wegen einer eingetragenen Marke mit „Sperling“ im Energiebereich; der volle Personenname macht klar, dass es um Jan als Person geht.
+
 ## 0.10.29 – 07.11.2026
 - **Hinfahren/Route mit der richtigen Karten-App:** Eine Web-App kann die Standard-Karten-App des iPhones nicht erkennen; bisher öffnete „Automatisch“ dort immer Apple Karten. Jetzt fragt Sperling beim ersten „Hinfahren“ auf iPhone/iPad einmal „Womit navigierst du?“ (Google Maps, Apple Karten, Waze) und merkt sich die Wahl (`einstellungen.kartenApp`). Google Maps und Waze öffnen auf iPhone/iPad direkt über ihr App-Schema (`comgooglemaps://`, `waze://`), ohne App nach kurzer Zeit die Web-Fassung. Gilt für alle Hinfahren-/Route-Knöpfe (Kunde, Karte, Übersicht, Termine, Kundenliste, Suche), da `src/ui/navi.ts` die Links zentral abfängt.
 

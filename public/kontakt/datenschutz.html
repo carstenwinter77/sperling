@@ -34,6 +34,9 @@ header { padding: 22px 0 6px; }
 header .huelle { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .logo { height: 34px; width: auto; display: block; }
 .logo-dunkel { display: none; }
+.marke { display: flex; align-items: center; gap: 12px; text-decoration: none; min-width: 0; }
+.marke-name { padding-left: 12px; border-left: 1px solid var(--linie); color: var(--text-2); font-size: .88rem; font-weight: 600; white-space: nowrap; }
+@media (max-width: 520px) { .marke-name { display: none; } }
 @media (prefers-color-scheme: dark) { .logo-hell { display: none; } .logo-dunkel { display: block; } }
 a { color: var(--gruen); }
 .zurueck { font-weight: 600; text-decoration: none; }
@@ -62,7 +65,7 @@ a:focus-visible { outline: 3px solid var(--gruen-2); outline-offset: 2px; }
 <aside class="hinweis-konzept" data-konzept aria-label="Entwurf"><strong>ENTWURF – NOCH NICHT VERWENDEN!</strong><span>Bitte diesen Link nicht weitergeben. E-Mail-Adresse und USt-IdNr. sind noch Platzhalter.</span></aside>
 <header>
   <div class="huelle">
-    <a href="./" aria-label="Sperling – zur Kontaktseite"><img class="logo logo-hell" src="../assets/marke/logo.png" alt=""><img class="logo logo-dunkel" src="../assets/marke/logo-hell.png" alt="" aria-hidden="true"></a>
+    <a class="marke" href="./" aria-label="Jan Sperling – zur Kontaktseite"><img class="logo logo-hell" src="../assets/marke/logo.png" alt=""><img class="logo logo-dunkel" src="../assets/marke/logo-hell.png" alt="" aria-hidden="true"><span class="marke-name" data-feld="name" aria-hidden="true">Jan Sperling</span></a>
     <a class="zurueck" href="./">← Zur Kontaktseite</a>
   </div>
 </header>

@@ -57,6 +57,12 @@ header.kopf { padding: 22px 0 8px; }
 .logo { height: 38px; width: auto; display: block; }
 .logo-dunkel { display: none; }
 @media (prefers-color-scheme: dark) { .logo-hell { display: none; } .logo-dunkel { display: block; } }
+/* Neben dem Logo dezent der volle Name (Personenname, nicht nur „Sperling“) */
+.marke { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.marke-name { margin: 0; padding-left: 14px; border-left: 1px solid var(--linie); display: flex; flex-direction: column; line-height: 1.25; color: var(--text-2); font-size: .9rem; font-weight: 600; }
+.marke-zusatz { font-size: .76rem; font-weight: 400; }
+@media (max-width: 520px) { .marke { gap: 10px; } .marke-name { padding-left: 10px; font-size: .82rem; } .marke-zusatz { display: none; } }
+@media (max-width: 360px) { .kopf .logo { height: 30px; } .marke-name { white-space: nowrap; } }
 .teilen-mini { background: none; border: 1px solid var(--linie); color: var(--text-2); border-radius: 999px; padding: .4rem .9rem; font: inherit; font-size: .88rem; cursor: pointer; }
 
 /* Einstieg */
@@ -256,8 +262,11 @@ a:focus-visible, button:focus-visible, .weg:focus-visible { outline: 3px solid v
 
 <header class="kopf">
   <div class="huelle">
-    <img class="logo logo-hell" src="../assets/marke/logo.png" alt="Sperling – Photovoltaik und Wärmepumpe">
-    <img class="logo logo-dunkel" src="../assets/marke/logo-hell.png" alt="" aria-hidden="true">
+    <div class="marke">
+      <img class="logo logo-hell" src="../assets/marke/logo.png" alt="Sperling">
+      <img class="logo logo-dunkel" src="../assets/marke/logo-hell.png" alt="" aria-hidden="true">
+      <p class="marke-name"><span data-feld="name">Jan Sperling</span><span class="marke-zusatz">Berater für Photovoltaik und Wärmepumpe</span></p>
+    </div>
     <button class="teilen-mini" type="button" id="teilen">Seite teilen</button>
   </div>
 </header>

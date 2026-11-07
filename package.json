@@ -1,6 +1,6 @@
 {
   "name": "sperling",
-  "version": "0.10.29",
+  "version": "0.10.30",
   "private": true,
   "description": "Sperling – Außendienst-PWA für Photovoltaik, Wärmepumpe und Vorwerk",
   "type": "module",
