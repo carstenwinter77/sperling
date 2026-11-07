@@ -2,6 +2,19 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.9.0',
+    punkte: [
+      'Neues Aussehen: grünes Logo, neue Symbole, Bereichsfarben PV gelb, WP blau, Vorwerk grün. Hell/Dunkel jetzt unter Einstellungen.',
+      'Gespräch starten direkt beim Kunden: links die Kundendaten, rechts Notizen und Leitfaden, dazu die ganze Gesprächshistorie.',
+      'Suche überall (⌘K / Strg+K): Kunden, Geräte, Termine finden und direkt anrufen, Notiz oder Termin anlegen, z. B. „müller anrufen“.',
+      'Beratungs-Schutz 🛡: Ein Tipp blendet alle anderen Kunden aus, solange ein Kunde mit aufs Tablet schaut.',
+      'Letzter Kontakt bei jedem Kunden; Kundenliste und Karte mit Mehrfachfilter und Sortierung.',
+      'Belegungskalender für Vorführgeräte und Auswertungen je Bereich mit PDF-Bericht.',
+      'Nachbarn im Umkreis von 100 m bis 50 km, gelöschte Kunden verfallen nie mehr, Kundenansicht frei einstellbar.',
+      'Hilfe mit ?-Knöpfen und Anleitung zum Installieren für jedes Gerät.',
+    ],
+  },
+  {
     version: '0.8.0',
     punkte: [
       'Kalender mit Monats-, Wochen- und Tagesansicht: Termin per Fingertipp anlegen, in Woche/Tag auch per Wischen den Zeitraum wählen.',

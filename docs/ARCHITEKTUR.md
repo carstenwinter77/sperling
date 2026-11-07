@@ -13,7 +13,15 @@ Browser (Tablet / Handy / Laptop)
  │   ├─ textgen.ts ....... Enpal-/Vorwerk-Texte (strikt getrennt)
  │   ├─ ics.ts ........... Kalenderexport (RFC 5545)
  │   ├─ einwaende.ts ..... Gesprächsleitfaden: Einstiegsfragen, Einwände, Überleitungen
- │   └─ papierkorb.ts .... Löschen in „Gelöscht“, Wiederherstellen, endgültig löschen
+ │   ├─ papierkorb.ts .... Löschen in „Gelöscht“, Wiederherstellen, endgültig löschen
+ │   ├─ belegung.ts ...... Belegungskalender: Tage, Balken, freie Zeiträume
+ │   ├─ auswertung.ts .... Zeiträume, Kennzahlen, Vergleich mit dem Vorzeitraum
+ │   ├─ gespraech.ts ..... Gesprächsmodus speichern (je Bereich, Notiz je Firma, R-TEXT)
+ │   ├─ verlauf.ts ....... Gesprächshistorie, letzter Kontakt
+ │   ├─ kartenfilter.ts .. Mehrfachfilter für Karte und Kundenliste
+ │   ├─ suche.ts ......... Kommandozeile: Normalisierung, Bewertung, Gruppen, Verben, Zuletzt
+ │   ├─ hilfe.ts ......... Hilfetexte (Themen, Begriffe, Fragen) und Hilfe-Suche
+ │   └─ installieren.ts .. Gerät/Browser erkennen, Installationsschritte
  ├─ src/storage/
  │   ├─ db.ts ............ IndexedDB: vault (aktueller Umschlag), history (10), meta (Geräte-ID)
  │   ├─ store.ts ......... Datenzustand im Speicher, mutate(), Speicherkette, Demo-Modus
@@ -33,7 +41,14 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/kundenansicht.ts  Vollbild zum Herzeigen, Beenden mit Passwort/Face ID
  ├─ src/ui/belege.ts ..... Fotos (verkleinert) und Unterschriftsfeld
  ├─ src/ui/leihschein.ts . Leihschein/Rückgabeschein als PDF (jsPDF aus vendor/)
- ├─ src/ui/views/ ......... start, kunden, kunde, karte, termine, gespraech, bestand, einstellungen
+ ├─ src/ui/schutz.ts ..... Beratungs-Schutz: Knopf, Band, Routen-Wächter (Sicht in store.getData())
+ ├─ src/ui/suche.ts ...... Kommandozeile (⌘K): Dialog, Aktionen, Zuletzt geöffnet
+ ├─ src/ui/hilfe.ts ...... ?-Knöpfe, Installieren-Angebot, Installationshinweis
+ ├─ src/ui/gespraechsablauf.ts  laufendes Gespräch im Arbeitsspeicher
+ ├─ src/ui/filterpanel.ts  Filterfeld für Karte und Kundenliste
+ ├─ src/ui/zeitraum.ts ... Zeitraum wischen mit gesperrten Tagen
+ ├─ src/ui/views/ ......... start, kunden, kunde, gespraechsmodus, karte, termine, gespraech, bestand,
+ │                          belegung, auswertung, geloescht, hilfe, einstellungen
  ├─ src/sw.ts ............. Offline-Cache der gebauten Dateien (keine Kundendaten)
  └─ src/globals.d.ts ...... projektweite Typen (DOM-Abfragen, Build-Konstanten)
 ```

@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.8.0
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.0
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,6 +14,23 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 - [ ] Auf dem Tablet „Zum Home-Bildschirm“ hinzufügen und Master-Passwort festlegen
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
+
+## Erledigt (Version 0.9.0)
+
+### Neu in 0.9.0
+- [x] **TypeScript + Vite**, Auslieferung per GitHub Actions nach GitHub Pages (Pages-Quelle „GitHub Actions“).
+- [x] **Belegungskalender** (`#/belegung`, `src/core/belegung.ts`): Zeitleiste 1/4 Wochen/3 Monate, Liste, „Freie finden“, Zeitraum wischen mit gesperrten Tagen beim Reservieren/Verleihen.
+- [x] **Auswertungen** (`#/auswertung`, `src/core/auswertung.ts`): Bereich alles/PV/WP/Vorwerk; Tag, Woche, Monat, Kalenderjahr, letzte 365 Tage bis zum gewählten Tag; Vergleich Vorzeitraum; PDF-Bericht.
+- [x] **Nachbarn** im Umkreis 100 m – 50 km (`einstellungen.nachbarRadiusM`).
+- [x] **Gelöscht** (`#/geloescht`): kein Verfall, endgültig nur einzeln.
+- [x] **Gesprächsmodus** (`#/kunde/:id/gespraech`): geteilte Ansicht, Leitfaden eingebettet, Notiz je Firma (R-TEXT), Abschluss je Bereich; Gesprächshistorie (Tab „Verlauf“).
+- [x] **Mehrfachfilter** Karte und Kundenliste, Sortierung, **Letzter Kontakt** (`letzterKontaktManuell`).
+- [x] **Kundenansicht** konfigurierbar (`einstellungen.kundenansicht`).
+- [x] **Beratungs-Schutz** (`src/ui/schutz.ts`, Sicht in `store.getData()`), Aufheben mit Face ID/Passwort.
+- [x] **Kommandozeile** (`src/core/suche.ts`, `src/ui/suche.ts`): ⌘K/Strg+K, Aktionen, Verben, Zuletzt geöffnet (`einstellungen.zuletzt`). Am Handy keine Lupe in der unteren Leiste (kein Platz), dort über das Feld auf der Übersicht.
+- [x] **Hilfe** (`src/core/hilfe.ts`, `src/ui/hilfe.ts`, `#/hilfe`): ?-Knöpfe, Anleitungen, Begriffe, Fragen, Suche; **Installationshilfe** (`src/core/installieren.ts`) je Gerät/Browser mit eigenem Installieren-Knopf (Chrome/Edge/Samsung). Abschaltbar (`localStorage sperling.hilfe`).
+- [x] **Branding** (`scripts/branding.py`, `public/assets/marke/`, `docs/MASKOTTCHEN.md`): grünes Farbkonzept hell/dunkel, Bereichsfarben PV gelb/WP blau/Vorwerk grün, neues Logo, App-Icon, Bereichs-Icons; Hell/Dunkel nur in Einstellungen; Einstellungen + Version unten links.
+- [ ] Auf echtem iPad testen: Gesprächsmodus, Suche mit Bildschirmtastatur, Installationshilfe, neue Icons auf dem Home-Bildschirm
 
 ## Erledigt (Version 0.8.0)
 
@@ -88,13 +105,13 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 - [x] Dropbox-Abgleich (OAuth PKCE, nur verschlüsselte Datei, neuester Stand gewinnt)
 - [x] Backup herunterladen / einspielen, Versionen wiederherstellen, Passwort ändern, alles löschen
 - [x] Datenschutzhinweis in den Einstellungen
-- [x] Maskottchen: 10 freigestellte Sperlinge als Bereichssymbole, App-Icon
+- [x] Maskottchen: 10 freigestellte Sperlinge als Bereichssymbole, App-Icon (seit 0.9.0 ersetzt durch das Branding-Set)
 - [x] Demo-Modus mit Beispielkunden (`?demo`), nichts wird gespeichert
 - [x] Tablet-/Laptop-Layout mit Seitenleiste ab 900 px, Handy mit unterer Leiste
-- [x] Hell / Dunkel / Automatisch (Einstellungen → Darstellung, Schnellumschalter ◐), Wahl pro Gerät gespeichert
+- [x] Hell / Dunkel / Automatisch (Einstellungen → Darstellung), Wahl pro Gerät gespeichert
 
 ### Qualität
-- [x] 15 Unit-Tests (Kryptografie, Migration, Text-Trennung, ICS, Hilfsfunktionen, Gesprächsnotiz, Leihvorgang) – alle grün
+- [x] 34 Unit-Tests (u. a. Kryptografie, Migration, Text-Trennung, ICS, Belegung, Auswertungen, Gesprächsmodus, Filter, Suche, Hilfe, Installationshilfe) – alle grün
 - [x] E2E-Test im Browser (Einrichten, Kunde, Notiz mit eigenem Zeitstempel, Termin + ICS, Texttrennung, Sperren/Entsperren, falsches Passwort, XSS-Versuch, Backup ohne Klartext, Historie, Löschen, kaputte Routen) – grün
 - [x] Demo-Link für die Vorstellung am 07.11.2026: https://claude.ai/artifact/CeAMGAuqUtQoZxjn1Fb7sC (privat, muss zum Weitergeben über „Teilen“ freigegeben werden)
 
@@ -109,8 +126,13 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 - [ ] Mehrere Notizen-Filter (nur Sparte X), Volltextsuche in Notizen
 - [ ] Sortierung der Kundenliste (zuletzt bearbeitet, PLZ)
 
-### Geplant: Umstellung auf TypeScript (Wunsch Auftraggeber, 07.11.2026)
-- [ ] Nach den WASNWO-Funktionen und dem Kalender: Code auf TypeScript umstellen (wie die anderen Apps des Auftraggebers), Build mit Vite, Auslieferung über GitHub Actions nach GitHub Pages. Tests bleiben grün; R-KEINE-ABHÄNGIGKEITEN wird dafür angepasst (Build-Schritt erlaubt, Laufzeit weiter ohne Framework).
+### Geplant: Version 0.10.0 (Wünsche vom 07.11.2026)
+- [ ] **Feldverwaltung:** jedes Feld je Kategorie ein-/ausblendbar (Daten bleiben), eigene Felder (Text, Datum, Ja/Nein, Zahl, Auswahl, Telefon, E-Mail, Link) – auch in Filter, Import und Kundenansicht.
+- [ ] **Produktübersicht** (`#/produkte`, Daten Enpal, GALVANY für Wärmepumpen, Vorwerk; Bilder nur verlinkt, Preise mit Stand).
+- [ ] **Produkte im Gespräch markieren:** Interesse, kein Interesse, schon vorhanden, später – beim Kunden gespeichert, filter- und auswertbar.
+- [ ] **Vorwerk-Listenimport** aus PDF (pdf.js lokal), Abgleich neu/geändert/gleich/fehlt, Dubletten zusammenführen.
+- [ ] **Gekaufte Vorwerk-Geräte** mit Servicewartung nach 1 Jahr und **Zubehör-Nachbestellungen**.
+- [x] ~~Umstellung auf TypeScript~~ (erledigt in 0.9.0)
 
 ### Version 2
 - [x] **Lieferscheine** zum Vorführbestand: seit 0.8.0 als Leihschein/Rückgabeschein mit Unterschrift und Fotos

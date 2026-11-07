@@ -51,6 +51,13 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Face ID / Touch ID:** Nach dem ersten Entsperren fragt Sperling, ob Face ID genutzt werden soll (oder Einstellungen → Sicherheit). Danach auf dem Sperrbildschirm „Mit Face ID entsperren“. Geht nur in der installierten App, iPhone/iPad ab iOS 18. Nach einem Passwortwechsel neu einrichten.
 - **Beispiel-Vorführbestand:** Einstellungen → Beispieldaten → „Beispielbestand laden“ (Kobold-Geräte zum Ausprobieren), später „entfernen“.
 - **Hell / Dunkel:** Einstellungen → Darstellung.
+- **Gespräch starten:** Kunde → „📞 Gespräch starten“. Links die Kundendaten, rechts Kontaktart, Notizen (Enpal und Vorwerk getrennt), Leitfaden und Abschluss. Das Gespräch bleibt beim Seitenwechsel offen, bis es gespeichert oder verworfen wird. Die Historie steht im Tab „Verlauf“.
+- **Suchen und Befehle:** Feld auf der Übersicht, Lupe in der Seitenleiste oder ⌘K / Strg+K. Am Treffer direkt Anrufen, E-Mail, Hinfahren, Notiz, Termin, Gespräch; mit Verb geht es schneller („müller anrufen“).
+- **Beratungs-Schutz:** Beim Kunden unten rechts 🛡 tippen – alle anderen Kunden sind ausgeblendet. Aufheben mit Face ID oder Master-Passwort.
+- **Letzter Kontakt:** Beim Kunden oben; antippen trägt einen Kontakt von Hand nach. Kundenliste: Filter „Kontakt älter als …“ und Sortierung „Längster Kontakt zuerst“.
+- **Belegungskalender:** Bestand → „Belegungskalender“. Über freie Tage wischen reserviert direkt.
+- **Auswertungen:** Bereich und Zeitraum wählen, mit ‹ › blättern, „PDF-Bericht“ zum Teilen.
+- **Hilfe:** ?-Knopf neben jeder Überschrift; alles unter Einstellungen → Hilfe (dort auch abschaltbar und die Installationsanleitung).
 
 ## 5. Datensicherung
 

@@ -1,5 +1,20 @@
 # Änderungsverlauf
 
+## 0.9.0 – 07.11.2026
+- **TypeScript und Vite:** Code in TypeScript, Build mit Vite, Auslieferung über GitHub Actions nach GitHub Pages.
+- **Gesprächsmodus:** „Gespräch starten“ beim Kunden öffnet eine geteilte Ansicht (links Kundendaten bearbeitbar, rechts Kontaktart, Notizen je Firma, eingebetteter Leitfaden, Abschluss je Bereich). Läuft weiter beim Seitenwechsel. Gesprächshistorie als Zeitstrahl im Tab „Verlauf“.
+- **Kommandozeile:** Suchfeld auf der Übersicht, Lupe in der Seitenleiste, ⌘K / Strg+K. Findet Kunden, Notizen, Termine, Geräte, Einwände, Bereiche und Befehle; Aktionen direkt am Treffer; Verb-Erkennung („müller anrufen“); „Zuletzt geöffnet“.
+- **Beratungs-Schutz 🛡:** zeigt nur den beratenen Kunden; Aufheben mit Face ID oder Master-Passwort.
+- **Letzter Kontakt** je Kunde (automatisch oder von Hand), Farbe in der Kundenliste.
+- **Mehrfachfilter** für Karte und Kundenliste (Bereiche, Status, Kontaktalter), Sortierung der Kundenliste.
+- **Belegungskalender** für Vorführgeräte (Zeitleiste, Liste, „Freie finden“, Zeitraum wischen).
+- **Auswertungen** je Bereich für Tag, Woche, Monat, Kalenderjahr und letzte 365 Tage, Vergleich mit dem Vorzeitraum, PDF-Bericht.
+- **Nachbarn** im Umkreis von 100 m bis 50 km.
+- **Gelöscht** statt Papierkorb: nichts verfällt, endgültig löschen nur einzeln mit Bestätigung.
+- **Kundenansicht** zum Herzeigen in den Einstellungen konfigurierbar.
+- **Hilfe:** ?-Knöpfe mit Kurzhilfe, Hilfe-Seite mit Anleitungen, Begriffen, Fragen und Suche; Installationshilfe je Gerät und Browser. Abschaltbar.
+- **Branding:** grünes Farbkonzept aus dem Branding-Set, neues Logo, App-Icon und Bereichs-Icons (hell und dunkel), Bereichsfarben. Hell/Dunkel nur noch in den Einstellungen; Einstellungen mit Programmversion ganz unten in der Navigation.
+
 ## 0.8.0 – 07.11.2026
 - **Kalender** unter Termine: Ansichten Liste, Monat, Woche, Tag. Termin per Fingertipp anlegen (Monat: Tag antippen; Woche/Tag: Uhrzeit antippen = 1 Stunde, kurz halten und ziehen = Zeitraum). Reservierte Geräte erscheinen im Monat als 📌.
 - **Hinfahren**: Navigation mit Apple Karten oder Google Maps beim Kunden, auf der Karte und bei Terminen (Einstellungen → Navigation).

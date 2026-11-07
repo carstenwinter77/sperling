@@ -142,6 +142,9 @@ Belegt ist ein Gerät, wenn sich der Zeitraum mit einer Reservierung oder einem 
 | `dropbox` | `appKey`, `refreshToken`, `pfad`, `letzterSync` |
 | `empfaenger` | `{enpal, vorwerk}` – Vorbelegung für „Per E-Mail senden“ (ab Schema 2) |
 | `kartenApp` | `auto` \| `apple` \| `google` – Ziel für „Hinfahren“ (ab Schema 3) |
+| `kundenansicht` | `{kontakt, pv, wp, vorwerk, bemerkungen, status, geraete, termine, notizen}` je `boolean` – was die Kundenansicht zum Herzeigen zeigt (ab 0.9.0, Standard siehe `KUNDENANSICHT_TEILE`) |
+| `nachbarRadiusM` | Zahl – Umkreis für „Nachbarn“ in Metern, eine der Stufen 100 … 50 000 (ab 0.9.0, Standard 300) |
+| `zuletzt` | `[{art: 'kunde' \| 'geraet', id}]` – „Zuletzt geöffnet“ der Kommandozeile, höchstens 8, neueste zuerst (ab 0.9.0). Titel werden beim Anzeigen frisch aus den Daten geholt; Gelöschtes fällt weg. |
 
 ## Beispieldaten
 
@@ -155,4 +158,4 @@ Beispielkunden, -termine, -geräte und -verleihe in der echten App erkennt man a
 - entfernt doppelte Kunden-IDs,
 - hängt verwaiste Termine vom Kunden ab, statt sie zu löschen.
 
-Schema 1 → 2: `enpalKontakte` und `einstellungen.empfaenger` kommen hinzu; die Normalisierung ergänzt sie leer. Schema 2 → 3: `reservierungen`, `papierkorb`, `einstellungen.kartenApp` und die Beleg-Felder am Leihvorgang kommen hinzu (leer). Künftige Versionen ergänzen schrittweise Blöcke `if (v < 3) { … }`.
+Schema 1 → 2: `enpalKontakte` und `einstellungen.empfaenger` kommen hinzu; die Normalisierung ergänzt sie leer. Schema 2 → 3: `reservierungen`, `papierkorb`, `einstellungen.kartenApp` und die Beleg-Felder am Leihvorgang kommen hinzu (leer). 0.9.0 bleibt bei Schema 3: die neuen Felder (`letzterKontaktManuell`, `kundenansicht`, `nachbarRadiusM`, `zuletzt`) ergänzt die Normalisierung mit Standardwerten. Künftige Versionen ergänzen schrittweise Blöcke `if (v < 3) { … }`.
