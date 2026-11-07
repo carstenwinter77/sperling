@@ -393,6 +393,10 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   if (await p.isVisible('.seitenkopf h1 .hilfe-knopf')) fail('?-Knopf trotz Abschalten sichtbar');
   await p.goto(BASE + '#/einstellungen');
   await p.check('#hilfeKnoepfe');
+  // Klick aufs Logo führt zur Übersicht
+  await p.goto(BASE + '#/termine');
+  await p.click('.hauptnav .marke');
+  await p.waitForSelector('.hero');
   // Unbekannte Route / unbekannter Kunde stürzen nicht ab
   await p.goto(BASE + '#/kunde/gibtsnicht');
   await p.waitForSelector('.leer');

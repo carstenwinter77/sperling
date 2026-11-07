@@ -197,7 +197,7 @@ function shell() {
   $('#app').innerHTML = `
     ${store.isDemo() ? '<div class="demo-band">Demo<span class="band-lang">&nbsp;· Beispieldaten, nichts wird gespeichert</span> <button id="demoEnde">Beenden</button></div>' : ''}
     <nav class="hauptnav" aria-label="Hauptnavigation">
-      <div class="marke">${logo('marke-logo')}</div>
+      <a class="marke" href="#/" aria-label="Sperling – zur Übersicht">${logo('marke-logo')}</a>
       <button type="button" class="nav-suche" id="navSuche" title="Suchen (${suche.kuerzel()})"><span class="nav-bild nav-lupe" aria-hidden="true">🔍</span><span>Suchen</span></button>
       ${NAV.map((n) => `<a href="${n.href}" data-nav="${n.key}"${n.key === 'einstellungen' ? ' class="nav-einstellungen"' : ''}>${maskottchen(n.bild, 'nav-bild')}<span>${n.label}${n.key === 'einstellungen' ? `<small class="nav-version">Version ${esc(APP_VERSION)}</small>` : ''}</span></a>`).join('')}
       <button class="sperr-knopf" id="sperren" title="Sperren">🔒<span>Sperren</span></button>
