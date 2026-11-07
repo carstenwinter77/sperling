@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.9.2 – 07.11.2026
+- **Bereichsfarben überall:** Status-Chips, Interesse-Karten, Erfassungsbögen, Gesprächsmodus, Leitfaden-Reiter und die Produktsymbole der Bereichs-Icons in PV gelb, WP blau, Vorwerk grün (hell und dunkel).
+
 ## 0.9.1 – 07.11.2026
 - Klick auf das Sperling-Logo in der Seitenleiste führt zur Übersicht.
 - **Meine Kontaktseite (Konzept):** eigenständige Seite `kontakt/` für Photovoltaik und Wärmepumpe (ohne Anbieter) mit Anrufen, WhatsApp, E-Mail, vCard und Rückrufwunsch ohne Server. In der App unter Einstellungen: öffnen, Link teilen, QR-Code (offline erzeugt, als Bild speicherbar). Noch mit Platzhalterdaten; Impressum, Datenschutz und eigene Adresse folgen.

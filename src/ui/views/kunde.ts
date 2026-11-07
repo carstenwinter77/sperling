@@ -200,7 +200,7 @@ function uebersicht(el, k, kopf) {
       <h2>Interesse je Sparte</h2>
       <div class="sparten-status">
         ${SPARTEN_KEYS.map((s) => `
-          <label class="sparte-karte" style="--c:${STATUS[k.status[s]].farbe}">
+          <label class="sparte-karte bereich-${s}" style="--c:${STATUS[k.status[s]].farbe}">
             ${maskottchen(spartenIcon(s), 'sparte-bild')}
             <span>${esc(SPARTEN[s].label)}</span>
             <select data-feld="status.${s}" data-status>${statusOptions(k.status[s])}</select>
@@ -395,7 +395,7 @@ function notizHtml(n) {
 
 function bogen(el, k, sparten, kopf) {
   el.innerHTML = sparten.map((s) => `
-    <section class="karte-box">
+    <section class="karte-box bereich-rand bereich-${s}">
       <h2>${maskottchen(spartenIcon(s), 'titel-bild')} ${esc(SPARTEN[s].label)}</h2>
       <label class="status-zeile">Status <select data-feld="status.${s}">${statusOptions(k.status[s])}</select></label>
       <div class="formgrid">${FELDER[s].map((f) => feldHtml(s, f, k[s][f.key])).join('')}</div>

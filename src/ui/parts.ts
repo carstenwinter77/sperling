@@ -10,7 +10,7 @@ import { dialog, download, toast, maskottchen } from './dom.ts';
 export function statusChips(kunde) {
   return `<span class="chips">${SPARTEN_KEYS.map((s) => {
     const st = kunde.status[s];
-    return `<span class="chip" style="--c:${STATUS[st].farbe}" title="${esc(SPARTEN[s].label)}: ${esc(STATUS[st].label)}">${esc(SPARTEN[s].kurz)}<i></i></span>`;
+    return `<span class="chip bereich-chip-${s}" style="--c:${STATUS[st].farbe}" title="${esc(SPARTEN[s].label)}: ${esc(STATUS[st].label)}">${esc(SPARTEN[s].kurz)}<i></i></span>`;
   }).join('')}</span>`;
 }
 

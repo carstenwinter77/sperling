@@ -709,3 +709,19 @@ body.hilfe-aus .hilfe-knopf { display: none; }
 .kontaktseite-url code { word-break: break-all; background: var(--flaeche-2); padding: .2rem .45rem; border-radius: 6px; font-size: .85rem; }
 .qr-gross { display: flex; justify-content: center; }
 .qr-gross canvas { width: min(320px, 72vw); height: auto; border-radius: 12px; background: #fff; }
+
+/* ---------- Bereichsfarben überall: PV gelb, WP blau, Vorwerk grün ---------- */
+.bereich-pv { --a: var(--pv); --a-bg: var(--tag-pv-bg); --a-text: var(--tag-pv); }
+.bereich-wp { --a: var(--wp); --a-bg: var(--tag-wp-bg); --a-text: var(--tag-wp); }
+.bereich-vorwerk { --a: var(--vw); --a-bg: var(--tag-vw-bg); --a-text: var(--tag-vw); }
+.bereich-rand { border-left: 5px solid var(--a); }
+.sparte-karte.bereich-pv, .sparte-karte.bereich-wp, .sparte-karte.bereich-vorwerk { border-color: var(--a); background: var(--a-bg); }
+.sparte-karte select { border-color: var(--c); }
+.chip.bereich-chip-pv { background: var(--tag-pv-bg); color: var(--tag-pv); border-color: var(--pv); }
+.chip.bereich-chip-wp { background: var(--tag-wp-bg); color: var(--tag-wp); border-color: var(--wp); }
+.chip.bereich-chip-vorwerk { background: var(--tag-vw-bg); color: var(--tag-vw); border-color: var(--vw); }
+.tag-pv { border: 1px solid var(--pv); } .tag-wp { border: 1px solid var(--wp); } .tag-vorwerk { border: 1px solid var(--vw); }
+#gTabs [data-sparte="pv"].aktiv { background: var(--tag-pv-bg); color: var(--tag-pv); border-color: var(--pv); }
+#gTabs [data-sparte="wp"].aktiv { background: var(--tag-wp-bg); color: var(--tag-wp); border-color: var(--wp); }
+#gTabs [data-sparte="vorwerk"].aktiv { background: var(--tag-vw-bg); color: var(--tag-vw); border-color: var(--vw); }
+#gTabs [data-sparte="pv"] { border-color: var(--pv); } #gTabs [data-sparte="wp"] { border-color: var(--wp); } #gTabs [data-sparte="vorwerk"] { border-color: var(--vw); }

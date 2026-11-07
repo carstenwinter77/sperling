@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.1
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.2
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -16,6 +16,9 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
 ## Erledigt (Version 0.9.1)
+
+### Neu in 0.9.2
+- [x] Bereichsfarben (PV gelb, WP blau, Vorwerk grün) in Chips, Karten, Bögen, Gesprächsmodus, Leitfaden und Icons (`scripts/branding.py` färbt das Produktsymbol ein).
 
 ### Neu in 0.9.1
 - [x] **Kontaktseite (Konzept)** `public/kontakt/` (eigenständig, kein App-Code, `noindex`), in der App `src/ui/kontaktseite.ts` (Einstellungen: öffnen, teilen, QR-Code mit `public/vendor/qrcode/`).

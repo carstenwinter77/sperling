@@ -28,7 +28,7 @@ iOS/Android runden selbst ab) und `icon-maskable-512.png` (mit Sicherheitsrand f
 
 **Farben** (Tokens in `src/css/app.css`): Akzent Dunkelgrün `#0b4a2a` (dunkles Schema: Hellgrün `#a5d36a`),
 Hellgrün `#6a9e2a`. Bereichsfarben: Photovoltaik gelb (`--pv`), Wärmepumpe blau (`--wp`), Vorwerk grün (`--vw`),
-je in Hell und Dunkel. Statusfarben (Potenzial, Interesse …) bleiben unabhängig davon.
+je in Hell und Dunkel. Bei Photovoltaik und Wärmepumpe färbt `scripts/branding.py` das Produktsymbol im Icon gelb bzw. blau ein; der Vogel bleibt grün. Statusfarben (Potenzial, Interesse …) bleiben unabhängig davon.
 
 **Austausch:** neues Set unter `docs/bilder/branding-set.png` ablegen; ändern sich Positionen, die Ausschnitte
 oben in `scripts/branding.py` anpassen und das Skript ausführen.

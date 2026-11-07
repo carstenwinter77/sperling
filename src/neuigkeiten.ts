@@ -1,6 +1,7 @@
 // Sperling – „Was ist neu“: kurze, verständliche Liste je Version (neueste zuerst).
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
+  { version: '0.9.2', punkte: ['Bereichsfarben überall: Photovoltaik gelb, Wärmepumpe blau, Vorwerk grün – in Chips, Karten, Reitern und Symbolen.'] },
   {
     version: '0.9.1',
     punkte: ['Meine Kontaktseite (Konzept): öffentliche Seite für Photovoltaik und Wärmepumpe mit Anrufen, WhatsApp, E-Mail, Kontakt speichern und Rückrufwunsch – in den Einstellungen öffnen, teilen oder als QR-Code zeigen.'],

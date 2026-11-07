@@ -49,6 +49,31 @@ def hell(img: Image.Image) -> Image.Image:
     return Image.fromarray(a.astype(np.uint8), 'RGBA')
 
 
+# Bereichsfarben für das Produktsymbol der Bereichs-Icons: (hell: Fläche, Linie), (dunkles Schema: Fläche, Linie)
+BEREICHSFARBE = {
+    'photovoltaik': (((224, 168, 0), (168, 122, 0)), ((255, 210, 74), (255, 226, 140))),
+    'waermepumpe': (((47, 127, 214), (29, 79, 140)), ((106, 174, 255), (169, 205, 255))),
+}
+# Bereich des Produktsymbols (Anteile von Breite/Höhe); der Vogel links oben bleibt grün
+PRODUKT = {'photovoltaik': [(0.40, 0.45), (0.66, 0.0)], 'waermepumpe': [(0.45, 0.42)]}
+
+
+def einfaerben(img: Image.Image, name: str, farben) -> Image.Image:
+    """Produktsymbol in der Bereichsfarbe: helle Teile als Fläche, dunkle als Linie."""
+    a = np.array(img).astype(np.float32)
+    h, w = a.shape[:2]
+    yy, xx = np.mgrid[0:h, 0:w]
+    bereich = np.zeros((h, w), bool)
+    for fx, fy in PRODUKT[name]:
+        bereich |= (xx >= w * fx) & (yy >= h * fy)
+    bereich &= a[:, :, 3] > 0
+    lum = a[:, :, :3].mean(axis=2)
+    flaeche, linie = farben
+    a[bereich & (lum >= 70), :3] = flaeche
+    a[bereich & (lum < 70), :3] = linie
+    return Image.fromarray(a.astype(np.uint8), 'RGBA')
+
+
 def zuschneiden(im: Image.Image, box) -> Image.Image:
     teil = im.crop(box)
     bb = teil.getchannel('A').point(lambda v: 255 if v > 20 else 0).getbbox()
@@ -76,8 +101,12 @@ def main():
 
     for name, x0, x1 in ICONS:
         ic = quadrat(zuschneiden(im, (x0, ICON_Y[0], x1, ICON_Y[1])), 192)
+        h = hell(ic)
+        if name in BEREICHSFARBE:
+            h = einfaerben(h, name, BEREICHSFARBE[name][1])
+            ic = einfaerben(ic, name, BEREICHSFARBE[name][0])
         ic.save(MARKE / f'{name}.png', optimize=True)
-        hell(ic).save(MARKE / f'{name}-hell.png', optimize=True)
+        h.save(MARKE / f'{name}-hell.png', optimize=True)
     print('fertig:', sorted(p.name for p in MARKE.iterdir()))
 
 

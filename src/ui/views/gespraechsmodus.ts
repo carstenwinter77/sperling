@@ -70,7 +70,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
           <a class="btn klein ghost" href="#/kunde/${esc(id)}?tab=verlauf">Ganzer Verlauf</a>` : '<p class="hinweis">Erstes Gespräch mit diesem Kunden.</p>'}
       </div>
       ${SPARTEN_KEYS.map((s) => `
-      <details class="karte-box gm-bogen" ${e.sparten.includes(s) ? 'open' : ''}>
+      <details class="karte-box gm-bogen bereich-rand bereich-${s}" ${e.sparten.includes(s) ? 'open' : ''}>
         <summary>${maskottchen(spartenIcon(s), 'mini')} ${esc(SPARTEN[s].label)} <small>${esc(STATUS[k.status[s]].label)}</small></summary>
         <label class="status-zeile">Status <select data-feld="status.${s}">${statusOptions(k.status[s])}</select></label>
         <div class="formgrid">${FELDER[s].map((f) => feldHtml(s, f, k[s][f.key])).join('')}</div>
@@ -150,7 +150,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
         <h2>Gespräch abschließen</h2>
         <p class="hinweis">${esc(KONTAKTART[e.kontaktart])}${e.erreicht ? '' : ' · nicht erreicht'} · ${sparten.length ? sparten.map((s) => esc(SPARTEN[s].label)).join(', ') : 'ohne Thema'}${ablauf.hatInhalt(e) ? '' : ' · noch keine Notizen'}</p>
         ${sparten.map((s) => `
-        <fieldset class="abschluss-sparte" data-abschluss="${s}">
+        <fieldset class="abschluss-sparte bereich-rand bereich-${s}" data-abschluss="${s}">
           <legend>${maskottchen(spartenIcon(s), 'mini')} ${esc(SPARTEN[s].label)}${ablauf.hatEinwaende(e.verlauf, s) ? ` <small>${Object.keys(e.verlauf[s]).length} Einwand/Einwände</small>` : ''}</legend>
           <div class="formgrid">
             <label>Ergebnis<select name="ausgang"><option value="">${e.erreicht ? '– bitte wählen –' : '– keins –'}</option>${Object.entries(AUSGANG).map(([key, v]) => `<option value="${key}">${esc(v)}</option>`).join('')}</select></label>
