@@ -452,3 +452,69 @@ test('Einstellungen: Nachbar-Umkreis nur in festen Stufen', () => {
   assert.equal(migrate({ ...emptyData(), einstellungen: { nachbarRadiusM: 777 } }).einstellungen.nachbarRadiusM, 300);
   assert.equal(emptyData().einstellungen.nachbarRadiusM, 300);
 });
+
+test('Gespräch speichern: Notizen je Gruppe getrennt (R-TEXT), Verlauf fasst zusammen', async () => {
+  const g = await import('../src/core/gespraech.ts');
+  const { kundenVerlauf } = await import('../src/core/verlauf.ts');
+  const { notizErlaubt } = await import('../src/core/textgen.ts');
+  const data = emptyData();
+  data.kunden = [normalizeKunde({ id: 'k1', vorname: 'Eva', nachname: 'Test', status: { pv: 'interesse', vorwerk: 'interesse' } })];
+  const e = {
+    kundeId: 'k1', start: '2026-11-07T10:00:00.000Z', kontaktart: 'telefon', erreicht: true, sparten: ['pv', 'vorwerk'],
+    notiz: { enpal: 'Dach Süd, Speicher gewünscht', vorwerk: 'Hund, Teppich' }, verlauf: g.leererVerlauf(), leitfadenSparte: 'pv',
+  };
+  e.verlauf.pv.preis = 'ueberzeugt';
+  const jetzt = '2026-11-07T10:20:00.000Z';
+  const gespeichert = g.speichern(data, e, [
+    { sparte: 'pv', ausgang: 'termin', status: 'termin', schritt: 'Hausbesuch', wv: '2026-11-10T09:00:00.000Z' },
+    { sparte: 'vorwerk', ausgang: 'test', status: '', schritt: '', wv: null },
+  ], jetzt);
+  assert.deepEqual(gespeichert, ['pv', 'vorwerk']);
+  const k = data.kunden[0];
+  assert.equal(k.notizen.length, 2);
+  const enpalNotiz = k.notizen.find((n) => n.sparten.includes('pv'));
+  const vwNotiz = k.notizen.find((n) => n.sparten.includes('vorwerk'));
+  assert.ok(notizErlaubt(enpalNotiz, 'enpal') && !notizErlaubt(enpalNotiz, 'vorwerk'));
+  assert.ok(notizErlaubt(vwNotiz, 'vorwerk') && !notizErlaubt(vwNotiz, 'enpal'));
+  assert.ok(!enpalNotiz.text.includes('Teppich') && !vwNotiz.text.includes('Speicher'));
+  assert.equal(k.status.pv, 'termin');
+  assert.equal(k.enpalKontakte.length, 1);
+  assert.deepEqual(k.enpalKontakte[0].themen, ['pv']);
+  assert.ok(!k.enpalKontakte[0].notiz.includes('Teppich'));
+  assert.equal(data.termine.length, 1);
+  assert.equal(k.gespraeche.length, 2);
+  const v = kundenVerlauf(data, k, jetzt);
+  const gesp = v.filter((x) => x.art === 'gespraech');
+  assert.equal(gesp.length, 1, 'ein Gespräch, nicht drei Einträge');
+  assert.equal(gesp[0].titel, 'Telefonische Kontaktaufnahme');
+  assert.ok(gesp[0].zeilen.join('\n').includes('Dach Süd'));
+  assert.ok(v.some((x) => x.art === 'termin' && x.zukunft));
+  // nicht erreicht, ohne Notiz: nur Enpal-Doku-Eintrag ohne Ergebnis
+  const e2 = { ...e, erreicht: false, notiz: { enpal: '', vorwerk: '' }, verlauf: g.leererVerlauf(), sparten: ['wp'] };
+  g.speichern(data, e2, [{ sparte: 'wp', ausgang: '', status: '', schritt: '', wv: null }], '2026-11-08T10:00:00.000Z');
+  assert.equal(k.gespraeche.length, 2);
+  assert.equal(g.hatInhalt(e2), false);
+  assert.equal(k.enpalKontakte.length, 2, 'Anrufversuch wird für Enpal dokumentiert');
+  assert.equal(k.enpalKontakte[1].erreicht, false);
+  const versuch = k.notizen.find((n) => n.text.startsWith('Telefonische Kontaktaufnahme (nicht erreicht)'));
+  assert.deepEqual(versuch?.sparten, ['wp']);
+});
+
+test('Kartenfilter: Mehrfachauswahl, Rest ausgeblendet', async () => {
+  const f = await import('../src/core/kartenfilter.ts');
+  const k = (pv, wp, vorwerk) => ({ status: { pv, wp, vorwerk } });
+  const a = k('abschluss', 'unbekannt', 'unbekannt');
+  const b = k('unbekannt', 'interesse', 'termin');
+  const c = k('kein_interesse', 'unbekannt', 'unbekannt');
+  assert.ok([a, b, c].every((x) => f.passt(x, f.leererKartenFilter())));
+  // PV + Vorwerk zeigen, WP ausschließen
+  const pvVw = { sparten: ['pv', 'vorwerk'], status: [] };
+  assert.deepEqual([a, b, c].map((x) => f.passt(x, pvVw)), [true, true, false]);
+  // nur bestimmte Status über alle Bereiche
+  const st = { sparten: [], status: ['termin', 'interesse'] };
+  assert.deepEqual([a, b, c].map((x) => f.passt(x, st)), [false, true, false]);
+  // Kombination: WP mit Interesse oder Termin
+  assert.deepEqual([a, b, c].map((x) => f.passt(x, { sparten: ['wp'], status: ['termin'] })), [false, false, false]);
+  assert.equal(f.pinStatus(b, { sparten: ['wp'], status: [] }), 'interesse');
+  assert.equal(f.pinStatus(b, f.leererKartenFilter()), 'termin');
+});

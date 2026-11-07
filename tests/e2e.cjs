@@ -7,7 +7,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   const ctx = await b.newContext({ viewport: { width: 1180, height: 820 }, acceptDownloads: true });
   const p = await ctx.newPage();
   const errs = [];
-  p.on('pageerror', (e) => errs.push(e.message));
+  p.on('pageerror', (e) => errs.push(e.message + (process.env.STACK ? e.stack : '')));
   p.on('dialog', (d) => { errs.push('Natives Dialogfenster: ' + d.message()); d.dismiss(); });
   await p.goto(BASE);
   // Einrichten
@@ -79,6 +79,13 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('#suche button[type=submit]');
   await p.waitForSelector('#neuPopup');
   await p.unroute(/nominatim\.openstreetmap\.org/);
+  // Kartenfilter mit Mehrfachauswahl
+  await p.click('#fKnopf');
+  await p.click('[data-f-sparte=pv]');
+  await p.click('[data-f-sparte=vorwerk]');
+  if (!/von/.test(await p.textContent('#fAnzahl'))) fail('Kartenfilter zeigt keine Anzahl');
+  await p.click('#fAlle');
+  if ((await p.textContent('#fAnzahl')).trim()) fail('Kartenfilter nicht zurückgesetzt');
   // Sperren und Neuladen
   await p.click('#sperren');
   await p.waitForSelector('#sperrForm');
