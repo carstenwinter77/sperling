@@ -1,11 +1,11 @@
 // Unit-Tests für den DOM-freien Kern. Ausführen: npm test
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { KeyRing, WrongPasswordError, InvalidEnvelopeError, validateEnvelope } from '../js/core/crypto.js';
-import { migrate, emptyData, neuerKunde, neueNotiz, normalizeKunde, SCHEMA_VERSION, hauptStatus } from '../js/core/model.js';
-import { generiereText, projizieren, notizErlaubt, ausgelasseneNotizen } from '../js/core/textgen.js';
-import { erzeugeIcs, icsEscape, foldLine } from '../js/core/ics.js';
-import { parseNumber, isoToLocalInput, localInputToIso, esc, distanceMeters } from '../js/core/util.js';
+import { KeyRing, WrongPasswordError, InvalidEnvelopeError, validateEnvelope } from '../src/core/crypto.ts';
+import { migrate, emptyData, neuerKunde, neueNotiz, normalizeKunde, SCHEMA_VERSION, hauptStatus } from '../src/core/model.ts';
+import { generiereText, projizieren, notizErlaubt, ausgelasseneNotizen } from '../src/core/textgen.ts';
+import { erzeugeIcs, icsEscape, foldLine } from '../src/core/ics.ts';
+import { parseNumber, isoToLocalInput, localInputToIso, esc, distanceMeters } from '../src/core/util.ts';
 
 const ITER = 100000; // schneller für Tests, Minimum laut validateEnvelope
 
@@ -137,8 +137,8 @@ test('normalizeKunde akzeptiert gültige Bogenwerte und verwirft ungültige', ()
   assert.equal(k.pv.eauto, null);
 });
 
-import { gespraechsNotiz, LEITFADEN, TECHNIKEN } from '../js/core/einwaende.js';
-import { normalizeLeihvorgang, normalizeGeraet } from '../js/core/model.js';
+import { gespraechsNotiz, LEITFADEN, TECHNIKEN } from '../src/core/einwaende.ts';
+import { normalizeLeihvorgang, normalizeGeraet } from '../src/core/model.ts';
 
 test('Gesprächsnotiz enthält nur Einwände der eigenen Sparte', () => {
   const t = gespraechsNotiz('vorwerk', { hab: 'bleibt', teuer: 'ueberzeugt', unbekannt: 'offen' });
@@ -159,7 +159,7 @@ test('Leihvorgang/Gerät werden robust normalisiert', () => {
   assert.equal(normalizeGeraet({ aktiv: false }).aktiv, false);
 });
 
-import { normalizeGespraech, AUSGANG } from '../js/core/model.js';
+import { normalizeGespraech, AUSGANG } from '../src/core/model.ts';
 test('Gespräch wird robust normalisiert und bleibt bei einer Sparte', () => {
   const g = normalizeGespraech({ sparte: 'xx', ausgang: 'quatsch', einwaende: [null, { id: 'a', text: 't', ergebnis: 'komisch' }] });
   assert.equal(g.sparte, 'pv');
@@ -171,8 +171,8 @@ test('Gespräch wird robust normalisiert und bleibt bei einer Sparte', () => {
 });
 
 // ---------- 0.3.0: Kontakt & Enpal-Gesprächsdokumentation ----------
-import { telNummer, mailUrl } from '../js/ui/kontakt.js';
-import { enpalDokuText, enpalVerlaufText } from '../js/core/textgen.js';
+import { telNummer, mailUrl } from '../src/ui/kontakt.ts';
+import { enpalDokuText, enpalVerlaufText } from '../src/core/textgen.ts';
 
 test('telNummer bereinigt, behält führendes +', () => {
   assert.equal(telNummer('+49 (511) 123-456'), '+49511123456');
@@ -226,7 +226,7 @@ test('Enpal-Doku: Text enthält Kontakt, nie Vorwerk (R-TEXT)', () => {
 });
 
 // ---------- 0.5.0: Beispielkunden in der echten App ----------
-import { demoDaten, beispielEinfuegen, beispielEntfernen, beispielAnzahl, istBeispiel } from '../js/demo.js';
+import { demoDaten, beispielEinfuegen, beispielEntfernen, beispielAnzahl, istBeispiel } from '../src/demo.ts';
 
 test('Beispielkunden laden und vollständig entfernen, echte Daten bleiben', () => {
   const d = migrate({ schemaVersion: 2, kunden: [{ id: 'echt', nachname: 'Echt' }], termine: [{ id: 'te', kundeId: 'echt', titel: 'Echt', beginn: '2026-11-10T10:00:00Z' }] });
@@ -250,8 +250,8 @@ test('Beispielkunden laden und vollständig entfernen, echte Daten bleiben', () 
 });
 
 test('Beispiel-Vorführbestand laden/entfernen, verliehene Geräte bleiben', async () => {
-  const { beispielBestand, bestandEinfuegen, bestandEntfernen, bestandAnzahl } = await import('../js/demo.js');
-  const { normalizeGeraet } = await import('../js/core/model.js');
+  const { beispielBestand, bestandEinfuegen, bestandEntfernen, bestandAnzahl } = await import('../src/demo.ts');
+  const { normalizeGeraet } = await import('../src/core/model.ts');
   const d = migrate({ schemaVersion: 2, geraete: [{ id: 'echt-g', name: 'Eigenes Gerät' }] });
   bestandEinfuegen(d, beispielBestand().map(normalizeGeraet));
   const n = bestandAnzahl(d);
@@ -264,8 +264,8 @@ test('Beispiel-Vorführbestand laden/entfernen, verliehene Geräte bleiben', asy
 });
 
 test('Papierkorb: Kunde löschen und mit Bezügen wiederherstellen', async () => {
-  const { neuerTermin, neuesGeraet, neuerLeihvorgang, normalizeReservierung } = await import('../js/core/model.js');
-  const pk = await import('../js/core/papierkorb.js');
+  const { neuerTermin, neuesGeraet, neuerLeihvorgang, normalizeReservierung } = await import('../src/core/model.ts');
+  const pk = await import('../src/core/papierkorb.ts');
   const data = emptyData();
   const k = neuerKunde({ vorname: 'Anna', nachname: 'Beispiel' });
   k.notizen.push(neueNotiz({ text: 'Notiz eins' }));
@@ -328,7 +328,7 @@ test('Papierkorb: Einträge älter als 30 Tage verfallen beim Laden', () => {
 });
 
 test('Gerätebelegung: Reservierungen und Verleihe, tageweise inklusive', async () => {
-  const { geraetBelegung, ueberschneidet, normalizeReservierung, neuerLeihvorgang } = await import('../js/core/model.js');
+  const { geraetBelegung, ueberschneidet, normalizeReservierung, neuerLeihvorgang } = await import('../src/core/model.ts');
   assert.equal(ueberschneidet('2026-12-01', '2026-12-03', '2026-12-03', '2026-12-05'), true);
   assert.equal(ueberschneidet('2026-12-01', '2026-12-02', '2026-12-03', '2026-12-05'), false);
   const data = emptyData();
