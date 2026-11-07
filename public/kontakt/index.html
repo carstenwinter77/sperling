@@ -101,6 +101,12 @@ ul.haken li::before { content: ""; position: absolute; left: 0; top: .32em; widt
 ul.haken li::after { content: ""; position: absolute; left: .36rem; top: .52em; width: .28rem; height: .5rem; border: solid var(--k); border-width: 0 2px 2px 0; transform: rotate(45deg); }
 
 .schritt { position: relative; }
+.vertrauen { list-style: none; padding: 0; margin: 1.2rem 0 0; display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; color: var(--text-2); font-size: .95rem; }
+.vertrauen li { display: inline-flex; align-items: center; gap: .45rem; }
+.vertrauen li::before { content: ""; width: .45rem; height: .8rem; border: solid var(--gruen-2); border-width: 0 2px 2px 0; transform: rotate(45deg) translateY(-2px); }
+.versprechen { border-left: 4px solid var(--gruen-2); }
+.versprechen h3 { margin: 0 0 .35rem; font-size: 1.1rem; color: var(--gruen); }
+.versprechen p { margin: 0; color: var(--text-2); }
 .schritt .nr { width: 2.2rem; height: 2.2rem; border-radius: 50%; background: var(--gruen-bg); color: var(--gruen); font-weight: 800; display: grid; place-items: center; margin-bottom: .7rem; }
 .schritt h3 { margin: 0 0 .3rem; font-size: 1.1rem; }
 .schritt p { margin: 0; color: var(--text-2); }
@@ -153,7 +159,7 @@ details p { margin: .6rem 0 0; }
 </style>
 </head>
 <body>
-<div class="hinweis-konzept" data-konzept>Konzept – Name und Kontaktdaten sind Platzhalter.</div>
+<div class="hinweis-konzept" data-konzept>Konzept – Kontaktdaten sind noch Platzhalter.</div>
 
 <header class="kopf">
   <div class="huelle">
@@ -174,10 +180,13 @@ details p { margin: .6rem 0 0; }
           <a class="btn primaer" data-link="tel" href="#kontakt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Jetzt anrufen</a>
           <a class="btn sekundaer" href="#rueckruf">Rückruf vereinbaren</a>
         </div>
+        <ul class="vertrauen" aria-label="Meine Grundsätze">
+          <li>Unverbindlich</li><li>Ohne Druck</li><li>Ehrlich beraten</li>
+        </ul>
       </div>
       <figure class="portrait">
         <img src="foto.jpg" width="640" height="640" alt="" data-feld-alt="name">
-        <figcaption><span data-feld="name">Max Sperling</span><span>Berater für Photovoltaik und Wärmepumpe</span></figcaption>
+        <figcaption><span data-feld="name">Jan Sperling</span><span>Berater für Photovoltaik und Wärmepumpe</span></figcaption>
       </figure>
     </div>
   </div>
@@ -218,11 +227,23 @@ details p { margin: .6rem 0 0; }
   <section aria-labelledby="t-ablauf">
     <div class="huelle">
       <h2 id="t-ablauf">So läuft es ab</h2>
-      <p class="unterzeile">Unverbindlich und in Ihrem Tempo.</p>
+      <p class="unterzeile">Unverbindlich und in Ihrem Tempo. Sie entscheiden, ob und wann es weitergeht.</p>
       <div class="raster drei">
         <div class="karte schritt"><div class="nr">1</div><h3>Kennenlernen</h3><p>Ein kurzes Telefonat: Was haben Sie vor, welche Fragen gibt es?</p></div>
         <div class="karte schritt"><div class="nr">2</div><h3>Beratung vor Ort</h3><p>Ich schaue mir Dach, Heizung und Verbrauch bei Ihnen zu Hause an.</p></div>
-        <div class="karte schritt"><div class="nr">3</div><h3>Ihr Angebot</h3><p>Verständlich erklärt, und ich begleite Sie bis zur Inbetriebnahme.</p></div>
+        <div class="karte schritt"><div class="nr">3</div><h3>Ihr Angebot</h3><p>Verständlich erklärt und in Ruhe zu prüfen. Wenn Sie sich dafür entscheiden, begleite ich Sie bis zur Inbetriebnahme.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-versprechen">
+    <div class="huelle">
+      <h2 id="t-versprechen">Beratung ohne Druck – mein Versprechen</h2>
+      <p class="unterzeile">Eine gute Entscheidung braucht Zeit und ehrliche Informationen, keine Überredung.</p>
+      <div class="raster drei">
+        <div class="karte versprechen"><h3>Unverbindlich</h3><p>Gespräch, Beratung vor Ort und Angebot verpflichten Sie zu nichts. Sie unterschreiben nichts nebenbei.</p></div>
+        <div class="karte versprechen"><h3>Kein Zeitdruck</h3><p>Keine „Nur heute“-Preise und keine Lockangebote. Sie entscheiden in Ruhe, gern nach Rücksprache mit der Familie oder einem Vergleichsangebot.</p></div>
+        <div class="karte versprechen"><h3>Ehrlich</h3><p>Wenn Photovoltaik oder eine Wärmepumpe für Ihr Haus keinen Sinn ergibt, sage ich Ihnen das offen.</p></div>
       </div>
     </div>
   </section>
@@ -232,8 +253,8 @@ details p { margin: .6rem 0 0; }
       <div class="zitat">
         <img src="foto.jpg" alt="" width="96" height="96" loading="lazy">
         <div>
-          <p>„Mir ist wichtig, dass Sie am Ende genau wissen, was Sie bekommen und warum es zu Ihrem Haus passt.“</p>
-          <p><span data-feld="name">Max Sperling</span></p>
+          <p>„Ich schwatze niemandem etwas auf. Mir ist wichtig, dass Sie am Ende genau wissen, was Sie bekommen und warum es zu Ihrem Haus passt, und dass Sie sich frei dafür oder dagegen entscheiden.“</p>
+          <p><span data-feld="name">Jan Sperling</span></p>
         </div>
       </div>
     </div>
@@ -257,7 +278,7 @@ details p { margin: .6rem 0 0; }
 
         <div class="karte" id="rueckruf">
           <h3 style="margin:0 0 .3rem">Rückruf vereinbaren</h3>
-          <p class="klein">Ich melde mich zu Ihrer Wunschzeit.</p>
+          <p class="klein">Ich melde mich zu Ihrer Wunschzeit. Der Rückruf ist unverbindlich.</p>
           <form class="rueckruf" id="rueckrufForm" novalidate>
             <div class="zwei">
               <label>Name<input name="name" autocomplete="name" required></label>
@@ -300,7 +321,7 @@ details p { margin: .6rem 0 0; }
       <summary>Datenschutz</summary>
       <p><span class="platzhalter">Folgt.</span> Diese Seite verwendet keine Cookies, kein Tracking und keine externen Schriften. Der Server des Hosting-Anbieters protokolliert technisch notwendige Zugriffsdaten. Wenn Sie über WhatsApp oder E-Mail Kontakt aufnehmen, verarbeite ich Ihre Angaben nur zur Bearbeitung Ihrer Anfrage.</p>
     </details>
-    <p class="klein">© <span id="jahr"></span> <span data-feld="name">Max Sperling</span> · Photovoltaik und Wärmepumpe</p>
+    <p class="klein">© <span id="jahr"></span> <span data-feld="name">Jan Sperling</span> · Photovoltaik und Wärmepumpe</p>
   </div>
 </footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -310,7 +331,7 @@ details p { margin: .6rem 0 0; }
 // ── KONTAKT: nur hier die echten Daten eintragen ─────────────────────────────
 const KONTAKT = {
   konzept: true,                          // false = Hinweis „Platzhalter“ ausblenden
-  vorname: 'Max',
+  vorname: 'Jan',
   nachname: 'Sperling',
   titel: 'Berater für Photovoltaik und Wärmepumpe',
   telefon: '+49 151 23456789',            // Platzhalter
