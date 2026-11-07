@@ -1,0 +1,151 @@
+// Sperling – Enpal-Gesprächsdokumentation (Lead-Nachweis).
+// Enpal verlangt eine Dokumentation je Kontakt (Telefon, später Hausbesuch). Sperling
+// speichert sie beim Kunden und liefert einen kopierfertigen Text für die Enpal-App.
+// Nur PV/WP – Vorwerk kommt hier nie vor (R-TEXT).
+import { esc, nowIso, isoToLocalInput, localInputToIso, formatDateTime } from '../core/util.js';
+import { AUSGANG, KONTAKTART, SPARTEN, kundenName, kundenTitel, adresseEinzeilig, normalizeEnpalKontakt, neuerTermin } from '../core/model.js';
+import { enpalDokuText, enpalVerlaufText } from '../core/textgen.js';
+import * as store from '../storage/store.js';
+import { dialog, toast, kopieren, bestaetigen } from './dom.js';
+
+/** Dialog zum Anlegen/Bearbeiten. Gibt die Kontakt-ID zurück oder null. */
+export async function kontaktDialog(kundeId, { kontaktId = null, art = 'telefon' } = {}) {
+  const k = store.findKunde(kundeId);
+  if (!k) return null;
+  const alt = kontaktId ? k.enpalKontakte.find((c) => c.id === kontaktId) : null;
+  const c = alt || normalizeEnpalKontakt({ art, gespraechspartner: kundenName(k), themen: ['pv', 'wp'].filter((s) => !['unbekannt', 'kein_interesse'].includes(k.status[s])) });
+  const res = await dialog({
+    titel: alt ? 'Enpal-Kontakt bearbeiten' : `${KONTAKTART[c.art]} dokumentieren`,
+    html: `
+      <div class="formgrid">
+        <label>Kontaktart<select name="art">${Object.entries(KONTAKTART).map(([key, v]) => `<option value="${key}" ${key === c.art ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
+        <label>Zeitpunkt<input type="datetime-local" name="zeitpunkt" value="${esc(isoToLocalInput(c.zeitpunkt))}" required></label>
+        <label class="check"><input type="checkbox" name="erreicht" ${c.erreicht ? 'checked' : ''}> Kunde erreicht</label>
+        <label>Gesprächspartner<input name="partner" value="${esc(c.gespraechspartner)}" maxlength="200"></label>
+        <fieldset class="breit themen"><legend>Themen</legend>
+          ${['pv', 'wp'].map((s) => `<label class="check"><input type="checkbox" name="thema" value="${s}" ${c.themen.includes(s) ? 'checked' : ''}> ${esc(SPARTEN[s].label)}</label>`).join('')}
+        </fieldset>
+        <label>Ergebnis<select name="ergebnis"><option value="">– bitte wählen –</option>${Object.entries(AUSGANG).filter(([key]) => key !== 'test').map(([key, v]) => `<option value="${key}" ${key === c.ergebnis ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
+        <label>Nächster Schritt<input name="schritt" value="${esc(c.naechsterSchritt)}" maxlength="1000" placeholder="z. B. Hausbesuch, Angebot rechnen"></label>
+        <label>Frist / Wiedervorlage<input type="datetime-local" name="frist" value="${esc(c.frist ? isoToLocalInput(c.frist) : '')}"></label>
+        ${alt ? '' : '<label class="check"><input type="checkbox" name="termin" checked> Frist als Wiedervorlage in Termine</label>'}
+        <label class="breit">Gesprächsinhalt<textarea name="notiz" rows="6" placeholder="Was wurde besprochen? Wünsche, Bedenken, Absprachen">${esc(c.notiz)}</textarea></label>
+      </div>`,
+    knoepfe: [{
+      label: 'Speichern', primaer: true,
+      pruefen: (dlg) => {
+        const q = (n) => dlg.querySelector(`[name=${n}]`);
+        if (!localInputToIso(q('zeitpunkt').value)) return 'Bitte einen gültigen Zeitpunkt angeben.';
+        if (q('frist').value && !localInputToIso(q('frist').value)) return 'Die Frist ist kein gültiges Datum.';
+        if (!dlg.querySelectorAll('[name=thema]:checked').length) return 'Bitte mindestens ein Thema wählen (Photovoltaik oder Wärmepumpe).';
+        return null;
+      },
+      wert: (dlg) => {
+        const q = (n) => dlg.querySelector(`[name=${n}]`);
+        return {
+          art: q('art').value,
+          zeitpunkt: localInputToIso(q('zeitpunkt').value),
+          erreicht: q('erreicht').checked,
+          gespraechspartner: q('partner').value.trim(),
+          themen: [...dlg.querySelectorAll('[name=thema]:checked')].map((x) => x.value),
+          ergebnis: q('ergebnis').value,
+          naechsterSchritt: q('schritt').value.trim(),
+          frist: q('frist').value ? localInputToIso(q('frist').value) : null,
+          notiz: q('notiz').value,
+          termin: q('termin')?.checked ?? false,
+        };
+      },
+    }],
+  });
+  if (!res) return null;
+  const neu = normalizeEnpalKontakt({ ...c, ...res, updatedAt: nowIso() });
+  await store.mutate((d) => {
+    const kk = d.kunden.find((x) => x.id === kundeId);
+    if (!kk) return;
+    const i = kk.enpalKontakte.findIndex((x) => x.id === neu.id);
+    if (i >= 0) kk.enpalKontakte[i] = neu; else kk.enpalKontakte.push(neu);
+    if (!alt && res.termin && neu.frist) {
+      d.termine.push(neuerTermin({ kundeId, sparte: neu.themen[0] || 'pv', art: 'wiedervorlage', beginn: neu.frist, dauerMin: 15,
+        titel: `Enpal-Frist: ${neu.naechsterSchritt || AUSGANG[neu.ergebnis] || 'nachfassen'} – ${kundenTitel(kk)}`, ort: adresseEinzeilig(kk) }));
+    }
+    kk.updatedAt = nowIso();
+  });
+  return neu.id;
+}
+
+/** Zeigt den fertigen Text mit Kopier-Knopf (robust auch auf iPad/Android). */
+export async function textZeigen(kundeId, kontaktId = null) {
+  const k = store.findKunde(kundeId);
+  if (!k) return;
+  const einst = store.getData().einstellungen;
+  const text = kontaktId ? enpalDokuText(k, kontaktId, einst) : enpalVerlaufText(k, einst);
+  if (!text) { toast('Noch keine Enpal-Dokumentation vorhanden.', 'error'); return; }
+  await dialog({
+    titel: kontaktId ? 'Text für die Enpal-App' : 'Enpal-Verlauf (alle Kontakte)',
+    html: `<p class="hinweis">Kopieren und in der Enpal-App beim Lead einfügen.</p><textarea readonly rows="14" class="doku-text">${esc(text)}</textarea>`,
+    knoepfe: [{ label: 'Schließen', wert: null }, { label: '📋 Text kopieren', primaer: true, wert: null }],
+    onOpen: (dlg) => {
+      const knopf = dlg.querySelectorAll('.dlg-actions button')[2];
+      knopf?.addEventListener('click', async (ev) => {
+        ev.preventDefault();
+        const ok = await kopieren(text);
+        toast(ok ? 'Kopiert – jetzt in der Enpal-App einfügen' : 'Kopieren nicht möglich – bitte Text markieren.', ok ? 'ok' : 'error');
+        if (ok) dlg.close();
+      });
+    },
+  });
+}
+
+/** Tab-Inhalt in der Kundenansicht. */
+export function tab(el, k) {
+  const liste = [...k.enpalKontakte].sort((a, b) => (a.zeitpunkt < b.zeitpunkt ? 1 : -1));
+  const jetzt = Date.now();
+  el.innerHTML = `
+    <section class="karte-box">
+      <header class="seitenkopf"><h2>Enpal-Gesprächsdokumentation</h2></header>
+      <p class="hinweis">Enpal verlangt je Kontakt eine Dokumentation (Telefon und Hausbesuch). Hier erfassen, dann den Text kopieren und in der Enpal-App einfügen. Enthält nur Photovoltaik und Wärmepumpe.</p>
+      <div class="knopfreihe">
+        <button class="btn primary" data-neu="telefon">📞 Telefonat dokumentieren</button>
+        <button class="btn primary" data-neu="hausbesuch">🏠 Hausbesuch dokumentieren</button>
+        ${liste.length ? '<button class="btn ghost" id="verlauf">Gesamten Verlauf kopieren</button>' : ''}
+      </div>
+      ${liste.length ? `<ul class="gespraechsliste doku-liste">${liste.map((c) => {
+    const ueberfaellig = c.frist && new Date(c.frist).getTime() < jetzt;
+    return `
+        <li>
+          <div class="notiz-kopf"><time>${esc(formatDateTime(c.zeitpunkt))}</time>
+            <span class="tags"><span class="tag">${c.art === 'telefon' ? '📞' : c.art === 'hausbesuch' ? '🏠' : '💬'} ${esc(KONTAKTART[c.art])}</span>${c.themen.map((s) => `<span class="tag tag-${s}">${esc(SPARTEN[s].kurz)}</span>`).join('')}</span></div>
+          <p>${c.erreicht ? '' : '<b>Nicht erreicht.</b> '}${c.ergebnis ? `<span class="ausgang ausgang-${esc(c.ergebnis)}">${esc(AUSGANG[c.ergebnis])}</span>` : ''}</p>
+          ${c.naechsterSchritt ? `<p><b>Nächster Schritt:</b> ${esc(c.naechsterSchritt)}</p>` : ''}
+          ${c.frist ? `<p class="${ueberfaellig ? 'frist-ueber' : ''}"><b>Frist:</b> ${esc(formatDateTime(c.frist))}${ueberfaellig ? ' – überfällig' : ''}</p>` : ''}
+          ${c.notiz ? `<p class="hinweis">${esc(c.notiz.length > 240 ? `${c.notiz.slice(0, 240)} …` : c.notiz)}</p>` : ''}
+          <div class="knopfreihe">
+            <button class="btn klein primary" data-kopie="${esc(c.id)}">📋 Text für Enpal-App</button>
+            <button class="btn klein ghost" data-bearb="${esc(c.id)}">Bearbeiten</button>
+            <button class="btn klein ghost danger-text" data-loesch="${esc(c.id)}">Löschen</button>
+          </div>
+        </li>`;
+  }).join('')}</ul>` : '<p class="hinweis">Noch kein Kontakt dokumentiert.</p>'}
+    </section>`;
+  const neuZeichnen = () => { const kk = store.findKunde(k.id); if (kk) tab(el, kk); };
+  // Listener an der Section, nicht am (wiederverwendeten) Tab-Container – sonst doppelte Handler.
+  const box = el.querySelector('section');
+  box.addEventListener('click', async (ev) => {
+    const b = ev.target.closest('button');
+    if (!b) return;
+    if (b.dataset.neu) {
+      const id = await kontaktDialog(k.id, { art: b.dataset.neu });
+      if (id) { neuZeichnen(); await textZeigen(k.id, id); }
+    } else if (b.dataset.kopie) {
+      await textZeigen(k.id, b.dataset.kopie);
+    } else if (b.dataset.bearb) {
+      if (await kontaktDialog(k.id, { kontaktId: b.dataset.bearb })) neuZeichnen();
+    } else if (b.dataset.loesch) {
+      if (!(await bestaetigen('Dokumentation löschen?', 'Dieser Enpal-Kontakt wird beim Kunden entfernt.'))) return;
+      await store.mutate((d) => { const kk = d.kunden.find((x) => x.id === k.id); if (kk) { kk.enpalKontakte = kk.enpalKontakte.filter((c) => c.id !== b.dataset.loesch); kk.updatedAt = nowIso(); } });
+      neuZeichnen();
+    } else if (b.id === 'verlauf') {
+      await textZeigen(k.id, null);
+    }
+  });
+}
