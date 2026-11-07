@@ -50,6 +50,12 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **Auswertungen:** Bereich und Zeitraum wählen, mit ‹ › blättern, „PDF-Bericht“ zum Teilen.
 - **Hilfe:** ?-Knopf neben jeder Überschrift; alles unter Einstellungen → Hilfe (dort auch abschaltbar und die Installationsanleitung).
 
+## Felder anpassen
+
+- Einstellungen → **Felder**: je Bereich (Kontakt, Photovoltaik, Wärmepumpe, Vorwerk) Häkchen weg = Feld ausgeblendet. Die eingetragenen Werte bleiben erhalten.
+- **„+ Eigenes Feld“**: Bezeichnung, Bereich und Art (Text, langer Text, Zahl mit Einheit, Datum, Ja/Nein, Auswahlliste, Telefon, E-Mail, Link). Eigene Felder stehen in Kartei, Gesprächsmodus, den Texten ihres Bereichs, Kundenansicht und Suche; Ja/Nein und Auswahllisten auch im Filter.
+- 🗑 löscht ein eigenes Feld samt Werten (mit Rückfrage). Zum Behalten nur ausblenden.
+
 ## 4. Datensicherung
 
 - **iCloud (iPad/iPhone):** Einstellungen → **„In iCloud / Dateien sichern“** → „Jetzt sichern“ → im Teilen-Menü **„In Dateien sichern“** → iCloud Drive → Ordner (z. B. „Sperling“) → Sichern. Die Datei ist verschlüsselt.

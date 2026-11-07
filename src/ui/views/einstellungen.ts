@@ -13,6 +13,7 @@ import { MAILPROGRAMME, gemerktesMailprogramm, mailprogrammMerken } from '../kon
 import { maskottchen, toast, download, dateiWaehlen, dialog, bestaetigen, teilenOderSpeichern } from '../dom.ts';
 import * as hilfe from '../hilfe.ts';
 import * as kontaktseite from '../kontaktseite.ts';
+import * as feldverwaltung from '../feldverwaltung.ts';
 
 export const APP_VERSION = __APP_VERSION__; // aus package.json (vite.config.ts)
 
@@ -71,6 +72,8 @@ export function render(el: HTMLElement) {
         ${[['auto', 'Automatisch (Apple Karten auf iPhone/iPad, sonst Google Maps)'], ['apple', 'Apple Karten'], ['google', 'Google Maps']].map(([k, v]) => `<option value="${k}" ${e.kartenApp === k ? 'selected' : ''}>${v}</option>`).join('')}
       </select></label>
     </section>
+
+    ${feldverwaltung.html(e.felder)}
 
     <section class="karte-box" id="kaEinstellungen">
       <h2>Kundenansicht zum Herzeigen ${hilfe.knopf('kundenansicht')}</h2>
@@ -176,6 +179,7 @@ export function render(el: HTMLElement) {
   kontaktseite.binden(el);
   el.querySelector('#hilfeKnoepfe')?.addEventListener('change', (ev) => { hilfe.vorliebeSetzen({ knoepfe: (ev.target as HTMLInputElement).checked }); toast('Gespeichert', 'ok'); });
   el.querySelector('#kartenApp').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.kartenApp = (ev.target as HTMLInputElement).value; }));
+  feldverwaltung.verdrahten(el, () => { const y = scrollY; render(el); scrollTo(0, y); });
   el.querySelector('#kaEinstellungen').addEventListener('change', (ev) => {
     const c = (ev.target as Element).closest<HTMLInputElement>('[data-ka]');
     if (c) speichere((d) => { d.einstellungen.kundenansicht[c.dataset.ka as KundenansichtTeil] = c.checked; });

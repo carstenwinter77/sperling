@@ -2,7 +2,7 @@
 // links die Kundendaten (weiter bearbeitbar), rechts Notizen, Leitfaden und Abschluss.
 // Am Handy werden daraus Reiter. Der Entwurf bleibt im Arbeitsspeicher, bis gespeichert oder verworfen wird.
 import { esc, formatDateTime, localInputToIso } from '../../core/util.ts';
-import { SPARTEN, SPARTEN_KEYS, STATUS, FELDER, AUSGANG, KONTAKTART, kundenTitel, adresseEinzeilig, type Sparte } from '../../core/model.ts';
+import { SPARTEN, SPARTEN_KEYS, STATUS, AUSGANG, KONTAKTART, kundenTitel, adresseEinzeilig, type Sparte } from '../../core/model.ts';
 import { kundenVerlauf } from '../../core/verlauf.ts';
 import * as store from '../../storage/store.ts';
 import { maskottchen, toast, bestaetigen } from '../dom.ts';
@@ -10,7 +10,8 @@ import { anrufen } from '../kontakt.ts';
 import { statusOptions, spartenIcon, statusChips } from '../parts.ts';
 import * as ablauf from '../gespraechsablauf.ts';
 import * as leitfaden from './gespraech.ts';
-import { bindeFelder, feldHtml } from './kunde.ts';
+import { bindeFelder } from './kunde.ts';
+import { felderHtml } from '../felder.ts';
 
 type Seite = 'notizen' | 'leitfaden' | 'abschluss';
 const SEITEN: [Seite, string][] = [['notizen', '📝 Notizen'], ['leitfaden', '💬 Leitfaden'], ['abschluss', '✓ Abschließen']];
@@ -52,17 +53,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
     links.innerHTML = `
       <div class="karte-box gm-kontakt">
         <div class="gm-chips">${statusChips(k)}</div>
-        <div class="formgrid">
-          <label>Vorname<input data-feld="vorname" value="${esc(k.vorname)}" autocomplete="off"></label>
-          <label>Nachname<input data-feld="nachname" value="${esc(k.nachname)}" autocomplete="off"></label>
-          <label>Telefon<span class="feld-mit-knopf"><input data-feld="telefon" type="tel" value="${esc(k.telefon)}"><button type="button" class="btn klein" id="gmAnrufen" aria-label="Anrufen">📞</button></span></label>
-          <label>E-Mail<input data-feld="email" type="email" value="${esc(k.email)}"></label>
-          <label class="breit">Straße und Hausnummer<input data-feld="strasse" value="${esc(k.strasse)}"></label>
-          <label>PLZ<input data-feld="plz" inputmode="numeric" value="${esc(k.plz)}"></label>
-          <label>Ort<input data-feld="ort" value="${esc(k.ort)}"></label>
-          <label>Firma<input data-feld="firma" value="${esc(k.firma)}"></label>
-          <label>Anrede<input data-feld="anrede" value="${esc(k.anrede)}" placeholder="Frau / Herr"></label>
-        </div>
+        <div class="formgrid">${felderHtml('kontakt', k, store.getData().einstellungen.felder, { 'kontakt.telefon': '<button type="button" class="btn klein" id="gmAnrufen" aria-label="Anrufen">📞</button>' })}</div>
       </div>
       <div class="karte-box">
         <h2>Zuletzt</h2>
@@ -73,9 +64,9 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
       <details class="karte-box gm-bogen bereich-rand bereich-${s}" ${e.sparten.includes(s) ? 'open' : ''}>
         <summary>${maskottchen(spartenIcon(s), 'mini')} ${esc(SPARTEN[s].label)} <small>${esc(STATUS[k.status[s]].label)}</small></summary>
         <label class="status-zeile">Status <select data-feld="status.${s}">${statusOptions(k.status[s])}</select></label>
-        <div class="formgrid">${FELDER[s].map((f) => feldHtml(s, f, k[s][f.key])).join('')}</div>
+        <div class="formgrid">${felderHtml(s, k, store.getData().einstellungen.felder)}</div>
       </details>`).join('')}`;
-    links.querySelector('#gmAnrufen').addEventListener('click', () => {
+    links.querySelector('#gmAnrufen')?.addEventListener('click', () => {
       const akt = store.findKunde(id);
       if (!akt?.telefon) { toast('Bitte zuerst eine Telefonnummer eintragen.', 'error'); return; }
       e.kontaktart = 'telefon';

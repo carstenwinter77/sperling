@@ -1,12 +1,13 @@
 // Kundendetail: Stammdaten, Spartenstatus, Gesprächsnotizen, Erfassungsbögen, Termine, Texte.
 import { esc, debounce, parseNumber, isoToLocalInput, localInputToIso, formatDateTime, distanceMeters, nowIso } from '../../core/util.ts';
-import { NACHBAR_RADIEN, radiusText, AUSGANG, SPARTEN, SPARTEN_KEYS, STATUS, FELDER, kundenTitel, adresseEinzeilig, notizenSortiert, neueNotiz, normalizeNotiz } from '../../core/model.ts';
+import { NACHBAR_RADIEN, radiusText, AUSGANG, SPARTEN, SPARTEN_KEYS, STATUS, kundenTitel, adresseEinzeilig, notizenSortiert, neueNotiz, normalizeNotiz } from '../../core/model.ts';
 import { ERGEBNIS } from '../../core/einwaende.ts';
 import { generiereText, ausgelasseneNotizen, GRUPPEN, notizErlaubt } from '../../core/textgen.ts';
 import * as store from '../../storage/store.ts';
 import { koordinateZuAdresse } from '../../services/geo.ts';
 import { maskottchen, toast, kopieren, bestaetigen, dialog } from '../dom.ts';
 import { anrufen, emailSchreiben } from '../kontakt.ts';
+import { felderHtml } from '../felder.ts';
 import * as enpalDoku from '../enpaldoku.ts';
 import * as pk from '../../core/papierkorb.ts';
 import { hinfahrenKnopf } from '../navi.ts';
@@ -161,24 +162,6 @@ export function bindeFelder(root, kundeId, nachher) {
   });
 }
 
-export function feldHtml(sparte, f, wert) {
-  const pfad = `${sparte}.${f.key}`;
-  const lbl = `${esc(f.label)}${f.unit ? ` <small>(${esc(f.unit)})</small>` : ''}`;
-  if (f.type === 'select') {
-    return `<label>${lbl}<select data-feld="${pfad}"><option value="">–</option>${f.options.map((o) => `<option ${o === wert ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select></label>`;
-  }
-  if (f.type === 'bool') {
-    return `<label>${lbl}<select data-feld="${pfad}" data-typ="bool"><option value="">–</option><option value="ja" ${wert === true ? 'selected' : ''}>ja</option><option value="nein" ${wert === false ? 'selected' : ''}>nein</option></select></label>`;
-  }
-  if (f.type === 'number') {
-    return `<label>${lbl}<input data-feld="${pfad}" data-typ="number" inputmode="decimal" value="${wert === null || wert === undefined ? '' : esc(String(wert).replace('.', ','))}"></label>`;
-  }
-  if (f.type === 'textarea') {
-    return `<label class="breit">${lbl}<textarea data-feld="${pfad}" rows="3">${esc(wert)}</textarea></label>`;
-  }
-  return `<label>${lbl}<input data-feld="${pfad}" value="${esc(wert)}"></label>`;
-}
-
 // ---------- Tabs ----------
 
 function uebersicht(el, k, kopf) {
@@ -209,17 +192,7 @@ function uebersicht(el, k, kopf) {
     </section>
     <section class="karte-box">
       <h2>Kontakt</h2>
-      <div class="formgrid">
-        <label>Anrede<input data-feld="anrede" value="${esc(k.anrede)}" placeholder="Frau / Herr"></label>
-        <label>Vorname<input data-feld="vorname" value="${esc(k.vorname)}" autocomplete="off"></label>
-        <label>Nachname<input data-feld="nachname" value="${esc(k.nachname)}" autocomplete="off"></label>
-        <label>Firma<input data-feld="firma" value="${esc(k.firma)}"></label>
-        <label>Telefon<input data-feld="telefon" type="tel" value="${esc(k.telefon)}"></label>
-        <label>E-Mail<input data-feld="email" type="email" value="${esc(k.email)}"></label>
-        <label class="breit">Straße und Hausnummer<input data-feld="strasse" value="${esc(k.strasse)}"></label>
-        <label>PLZ<input data-feld="plz" inputmode="numeric" value="${esc(k.plz)}"></label>
-        <label>Ort<input data-feld="ort" value="${esc(k.ort)}"></label>
-      </div>
+      <div class="formgrid">${felderHtml('kontakt', k, store.getData().einstellungen.felder) || '<p class="hinweis breit">Alle Kontaktfelder sind ausgeblendet (Einstellungen → Felder).</p>'}</div>
       <div class="knopfreihe">
         <button class="btn ghost" id="anrufen">📞 Anrufen</button>
         <button class="btn ghost" id="mailen">✉️ E-Mail schreiben</button>
@@ -398,7 +371,7 @@ function bogen(el, k, sparten, kopf) {
     <section class="karte-box bereich-rand bereich-${s}">
       <h2>${maskottchen(spartenIcon(s), 'titel-bild')} ${esc(SPARTEN[s].label)}</h2>
       <label class="status-zeile">Status <select data-feld="status.${s}">${statusOptions(k.status[s])}</select></label>
-      <div class="formgrid">${FELDER[s].map((f) => feldHtml(s, f, k[s][f.key])).join('')}</div>
+      <div class="formgrid">${felderHtml(s, k, store.getData().einstellungen.felder)}</div>
     </section>`).join('');
   bindeFelder(el, k.id, kopf);
 }

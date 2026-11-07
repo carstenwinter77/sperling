@@ -98,7 +98,7 @@ export function index(data: Daten): Eintrag[] {
     const statusWoerter = SPARTEN_KEYS.filter((s) => k.status[s] !== 'unbekannt').map((s) => `${SPARTEN[s].label} ${SPARTEN[s].kurz} ${STATUS[k.status[s]].label}`);
     out.push(eintrag({
       art: 'kunde', id: k.id, titel: kundenTitel(k), unter: [adresseEinzeilig(k), k.telefon].filter(Boolean).join(' · '),
-      href: `#/kunde/${k.id}`, such: [k.vorname, k.nachname, k.firma, k.email, ziffern(k.telefon), ...statusWoerter], aktionen: kundenAktionen(k),
+      href: `#/kunde/${k.id}`, such: [k.vorname, k.nachname, k.firma, k.email, ziffern(k.telefon), ...statusWoerter, ...Object.values(k.eigene || {}).filter((v): v is string => typeof v === 'string').map((v) => v.slice(0, 200))], aktionen: kundenAktionen(k),
     }));
     const name = kundenTitel(k);
     for (const n of k.notizen) {

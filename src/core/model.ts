@@ -3,8 +3,9 @@
 // Migration in migrate() ergänzen, Doku + Tests aktualisieren.
 
 import { type Rec, uid, nowIso, isValidDate, parseNumber, isValidCoord } from './util.ts';
+import { normalizeFeldEinstellungen, normalizeEigeneWerte } from './felder.ts';
 
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 /** Die drei Geschäftszweige. Gruppe bestimmt, welcher Textgenerator sie sehen darf. */
 export const SPARTEN = {
@@ -439,6 +440,8 @@ export function normalizeKunde(k: unknown) {
     enpalKontakte: Array.isArray(src.enpalKontakte) ? src.enpalKontakte.map(normalizeEnpalKontakt) : [],
     /** Von Hand gesetzter letzter Kontakt (ab 0.9.0); wirksam ist der jüngere aus Hand und Verlauf */
     letzterKontaktManuell: (isValidDate(src.letzterKontaktManuell) ? new Date(src.letzterKontaktManuell).toISOString() : null) as string | null,
+    /** Werte der eigenen Felder (ab Schema 4), Schlüssel = ID aus einstellungen.felder.eigene */
+    eigene: normalizeEigeneWerte(src.eigene),
   };
 }
 
@@ -509,6 +512,8 @@ function normalizeEinstellungen(e: unknown) {
     nachbarRadiusM: NACHBAR_RADIEN.includes(Number(src.nachbarRadiusM)) ? Number(src.nachbarRadiusM) : 300,
     /** Kommandozeile: zuletzt geöffnete Kunden/Geräte (ab 0.9.0) */
     zuletzt: normalizeZuletzt(src.zuletzt),
+    /** Feldverwaltung (ab Schema 4): ausgeblendete Felder (Pfade) und eigene Felder */
+    felder: normalizeFeldEinstellungen(src.felder),
   };
 }
 
@@ -523,7 +528,8 @@ export function migrate(input: unknown): Daten {
   // v1 → v2: Kunden bekommen enpalKontakte (leer), Einstellungen bekommen empfaenger.
   // v2 → v3: reservierungen, papierkorb, kartenApp, Fotos/Unterschriften am Verleih (alles leer ergänzt).
   // Beides ergänzt normalize…() unten; ältere Daten bleiben vollständig lesbar.
-  // Künftige Migrationen hier schrittweise: if (v < 4) { ... }
+  // v3 → v4: kunde.eigene und einstellungen.felder (Feldverwaltung), beides leer ergänzt.
+  // Künftige Migrationen hier schrittweise: if (v < 5) { ... }
   const kunden = Array.isArray(data.kunden) ? data.kunden.map(normalizeKunde) : [];
   // Doppelte IDs verhindern (z. B. nach manuellem Zusammenführen)
   const seen = new Set();

@@ -18,7 +18,8 @@ Browser (Tablet / Handy / Laptop)
  │   ├─ auswertung.ts .... Zeiträume, Kennzahlen, Vergleich mit dem Vorzeitraum
  │   ├─ gespraech.ts ..... Gesprächsmodus speichern (je Bereich, Notiz je Firma, R-TEXT)
  │   ├─ verlauf.ts ....... Gesprächshistorie, letzter Kontakt
- │   ├─ kartenfilter.ts .. Mehrfachfilter für Karte und Kundenliste
+ │   ├─ kartenfilter.ts .. Mehrfachfilter für Karte und Kundenliste (auch eigene Ja/Nein- und Auswahlfelder)
+ │   ├─ felder.ts ........ Feldverwaltung: Kontaktfelder, eigene Felder, sichtbare Felder, Anzeige je Typ
  │   ├─ suche.ts ......... Kommandozeile: Normalisierung, Bewertung, Gruppen, Verben, Zuletzt
  │   ├─ hilfe.ts ......... Hilfetexte (Themen, Begriffe, Fragen) und Hilfe-Suche
  │   └─ installieren.ts .. Gerät/Browser erkennen, Installationsschritte
@@ -45,6 +46,8 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/hilfe.ts ...... ?-Knöpfe, Installieren-Angebot, Installationshinweis
  ├─ src/ui/gespraechsablauf.ts  laufendes Gespräch im Arbeitsspeicher
  ├─ src/ui/filterpanel.ts  Filterfeld für Karte und Kundenliste
+ ├─ src/ui/felder.ts ..... Formularfelder der Kartei aus der Feldverwaltung (Kartei, Gesprächsmodus)
+ ├─ src/ui/feldverwaltung.ts  Einstellungen → Felder (ein-/ausblenden, eigene Felder anlegen/bearbeiten/löschen)
  ├─ src/ui/zeitraum.ts ... Zeitraum wischen mit gesperrten Tagen
  ├─ src/ui/views/ ......... start, kunden, kunde, gespraechsmodus, karte, termine, gespraech, bestand,
  │                          belegung, auswertung, geloescht, hilfe, einstellungen

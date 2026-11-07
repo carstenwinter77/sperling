@@ -12,15 +12,18 @@
 import { SPARTEN, STATUS, FELDER, AUSGANG, KONTAKTART, kundenName, adresseEinzeilig, notizenSortiert, type Kunde, type Notiz, type EnpalKontakt, type Feld, type Sparte, type StatusKey, type Einstellungen } from './model.ts';
 
 export type Gruppe = 'enpal' | 'vorwerk';
-type EinstellungenTeil = Partial<Pick<Einstellungen, 'absender' | 'vorlagen'>>;
+type EinstellungenTeil = Partial<Pick<Einstellungen, 'absender' | 'vorlagen' | 'felder'>>;
 /** Kundenkopie nur mit Stammdaten und den Sparten einer Gruppe (siehe projizieren). */
 export interface Projektion extends Pick<Kunde, 'anrede' | 'vorname' | 'nachname' | 'firma' | 'strasse' | 'plz' | 'ort' | 'telefon' | 'email'> {
   status: Partial<Record<Sparte, StatusKey>>;
   notizen: Notiz[];
   enpalKontakte?: EnpalKontakt[];
   pv?: Record<string, unknown>; wp?: Record<string, unknown>; vorwerk?: Record<string, unknown>;
+  /** nur Werte eigener Felder der Kategorien Kontakt + eigene Sparten */
+  eigene: Record<string, unknown>;
 }
 import { formatDateTime } from './util.ts';
+import { sichtbareFelder, feldText, feldWertLesen, type FeldEinstellungen } from './felder.ts';
 
 interface GruppeInfo { key: Gruppe; label: string; sparten: Sparte[] }
 export const GRUPPEN: Record<Gruppe, GruppeInfo> = {
@@ -43,13 +46,17 @@ export function notizErlaubt(notiz: { sparten?: Sparte[] }, gruppe: string): boo
 }
 
 /** Stufe 1: Kunde auf Stammdaten + eigene Sparten reduzieren. */
-export function projizieren(kunde: Kunde, gruppe: string): Projektion {
+export function projizieren(kunde: Kunde, gruppe: string, fe?: FeldEinstellungen): Projektion {
   const g = gruppeOrThrow(gruppe);
+  // Eigene Felder nur, wenn ihre Kategorie Kontakt oder eine Sparte der Gruppe ist (R-TEXT)
+  const erlaubt = new Set((fe?.eigene || []).filter((f) => f.kategorie === 'kontakt' || g.sparten.includes(f.kategorie as Sparte)).map((f) => f.id));
+  const eigene = Object.fromEntries(Object.entries(kunde.eigene || {}).filter(([id]) => erlaubt.has(id)));
   const p: Projektion = {
     anrede: kunde.anrede, vorname: kunde.vorname, nachname: kunde.nachname, firma: kunde.firma,
     strasse: kunde.strasse, plz: kunde.plz, ort: kunde.ort, telefon: kunde.telefon, email: kunde.email,
     status: {},
     notizen: (kunde.notizen || []).filter((n) => notizErlaubt(n, gruppe)).map((n) => ({ ...n })),
+    eigene,
   };
   for (const s of g.sparten) {
     p.status[s] = kunde.status?.[s] ?? 'unbekannt';
@@ -69,13 +76,21 @@ function feldWert(f: Feld, v: unknown): string | null {
   return String(v);
 }
 
-function datenBlock(p: Projektion, g: GruppeInfo, nur: Sparte[] = g.sparten): string {
+function datenBlock(p: Projektion, g: GruppeInfo, nur: Sparte[] = g.sparten, fe?: FeldEinstellungen): string {
   const teile: string[] = [];
+  // Eigene Kontaktfelder (Feldverwaltung), ausgeblendete nicht
+  const kontaktZeilen = fe ? sichtbareFelder('kontakt', fe).filter((f) => f.eigen).map((f) => [f.label, feldText(f, feldWertLesen(p, f))]).filter(([, w]) => w !== null) : [];
+  if (kontaktZeilen.length) teile.push(`Weitere Angaben\n${kontaktZeilen.map(([l, w]) => `- ${l}: ${w}`).join('\n')}`);
   for (const s of g.sparten.filter((x) => nur.includes(x))) {
     const zeilen: string[] = [];
     const st = p.status[s];
     if (st && st !== 'unbekannt') zeilen.push(`Status: ${STATUS[st].label}`);
-    for (const f of FELDER[s]) {
+    if (fe) {
+      for (const f of sichtbareFelder(s, fe)) {
+        const w = feldText(f, feldWertLesen(p, f));
+        if (w !== null) zeilen.push(`${f.label}: ${w}`);
+      }
+    } else for (const f of FELDER[s]) {
       const w = feldWert(f, p[s]?.[f.key]);
       if (w !== null) zeilen.push(`${f.label}: ${w}`);
     }
@@ -93,7 +108,7 @@ function notizenBlock(p: Projektion): string {
 /** Stufe 2: Kontext für Platzhalter – ausschließlich aus der Projektion. */
 export function kontext(kunde: Kunde, gruppe: string, einstellungen: EinstellungenTeil = {}): Record<string, string> {
   const g = gruppeOrThrow(gruppe);
-  const p = projizieren(kunde, gruppe);
+  const p = projizieren(kunde, gruppe, einstellungen.felder);
   const aktiv = g.sparten.filter((s) => !['unbekannt', 'kein_interesse'].includes(p.status[s] ?? 'unbekannt'));
   const spartenLabel = (aktiv.length ? aktiv : g.sparten).map((s) => SPARTEN[s].label).join(' & ');
   return {
@@ -104,7 +119,7 @@ export function kontext(kunde: Kunde, gruppe: string, einstellungen: Einstellung
     email: p.email || '–',
     sparten: spartenLabel,
     status: g.sparten.map((s) => `${SPARTEN[s].label}: ${STATUS[p.status[s] ?? 'unbekannt'].label}`).join(', '),
-    daten: datenBlock(p, g),
+    daten: datenBlock(p, g, g.sparten, einstellungen.felder),
     notizen: notizenBlock(p),
     datum: formatDateTime(new Date().toISOString()).slice(0, 10),
     absender: einstellungen.absender || '',
@@ -158,11 +173,11 @@ function kundenKopf(p: Projektion): string {
  * Arbeitet nur mit der Enpal-Projektion (R-TEXT): Vorwerk kann nicht vorkommen.
  */
 export function enpalDokuText(kunde: Kunde, kontaktId: string, einstellungen: EinstellungenTeil = {}): string {
-  const p = projizieren(kunde, 'enpal');
+  const p = projizieren(kunde, 'enpal', einstellungen.felder);
   const c = (p.enpalKontakte || []).find((x) => x.id === kontaktId);
   if (!c) return '';
   const g = GRUPPEN.enpal;
-  const daten = datenBlock(p, g, c.themen.length ? c.themen : g.sparten);
+  const daten = datenBlock(p, g, c.themen.length ? c.themen : g.sparten, einstellungen.felder);
   return [
     'Gesprächsdokumentation Enpal',
     '',

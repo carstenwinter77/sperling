@@ -651,3 +651,72 @@ test('Dropbox entfernt: alte Zugangsdaten werden beim Laden verworfen', () => {
   assert.equal(d.einstellungen.absender, 'X');
   assert.equal(JSON.stringify(d).includes('geheim'), false);
 });
+
+test('Feldverwaltung: eigene Felder normalisieren, ausblenden, Werte behalten', async () => {
+  const f = await import('../src/core/felder.ts');
+  const fe = f.normalizeFeldEinstellungen({
+    aus: ['pv.neigung', 'kontakt.firma', 'kaputt', 5],
+    eigene: [
+      { id: 'hund', kategorie: 'vorwerk', label: ' Hund ', typ: 'bool' },
+      { id: 'dach', kategorie: 'pv', label: 'Dachfenster', typ: 'select', optionen: ['keine', 'eins', 'eins', ''] },
+      { id: 'flaeche', kategorie: 'pv', label: 'Carport', typ: 'number', einheit: 'm²' },
+      { id: 'geb', kategorie: 'kontakt', label: 'Geburtstag', typ: 'date' },
+      { kategorie: 'xx', label: '' }, // ohne Bezeichnung: verworfen
+      { id: 'hund', label: 'Doppelt', typ: 'text' }, // doppelte ID: verworfen
+    ],
+  });
+  assert.deepEqual(fe.aus, ['pv.neigung', 'kontakt.firma']);
+  assert.equal(fe.eigene.length, 4);
+  assert.equal(fe.eigene[0].label, 'Hund');
+  assert.deepEqual(fe.eigene[1].optionen, ['keine', 'eins']);
+  assert.equal(fe.eigene[3].kategorie, 'kontakt');
+  // Sichtbare Felder: eingebaute ohne ausgeblendete, dann eigene
+  const pv = f.sichtbareFelder('pv', fe).map((x) => x.pfad);
+  assert.ok(!pv.includes('pv.neigung') && pv.includes('pv.dachflaeche'));
+  assert.deepEqual(pv.slice(-2), ['eigene.dach', 'eigene.flaeche']);
+  assert.ok(f.alleFelder('pv', fe).some((x) => x.pfad === 'pv.neigung'), 'ausgeblendet bleibt in der Verwaltung');
+  assert.ok(!f.sichtbareFelder('kontakt', fe).some((x) => x.pfad === 'kontakt.firma'));
+  // Werte bleiben am Kunden, auch wenn ausgeblendet; Unsinn wird verworfen
+  const d = migrate({ einstellungen: { felder: fe }, kunden: [{ id: 'k', firma: 'Bleibt', pv: { neigung: 30 }, eigene: { hund: true, dach: 'eins', flaeche: 12.5, geb: '1980-05-17', boese: { x: 1 }, 'a b': 'x' } }] });
+  const k = d.kunden[0];
+  assert.equal(k.firma, 'Bleibt');
+  assert.equal(k.pv.neigung, 30);
+  assert.deepEqual(k.eigene, { hund: true, dach: 'eins', flaeche: 12.5, geb: '1980-05-17' });
+  assert.equal(d.einstellungen.felder.eigene.length, 4);
+  // Anzeige je Typ
+  const def = (id) => f.alleFelder(fe.eigene.find((x) => x.id === id).kategorie, fe).find((x) => x.pfad === `eigene.${id}`);
+  assert.equal(f.feldText(def('hund'), true), 'ja');
+  assert.equal(f.feldText(def('flaeche'), 12.5), '12,5 m²');
+  assert.equal(f.feldText(def('geb'), '1980-05-17'), '17.05.1980');
+  assert.equal(f.feldText(def('geb'), 'gestern'), null);
+  assert.equal(f.feldText(def('dach'), 'drei'), null);
+  // Filter: Ja/Nein und Auswahllisten
+  const { passt, leererKartenFilter } = await import('../src/core/kartenfilter.ts');
+  assert.deepEqual(f.filterbareFelder(fe).map((x) => x.id), ['hund', 'dach']);
+  const filt = { ...leererKartenFilter(), eigen: { hund: ['ja'] } };
+  assert.equal(passt(k, filt, null, fe), true);
+  assert.equal(passt({ ...k, eigene: {} }, filt, null, fe), false);
+  assert.equal(passt({ ...k, eigene: {} }, { ...filt, eigen: { hund: [''] } }, null, fe), true, 'ohne Angabe');
+  // Ausgeblendetes eigenes Feld ist nicht filterbar
+  assert.deepEqual(f.filterbareFelder({ ...fe, aus: ['eigene.hund'] }).map((x) => x.id), ['dach']);
+});
+
+test('Feldverwaltung und Texte: eigene Felder nur im Text ihres Bereichs (R-TEXT)', () => {
+  const einst = migrate({ einstellungen: { felder: { aus: ['pv.dachflaeche'], eigene: [
+    { id: 'hund', kategorie: 'vorwerk', label: 'Hund', typ: 'bool' },
+    { id: 'carport', kategorie: 'pv', label: 'Carport', typ: 'number', einheit: 'm²' },
+    { id: 'beruf', kategorie: 'kontakt', label: 'Beruf', typ: 'text' },
+  ] } } }).einstellungen;
+  const k = normalizeKunde({ vorname: 'A', pv: { dachflaeche: 60, neigung: 30 }, status: { pv: 'interesse', vorwerk: 'interesse' }, eigene: { hund: true, carport: 20, beruf: 'Lehrerin' } });
+  const enpal = generiereText(k, 'enpal', einst);
+  const vorwerk = generiereText(k, 'vorwerk', einst);
+  assert.ok(enpal.includes('Carport: 20 m²'));
+  assert.ok(enpal.includes('Beruf: Lehrerin'));
+  assert.ok(!enpal.includes('Hund'));
+  assert.ok(!enpal.includes('Nutzbare Dachfläche'), 'ausgeblendetes Feld nicht im Text');
+  assert.ok(enpal.includes('Dachneigung: 30'));
+  assert.ok(vorwerk.includes('Hund: ja'));
+  assert.ok(!vorwerk.includes('Carport'));
+  assert.equal(projizieren(k, 'vorwerk', einst.felder).eigene.carport, undefined);
+  assert.deepEqual(projizieren(k, 'enpal').eigene, {}, 'ohne Felddefinition keine eigenen Werte');
+});

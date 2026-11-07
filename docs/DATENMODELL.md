@@ -1,4 +1,4 @@
-# Datenmodell (Schema-Version 3)
+# Datenmodell (Schema-Version 4)
 
 Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Menschen. Bei Abweichungen gilt der Code, und diese Datei wird nachgezogen.
 
@@ -6,7 +6,7 @@ Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Mensch
 
 | Feld | Typ | Beschreibung |
 |---|---|---|
-| `schemaVersion` | Zahl | aktuell `3` |
+| `schemaVersion` | Zahl | aktuell `4` |
 | `kunden` | Kunde[] | alle Kunden und markierten Standorte |
 | `termine` | Termin[] | Termine und Wiedervorlagen |
 | `einstellungen` | Objekt | siehe unten |
@@ -30,6 +30,7 @@ Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Mensch
 | `gespraeche` | Gespräch[] | Gespräche mit dem Leitfaden, je Sparte ein Eintrag |
 | `enpalKontakte` | EnpalKontakt[] | Gesprächsdokumentation für Enpal (ab Schema 2) |
 | `letzterKontaktManuell` | ISO-Datum \| null | von Hand nachgetragener Kontakt (ab 0.9.0). Angezeigt wird der jüngste aus diesem Feld, Gesprächen, Enpal-Kontakten, Notizen, erledigten Terminen und Verleihen (`letzterKontakt()` in `src/core/verlauf.ts`). |
+| `eigene` | Objekt | Werte der eigenen Felder (ab Schema 4): Schlüssel = Feld-ID aus `einstellungen.felder.eigene`, Wert = Text, Zahl oder `true`/`false`. Datum als `JJJJ-MM-TT`. Werte gelöschter Felder werden beim Löschen entfernt; ausgeblendete bleiben. |
 
 ### Status je Sparte
 `unbekannt` · `potenzial` (vermutet) · `interesse` · `termin` · `angebot` · `abschluss` · `kein_interesse`
@@ -75,6 +76,8 @@ heizungsart (Gas, Öl, Nachtspeicher, Pellets, Holz/Kamin, Fernwärme, Wärmepum
 
 ### Erfassungsbogen Vorwerk (`vorwerk`)
 interesseAn (Kobold Staubsauger, Saugroboter, Saug-Wischer, Zubehör/Service, Sonstiges) · vorhandenesGeraet · bodenbelaege · flaeche (m²) · haustiere · allergien · vorfuehrung · bemerkung
+
+Jedes dieser Felder (und jedes Kontaktfeld) kann unter Einstellungen → Felder ausgeblendet werden; die Daten bleiben dabei unverändert am Kunden.
 
 Typen: Zahlen sind `null`, wenn leer. Ja/Nein-Felder sind `true`/`false`/`null` (unbeantwortet). Auswahlfelder akzeptieren nur Werte aus der Liste.
 
@@ -144,6 +147,7 @@ Belegt ist ein Gerät, wenn sich der Zeitraum mit einer Reservierung oder einem 
 | `kartenApp` | `auto` \| `apple` \| `google` – Ziel für „Hinfahren“ (ab Schema 3) |
 | `kundenansicht` | `{kontakt, pv, wp, vorwerk, bemerkungen, status, geraete, termine, notizen}` je `boolean` – was die Kundenansicht zum Herzeigen zeigt (ab 0.9.0, Standard siehe `KUNDENANSICHT_TEILE`) |
 | `nachbarRadiusM` | Zahl – Umkreis für „Nachbarn“ in Metern, eine der Stufen 100 … 50 000 (ab 0.9.0, Standard 300) |
+| `felder` | `{aus, eigene}` – Feldverwaltung (ab Schema 4). `aus`: Pfade ausgeblendeter Felder (`kontakt.firma`, `pv.neigung`, `eigene.<id>`). `eigene`: höchstens 100 eigene Felder `{id, kategorie: kontakt\|pv\|wp\|vorwerk, label, typ, einheit, optionen}`; `typ` ist `text`, `textarea`, `number` (mit `einheit`), `date`, `bool`, `select` (mit `optionen`), `tel`, `email` oder `url`. Logik in `src/core/felder.ts`. |
 | `zuletzt` | `[{art: 'kunde' \| 'geraet', id}]` – „Zuletzt geöffnet“ der Kommandozeile, höchstens 8, neueste zuerst (ab 0.9.0). Titel werden beim Anzeigen frisch aus den Daten geholt; Gelöschtes fällt weg. |
 
 ## Beispieldaten
@@ -158,4 +162,4 @@ Beispielkunden, -termine, -geräte und -verleihe in der echten App erkennt man a
 - entfernt doppelte Kunden-IDs,
 - hängt verwaiste Termine vom Kunden ab, statt sie zu löschen.
 
-Schema 1 → 2: `enpalKontakte` und `einstellungen.empfaenger` kommen hinzu; die Normalisierung ergänzt sie leer. Schema 2 → 3: `reservierungen`, `papierkorb`, `einstellungen.kartenApp` und die Beleg-Felder am Leihvorgang kommen hinzu (leer). 0.9.0 bleibt bei Schema 3: die neuen Felder (`letzterKontaktManuell`, `kundenansicht`, `nachbarRadiusM`, `zuletzt`) ergänzt die Normalisierung mit Standardwerten. Künftige Versionen ergänzen schrittweise Blöcke `if (v < 3) { … }`.
+Schema 1 → 2: `enpalKontakte` und `einstellungen.empfaenger` kommen hinzu; die Normalisierung ergänzt sie leer. Schema 2 → 3: `reservierungen`, `papierkorb`, `einstellungen.kartenApp` und die Beleg-Felder am Leihvorgang kommen hinzu (leer). 0.9.0 bleibt bei Schema 3: die neuen Felder (`letzterKontaktManuell`, `kundenansicht`, `nachbarRadiusM`, `zuletzt`) ergänzt die Normalisierung mit Standardwerten. Schema 3 → 4 (Feldverwaltung): `kunde.eigene` und `einstellungen.felder` kommen hinzu (leer); das frühere `einstellungen.dropbox` wird verworfen. Künftige Versionen ergänzen schrittweise Blöcke `if (v < 5) { … }`.

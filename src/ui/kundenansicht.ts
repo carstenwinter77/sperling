@@ -3,27 +3,21 @@
 // Name, Adresse, Erfassungsbögen ohne interne Bemerkungen, geliehene Geräte. Nie: andere Kunden, Einwände.
 // Beenden nur mit Passwort oder Face ID.
 import { esc, formatDate } from '../core/util.ts';
-import { FELDER, SPARTEN, STATUS, kundenName, kundenTitel, adresseEinzeilig, notizenSortiert, type Kunde, type Daten } from '../core/model.ts';
+import { SPARTEN, STATUS, kundenName, kundenTitel, adresseEinzeilig, notizenSortiert, type Kunde, type Daten } from '../core/model.ts';
 import { formatDateTime } from '../core/util.ts';
+import { sichtbareFelder, feldText, feldWertLesen, istAus } from '../core/felder.ts';
 import { WrongPasswordError, KeyRing } from '../core/crypto.ts';
 import * as store from '../storage/store.ts';
 import * as db from '../storage/db.ts';
 import * as bio from '../storage/biometrie.ts';
 import { maskottchen, toast } from './dom.ts';
 
-const INTERN = new Set(['bemerkung']);
-
-function wert(f, v) {
-  if (v === null || v === undefined || v === '') return null;
-  if (f.type === 'bool') return v ? 'ja' : 'nein';
-  if (f.type === 'number') return `${String(v).replace('.', ',')}${f.unit ? ` ${f.unit}` : ''}`;
-  return String(v).replace(/\s*\(prüfen!\)/i, '');
-}
+const wert = (t: string | null) => (t === null ? null : t.replace(/\s*\(prüfen!\)/i, ''));
 
 export function inhalt(k: Kunde, data: Daten) {
   const z = data.einstellungen.kundenansicht;
   const bloecke = (['pv', 'wp', 'vorwerk'] as const).filter((s) => z[s]).map((s) => {
-    const zeilen = FELDER[s].filter((f) => z.bemerkungen || !INTERN.has(f.key)).map((f) => [f.label, wert(f, k[s]?.[f.key])]).filter(([, v]) => v !== null);
+    const zeilen = sichtbareFelder(s, data.einstellungen.felder).filter((f) => z.bemerkungen || !f.intern).map((f) => [f.label, wert(feldText(f, feldWertLesen(k, f)))]).filter(([, v]) => v !== null);
     if (z.status && k.status[s] !== 'unbekannt') zeilen.unshift(['Stand', STATUS[k.status[s]].label]);
     return zeilen.length ? `<section class="karte-box"><h2>${maskottchen(s === 'pv' ? 'photovoltaik' : s === 'wp' ? 'waermepumpe' : 'vorwerk', 'titel-bild')} ${esc(SPARTEN[s].label)}</h2><dl class="ka-daten">${zeilen.map(([l, v]) => `<dt>${esc(l)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></section>` : '';
   }).join('');
@@ -31,9 +25,11 @@ export function inhalt(k: Kunde, data: Daten) {
   const jetzt = new Date().toISOString();
   const termine = z.termine ? data.termine.filter((t) => t.kundeId === k.id && !t.erledigt && t.beginn >= jetzt).sort((a, b) => (a.beginn < b.beginn ? -1 : 1)) : [];
   const notizen = z.notizen ? notizenSortiert(k).filter((n) => !n.sparten.length || n.sparten.some((s) => z[s])) : [];
-  const kontakt = z.kontakt ? [k.telefon, k.email].filter(Boolean).join(' · ') : '';
+  const kontakt = z.kontakt ? (['telefon', 'email'] as const).filter((x) => !istAus(data.einstellungen.felder, `kontakt.${x}`)).map((x) => k[x]).filter(Boolean).join(' · ') : '';
+  const weitere = z.kontakt ? sichtbareFelder('kontakt', data.einstellungen.felder).filter((f) => f.eigen).map((f) => [f.label, feldText(f, feldWertLesen(k, f))]).filter(([, v]) => v !== null) : [];
   return `
     <header class="ka-kopf">${maskottchen('sperling', 'titel-bild')}<div><h1>${esc(kundenName(k) || kundenTitel(k))}</h1><p>${esc(adresseEinzeilig(k))}</p>${kontakt ? `<p>${esc(kontakt)}</p>` : ''}</div></header>
+    ${weitere.length ? `<section class="karte-box"><h2>Weitere Angaben</h2><dl class="ka-daten">${weitere.map(([l, v]) => `<dt>${esc(l)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></section>` : ''}
     ${bloecke || '<p class="hinweis">Noch keine Angaben erfasst.</p>'}
     ${geraete.length ? `<section class="karte-box"><h2>Geliehene Geräte</h2><ul>${geraete.map(({ l, g }) => `<li><b>${esc(g.name)}</b>${g.seriennummer ? ` (SN ${esc(g.seriennummer)})` : ''} – seit ${esc(formatDate(l.ausgabe))}${l.rueckgabeGeplant ? `, zurück bis ${esc(formatDate(l.rueckgabeGeplant))}` : ''}</li>`).join('')}</ul></section>` : ''}
     ${termine.length ? `<section class="karte-box"><h2>Kommende Termine</h2><ul>${termine.map((t) => `<li><b>${esc(formatDateTime(t.beginn))}</b> – ${esc(t.titel || (t.art === 'termin' ? 'Termin' : 'Rückmeldung'))}</li>`).join('')}</ul></section>` : ''}

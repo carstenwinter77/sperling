@@ -3,14 +3,16 @@
 // einen gewählten Status hat. Ohne Status-Auswahl zählt bei gewählten Sparten jedes Interesse
 // (also nicht „unbekannt“ und nicht „kein Interesse“).
 import { SPARTEN_KEYS, hauptStatus, type Kunde, type Sparte, type StatusKey } from './model.ts';
+import { filterbareFelder, filterWert, type FeldEinstellungen } from './felder.ts';
 
 /** Kontakt-Filter: '' = egal, Zahl = länger als so viele Tage kein Kontakt (oder noch nie), 'nie' = noch nie */
 export type KontaktFilter = '' | '30' | '60' | '90' | '180' | '365' | 'nie';
 export const KONTAKT_FILTER: [KontaktFilter, string][] = [['30', 'über 30 Tage'], ['60', 'über 60 Tage'], ['90', 'über 90 Tage'], ['180', 'über ½ Jahr'], ['365', 'über 1 Jahr'], ['nie', 'noch nie']];
 
-export interface KartenFilter { sparten: Sparte[]; status: StatusKey[]; kontakt: KontaktFilter }
-export const leererKartenFilter = (): KartenFilter => ({ sparten: [], status: [], kontakt: '' });
-export const filterAktiv = (f: KartenFilter) => f.sparten.length + f.status.length + (f.kontakt ? 1 : 0);
+/** `eigen`: je eigenem Feld (ID) die gewählten Werte ('ja'/'nein', Option, '' = ohne Angabe). */
+export interface KartenFilter { sparten: Sparte[]; status: StatusKey[]; kontakt: KontaktFilter; eigen: Record<string, string[]> }
+export const leererKartenFilter = (): KartenFilter => ({ sparten: [], status: [], kontakt: '', eigen: {} });
+export const filterAktiv = (f: KartenFilter) => f.sparten.length + f.status.length + (f.kontakt ? 1 : 0) + Object.values(f.eigen || {}).filter((w) => w.length).length;
 
 /** Passt der Kontakt-Stand? `tage` = Tage seit letztem Kontakt, null = noch nie. */
 export function kontaktPasst(tage: number | null, f: KontaktFilter): boolean {
@@ -19,8 +21,20 @@ export function kontaktPasst(tage: number | null, f: KontaktFilter): boolean {
   return tage === null || tage > Number(f);
 }
 
-export function passt(k: Pick<Kunde, 'status'>, f: KartenFilter, tageSeitKontakt: number | null = null): boolean {
+/** Passen die eigenen Felder? Jedes Feld mit Auswahl muss passen (und), innerhalb eines Feldes reicht ein Wert (oder). */
+export function eigenePassen(k: { eigene?: Record<string, unknown> }, f: KartenFilter, fe?: FeldEinstellungen): boolean {
+  const felder = filterbareFelder(fe);
+  for (const [id, werte] of Object.entries(f.eigen || {})) {
+    if (!werte.length) continue;
+    const def = felder.find((x) => x.id === id);
+    if (def && !werte.includes(filterWert(k, def))) return false;
+  }
+  return true;
+}
+
+export function passt(k: Pick<Kunde, 'status'> & { eigene?: Record<string, unknown> }, f: KartenFilter, tageSeitKontakt: number | null = null, fe?: FeldEinstellungen): boolean {
   if (!kontaktPasst(tageSeitKontakt, f.kontakt)) return false;
+  if (!eigenePassen(k, f, fe)) return false;
   if (!f.sparten.length && !f.status.length) return true;
   const sparten = f.sparten.length ? f.sparten : SPARTEN_KEYS;
   return sparten.some((s) => (f.status.length ? f.status.includes(k.status[s]) : !['unbekannt', 'kein_interesse'].includes(k.status[s])));

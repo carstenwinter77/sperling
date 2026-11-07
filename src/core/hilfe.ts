@@ -114,7 +114,7 @@ export const THEMEN = {
   },
   einstellungen: {
     titel: 'Einstellungen',
-    kurz: 'Sicherung, Passwort und Face ID, Vorlagen, Kundenansicht, Darstellung und Hilfe.',
+    kurz: 'Sicherung, Felder, Passwort und Face ID, Vorlagen, Kundenansicht, Darstellung und Hilfe.',
     schritte: [
       'Sicherung: regelmäßig „In iCloud / Dateien sichern“.',
       'Unter „Kundenansicht zum Herzeigen“ legst du fest, was ein Kunde sehen darf.',
@@ -139,6 +139,18 @@ export const THEMEN = {
     titel: 'Kundenansicht zum Herzeigen',
     kurz: 'Eine aufgeräumte Seite nur mit dem, was der Kunde sehen darf. Zum Aus-der-Hand-Geben.',
     schritte: ['Was sichtbar ist, legst du in den Einstellungen fest.', 'Beenden nur mit Master-Passwort oder Face ID.'],
+  },
+  felder: {
+    titel: 'Felder ein- und ausblenden, eigene Felder',
+    kurz: 'Bestimme selbst, welche Felder die Kundenkartei zeigt, und lege eigene Felder an. Ausgeblendete Felder behalten ihre Daten.',
+    schritte: [
+      'Einstellungen → Felder → Bereich aufklappen (Kontakt, Photovoltaik, Wärmepumpe, Vorwerk).',
+      'Häkchen weg blendet ein Feld aus, Häkchen setzen zeigt es wieder – samt den alten Werten.',
+      '„+ Eigenes Feld“: Bezeichnung, Bereich und Art wählen (Text, langer Text, Zahl mit Einheit, Datum, Ja/Nein, Auswahlliste, Telefon, E-Mail, Link).',
+      'Eigene Felder stehen in der Kartei und im Gesprächsmodus, in den Texten ihres Bereichs, in der Kundenansicht und in der Suche.',
+      'Ja/Nein-Felder und Auswahllisten kannst du im Filter von Kundenliste und Karte auswählen.',
+      'Löschen (🗑) entfernt ein eigenes Feld samt Werten. Wer die Werte behalten will, blendet es nur aus.',
+    ],
   },
   installieren: {
     titel: 'Sperling als App installieren',

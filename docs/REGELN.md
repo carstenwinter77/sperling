@@ -10,6 +10,7 @@ Der Enpal-Text darf nur Stammdaten + Photovoltaik + Wärmepumpe enthalten, der V
 2. Notizen kommen nur in einen Text, wenn sie mindestens eine Sparte haben und **alle** Sparten zur Gruppe gehören. Gemischte oder unmarkierte Notizen erscheinen in keinem Text (die UI zeigt „nicht in Texten“).
 3. Vorlagen können nur feste Platzhalter (`PLATZHALTER`) nutzen, keine Objektpfade.
 4. Die Enpal-Gesprächsdokumentation (`enpalKontakte`) erscheint nur in der Enpal-Projektion, ihre Themen sind nur `pv`/`wp`.
+5. Eigene Felder (Feldverwaltung) kommen nur in die Projektion, wenn ihre Kategorie `kontakt` oder eine Sparte der Gruppe ist. Ohne Felddefinitionen enthält die Projektion keine eigenen Werte. Ausgeblendete Felder erscheinen in keinem Text.
 Tests in `tests/core.test.mjs` sichern das ab. Diese Tests dürfen nie gelöscht oder abgeschwächt werden.
 
 **R-STAMM – Ein Kunde existiert nur einmal.** Sparten sind Eigenschaften des Kunden, keine Kopien.

@@ -723,3 +723,12 @@ body.hilfe-aus .hilfe-knopf { display: none; }
 #gTabs [data-sparte="wp"].aktiv { background: var(--tag-wp-bg); color: var(--tag-wp); border-color: var(--wp); }
 #gTabs [data-sparte="vorwerk"].aktiv { background: var(--tag-vw-bg); color: var(--tag-vw); border-color: var(--vw); }
 #gTabs [data-sparte="pv"] { border-color: var(--pv); } #gTabs [data-sparte="wp"] { border-color: var(--wp); } #gTabs [data-sparte="vorwerk"] { border-color: var(--vw); }
+
+/* ===== Feldverwaltung (Einstellungen → Felder) ===== */
+.felder-kat { border-top: 1px solid var(--linie); padding: .4rem 0; }
+.felder-kat > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: .5rem; }
+.felder-kat > summary small { color: var(--text-2); }
+.felder-liste { list-style: none; margin: .2rem 0 .6rem; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0 1rem; }
+.felder-liste li { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+.felder-liste li label.check { flex: 1 1 auto; min-width: 0; }
+.felder-liste .tag { font-size: .75rem; }

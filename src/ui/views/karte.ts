@@ -59,7 +59,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
         <button type="button" class="btn klein" id="fKnopf" aria-expanded="false" aria-controls="fPanel">Filter <span id="fAnzahl"></span></button>
         <button class="btn klein" id="ich" title="Mein Standort">◎</button>
       </div>
-      ${filterPanelHtml('fPanel')}
+      ${filterPanelHtml('fPanel', store.getData().einstellungen.felder)}
       <div id="map" class="map"></div>
       <div class="karte-hinweis" id="kHinweis">${maskottchen('karte', 'mini')} Tippe lange (oder Rechtsklick) auf ein Haus, um es zu markieren.</div>
       <div class="legende">${Object.entries(STATUS).map(([, v]) => `<span><i style="background:${v.farbe}"></i>${esc(v.label)}</span>`).join('')}</div>
@@ -112,7 +112,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     for (const k of daten.kunden) {
       if (k.lat === null || k.lng === null) continue;
       gesamt++;
-      if (!passt(k, filter, tageSeit(letzterKontakt(daten, k)))) continue;
+      if (!passt(k, filter, tageSeit(letzterKontakt(daten, k)), daten.einstellungen.felder)) continue;
       sichtbar++;
       const st = pinStatus(k, filter);
       const m = L.marker([k.lat, k.lng], { icon: pinIcon(L, STATUS[st].farbe), title: kundenTitel(k) });
@@ -122,7 +122,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     const aktiv = filterAktiv(filter);
     el.querySelector('#fAnzahl').textContent = aktiv ? `· ${sichtbar} von ${gesamt}` : '';
     el.querySelector('#fKnopf').classList.toggle('primary', aktiv > 0);
-    filterPanelZeigen(el.querySelector('#fPanel'), filter, sichtbar, gesamt, 'Kunden mit Standort');
+    filterPanelZeigen(el.querySelector('#fPanel'), filter, sichtbar, gesamt, 'Kunden mit Standort', daten.einstellungen.felder);
   };
   zeichnen();
 

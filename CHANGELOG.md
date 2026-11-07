@@ -1,5 +1,9 @@
 # Änderungsverlauf
 
+## 0.9.8 – 07.11.2026
+- **Feldverwaltung:** Einstellungen → Felder: jedes Feld je Bereich (Kontakt, PV, WP, Vorwerk) ein-/ausblendbar, Daten bleiben erhalten. Eigene Felder (Text, langer Text, Zahl mit Einheit, Datum, Ja/Nein, Auswahlliste, Telefon, E-Mail, Link) anlegen, bearbeiten, löschen. Eigene Felder in Kartei, Gesprächsmodus, Texten ihres Bereichs (R-TEXT), Kundenansicht, Suche; Ja/Nein und Auswahllisten im Filter von Kundenliste und Karte. Schema 4.
+- **Kontaktseite:** „Selbständiger Berater für Photovoltaik und Wärmepumpe“ unter dem Foto, im Kontaktbereich, in der vCard und im Impressum; freundlichere Streitschlichtung; Platzhalter für die USt-IdNr.
+
 ## 0.9.7 – 07.11.2026
 - **Kontaktseite:** echte Anschrift und Arbeitsnummer (auch WhatsApp), Beratungsgebiet zwischen Peine und Salzgitter, vollständiges Impressum (§ 5 DDG, § 18 MStV, VSBG), Aufsichtsbehörde LfD Niedersachsen, Scroll-Animationen, Schnellkontakt-Leiste auf Handy und Tablet, barrierefrei geprüft (axe-core ohne Verstöße).
 

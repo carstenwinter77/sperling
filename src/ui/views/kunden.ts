@@ -16,7 +16,7 @@ const SORTIERUNG: [Sortierung, string][] = [['name', 'Name A–Z'], ['kontakt-al
 export function sucheTrifft(k, suche: string) {
   const q = suche.trim().toLowerCase();
   if (!q) return true;
-  const heu = [k.vorname, k.nachname, k.firma, k.strasse, k.plz, k.ort, k.telefon, k.email].join(' ').toLowerCase();
+  const heu = [k.vorname, k.nachname, k.firma, k.strasse, k.plz, k.ort, k.telefon, k.email, ...Object.values(k.eigene || {}).filter((v) => typeof v === 'string')].join(' ').toLowerCase();
   return q.split(/\s+/).every((w) => heu.includes(w));
 }
 
@@ -41,7 +41,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       <button type="button" class="btn" id="fKnopf" aria-expanded="false" aria-controls="kFilter">Filter <span id="fAnzahl"></span></button>
       <select id="sortierung" aria-label="Sortierung">${SORTIERUNG.map(([k, l]) => `<option value="${k}" ${k === sortierung ? 'selected' : ''}>${l}</option>`).join('')}</select>
     </div>
-    ${filterPanelHtml('kFilter')}
+    ${filterPanelHtml('kFilter', store.getData().einstellungen.felder)}
     <ul class="liste" id="liste"></ul>
     <p class="geloescht-hinweis"><a href="#/geloescht">🗑 Gelöscht (${(store.getData().papierkorb || []).filter((e) => e.typ === 'kunde').length} Kunden)</a></p>`;
 
@@ -52,7 +52,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     const d = store.getData();
     const alle = d.kunden;
     const mitKontakt = alle.map((k) => ({ k, kontakt: letzterKontakt(d, k) })).map((x) => ({ ...x, tage: tageSeit(x.kontakt) }));
-    const treffer = mitKontakt.filter((x) => sucheTrifft(x.k, suche) && passt(x.k, filter, x.tage));
+    const treffer = mitKontakt.filter((x) => sucheTrifft(x.k, suche) && passt(x.k, filter, x.tage, d.einstellungen.felder));
     const name = (a, b) => kundenTitel(a.k).localeCompare(kundenTitel(b.k), 'de');
     const tage = (x) => (x.tage === null ? Infinity : x.tage);
     treffer.sort(sortierung === 'kontakt-alt' ? (a, b) => tage(b) - tage(a) || name(a, b)
@@ -62,7 +62,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     const aktiv = filterAktiv(filter);
     el.querySelector('#fAnzahl').textContent = aktiv ? `· ${treffer.length} von ${alle.length}` : '';
     el.querySelector('#fKnopf').classList.toggle('primary', aktiv > 0);
-    filterPanelZeigen(panel, filter, treffer.length, alle.length);
+    filterPanelZeigen(panel, filter, treffer.length, alle.length, 'Kunden', d.einstellungen.felder);
     if (!alle.length) { liste.innerHTML = `<li>${leer('kunde-neu', 'Noch keine Kunden. Lege den ersten an oder setze einen Pin auf der Karte.')}</li>`; return; }
     if (!treffer.length) { liste.innerHTML = '<li class="hinweis">Keine Treffer.</li>'; return; }
     liste.innerHTML = treffer.map(({ k, kontakt, tage: t }) => `

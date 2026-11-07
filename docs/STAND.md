@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.7
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.9.8
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,10 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.9.7)
+## Erledigt (Version 0.9.8)
+
+### Neu in 0.9.8
+- [x] **Feldverwaltung** (`src/core/felder.ts`, `src/ui/feldverwaltung.ts`): Felder je Kategorie ein-/ausblenden (Daten bleiben), eigene Felder mit 9 Typen; in Kartei, Gesprächsmodus, Texten (R-TEXT), Kundenansicht, Suche und Filter. Schema 4. 37 Unit-Tests.
 
 ### Neu in 0.9.7
 - [x] Kontaktseite mit echten Kontaktdaten, Impressum und Datenschutz-Aufsichtsbehörde; Barrierefreiheit geprüft.
@@ -148,7 +151,7 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 - [ ] Sortierung der Kundenliste (zuletzt bearbeitet, PLZ)
 
 ### Geplant: Version 0.10.0 (Wünsche vom 07.11.2026)
-- [ ] **Feldverwaltung:** jedes Feld je Kategorie ein-/ausblendbar (Daten bleiben), eigene Felder (Text, Datum, Ja/Nein, Zahl, Auswahl, Telefon, E-Mail, Link) – auch in Filter, Import und Kundenansicht.
+- [x] **Feldverwaltung** (seit 0.9.8). Offen: Zuordnung eigener Felder beim Vorwerk-Listenimport (kommt mit dem Import).
 - [ ] **Produktübersicht** (`#/produkte`, Daten Enpal, GALVANY für Wärmepumpen, Vorwerk; Bilder nur verlinkt, Preise mit Stand).
 - [ ] **Produkte im Gespräch markieren:** Interesse, kein Interesse, schon vorhanden, später – beim Kunden gespeichert, filter- und auswertbar.
 - [ ] **Vorwerk-Listenimport** aus PDF (pdf.js lokal), Abgleich neu/geändert/gleich/fehlt, Dubletten zusammenführen.
