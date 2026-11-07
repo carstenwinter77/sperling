@@ -45,7 +45,7 @@ export function zeigen(id: ThemaId) {
     onOpen: (dlg) => {
       dlg.querySelector('[data-hilfe-seite]')?.addEventListener('click', () => dlg.close());
       // „Abbrechen“ ist hier überflüssig
-      dlg.querySelector<HTMLElement>('.dlg-actions button.ghost')?.setAttribute('hidden', '');
+      dlg.querySelector<HTMLElement>('.dlg-actions button.ghost')?.style.setProperty('display', 'none');
     },
   });
 }
