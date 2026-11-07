@@ -12,16 +12,27 @@ Browser (Tablet / Handy / Laptop)
  │   ├─ model.js ......... Sparten, Status, Feldkatalog, Normalisierung, Migration
  │   ├─ textgen.js ....... Enpal-/Vorwerk-Texte (strikt getrennt)
  │   ├─ ics.js ........... Kalenderexport (RFC 5545)
- │   └─ einwaende.js ..... Gesprächsleitfaden: Einstiegsfragen, Einwände, Überleitungen
+ │   ├─ einwaende.js ..... Gesprächsleitfaden: Einstiegsfragen, Einwände, Überleitungen
+ │   └─ papierkorb.js .... Löschen in den Papierkorb, Wiederherstellen (30 Tage)
  ├─ js/storage/
  │   ├─ db.js ............ IndexedDB: vault (aktueller Umschlag), history (10), meta (Geräte-ID)
  │   ├─ store.js ......... Datenzustand im Speicher, mutate(), Speicherkette, Demo-Modus
  │   ├─ dropbox.js ....... OAuth PKCE, Download/Upload der verschlüsselten Datei
- │   └─ sync.js .......... Abgleich „neuester Stand gewinnt“
+ │   ├─ sync.js .......... Abgleich „neuester Stand gewinnt“
+ │   └─ biometrie.js ..... Face ID / Touch ID (Passkey + PRF)
  ├─ js/services/geo.js ... Nominatim (Adresse ↔ Koordinate), gedrosselt
  ├─ js/ui/dom.js ......... Toast, Dialog, Download, Zwischenablage
  ├─ js/ui/parts.js ....... Status-Chips, Termin-Dialog, Terminliste, ICS-Export
  ├─ js/ui/theme.js ...... Hell/Dunkel/Automatisch
+ ├─ js/ui/kontakt.js .... Anrufen, E-Mail (Mailprogramm-Wahl)
+ ├─ js/ui/enpaldoku.js .. Enpal-Gesprächsdokumentation
+ ├─ js/ui/navi.js ....... „Hinfahren“ (Apple Karten / Google Maps)
+ ├─ js/ui/badge.js ...... Zahl am App-Symbol
+ ├─ js/ui/update.js ..... Update-Hinweis, „Was ist neu“ (Texte in js/neuigkeiten.js)
+ ├─ js/ui/kalender.js ... Monats-/Wochen-/Tagesansicht, Termin per Fingertipp
+ ├─ js/ui/kundenansicht.js  Vollbild zum Herzeigen, Beenden mit Passwort/Face ID
+ ├─ js/ui/belege.js ..... Fotos (verkleinert) und Unterschriftsfeld
+ ├─ js/ui/leihschein.js . Leihschein/Rückgabeschein als PDF (jsPDF aus vendor/)
  ├─ js/ui/views/ ......... start, kunden, kunde, karte, termine, gespraech, bestand, einstellungen
  └─ sw.js ................ Offline-Cache der App-Dateien (keine Kundendaten)
 ```

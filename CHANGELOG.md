@@ -1,5 +1,16 @@
 # Änderungsverlauf
 
+## 0.8.0 – 07.11.2026
+- **Kalender** unter Termine: Ansichten Liste, Monat, Woche, Tag. Termin per Fingertipp anlegen (Monat: Tag antippen; Woche/Tag: Uhrzeit antippen = 1 Stunde, kurz halten und ziehen = Zeitraum). Reservierte Geräte erscheinen im Monat als 📌.
+- **Hinfahren**: Navigation mit Apple Karten oder Google Maps beim Kunden, auf der Karte und bei Terminen (Einstellungen → Navigation).
+- **Zahl am App-Symbol**: heute fällige Termine und überfällige Leihgaben.
+- **Update-Hinweis** mit „Jetzt aktualisieren“ und „Was ist neu“ nach dem Update.
+- **Papierkorb**: gelöschte Kunden, Notizen, Termine und Enpal-Einträge 30 Tage wiederherstellbar.
+- **Kundenansicht** zum Herzeigen: nur Name, Adresse, Erfassungsbogen und Leihgeräte; Beenden nur mit Master-Passwort oder Face ID.
+- **Vorführgeräte reservieren** mit Prüfung auf Überschneidungen; Reservierung in Verleih umwandeln.
+- **Fotos und Unterschrift** bei Übergabe und Rückgabe; **Leihschein / Rückgabeschein als PDF** zum Teilen oder Speichern.
+- Datenmodell Schema 3 (ältere Daten werden automatisch übernommen).
+
 ## 0.7.0 – 07.11.2026
 - Entsperren mit Face ID / Touch ID (Passkey mit PRF; Master-Passwort bleibt gültig).
 - Beispiel-Vorführbestand (Kobold-Geräte) separat laden und entfernen.

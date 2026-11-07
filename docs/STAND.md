@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.7.0
+**Letzte Aktualisierung:** 07.11.2026 · **Version:** 0.8.0
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -15,7 +15,20 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.7.0)
+## Erledigt (Version 0.8.0)
+
+### Neu in 0.8.0 (Funktionen 1–7 und 9 aus der WASNWO-Liste, dazu Kalender)
+- [x] **Kalender** (Termine → Liste | Monat | Woche | Tag, Ansicht steht in der Adresse): Monat – Tag antippen legt Termin an (10:00, heute: nächste Stunde), Tageszahl öffnet die Tagesansicht. Woche/Tag – Raster 6–22 Uhr in halben Stunden; Antippen = 1 Stunde, Finger 0,35 s halten und ziehen (Maus: gleich ziehen) = Zeitraum. Termin antippen = bearbeiten/löschen. Reservierungen im Monat als 📌.
+- [x] **1 Hinfahren** (`js/ui/navi.js`): Apple Karten bzw. Google Maps, Wahl unter Einstellungen → Navigation (`kartenApp`).
+- [x] **2 Zahl am App-Symbol** (`js/ui/badge.js`): heute offene Termine + überfällige Leihgaben (wo `setAppBadge` unterstützt wird, iOS ab 16.4 als installierte App).
+- [x] **3 Update-Hinweis** (`js/ui/update.js`, `js/neuigkeiten.js`): neue Version wartet, Leiste „Jetzt aktualisieren“, danach „Was ist neu“.
+- [x] **4 Papierkorb** (`js/core/papierkorb.js`): Kunde (mit Rückverknüpfung von Terminen/Verleihen/Reservierungen), Notiz, Termin, Enpal-Eintrag; 30 Tage, dann automatisch weg.
+- [x] **5 Kundenansicht** (`js/ui/kundenansicht.js`): Vollbild ohne Notizen/Bemerkungen; Navigation gesperrt; Beenden mit Passwort oder Face ID.
+- [x] **6 Leihschein-PDF** (`js/ui/leihschein.js`, jsPDF lokal): Leihschein und Rückgabeschein mit Unterschrift, Teilen/Speichern.
+- [x] **7 Fotos** bei Übergabe und Rückgabe (max. 4, verkleinert auf 1280 px, verschlüsselt).
+- [x] **9 Reservieren** von Vorführgeräten mit Konfliktprüfung gegen Reservierungen und Verleihe.
+- [ ] Auf echtem iPad testen: Wischen im Kalender, Teilen-Menü für PDF, Zahl am App-Symbol
+
 
 ### Neu in 0.7.0
 - [x] **Entsperren mit Face ID / Touch ID** (iPhone, iPad, Mac; Android: Fingerabdruck): Passkey mit PRF-Erweiterung, daraus abgeleiteter Schlüssel verschlüsselt das Master-Passwort auf dem Gerät. Angebot nach dem ersten Entsperren, Ein/Aus unter Einstellungen → Sicherheit. Passwort bleibt immer gültig. Passwortwechsel schaltet Face ID ab (neu einrichten). Ohne PRF (vor iOS/iPadOS 18) wird Face ID nicht angeboten. Browser-Test mit virtuellem Authenticator (mit und ohne PRF).
@@ -90,14 +103,17 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 ### Als Nächstes (Version 0.2)
 - [ ] Mit dem Nutzer die Felder der Erfassungsbögen gegen das echte Enpal-/Vorwerk-Formular prüfen
 - [ ] Einwände und Gegenargumente mit dem Nutzer überarbeiten; später in den Einstellungen selbst bearbeitbar machen
-- [ ] Vorführbestand: Leihgaben auch im Vorwerk-Tab des Kunden anzeigen, Fotos vom Zustand bei Ausgabe/Rückgabe
+- [ ] Vorführbestand: Leihgaben auch im Vorwerk-Tab des Kunden anzeigen
 - [ ] Fotos pro Kunde (Dach, Zählerschrank, Heizung) – verschlüsselt, mit Größenbegrenzung
 - [ ] Offline-Kartenbilder für ein Gebiet vorladen (Kachel-Cache mit Größenlimit)
 - [ ] Mehrere Notizen-Filter (nur Sparte X), Volltextsuche in Notizen
 - [ ] Sortierung der Kundenliste (zuletzt bearbeitet, PLZ)
 
+### Geplant: Umstellung auf TypeScript (Wunsch Auftraggeber, 07.11.2026)
+- [ ] Nach den WASNWO-Funktionen und dem Kalender: Code auf TypeScript umstellen (wie die anderen Apps des Auftraggebers), Build mit Vite, Auslieferung über GitHub Actions nach GitHub Pages. Tests bleiben grün; R-KEINE-ABHÄNGIGKEITEN wird dafür angepasst (Build-Schritt erlaubt, Laufzeit weiter ohne Framework).
+
 ### Version 2
-- [ ] **Lieferscheine** zum Vorführbestand: Unterschrift auf dem Tablet, PDF-Lieferschein bei Ausgabe und Rückgabe (Bestand und Verleih sind seit 0.2.0 vorhanden)
+- [x] **Lieferscheine** zum Vorführbestand: seit 0.8.0 als Leihschein/Rückgabeschein mit Unterschrift und Fotos
 - [ ] **iCloud Stufe 2:** automatischer Abgleich über CloudKit JS (braucht Apple-Developer-Konto, 99 €/Jahr). Stufe 1 (manuelle Sicherung) ist seit 0.4.0 da.
 - [ ] CSV-Export, falls Enpal/Vorwerk strukturierte Daten brauchen
 - [ ] Enpal-Doku: Felder an das tatsächliche Formular der Enpal-App anpassen, sobald ein Beispiel vorliegt (Reihenfolge/Bezeichnungen)

@@ -8,6 +8,9 @@ import { $, toast, maskottchen, dialog } from './ui/dom.js';
 import { demoDaten } from './demo.js';
 import * as theme from './ui/theme.js';
 import * as bio from './storage/biometrie.js';
+import { badgeSetzen } from './ui/badge.js';
+import * as update from './ui/update.js';
+import { APP_VERSION } from './ui/views/einstellungen.js';
 import * as db from './storage/db.js';
 import * as vStart from './ui/views/start.js';
 import * as vKunden from './ui/views/kunden.js';
@@ -42,6 +45,9 @@ const NAV = [
 let aufraeumen = null;
 
 theme.anwenden();
+// Zahl am App-Symbol bei jeder Änderung aktualisieren (nicht im Demo-Modus)
+store.subscribe(() => { if (!store.isDemo() && store.isUnlocked()) badgeSetzen(store.getData()); });
+setInterval(() => { if (!store.isDemo() && store.isUnlocked()) badgeSetzen(store.getData()); }, 10 * 60 * 1000);
 
 // ---------- Fehler: nie still abstürzen ----------
 window.addEventListener('error', (e) => {
@@ -154,6 +160,8 @@ async function nachEntsperren() {
   document.body.classList.remove('gesperrt');
   shell();
   if (!store.isDemo()) {
+    badgeSetzen(store.getData());
+    setTimeout(() => update.wasIstNeu(APP_VERSION), 1200);
     navigator.storage?.persist?.().catch(() => {});
     if (dbx.hasPendingAuthCode()) {
       try {
@@ -245,7 +253,7 @@ async function start() {
   // Browser bitten, die Daten nicht automatisch zu löschen (wichtig v. a. auf iPad/Android).
   if (document.documentElement.dataset.demo !== '1') navigator.storage?.persist?.().catch(() => {});
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost') && document.documentElement.dataset.demo !== '1') {
-    navigator.serviceWorker.register('sw.js').catch((e) => console.warn('Service Worker nicht registriert', e));
+    update.starten();
   }
   const autoDemo = new URLSearchParams(location.search).has('demo') || document.documentElement.dataset.demo === '1';
   if (autoDemo) {

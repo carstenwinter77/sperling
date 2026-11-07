@@ -3,6 +3,8 @@ import { esc, isoToLocalInput, localInputToIso, formatDateTime, parseNumber } fr
 import { SPARTEN, SPARTEN_KEYS, STATUS, kundenTitel, adresseEinzeilig, neuerTermin, normalizeTermin } from '../core/model.js';
 import { erzeugeIcs } from '../core/ics.js';
 import * as store from '../storage/store.js';
+import * as pk from '../core/papierkorb.js';
+import { hinfahrenKnopf } from './navi.js';
 import { dialog, download, toast } from './dom.js';
 
 export function statusChips(kunde) {
@@ -26,9 +28,9 @@ export function leer(maskottchenName, text) {
 }
 
 /** Termin/Wiedervorlage anlegen oder bearbeiten. Gibt den gespeicherten Termin zurück oder null. */
-export async function terminDialog({ termin = null, kundeId = '', sparte = '' } = {}) {
+export async function terminDialog({ termin = null, kundeId = '', sparte = '', beginn = '', dauerMin = 0 } = {}) {
   const d = store.getData();
-  const t = termin ? { ...termin } : neuerTermin({ kundeId, sparte, beginn: naechsteVolleStunde() });
+  const t = termin ? { ...termin } : neuerTermin({ kundeId, sparte, beginn: beginn || naechsteVolleStunde(), ...(dauerMin ? { dauerMin, art: 'termin' } : {}) });
   const k = d.kunden.find((x) => x.id === t.kundeId);
   if (!termin && k) {
     t.ort = adresseEinzeilig(k);
@@ -100,6 +102,7 @@ export function terminZeile(t, kunde) {
         <strong>${esc(t.titel || 'Termin')}</strong>
         <small>${esc(formatDateTime(t.beginn))} · ${t.art === 'termin' ? 'Termin' : 'Wiedervorlage'}${t.sparte ? ` · ${esc(SPARTEN[t.sparte].label)}` : ''}${kunde ? ` · <a href="#/kunde/${esc(kunde.id)}">${esc(kundenTitel(kunde))}</a>` : ''}</small>
       </div>
+      ${kunde && t.art === 'termin' && !t.erledigt ? hinfahrenKnopf(kunde, 'btn klein ghost').replace('🚗 Hinfahren', '🚗') : ''}
       <button class="btn klein ghost" data-aktion="ics" title="In Kalender exportieren">📅</button>
       <button class="btn klein ghost" data-aktion="bearbeiten" title="Bearbeiten">✎</button>
     </li>`;
@@ -126,7 +129,7 @@ export function terminListeVerdrahten(root, nachAenderung) {
   });
 }
 
-async function terminBearbeitenOderLoeschen(t) {
+export async function terminBearbeitenOderLoeschen(t) {
   const wahl = await dialog({
     titel: t.titel || 'Termin',
     html: `<p>${esc(formatDateTime(t.beginn))}</p>`,
@@ -134,8 +137,8 @@ async function terminBearbeitenOderLoeschen(t) {
   });
   if (wahl === 'bearbeiten') return terminDialog({ termin: t });
   if (wahl === 'loeschen') {
-    store.mutate((d) => { d.termine = d.termine.filter((x) => x.id !== t.id); });
-    toast('Termin gelöscht');
+    store.mutate((d) => { pk.terminLoeschen(d, t.id); });
+    toast('Termin gelöscht – im Papierkorb wiederherstellbar', 'ok');
     return true;
   }
   return null;

@@ -4,7 +4,7 @@
 
 import { uid, nowIso, isValidDate, parseNumber, isValidCoord } from './util.js';
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 /** Die drei Geschäftszweige. Gruppe bestimmt, welcher Textgenerator sie sehen darf. */
 export const SPARTEN = {
@@ -126,6 +126,10 @@ export function emptyData() {
     // Vorführbestand im Auto (Vorwerk) und Verleih; Lieferschein-PDF folgt in Version 2
     geraete: [],
     leihvorgaenge: [],
+    // Reservierungen von Vorführgeräten für künftige Termine (ab Schema 3)
+    reservierungen: [],
+    // Gelöschtes, 30 Tage wiederherstellbar (ab Schema 3)
+    papierkorb: [],
   };
 }
 
@@ -138,6 +142,8 @@ export function defaultEinstellungen() {
     dropbox: { appKey: '', refreshToken: '', pfad: '/sperling-daten.sperling', letzterSync: null },
     // Empfänger für „Per E-Mail senden“ im Texte-Tab (z. B. Enpal-Teamleitung, Vorwerk-Büro)
     empfaenger: { enpal: '', vorwerk: '' },
+    // Navigations-App für „Hinfahren“: auto = Apple Karten auf Apple-Geräten, sonst Google Maps
+    kartenApp: 'auto',
   };
 }
 
@@ -258,10 +264,87 @@ export function normalizeLeihvorgang(l) {
     rueckgabe: isValidDate(src.rueckgabe) ? new Date(src.rueckgabe).toISOString() : null,
     kaufinteresse: KAUFINTERESSE[src.kaufinteresse] ? src.kaufinteresse : 'offen',
     notiz: str(src.notiz, 5000),
+    // Belege (ab Schema 3): Fotos vom Zustand und Unterschrift bei Ausgabe und Rückgabe
+    fotosAusgabe: bilderListe(src.fotosAusgabe),
+    fotosRueckgabe: bilderListe(src.fotosRueckgabe),
+    unterschriftAusgabe: bild(src.unterschriftAusgabe),
+    unterschriftRueckgabe: bild(src.unterschriftRueckgabe),
+    nameAusgabe: str(src.nameAusgabe, 200),
+    nameRueckgabe: str(src.nameRueckgabe, 200),
     createdAt: isValidDate(src.createdAt) ? src.createdAt : t,
     updatedAt: isValidDate(src.updatedAt) ? src.updatedAt : t,
   };
 }
+
+export const MAX_FOTOS = 4;
+const BILD_MAX = 1_500_000; // Zeichen je Bild (data-URL), schützt vor Riesendateien
+/** Nur echte Bild-data-URLs (JPEG/PNG) bis zur Maximalgröße, sonst ''. */
+export function bild(v) {
+  return typeof v === 'string' && v.length <= BILD_MAX && /^data:image\/(jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(v) ? v : '';
+}
+function bilderListe(v) {
+  return Array.isArray(v) ? v.map(bild).filter(Boolean).slice(0, MAX_FOTOS) : [];
+}
+
+/** Reservierung eines Vorführgeräts für einen Zeitraum (ganze Tage, von/bis inklusive). */
+export function normalizeReservierung(r) {
+  const src = r && typeof r === 'object' ? r : {};
+  const t = nowIso();
+  const von = isValidDate(src.von) ? new Date(src.von).toISOString() : t;
+  const bisRoh = isValidDate(src.bis) ? new Date(src.bis).toISOString() : von;
+  return {
+    id: typeof src.id === 'string' && src.id ? src.id : uid(),
+    geraetId: typeof src.geraetId === 'string' ? src.geraetId : '',
+    kundeId: typeof src.kundeId === 'string' ? src.kundeId : '',
+    von,
+    bis: bisRoh < von ? von : bisRoh,
+    notiz: str(src.notiz, 2000),
+    createdAt: isValidDate(src.createdAt) ? src.createdAt : t,
+    updatedAt: isValidDate(src.updatedAt) ? src.updatedAt : t,
+  };
+}
+
+const TAG = (iso) => iso.slice(0, 10);
+/** Überschneiden sich zwei Zeiträume (tageweise, inklusive)? Werte: ISO-Strings. */
+export function ueberschneidet(aVon, aBis, bVon, bBis) {
+  return TAG(new Date(aVon).toISOString()) <= TAG(new Date(bBis || bVon).toISOString())
+    && TAG(new Date(bVon).toISOString()) <= TAG(new Date(aBis || aVon).toISOString());
+}
+
+/**
+ * Ist das Gerät im Zeitraum frei? Prüft Reservierungen und Verleihe (offene Verleihe ohne
+ * Rückgabedatum gelten als belegt bis auf Weiteres). `ohneId` blendet einen Eintrag aus (Bearbeiten).
+ */
+export function geraetBelegung(data, geraetId, von, bis, ohneId = '') {
+  const konflikte = [];
+  for (const r of data.reservierungen || []) {
+    if (r.geraetId === geraetId && r.id !== ohneId && ueberschneidet(von, bis, r.von, r.bis)) konflikte.push({ art: 'reservierung', eintrag: r });
+  }
+  for (const l of data.leihvorgaenge) {
+    if (l.geraetId !== geraetId || l.id === ohneId) continue;
+    const ende = l.rueckgabe || l.rueckgabeGeplant || '9999-12-31T00:00:00.000Z';
+    if (ueberschneidet(von, bis, l.ausgabe, ende)) konflikte.push({ art: 'verleih', eintrag: l });
+  }
+  return konflikte;
+}
+
+export const PAPIERKORB_TAGE = 30;
+/** Papierkorb-Eintrag: gelöschtes Objekt mit Typ, wiederherstellbar. */
+export function normalizePapierkorb(e) {
+  const src = e && typeof e === 'object' ? e : {};
+  const typ = ['kunde', 'notiz', 'termin', 'geraet', 'enpalKontakt'].includes(src.typ) ? src.typ : null;
+  if (!typ || !src.objekt || typeof src.objekt !== 'object') return null;
+  return {
+    id: typeof src.id === 'string' && src.id ? src.id : uid(),
+    typ,
+    objekt: src.objekt,
+    kundeId: typeof src.kundeId === 'string' ? src.kundeId : '',
+    geloeschtAm: isValidDate(src.geloeschtAm) ? new Date(src.geloeschtAm).toISOString() : nowIso(),
+    // abhängige Daten eines gelöschten Kunden (Termine/Verleihe, deren Bezug gelöst wurde)
+    bezug: src.bezug && typeof src.bezug === 'object' ? { termine: arr(src.bezug.termine), leihvorgaenge: arr(src.bezug.leihvorgaenge), reservierungen: arr(src.bezug.reservierungen) } : null,
+  };
+}
+const arr = (v) => (Array.isArray(v) ? v.filter((x) => typeof x === 'string') : []);
 
 /** Offener (nicht zurückgegebener) Leihvorgang eines Geräts oder null. */
 export function offenerVerleih(data, geraetId) {
@@ -391,6 +474,7 @@ function normalizeEinstellungen(e) {
       enpal: str(src.empfaenger?.enpal, 300),
       vorwerk: str(src.empfaenger?.vorwerk, 300),
     },
+    kartenApp: ['auto', 'apple', 'google'].includes(src.kartenApp) ? src.kartenApp : 'auto',
   };
 }
 
@@ -403,8 +487,9 @@ export function migrate(input) {
   }
   const data = { ...input };
   // v1 → v2: Kunden bekommen enpalKontakte (leer), Einstellungen bekommen empfaenger.
+  // v2 → v3: reservierungen, papierkorb, kartenApp, Fotos/Unterschriften am Verleih (alles leer ergänzt).
   // Beides ergänzt normalize…() unten; ältere Daten bleiben vollständig lesbar.
-  // Künftige Migrationen hier schrittweise: if (v < 3) { ... }
+  // Künftige Migrationen hier schrittweise: if (v < 4) { ... }
   const kunden = Array.isArray(data.kunden) ? data.kunden.map(normalizeKunde) : [];
   // Doppelte IDs verhindern (z. B. nach manuellem Zusammenführen)
   const seen = new Set();
@@ -423,6 +508,13 @@ export function migrate(input) {
     // Verleih an gelöschte Kunden bleibt erhalten (ohne Kundenbezug), siehe R-LOESCH
     leihvorgaenge: Array.isArray(data.leihvorgaenge)
       ? data.leihvorgaenge.map(normalizeLeihvorgang).map((l) => (l.kundeId === '' || kundenIds.has(l.kundeId) ? l : { ...l, kundeId: '' }))
+      : [],
+    reservierungen: Array.isArray(data.reservierungen)
+      ? data.reservierungen.map(normalizeReservierung).map((r) => (r.kundeId === '' || kundenIds.has(r.kundeId) ? r : { ...r, kundeId: '' }))
+      : [],
+    // Papierkorb: Einträge älter als 30 Tage verfallen beim Laden
+    papierkorb: Array.isArray(data.papierkorb)
+      ? data.papierkorb.map(normalizePapierkorb).filter((e) => e && Date.now() - new Date(e.geloeschtAm).getTime() < PAPIERKORB_TAGE * 86400000)
       : [],
   };
 }

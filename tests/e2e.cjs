@@ -137,6 +137,18 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForFunction(() => /\d+ Beispielgeräte/.test(document.querySelector('#bestandInfo')?.textContent || ''));
   await p.goto(BASE + '#/bestand');
   await p.waitForSelector('.tag-beispiel');
+  // Reservieren: für den Kunden, zweite Reservierung im selben Zeitraum wird abgelehnt
+  const karte = p.locator('article.geraet').first();
+  await karte.locator('[data-aktion=reservieren]').click();
+  await p.selectOption('dialog [name=kunde]', { index: 1 });
+  await p.click('dialog button.primary');
+  await p.waitForSelector('article.geraet [data-resv]');
+  await karte.locator('[data-aktion=reservieren]').click();
+  await p.click('dialog button.primary');
+  await p.waitForFunction(() => (document.querySelector('#toast')?.textContent || '').startsWith('Belegt'));
+  await p.click('dialog .dlg-actions button.ghost');
+  await p.goto(BASE + '#/termine?ansicht=monat');
+  await p.waitForSelector('.k-resv');
   await p.goto(BASE + '#/einstellungen');
   await p.click('#bestandWeg');
   await p.click('dialog button.danger');
@@ -144,12 +156,72 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   // Historie vorhanden
   await p.waitForTimeout(500);
   if (!(await p.$('#historie [data-i]'))) fail('Keine Versionshistorie');
-  // Kunde löschen
+  // Kalender: Woche, Fingertipp auf eine Uhrzeit legt Termin an
+  await p.goto(BASE + '#/termine');
+  await p.click('.tabs [data-ansicht=woche]');
+  await p.waitForSelector('.k-spalte');
+  if (!(await p.evaluate(() => location.hash.includes('ansicht=woche')))) fail('Ansicht nicht in der Adresse');
+  const sp = await p.locator('.k-spalte').nth(2).boundingBox();
+  await p.mouse.click(sp.x + 20, sp.y + 26 * 8 + 5); // 10:00
+  await p.waitForSelector('dialog [name=titel]');
+  if ((await p.inputValue('dialog [name=beginn]')).slice(11) !== '10:00') fail('Beginn aus Kalender falsch: ' + await p.inputValue('dialog [name=beginn]'));
+  if ((await p.inputValue('dialog [name=dauerMin]')) !== '60') fail('Dauer aus Kalender falsch');
+  await p.fill('dialog [name=titel]', 'Kalendertermin');
+  await p.click('dialog button.primary');
+  await p.waitForFunction(() => [...document.querySelectorAll('.k-block .k-eintrag')].some((x) => x.textContent.includes('Kalendertermin')));
+  // Ziehen = Dauer
+  await p.mouse.move(sp.x + 20, sp.y + 26 * 14 + 5); // 13:00
+  await p.mouse.down();
+  await p.mouse.move(sp.x + 20, sp.y + 26 * 16 + 5, { steps: 4 });
+  await p.mouse.up();
+  await p.waitForSelector('dialog [name=titel]');
+  if ((await p.inputValue('dialog [name=dauerMin]')) !== '90') fail('Dauer aus Ziehen falsch: ' + await p.inputValue('dialog [name=dauerMin]'));
+  await p.click('dialog .dlg-actions button.ghost');
+  // Monat: Tippen auf einen Tag, Tagesansicht über die Tageszahl
+  await p.click('.tabs [data-ansicht=monat]');
+  await p.waitForSelector('.k-monat');
+  if (!(await p.textContent('.k-monat')).includes('Kalendertermin')) fail('Termin fehlt in Monatsansicht');
+  await p.locator('.k-tag:not(.fremd)').nth(14).click({ position: { x: 40, y: 80 } });
+  await p.waitForSelector('dialog [name=titel]');
+  await p.click('dialog .dlg-actions button.ghost');
+  await p.locator('.k-tag.heute .k-nr').click();
+  await p.waitForSelector('.k-raster[style*="--spalten:1"]');
+  await p.click('.k-nav [data-schritt="1"]');
+  await p.click('.k-nav [data-schritt="0"]');
+  await p.click('.tabs [data-ansicht=woche]');
+  await p.locator('.k-block .k-eintrag', { hasText: 'Kalendertermin' }).click();
+  await p.waitForSelector('dialog');
+  await p.click('dialog .dlg-actions button.ghost');
+  await p.click('.tabs [data-ansicht=liste]');
+  await p.waitForSelector('.terminliste');
+  // Kundenansicht: nur Freigegebenes, Beenden nur mit Passwort
+  await p.goto(BASE + '#/kunden');
+  await p.click('#liste .zeile');
+  await p.click('#kundenansicht');
+  await p.waitForSelector('.kundenansicht');
+  if ((await p.textContent('.kundenansicht')).includes('Testnotiz')) fail('Notiz in Kundenansicht sichtbar!');
+  await p.evaluate(() => { location.hash = '#/einstellungen'; });
+  await p.waitForTimeout(200);
+  if (!(await p.$('.kundenansicht'))) fail('Kundenansicht durch Navigation verlassen');
+  await p.click('#kaEnde');
+  await p.fill('.ka-sperre [name=pw]', 'falsch');
+  await p.click('.ka-sperre button.primary');
+  await p.waitForFunction(() => (document.querySelector('#toast')?.textContent || '').includes('Falsches'));
+  if (!(await p.$('.kundenansicht'))) fail('Kundenansicht trotz falschem Passwort beendet');
+  await p.fill('.ka-sperre [name=pw]', 'testpasswort');
+  await p.click('.ka-sperre button.primary');
+  await p.waitForSelector('.kundenansicht', { state: 'detached' });
+  // Kunde löschen und aus dem Papierkorb zurückholen
   await p.goto(BASE + '#/kunden');
   await p.click('#liste .zeile');
   await p.click('#loeschen');
   await p.click('dialog button.danger');
   await p.waitForFunction(() => location.hash === '#/kunden');
+  await p.goto(BASE + '#/einstellungen');
+  await p.click('#papierkorb [data-zurueck]');
+  await p.goto(BASE + '#/kunden');
+  await p.waitForSelector('#liste .zeile');
+  if (!(await p.textContent('#liste')).includes('Prüfer')) fail('Kunde nicht wiederhergestellt');
   // Unbekannte Route / unbekannter Kunde stürzen nicht ab
   await p.goto(BASE + '#/kunde/gibtsnicht');
   await p.waitForSelector('.leer');

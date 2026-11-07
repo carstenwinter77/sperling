@@ -6,6 +6,7 @@ import { esc, nowIso, isoToLocalInput, localInputToIso, formatDateTime } from '.
 import { AUSGANG, KONTAKTART, SPARTEN, kundenName, kundenTitel, adresseEinzeilig, normalizeEnpalKontakt, neuerTermin } from '../core/model.js';
 import { enpalDokuText, enpalVerlaufText } from '../core/textgen.js';
 import * as store from '../storage/store.js';
+import * as pk from '../core/papierkorb.js';
 import { dialog, toast, kopieren, bestaetigen } from './dom.js';
 
 /** Dialog zum Anlegen/Bearbeiten. Gibt die Kontakt-ID zurück oder null. */
@@ -142,7 +143,7 @@ export function tab(el, k) {
       if (await kontaktDialog(k.id, { kontaktId: b.dataset.bearb })) neuZeichnen();
     } else if (b.dataset.loesch) {
       if (!(await bestaetigen('Dokumentation löschen?', 'Dieser Enpal-Kontakt wird beim Kunden entfernt.'))) return;
-      await store.mutate((d) => { const kk = d.kunden.find((x) => x.id === k.id); if (kk) { kk.enpalKontakte = kk.enpalKontakte.filter((c) => c.id !== b.dataset.loesch); kk.updatedAt = nowIso(); } });
+      await store.mutate((d) => { pk.enpalKontaktLoeschen(d, k.id, b.dataset.loesch); });
       neuZeichnen();
     } else if (b.id === 'verlauf') {
       await textZeigen(k.id, null);

@@ -1,4 +1,4 @@
-# Datenmodell (Schema-Version 2)
+# Datenmodell (Schema-Version 3)
 
 Quelle der Wahrheit: `js/core/model.js`. Diese Datei beschreibt sie für Menschen. Bei Abweichungen gilt der Code, und diese Datei wird nachgezogen.
 
@@ -6,12 +6,14 @@ Quelle der Wahrheit: `js/core/model.js`. Diese Datei beschreibt sie für Mensche
 
 | Feld | Typ | Beschreibung |
 |---|---|---|
-| `schemaVersion` | Zahl | aktuell `2` |
+| `schemaVersion` | Zahl | aktuell `3` |
 | `kunden` | Kunde[] | alle Kunden und markierten Standorte |
 | `termine` | Termin[] | Termine und Wiedervorlagen |
 | `einstellungen` | Objekt | siehe unten |
 | `geraete` | Gerät[] | Vorführbestand (Vorwerk) |
 | `leihvorgaenge` | Leihvorgang[] | Verleih an Kunden |
+| `reservierungen` | Reservierung[] | Vormerkungen für Vorführgeräte (ab Schema 3) |
+| `papierkorb` | Eintrag[] | Gelöschtes, 30 Tage wiederherstellbar (ab Schema 3) |
 
 ## Kunde
 
@@ -104,6 +106,29 @@ Typen: Zahlen sind `null`, wenn leer. Ja/Nein-Felder sind `true`/`false`/`null` 
 | `rueckgabe` | ISO-Datum oder `null` | `null` = noch verliehen |
 | `kaufinteresse` | `offen` \| `interesse` \| `gekauft` \| `kein` | |
 | `notiz` | String | Zustand, Absprachen |
+| `fotosAusgabe`, `fotosRueckgabe` | String[] | JPEG-data-URLs, max. 4, je max. 1,5 MB (ab Schema 3) |
+| `unterschriftAusgabe`, `unterschriftRueckgabe` | String | PNG-data-URL oder leer (ab Schema 3) |
+| `nameAusgabe`, `nameRueckgabe` | String | Name in Druckbuchstaben zur Unterschrift |
+
+## Reservierung
+
+| Feld | Typ | Hinweis |
+|---|---|---|
+| `id`, `geraetId`, `kundeId` | String | `kundeId` darf leer sein |
+| `von`, `bis` | ISO-Datum | ganze Tage, inklusive; `bis` nie vor `von` |
+| `notiz` | String | |
+
+Belegt ist ein Gerät, wenn sich der Zeitraum mit einer Reservierung oder einem Verleih überschneidet (`geraetBelegung()`); ein offener Verleih ohne Datum gilt als belegt bis auf Weiteres.
+
+## Papierkorb-Eintrag
+
+| Feld | Typ | Hinweis |
+|---|---|---|
+| `typ` | `kunde` \| `notiz` \| `termin` \| `geraet` \| `enpalKontakt` | |
+| `objekt` | Objekt | das gelöschte Objekt, unverändert |
+| `kundeId` | String | zugehöriger Kunde (bei Notiz/Enpal-Eintrag) |
+| `geloeschtAm` | ISO-Datum | nach 30 Tagen entfernt `migrate()` den Eintrag |
+| `bezug` | Objekt oder `null` | beim Kunden: IDs der Termine, Verleihe, Reservierungen, die wieder verknüpft werden |
 
 ## Einstellungen
 
@@ -115,10 +140,11 @@ Typen: Zahlen sind `null`, wenn leer. Ja/Nein-Felder sind `true`/`false`/`null` 
 | `autoSperreMin` | 0–240, 0 = nie |
 | `dropbox` | `appKey`, `refreshToken`, `pfad`, `letzterSync` |
 | `empfaenger` | `{enpal, vorwerk}` – Vorbelegung für „Per E-Mail senden“ (ab Schema 2) |
+| `kartenApp` | `auto` \| `apple` \| `google` – Ziel für „Hinfahren“ (ab Schema 3) |
 
 ## Beispieldaten
 
-Beispielkunden, -termine, -geräte und -verleihe in der echten App erkennt man am ID-Präfix `demo-` (kein eigenes Feld, keine Schemaänderung). `beispielEntfernen()` in `js/demo.js` entfernt genau diese.
+Beispielkunden, -termine, -geräte und -verleihe in der echten App erkennt man am ID-Präfix `demo-` (Beispiel-Vorführbestand: `demob-`) (kein eigenes Feld, keine Schemaänderung). `beispielEntfernen()` in `js/demo.js` entfernt genau diese.
 
 ## Migration
 
@@ -128,4 +154,4 @@ Beispielkunden, -termine, -geräte und -verleihe in der echten App erkennt man a
 - entfernt doppelte Kunden-IDs,
 - hängt verwaiste Termine vom Kunden ab, statt sie zu löschen.
 
-Schema 1 → 2: `enpalKontakte` und `einstellungen.empfaenger` kommen hinzu; die Normalisierung ergänzt sie leer. Künftige Versionen ergänzen schrittweise Blöcke `if (v < 3) { … }`.
+Schema 1 → 2: `enpalKontakte` und `einstellungen.empfaenger` kommen hinzu; die Normalisierung ergänzt sie leer. Schema 2 → 3: `reservierungen`, `papierkorb`, `einstellungen.kartenApp` und die Beleg-Felder am Leihvorgang kommen hinzu (leer). Künftige Versionen ergänzen schrittweise Blöcke `if (v < 3) { … }`.

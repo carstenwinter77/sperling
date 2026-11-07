@@ -194,7 +194,7 @@ test('mailUrl kodiert Betreff und Text für alle Programme', () => {
 test('Migration v1 → v2: enpalKontakte und Empfänger werden ergänzt', () => {
   const alt = { schemaVersion: 1, kunden: [{ id: 'a', nachname: 'Alt' }], termine: [], einstellungen: { absender: 'X' } };
   const d = migrate(alt);
-  assert.equal(d.schemaVersion, 2);
+  assert.equal(d.schemaVersion, SCHEMA_VERSION);
   assert.deepEqual(d.kunden[0].enpalKontakte, []);
   assert.deepEqual(d.einstellungen.empfaenger, { enpal: '', vorwerk: '' });
   assert.equal(d.einstellungen.absender, 'X');
@@ -261,4 +261,88 @@ test('Beispiel-Vorführbestand laden/entfernen, verliehene Geräte bleiben', asy
   d.leihvorgaenge.push({ id: 'l', geraetId: 'demob-1', kundeId: '' });
   bestandEntfernen(d);
   assert.deepEqual(d.geraete.map((g) => g.id).sort(), ['demob-1', 'echt-g']);
+});
+
+test('Papierkorb: Kunde löschen und mit Bezügen wiederherstellen', async () => {
+  const { neuerTermin, neuesGeraet, neuerLeihvorgang, normalizeReservierung } = await import('../js/core/model.js');
+  const pk = await import('../js/core/papierkorb.js');
+  const data = emptyData();
+  const k = neuerKunde({ vorname: 'Anna', nachname: 'Beispiel' });
+  k.notizen.push(neueNotiz({ text: 'Notiz eins' }));
+  data.kunden.push(k);
+  const t = neuerTermin({ kundeId: k.id, titel: 'Besuch', beginn: new Date().toISOString() });
+  data.termine.push(t);
+  const g = neuesGeraet({ name: 'Kobold' });
+  data.geraete.push(g);
+  const l = neuerLeihvorgang({ geraetId: g.id, kundeId: k.id });
+  data.leihvorgaenge.push(l);
+  data.reservierungen = [normalizeReservierung({ geraetId: g.id, kundeId: k.id, von: '2026-12-01', bis: '2026-12-03' })];
+
+  // Notiz löschen und zurückholen
+  assert.equal(pk.notizLoeschen(data, k.id, k.notizen[0].id), true);
+  assert.equal(k.notizen.length, 0);
+  assert.equal(pk.eintragTitel(data.papierkorb[0], data).art, 'Notiz');
+  pk.wiederherstellen(data, data.papierkorb[0].id);
+  assert.equal(k.notizen.length, 1);
+
+  // Kunde löschen: Bezüge werden gelöst
+  assert.equal(pk.kundeLoeschen(data, k.id), true);
+  assert.equal(data.kunden.length, 0);
+  assert.equal(t.kundeId, '');
+  assert.equal(l.kundeId, '');
+  assert.equal(data.reservierungen[0].kundeId, '');
+  // Notiz eines gelöschten Kunden kann nicht zurück
+  pk.notizLoeschen(data, k.id, 'gibtsnicht');
+  // Termin wird inzwischen einem anderen Kunden zugeordnet -> bleibt dort
+  const k2 = neuerKunde({ vorname: 'Bert' });
+  data.kunden.push(k2);
+  t.kundeId = k2.id;
+  const eintrag = data.papierkorb.find((e) => e.typ === 'kunde');
+  pk.wiederherstellen(data, eintrag.id);
+  assert.equal(data.kunden.length, 2);
+  assert.equal(t.kundeId, k2.id, 'umgehängter Termin bleibt beim anderen Kunden');
+  assert.equal(l.kundeId, k.id);
+  assert.equal(data.reservierungen[0].kundeId, k.id);
+  assert.equal(data.papierkorb.some((e) => e.id === eintrag.id), false);
+  assert.throws(() => pk.wiederherstellen(data, eintrag.id), /nicht mehr/);
+
+  // Termin löschen, endgültig löschen, leeren
+  pk.terminLoeschen(data, t.id);
+  assert.equal(data.termine.length, 0);
+  pk.endgueltigLoeschen(data, data.papierkorb[0].id);
+  assert.equal(data.papierkorb.length, 0);
+  pk.terminLoeschen(data, 'x');
+  pk.leeren(data);
+  assert.deepEqual(data.papierkorb, []);
+});
+
+test('Papierkorb: Einträge älter als 30 Tage verfallen beim Laden', () => {
+  const alt = new Date(Date.now() - 31 * 864e5).toISOString();
+  const neu = new Date(Date.now() - 2 * 864e5).toISOString();
+  const d = migrate({ ...emptyData(), papierkorb: [
+    { id: 'a', typ: 'termin', objekt: { id: 't1' }, geloeschtAm: alt },
+    { id: 'b', typ: 'termin', objekt: { id: 't2' }, geloeschtAm: neu },
+    { id: 'c', typ: 'quatsch', objekt: {}, geloeschtAm: neu },
+  ] });
+  assert.deepEqual(d.papierkorb.map((e) => e.id), ['b']);
+});
+
+test('Gerätebelegung: Reservierungen und Verleihe, tageweise inklusive', async () => {
+  const { geraetBelegung, ueberschneidet, normalizeReservierung, neuerLeihvorgang } = await import('../js/core/model.js');
+  assert.equal(ueberschneidet('2026-12-01', '2026-12-03', '2026-12-03', '2026-12-05'), true);
+  assert.equal(ueberschneidet('2026-12-01', '2026-12-02', '2026-12-03', '2026-12-05'), false);
+  const data = emptyData();
+  data.reservierungen = [normalizeReservierung({ id: 'r1', geraetId: 'g', von: '2026-12-10', bis: '2026-12-12' })];
+  data.leihvorgaenge = [
+    neuerLeihvorgang({ id: 'l1', geraetId: 'g', ausgabe: '2026-12-01', rueckgabeGeplant: '2026-12-04' }),
+    neuerLeihvorgang({ id: 'l2', geraetId: 'g', ausgabe: '2027-01-10' }), // offen ohne Datum: bis auf Weiteres belegt
+    neuerLeihvorgang({ id: 'l3', geraetId: 'anderes', ausgabe: '2026-12-11' }),
+  ];
+  assert.deepEqual(geraetBelegung(data, 'g', '2026-12-05', '2026-12-09'), []);
+  assert.deepEqual(geraetBelegung(data, 'g', '2026-12-04', '2026-12-10').map((x) => x.eintrag.id), ['r1', 'l1']);
+  assert.deepEqual(geraetBelegung(data, 'g', '2026-12-11', '2026-12-11', 'r1'), []);
+  assert.deepEqual(geraetBelegung(data, 'g', '2030-06-01', '2030-06-02').map((x) => x.art), ['verleih']);
+  // Normalisierung: bis vor von wird korrigiert
+  const r = normalizeReservierung({ von: '2026-12-10', bis: '2026-12-01' });
+  assert.equal(r.bis, r.von);
 });

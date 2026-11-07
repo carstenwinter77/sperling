@@ -5,6 +5,7 @@ import * as store from '../../storage/store.js';
 import { adresseZuKoordinate, adressenSuchen } from '../../services/geo.js';
 import { toast, maskottchen } from '../dom.js';
 import { statusChips } from '../parts.js';
+import { hinfahrenKnopf } from '../navi.js';
 
 const LAYER = {
   satellit: {
@@ -107,7 +108,7 @@ export function render(el, params) {
       if (!filter.sparte && filter.status && !SPARTEN_KEYS.some((s) => k.status[s] === filter.status)) continue;
       const st = filter.sparte ? k.status[filter.sparte] : hauptStatus(k);
       const m = L.marker([k.lat, k.lng], { icon: pinIcon(L, STATUS[st].farbe), title: kundenTitel(k) });
-      m.bindPopup(() => `<div class="popup"><strong>${esc(kundenTitel(k))}</strong><br><small>${esc(adresseEinzeilig(k))}</small><br>${statusChips(k)}<br><a class="btn klein primary" href="#/kunde/${esc(k.id)}">Öffnen</a></div>`);
+      m.bindPopup(() => `<div class="popup"><strong>${esc(kundenTitel(k))}</strong><br><small>${esc(adresseEinzeilig(k))}</small><br>${statusChips(k)}<br><a class="btn klein primary" href="#/kunde/${esc(k.id)}">Öffnen</a>${hinfahrenKnopf(k, 'btn klein')}</div>`);
       pins.addLayer(m);
     }
   };

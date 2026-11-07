@@ -10,11 +10,12 @@ import * as dbx from '../../storage/dropbox.js';
 import * as sync from '../../storage/sync.js';
 import * as theme from '../theme.js';
 import * as bio from '../../storage/biometrie.js';
+import * as pk from '../../core/papierkorb.js';
 import { KeyRing } from '../../core/crypto.js';
 import { MAILPROGRAMME, gemerktesMailprogramm, mailprogrammMerken } from '../kontakt.js';
 import { maskottchen, toast, download, dateiWaehlen, dialog, bestaetigen, teilenOderSpeichern } from '../dom.js';
 
-export const APP_VERSION = '0.7.0';
+export const APP_VERSION = '0.8.0';
 
 export function render(el) {
   const e = store.getData().einstellungen;
@@ -55,6 +56,20 @@ export function render(el) {
         <button class="btn ghost" id="bestandLaden" ${demo ? 'disabled' : ''}>Beispielbestand laden</button>
         <button class="btn danger" id="bestandWeg" ${demo || !bestandAnzahl(store.getData()) ? 'disabled' : ''}>Beispielbestand entfernen</button>
       </div>
+    </section>
+
+    <section class="karte-box">
+      <h2>Navigation</h2>
+      <label>„Hinfahren“ öffnet<select id="kartenApp">
+        ${[['auto', 'Automatisch (Apple Karten auf iPhone/iPad, sonst Google Maps)'], ['apple', 'Apple Karten'], ['google', 'Google Maps']].map(([k, v]) => `<option value="${k}" ${e.kartenApp === k ? 'selected' : ''}>${v}</option>`).join('')}
+      </select></label>
+    </section>
+
+    <section class="karte-box">
+      <h2>Papierkorb</h2>
+      <p class="hinweis">Gelöschte Kunden, Notizen, Enpal-Dokumentationen und Termine bleiben ${30} Tage hier und lassen sich zurückholen.</p>
+      ${(store.getData().papierkorb || []).length ? `<ul class="liste" id="papierkorb">${store.getData().papierkorb.map((x) => { const t = pk.eintragTitel(x, store.getData()); return `<li class="zeile"><span class="zeile-haupt"><strong>${esc(t.art)}: ${esc(t.text)}</strong><small>gelöscht ${esc(formatDateTime(x.geloeschtAm))}</small></span><button class="btn klein primary" data-zurueck="${esc(x.id)}">Wiederherstellen</button><button class="btn klein ghost" data-weg="${esc(x.id)}" aria-label="Endgültig löschen">🗑</button></li>`; }).join('')}</ul>
+      <button class="btn danger klein" id="pkLeeren">Papierkorb leeren</button>` : '<p class="hinweis">Der Papierkorb ist leer.</p>'}
     </section>
 
     <section class="karte-box">
@@ -161,6 +176,24 @@ export function render(el) {
       toast('Beispielkunden entfernt', 'ok');
       render(el);
     } catch (err) { toast(`Entfernen fehlgeschlagen: ${err.message}`, 'error'); }
+  });
+  el.querySelector('#kartenApp').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.kartenApp = ev.target.value; }));
+  el.querySelector('#papierkorb')?.addEventListener('click', async (ev) => {
+    const zurueck = ev.target.closest('[data-zurueck]');
+    const weg = ev.target.closest('[data-weg]');
+    try {
+      if (zurueck) { await store.mutate((d) => pk.wiederherstellen(d, zurueck.dataset.zurueck)); toast('Wiederhergestellt', 'ok'); render(el); }
+      if (weg) {
+        if (!(await bestaetigen('Endgültig löschen?', 'Dieser Eintrag kann danach nicht mehr zurückgeholt werden.'))) return;
+        await store.mutate((d) => pk.endgueltigLoeschen(d, weg.dataset.weg));
+        render(el);
+      }
+    } catch (err) { toast(err.message, 'error', 5000); }
+  });
+  el.querySelector('#pkLeeren')?.addEventListener('click', async () => {
+    if (!(await bestaetigen('Papierkorb leeren?', 'Alle Einträge werden endgültig gelöscht.', 'Leeren'))) return;
+    await store.mutate((d) => pk.leeren(d));
+    render(el);
   });
   el.querySelector('#mailprogramm').addEventListener('change', (ev) => { mailprogrammMerken(ev.target.value); toast('Gespeichert', 'ok'); });
   el.querySelector('#empfEnpal').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.empfaenger.enpal = ev.target.value.trim(); }));

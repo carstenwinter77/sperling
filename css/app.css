@@ -376,3 +376,60 @@ body { --band-h: 0px; }
 .suchergebnisse button { display: block; width: 100%; text-align: left; background: none; border: 0; color: var(--text); font: inherit; padding: .6rem .7rem; min-height: 44px; border-radius: 10px; cursor: pointer; }
 .suchergebnisse button:hover, .suchergebnisse button:focus { background: var(--flaeche-2); }
 .bio-knopf { width: 100%; max-width: 360px; min-height: 52px; font-size: 1.05rem; margin-top: .5rem; }
+.update-leiste { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--nav-h) + 12px + env(safe-area-inset-bottom)); z-index: 3000; display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; background: var(--karte); color: var(--text); border: 1px solid var(--linie); box-shadow: var(--schatten); border-radius: var(--radius); padding: .6rem .8rem; max-width: calc(100% - 24px); }
+@media (min-width: 900px) { .update-leiste { bottom: 16px; } }
+/* Kundenansicht zum Herzeigen */
+body.ka-aktiv { overflow: hidden; }
+.kundenansicht { position: fixed; inset: 0; z-index: 4000; background: var(--creme); overflow: auto; -webkit-overflow-scrolling: touch; }
+.ka-leiste { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; padding: .5rem 1rem; background: var(--karte); border-bottom: 1px solid var(--linie); font-weight: 600; color: var(--text-2); z-index: 1; }
+.ka-inhalt { max-width: 860px; margin: 0 auto; padding: 1rem; }
+.ka-kopf { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; }
+.ka-kopf h1 { margin: 0; }
+.ka-kopf p { margin: .2rem 0 0; color: var(--text-2); }
+.ka-daten { display: grid; grid-template-columns: minmax(140px, 1fr) 2fr; gap: .4rem 1rem; margin: 0; }
+.ka-daten dt { color: var(--text-2); }
+.ka-daten dd { margin: 0; font-weight: 600; }
+.ka-sperre { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 4100; width: min(420px, calc(100% - 32px)); box-shadow: var(--schatten); }
+.reservierungen { list-style: none; margin: .4rem 0; padding: 0; font-size: .9rem; }
+.reservierungen li { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; padding: .3rem 0; border-top: 1px dashed var(--linie); }
+/* Belege: Fotos und Unterschrift */
+.beleg-fotos, .beleg-unterschrift { border: 1px solid var(--linie); border-radius: 10px; padding: .4rem .75rem .75rem; margin: .5rem 0; }
+.foto-reihe { display: flex; flex-wrap: wrap; gap: .5rem; margin: .3rem 0 .5rem; }
+.foto { position: relative; }
+.foto img { width: 84px; height: 84px; object-fit: cover; border-radius: 8px; border: 1px solid var(--linie); display: block; }
+.foto button { position: absolute; top: -8px; right: -8px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: var(--rot); color: #fff; font-weight: 700; cursor: pointer; }
+.foto-knopf { cursor: pointer; }
+.unterschrift-feld { width: 100%; max-width: 600px; aspect-ratio: 3 / 1; background: #fff; border: 1px solid var(--linie); border-radius: 8px; display: block; touch-action: none; }
+
+/* Kalender (Monat / Woche / Tag) */
+.kalender { padding: .75rem; }
+.k-leiste { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; margin-bottom: .4rem; }
+.k-nav { display: flex; gap: .25rem; }
+.k-nav .btn { min-width: 44px; }
+.k-titel { font-size: 1.1rem; }
+.k-tipp { margin: 0 0 .6rem; }
+.k-eintrag { display: block; width: 100%; text-align: left; border: 0; border-left: 3px solid var(--braun); background: color-mix(in srgb, var(--braun) 14%, var(--karte)); color: var(--text); border-radius: 6px; padding: .15rem .35rem; font: inherit; font-size: .78rem; line-height: 1.25; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; }
+.k-eintrag small { color: var(--text-2); }
+.k-eintrag.art-wiedervorlage { border-left-color: var(--orange); background: color-mix(in srgb, var(--orange) 14%, var(--karte)); }
+.k-eintrag.erledigt { opacity: .55; text-decoration: line-through; }
+.k-monat { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
+.k-wt { text-align: center; font-size: .8rem; font-weight: 700; color: var(--text-2); padding: .2rem 0; }
+.k-tag { min-height: 92px; background: var(--karte); border: 1px solid var(--linie); border-radius: 6px; padding: 2px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; overflow: hidden; }
+.k-tag.fremd { opacity: .45; }
+.k-tag.heute { border-color: var(--braun); box-shadow: inset 0 0 0 1px var(--braun); }
+.k-nr { align-self: flex-start; border: 0; background: none; font: inherit; font-weight: 700; font-size: .85rem; color: var(--text); padding: .1rem .35rem; border-radius: 999px; cursor: pointer; }
+.k-tag.heute .k-nr { background: var(--braun); color: var(--auf-akzent, #fff); }
+.k-mehr { border: 0; background: none; font: inherit; font-size: .75rem; color: var(--braun); text-align: left; padding: 0 .2rem; cursor: pointer; }
+.k-resv { font-size: .72rem; color: var(--text-2); margin-top: auto; }
+.k-raster { overflow-x: auto; }
+.k-kopfzeile, .k-koerper { display: grid; grid-template-columns: 44px repeat(var(--spalten), minmax(90px, 1fr)); }
+.k-kopfzeile { position: sticky; top: 0; z-index: 2; background: var(--karte); }
+.k-spaltenkopf { border: 0; background: none; font: inherit; font-weight: 700; font-size: .85rem; padding: .35rem 0; color: var(--text); cursor: pointer; border-radius: 6px; }
+.k-spaltenkopf.heute { color: var(--braun); }
+.k-zeiten div { font-size: .72rem; color: var(--text-2); text-align: right; padding-right: 4px; box-sizing: border-box; border-top: 1px solid var(--linie); }
+.k-spalte { position: relative; border-left: 1px solid var(--linie); background-image: repeating-linear-gradient(to bottom, var(--linie) 0 1px, transparent 1px var(--slot)); cursor: crosshair; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.k-block { position: absolute; left: 2px; right: 2px; z-index: 1; }
+.k-block .k-eintrag { height: 100%; white-space: normal; }
+.k-ausserhalb { position: absolute; top: 0; left: 2px; right: 2px; z-index: 1; display: flex; flex-direction: column; gap: 1px; }
+.k-auswahl { position: absolute; left: 2px; right: 2px; z-index: 3; background: color-mix(in srgb, var(--gruen) 30%, transparent); border: 2px solid var(--gruen); border-radius: 6px; font-size: .78rem; font-weight: 700; padding: .1rem .3rem; pointer-events: none; color: var(--text); }
+@media (max-width: 600px) { .k-tag { min-height: 64px; } .k-tag .k-eintrag small { display: none; } }

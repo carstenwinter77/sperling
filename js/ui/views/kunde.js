@@ -8,6 +8,9 @@ import { koordinateZuAdresse } from '../../services/geo.js';
 import { maskottchen, toast, kopieren, bestaetigen, dialog } from '../dom.js';
 import { anrufen, emailSchreiben } from '../kontakt.js';
 import * as enpalDoku from '../enpaldoku.js';
+import * as pk from '../../core/papierkorb.js';
+import { hinfahrenKnopf } from '../navi.js';
+import * as kundenansicht from '../kundenansicht.js';
 import { istBeispiel } from '../../demo.js';
 import { statusOptions, terminDialog, terminZeile, terminListeVerdrahten, icsExport, spartenIcon, statusChips } from '../parts.js';
 
@@ -38,12 +41,15 @@ export function render(el, params, [id]) {
       <h1 id="kTitel">${esc(kundenTitel(kunde))}</h1>${istBeispiel(kunde.id) ? '<span class="tag tag-beispiel">Beispiel</span>' : ''}
       <span id="kChips">${statusChips(kunde)}</span>
     </header>
-    <div class="knopfreihe kunde-aktionen"><a class="btn klein" href="#/gespraech?kunde=${esc(kunde.id)}">💬 Gesprächsleitfaden</a></div>
+    <div class="knopfreihe kunde-aktionen"><a class="btn klein" href="#/gespraech?kunde=${esc(kunde.id)}">💬 Gesprächsleitfaden</a><button class="btn klein" id="kundenansicht">👁 Kundenansicht zum Herzeigen</button></div>
     <nav class="tabs" role="tablist">
       ${TABS.map((t) => `<button role="tab" data-tab="${t.key}" class="${t.key === tab ? 'aktiv' : ''}">${esc(t.label)}</button>`).join('')}
     </nav>
     <div id="tabInhalt"></div>`;
 
+  el.querySelector('#kundenansicht').addEventListener('click', () => {
+    kundenansicht.starten(kunde.id);
+  });
   const inhalt = el.querySelector('#tabInhalt');
   const kopfAktualisieren = () => {
     const k = store.findKunde(id);
@@ -171,6 +177,7 @@ function uebersicht(el, k, kopf) {
       <div class="knopfreihe">
         <button class="btn ghost" id="anrufen">📞 Anrufen</button>
         <button class="btn ghost" id="mailen">✉️ E-Mail schreiben</button>
+        ${hinfahrenKnopf(k)}
         ${k.lat !== null ? `<a class="btn ghost" href="#/karte?kunde=${esc(k.id)}">🗺️ Auf Karte zeigen</a>` : ''}
         <button class="btn ghost" id="geocode">📍 Standort aus Adresse ermitteln</button>
       </div>
@@ -227,13 +234,10 @@ function uebersicht(el, k, kopf) {
   });
 
   el.querySelector('#loeschen').addEventListener('click', async () => {
-    const ok = await bestaetigen('Kunde löschen?', `${kundenTitel(k)} mit allen Notizen wird gelöscht. Zugehörige Termine bleiben ohne Kundenbezug erhalten.`);
+    const ok = await bestaetigen('Kunde löschen?', `${kundenTitel(k)} kommt mit allen Notizen in den Papierkorb (30 Tage wiederherstellbar). Zugehörige Termine bleiben ohne Kundenbezug erhalten.`);
     if (!ok) return;
-    store.mutate((d) => {
-      d.kunden = d.kunden.filter((x) => x.id !== k.id);
-      for (const t of d.termine) if (t.kundeId === k.id) t.kundeId = '';
-    });
-    toast('Kunde gelöscht');
+    store.mutate((d) => { pk.kundeLoeschen(d, k.id); });
+    toast('Kunde gelöscht – im Papierkorb (Einstellungen) 30 Tage wiederherstellbar', 'ok', 5000);
     location.hash = '#/kunden';
   });
 }
@@ -293,7 +297,8 @@ function notizen(el, k) {
     if (!n) return;
     if (btn.dataset.aktion === 'loeschen') {
       if (!(await bestaetigen('Notiz löschen?', n.text.slice(0, 120)))) return;
-      store.mutate((d) => { const x = d.kunden.find((y) => y.id === k.id); if (x) x.notizen = x.notizen.filter((y) => y.id !== nid); });
+      store.mutate((d) => { pk.notizLoeschen(d, k.id, nid); });
+      toast('Notiz im Papierkorb', 'ok');
       notizen(el, store.findKunde(k.id));
     } else if (btn.dataset.aktion === 'bearbeiten') {
       const res = await dialog({

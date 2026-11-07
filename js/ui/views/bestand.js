@@ -1,10 +1,13 @@
 // Vorführbestand (Vorwerk-Geräte im Auto): verleihen, zurücknehmen, Erinnerung, Kaufinteresse.
 import { esc, nowIso, formatDate, isValidDate } from '../../core/util.js';
-import { KAUFINTERESSE, kundenTitel, adresseEinzeilig, neuesGeraet, neuerLeihvorgang, neueNotiz, neuerTermin, offenerVerleih, STATUS_KEYS } from '../../core/model.js';
+import { KAUFINTERESSE, kundenTitel, adresseEinzeilig, neuesGeraet, neuerLeihvorgang, neueNotiz, neuerTermin, offenerVerleih, STATUS_KEYS, normalizeReservierung, geraetBelegung } from '../../core/model.js';
 import * as store from '../../storage/store.js';
 import { maskottchen, toast, dialog, bestaetigen } from '../dom.js';
 import { leer } from '../parts.js';
 import { istBeispielGeraet } from '../../demo.js';
+import { fotosHtml, fotosVerdrahten, unterschriftHtml, unterschriftVerdrahten } from '../belege.js';
+import * as leihschein from '../leihschein.js';
+import { kundenName } from '../../core/model.js';
 
 const TAG_MS = 86400000;
 
@@ -56,12 +59,16 @@ export function render(el) {
     const l = offenerVerleih(d, g.id);
     const st = l ? verleihStatus(l) : 'frei';
     const k = l ? kunde(l.kundeId) : null;
+    const heute = datumInput(nowIso());
+    const resv = (d.reservierungen || []).filter((r) => r.geraetId === g.id && datumInput(r.bis) >= heute).sort((a, b) => (a.von < b.von ? -1 : 1));
+    const resvHtml = resv.length ? `<ul class="reservierungen">${resv.map((r) => { const rk = kunde(r.kundeId); return `<li data-resv="${esc(r.id)}">📌 <b>${esc(formatDate(r.von))}${r.bis.slice(0, 10) !== r.von.slice(0, 10) ? `–${esc(formatDate(r.bis))}` : ''}</b> ${rk ? `für ${esc(kundenTitel(rk))}` : ''}${r.notiz ? ` · ${esc(r.notiz)}` : ''} ${!l && datumInput(r.von) <= heute ? '<button class="btn klein primary" data-resv-aktion="starten">Jetzt verleihen</button>' : ''}<button class="btn klein ghost" data-resv-aktion="loeschen" aria-label="Reservierung löschen">✕</button></li>`; }).join('')}</ul>` : '';
     return `
       <article class="karte-box geraet geraet-${st}" data-id="${esc(g.id)}">
         <div class="geraet-kopf">
           <div><strong>${esc(g.name)}</strong>${istBeispielGeraet(g.id) ? ' <span class="tag tag-beispiel">Beispiel</span>' : ''}${g.seriennummer ? `<br><small>SN ${esc(g.seriennummer)}</small>` : ''}</div>
           <span class="pill pill-${st}">${st === 'frei' ? 'Im Auto' : st === 'ueberfaellig' ? 'Überfällig' : 'Verliehen'}</span>
         </div>
+        ${resvHtml}
         ${l ? `
           <p class="geraet-info">Bei ${k ? `<a href="#/kunde/${esc(k.id)}">${esc(kundenTitel(k))}</a>` : 'unbekanntem Kunden'} seit ${esc(formatDate(l.ausgabe))}${l.rueckgabeGeplant ? `, zurück bis <b>${esc(formatDate(l.rueckgabeGeplant))}</b>` : ''}</p>
           <label class="kauf">Kaufinteresse
@@ -72,10 +79,13 @@ export function render(el) {
             <button class="btn primary klein" data-aktion="zurueck">Zurückgenommen</button>
             <button class="btn klein" data-aktion="gekauft">Kunde kauft es</button>
             <button class="btn ghost klein" data-aktion="erinnern">Nachfrage-Erinnerung</button>
+            <button class="btn ghost klein" data-aktion="reservieren">Reservieren</button>
+            <button class="btn ghost klein" data-aktion="leihschein">📄 Leihschein</button>
           </div>` : `
           ${g.zubehoer ? `<p class="hinweis">Zubehör: ${esc(g.zubehoer)}</p>` : ''}
           <div class="knopfreihe">
             <button class="btn primary klein" data-aktion="verleihen">Verleihen</button>
+            <button class="btn ghost klein" data-aktion="reservieren">Reservieren</button>
             <button class="btn ghost klein" data-aktion="bearbeiten">Bearbeiten</button>
           </div>`}
       </article>`;
@@ -86,11 +96,12 @@ export function render(el) {
       <ul class="liste">${verlauf.map((l) => {
     const g = d.geraete.find((x) => x.id === l.geraetId);
     const k = kunde(l.kundeId);
-    return `<li class="zeile"><span class="zeile-haupt"><strong>${esc(g?.name || 'Gerät')}</strong><small>${k ? esc(kundenTitel(k)) : '–'} · ${esc(formatDate(l.ausgabe))} bis ${esc(formatDate(l.rueckgabe))}</small></span><span class="pill pill-kauf-${l.kaufinteresse}">${esc(KAUFINTERESSE[l.kaufinteresse])}</span></li>`;
+    return `<li class="zeile"><span class="zeile-haupt"><strong>${esc(g?.name || 'Gerät')}</strong><small>${k ? esc(kundenTitel(k)) : '–'} · ${esc(formatDate(l.ausgabe))} bis ${esc(formatDate(l.rueckgabe))}</small></span><span class="pill pill-kauf-${l.kaufinteresse}">${esc(KAUFINTERESSE[l.kaufinteresse])}</span><button class="btn klein ghost" data-beleg="${esc(l.id)}" data-art="ausgabe" title="Leihschein">📄</button>${l.kaufinteresse !== 'gekauft' ? `<button class="btn klein ghost" data-beleg="${esc(l.id)}" data-art="rueckgabe" title="Rückgabeschein">↩️📄</button>` : ''}</li>`;
   }).join('')}</ul>
     </section>` : ''}`;
 
   el.querySelector('#neu').addEventListener('click', async () => { if (await geraetDialog()) render(el); });
+  el.querySelectorAll('[data-beleg]').forEach((b) => b.addEventListener('click', () => leihschein.anbieten(b.dataset.beleg, b.dataset.art, dialog)));
 
   el.querySelectorAll('[data-kauf]').forEach((sel) => sel.addEventListener('change', () => {
     store.mutate((data) => {
@@ -105,10 +116,22 @@ export function render(el) {
   }));
 
   el.querySelectorAll('.geraet').forEach((karte) => karte.addEventListener('click', async (ev) => {
-    const b = ev.target.closest('[data-aktion]');
-    if (!b) return;
     const g = store.getData().geraete.find((x) => x.id === karte.dataset.id);
     if (!g) return;
+    const rb = ev.target.closest('[data-resv-aktion]');
+    if (rb) {
+      const rid = rb.closest('[data-resv]').dataset.resv;
+      const r = (store.getData().reservierungen || []).find((x) => x.id === rid);
+      if (!r) return;
+      if (rb.dataset.resvAktion === 'loeschen') {
+        if (!(await bestaetigen('Reservierung löschen?', `${g.name} ab ${formatDate(r.von)}`))) return;
+        store.mutate((data) => { data.reservierungen = data.reservierungen.filter((x) => x.id !== rid); });
+        render(el);
+      } else if (await verleihDialog(g, r)) render(el);
+      return;
+    }
+    const b = ev.target.closest('[data-aktion]');
+    if (!b) return;
     const aktion = b.dataset.aktion;
     let geaendert = false;
     if (aktion === 'verleihen') geaendert = await verleihDialog(g);
@@ -116,6 +139,8 @@ export function render(el) {
     else if (aktion === 'zurueck') geaendert = await ruecknahme(g, false);
     else if (aktion === 'gekauft') geaendert = await ruecknahme(g, true);
     else if (aktion === 'erinnern') geaendert = await erinnerung(g);
+    else if (aktion === 'reservieren') geaendert = await reservierenDialog(g);
+    else if (aktion === 'leihschein') { const lv = offenerVerleih(store.getData(), g.id); if (lv) await leihschein.anbieten(lv.id, 'ausgabe', dialog); }
     if (geaendert) render(el);
   }));
 }
@@ -147,21 +172,78 @@ async function geraetDialog(g = null) {
   return true;
 }
 
-async function verleihDialog(g) {
+function konfliktText(konflikte, d) {
+  return konflikte.map(({ art, eintrag: e }) => {
+    const k = d.kunden.find((x) => x.id === e.kundeId);
+    const wer = k ? kundenTitel(k) : 'ohne Kunde';
+    return art === 'reservierung'
+      ? `reserviert ${formatDate(e.von)}–${formatDate(e.bis)} (${wer})`
+      : `verliehen ab ${formatDate(e.ausgabe)}${e.rueckgabe ? ` bis ${formatDate(e.rueckgabe)}` : e.rueckgabeGeplant ? ` bis ${formatDate(e.rueckgabeGeplant)}` : ' (offen)'} (${wer})`;
+  }).join('; ');
+}
+
+/** Gerät für einen künftigen Zeitraum vormerken. Belegte Tage werden abgelehnt. */
+export async function reservierenDialog(g, vorgabe = {}) {
+  const d = store.getData();
+  const opts = [...d.kunden].sort((a, b) => kundenTitel(a).localeCompare(kundenTitel(b), 'de'))
+    .map((k) => `<option value="${esc(k.id)}" ${vorgabe.kundeId === k.id ? 'selected' : ''}>${esc(kundenTitel(k))}</option>`).join('');
+  const morgen = datumInput(new Date(Date.now() + TAG_MS).toISOString());
+  const res = await dialog({
+    titel: `${g.name} reservieren`,
+    html: `
+      <label>Für Kunde (optional)<select name="kunde"><option value="">– ohne Kunde –</option>${opts}</select></label>
+      <div class="row2">
+        <label>Von<input type="date" name="von" value="${vorgabe.von ? datumInput(vorgabe.von) : morgen}" required></label>
+        <label>Bis<input type="date" name="bis" value="${vorgabe.bis ? datumInput(vorgabe.bis) : (vorgabe.von ? datumInput(vorgabe.von) : morgen)}" required></label>
+      </div>
+      <label>Notiz<input name="notiz" maxlength="2000" placeholder="z. B. Vorführung beim Hausbesuch"></label>`,
+    knoepfe: [{
+      label: 'Reservieren', primaer: true,
+      pruefen: (dlg) => {
+        const f = dlg.querySelector('form');
+        const von = datumZuIso(f.von.value); const bis = datumZuIso(f.bis.value);
+        if (!von || !bis) return 'Bitte gültige Daten wählen.';
+        if (bis < von) return '„Bis“ liegt vor „Von“.';
+        const k = geraetBelegung(store.getData(), g.id, von, bis);
+        return k.length ? `Belegt: ${konfliktText(k, store.getData())}` : null;
+      },
+      wert: (dlg) => { const f = dlg.querySelector('form'); return { kundeId: f.kunde.value, von: datumZuIso(f.von.value), bis: datumZuIso(f.bis.value), notiz: f.notiz.value.trim() }; },
+    }],
+  });
+  if (!res) return false;
+  store.mutate((data) => {
+    if (geraetBelegung(data, g.id, res.von, res.bis).length) throw new Error('Gerät ist in diesem Zeitraum schon belegt.');
+    data.reservierungen.push(normalizeReservierung({ geraetId: g.id, ...res }));
+  });
+  toast('Reserviert', 'ok');
+  return true;
+}
+
+async function verleihDialog(g, reservierung = null) {
   const d = store.getData();
   if (!d.kunden.length) { toast('Bitte zuerst einen Kunden anlegen.', 'error'); return false; }
   const opts = [...d.kunden].sort((a, b) => kundenTitel(a).localeCompare(kundenTitel(b), 'de'))
-    .map((k) => `<option value="${esc(k.id)}">${esc(kundenTitel(k))}</option>`).join('');
+    .map((k) => `<option value="${esc(k.id)}" ${reservierung?.kundeId === k.id ? 'selected' : ''}>${esc(kundenTitel(k))}</option>`).join('');
+  let holeFotos = () => [];
+  let holeUnterschrift = () => ({ bild: '', name: '' });
   const res = await dialog({
     titel: `${g.name} verleihen`,
     html: `
       <label>An Kunde<select name="kunde" required><option value="">– bitte wählen –</option>${opts}</select></label>
       <div class="row2">
         <label>Ausgegeben am<input type="date" name="ab" value="${datumInput(nowIso())}" required></label>
-        <label>Zurück bis<input type="date" name="bis" value="${datumInput(new Date(Date.now() + 7 * TAG_MS).toISOString())}"></label>
+        <label>Zurück bis<input type="date" name="bis" value="${datumInput(reservierung ? reservierung.bis : new Date(Date.now() + 7 * TAG_MS).toISOString())}"></label>
       </div>
       <label class="check"><input type="checkbox" name="erinnern" checked> Erinnerung zum Nachfragen am Rückgabetag anlegen</label>
-      <label>Notiz (Zustand, Absprache)<textarea name="notiz" rows="2" placeholder="z. B. neuwertig, Kunde testet auf Teppich und Fliesen"></textarea></label>`,
+      <label>Notiz (Zustand, Absprache)<textarea name="notiz" rows="2" placeholder="z. B. neuwertig, Kunde testet auf Teppich und Fliesen"></textarea></label>
+      ${fotosHtml('Fotos vom Zustand bei Übergabe')}
+      ${unterschriftHtml(reservierung?.kundeId ? kundenName(d.kunden.find((x) => x.id === reservierung.kundeId) || {}) : '')}`,
+    onOpen: (dlg) => {
+      holeFotos = fotosVerdrahten(dlg);
+      holeUnterschrift = unterschriftVerdrahten(dlg);
+      const sel = dlg.querySelector('[name=kunde]');
+      sel.addEventListener('change', () => { const kk = store.getData().kunden.find((x) => x.id === sel.value); const n = dlg.querySelector('[name=unterschriftName]'); if (kk && !n.value) n.value = kundenName(kk); });
+    },
     knoepfe: [{
       label: 'Verleihen', primaer: true,
       pruefen: (dlg) => {
@@ -169,19 +251,27 @@ async function verleihDialog(g) {
         if (!f.kunde.value) return 'Bitte einen Kunden wählen.';
         if (!datumZuIso(f.ab.value)) return 'Bitte ein gültiges Ausgabedatum wählen.';
         if (f.bis.value && datumZuIso(f.bis.value) < datumZuIso(f.ab.value)) return 'Rückgabe liegt vor der Ausgabe.';
-        return null;
+        // Reservierungen anderer Kunden im Zeitraum sperren den Verleih
+        const k = geraetBelegung(store.getData(), g.id, datumZuIso(f.ab.value), datumZuIso(f.bis.value) || datumZuIso(f.ab.value), reservierung?.id || '')
+          .filter((x) => x.art === 'reservierung' && x.eintrag.kundeId !== f.kunde.value);
+        return k.length ? `Im Zeitraum reserviert: ${konfliktText(k, store.getData())}. Bitte Rückgabe früher legen oder Reservierung ändern.` : null;
       },
       wert: (dlg) => {
         const f = dlg.querySelector('form');
-        return { kundeId: f.kunde.value, ausgabe: datumZuIso(f.ab.value), rueckgabeGeplant: datumZuIso(f.bis.value), erinnern: f.erinnern.checked, notiz: f.notiz.value.trim() };
+        const u = holeUnterschrift();
+        return { kundeId: f.kunde.value, ausgabe: datumZuIso(f.ab.value), rueckgabeGeplant: datumZuIso(f.bis.value), erinnern: f.erinnern.checked, notiz: f.notiz.value.trim(), fotos: holeFotos(), unterschrift: u.bild, name: u.name };
       },
     }],
   });
   if (!res) return false;
+  let neueLeihId = '';
   store.mutate((data) => {
     if (offenerVerleih(data, g.id)) throw new Error('Gerät ist bereits verliehen.');
-    const l = neuerLeihvorgang({ geraetId: g.id, kundeId: res.kundeId, ausgabe: res.ausgabe, rueckgabeGeplant: res.rueckgabeGeplant, notiz: res.notiz });
+    const l = neuerLeihvorgang({ geraetId: g.id, kundeId: res.kundeId, ausgabe: res.ausgabe, rueckgabeGeplant: res.rueckgabeGeplant, notiz: res.notiz, fotosAusgabe: res.fotos, unterschriftAusgabe: res.unterschrift, nameAusgabe: res.name });
+    neueLeihId = l.id;
     data.leihvorgaenge.push(l);
+    // Reservierung ist mit dem Verleih erledigt (eigene oder die des Kunden für dieses Gerät)
+    data.reservierungen = data.reservierungen.filter((r) => !(r.id === reservierung?.id || (r.geraetId === g.id && r.kundeId === res.kundeId && r.von.slice(0, 10) <= (res.rueckgabeGeplant || res.ausgabe).slice(0, 10))));
     const k = data.kunden.find((x) => x.id === res.kundeId);
     if (k) {
       vorwerkStatusAnheben(k, 'interesse');
@@ -198,6 +288,7 @@ async function verleihDialog(g) {
     }
   });
   toast(res.erinnern && res.rueckgabeGeplant ? 'Verliehen, Erinnerung angelegt' : 'Verliehen', 'ok');
+  if (neueLeihId) leihschein.anbieten(neueLeihId, 'ausgabe', dialog);
   return true;
 }
 
@@ -206,13 +297,18 @@ async function ruecknahme(g, gekauft) {
   const l = offenerVerleih(d, g.id);
   if (!l) return false;
   const k = d.kunden.find((x) => x.id === l.kundeId);
+  let holeFotos = () => [];
+  let holeUnterschrift = () => ({ bild: '', name: '' });
   const res = await dialog({
     titel: gekauft ? `${g.name} wird gekauft` : `${g.name} zurückgenommen`,
     html: gekauft
       ? `<p>${esc(k ? kundenTitel(k) : 'Der Kunde')} behält das Vorführgerät. Es wird aus dem Bestand genommen, der Vorwerk-Status wird auf „Abschluss“ gesetzt.</p>`
       : `<label>Kaufinteresse<select name="kauf">${Object.entries(KAUFINTERESSE).filter(([key]) => key !== 'gekauft').map(([key, v]) => `<option value="${key}" ${key === l.kaufinteresse ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
-         <label>Notiz (Zustand bei Rückgabe, Feedback)<textarea name="notiz" rows="2"></textarea></label>`,
-    knoepfe: [{ label: gekauft ? 'Als verkauft buchen' : 'Rücknahme buchen', primaer: true, wert: (dlg) => ({ kauf: gekauft ? 'gekauft' : dlg.querySelector('[name=kauf]').value, notiz: gekauft ? '' : dlg.querySelector('[name=notiz]').value.trim() }) }],
+         <label>Notiz (Zustand bei Rückgabe, Feedback)<textarea name="notiz" rows="2"></textarea></label>
+         ${fotosHtml('Fotos vom Zustand bei Rückgabe')}
+         ${unterschriftHtml(k ? kundenName(k) : '')}`,
+    onOpen: (dlg) => { if (!gekauft) { holeFotos = fotosVerdrahten(dlg); holeUnterschrift = unterschriftVerdrahten(dlg); } },
+    knoepfe: [{ label: gekauft ? 'Als verkauft buchen' : 'Rücknahme buchen', primaer: true, wert: (dlg) => ({ kauf: gekauft ? 'gekauft' : dlg.querySelector('[name=kauf]').value, notiz: gekauft ? '' : dlg.querySelector('[name=notiz]').value.trim(), fotos: holeFotos(), unterschrift: holeUnterschrift() }) }],
   });
   if (!res) return false;
   store.mutate((data) => {
@@ -220,6 +316,9 @@ async function ruecknahme(g, gekauft) {
     if (!x) return;
     x.rueckgabe = nowIso();
     x.kaufinteresse = res.kauf;
+    x.fotosRueckgabe = res.fotos;
+    x.unterschriftRueckgabe = res.unterschrift.bild;
+    x.nameRueckgabe = res.unterschrift.name;
     if (res.notiz) x.notiz = x.notiz ? `${x.notiz}\n${res.notiz}` : res.notiz;
     x.updatedAt = nowIso();
     if (gekauft) { const gg = data.geraete.find((y) => y.id === g.id); if (gg) { gg.aktiv = false; gg.updatedAt = nowIso(); } }
@@ -234,6 +333,7 @@ async function ruecknahme(g, gekauft) {
     for (const t of data.termine) if (!t.erledigt && t.kundeId === x.kundeId && t.titel.startsWith(`Nachfragen: ${g.name}`)) { t.erledigt = true; t.updatedAt = nowIso(); }
   });
   toast(gekauft ? 'Verkauf gebucht' : 'Rücknahme gebucht', 'ok');
+  if (!gekauft) leihschein.anbieten(l.id, 'rueckgabe', dialog);
   return true;
 }
 

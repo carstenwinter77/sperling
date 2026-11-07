@@ -163,4 +163,6 @@ export function bestandEinfuegen(data, geraete) {
 export function bestandEntfernen(data) {
   const mitVerlauf = new Set(data.leihvorgaenge.map((l) => l.geraetId));
   data.geraete = data.geraete.filter((g) => !g.id.startsWith(BESTAND_PRAEFIX) || mitVerlauf.has(g.id));
+  const bleiben = new Set(data.geraete.map((g) => g.id));
+  data.reservierungen = (data.reservierungen || []).filter((r) => bleiben.has(r.geraetId));
 }
