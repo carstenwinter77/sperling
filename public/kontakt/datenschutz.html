@@ -48,20 +48,24 @@ address { font-style: normal; background: var(--karte); border: 1px solid var(--
 nav.inhalt ol { columns: 2 240px; padding-left: 1.3rem; margin: .4rem 0 0; }
 nav.inhalt li { margin: .2rem 0; break-inside: avoid; }
 :target { scroll-margin-top: 12px; }
+.sprung { position: absolute; left: 12px; top: -60px; background: var(--gruen); color: #fff; padding: .7rem 1.1rem; border-radius: 10px; font-weight: 700; text-decoration: none; }
+.sprung:focus { top: 12px; }
+@media (prefers-color-scheme: dark) { .sprung { color: #0f1712; } }
 a:focus-visible { outline: 3px solid var(--gruen-2); outline-offset: 2px; }
 @media print { .hinweis-konzept, .zurueck { display: none; } body { background: #fff; } }
 </style>
 </head>
 <body>
-<div class="hinweis-konzept" data-konzept>Konzept – Anschrift und Kontaktdaten sind noch Platzhalter.</div>
+<a class="sprung" href="#inhalt">Zum Inhalt springen</a>
+<aside class="hinweis-konzept" data-konzept aria-label="Hinweis">Konzept – die E-Mail-Adresse ist noch ein Platzhalter.</aside>
 <header>
   <div class="huelle">
-    <a href="./"><img class="logo logo-hell" src="../assets/marke/logo.png" alt="Sperling – zur Kontaktseite"><img class="logo logo-dunkel" src="../assets/marke/logo-hell.png" alt="" aria-hidden="true"></a>
+    <a href="./" aria-label="Sperling – zur Kontaktseite"><img class="logo logo-hell" src="../assets/marke/logo.png" alt=""><img class="logo logo-dunkel" src="../assets/marke/logo-hell.png" alt="" aria-hidden="true"></a>
     <a class="zurueck" href="./">← Zur Kontaktseite</a>
   </div>
 </header>
 
-<main class="huelle">
+<main class="huelle" id="inhalt" tabindex="-1">
   <h1>Datenschutzerklärung</h1>
   <p class="klein">Stand: <span data-feld="stand"></span></p>
 
@@ -174,7 +178,7 @@ a:focus-visible { outline: 3px solid var(--gruen-2); outline-offset: 2px; }
   </ul>
   <p><b>Widerspruchsrecht (Art. 21 DSGVO):</b> Soweit ich Daten auf Grundlage eines berechtigten Interesses (Art. 6 Abs. 1 lit. f DSGVO) verarbeite, können Sie dieser Verarbeitung aus Gründen, die sich aus Ihrer besonderen Situation ergeben, jederzeit widersprechen. Einer Verarbeitung zu Zwecken der Direktwerbung können Sie jederzeit ohne Angabe von Gründen widersprechen.</p>
   <p>Eine formlose Nachricht an die oben genannten Kontaktdaten genügt.</p>
-  <p><b>Beschwerderecht:</b> Sie können sich bei einer Datenschutz-Aufsichtsbehörde beschweren (Art. 77 DSGVO). Zuständig für mich ist <span data-feld="aufsicht"></span>. Eine <a data-link="aufsicht" href="#" rel="noopener" target="_blank">Liste der Aufsichtsbehörden</a> finden Sie beim Bundesbeauftragten für den Datenschutz.</p>
+  <p><b>Beschwerderecht:</b> Sie können sich bei einer Datenschutz-Aufsichtsbehörde beschweren (Art. 77 DSGVO). Zuständig für mich ist <span data-feld="aufsicht"></span>. (<a data-link="aufsicht" href="#" rel="noopener" target="_blank">Website der Aufsichtsbehörde</a>). Sie können sich auch an die Aufsichtsbehörde Ihres Wohnorts wenden.</p>
 
   <h2 id="sonstiges">12. Sonstiges</h2>
   <p><b>Pflicht zur Bereitstellung:</b> Sie sind weder gesetzlich noch vertraglich verpflichtet, mir Daten zu geben. Ohne Kontaktdaten kann ich Ihre Anfrage allerdings nicht beantworten.</p>
