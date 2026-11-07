@@ -1,6 +1,7 @@
 // Sperling – „Was ist neu“: kurze, verständliche Liste je Version (neueste zuerst).
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
+  { version: '0.9.4', punkte: ['Kontaktseite: neues Zitat, positiv formulierte Versprechen und eine vollständige Datenschutzerklärung.'] },
   { version: '0.9.3', punkte: ['Kontaktseite: echter Name und neuer Abschnitt „Beratung ohne Druck“ – unverbindlich, ohne Zeitdruck, ehrlich beraten.'] },
   { version: '0.9.2', punkte: ['Bereichsfarben überall: Photovoltaik gelb, Wärmepumpe blau, Vorwerk grün – in Chips, Karten, Reitern und Symbolen.'] },
   {

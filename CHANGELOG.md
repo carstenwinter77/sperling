@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.9.4 – 07.11.2026
+- **Kontaktseite:** neues Zitat („Ich berate so, wie ich selbst beraten werden möchte …“), Versprechen positiv formuliert, Datenschutzerklärung `kontakt/datenschutz.html` (im Footer verlinkt), persönliche Daten zentral in `kontakt/daten.js`. Keine Fremd-Requests, keine Cookies, kein Storage.
+
 ## 0.9.3 – 07.11.2026
 - **Kontaktseite:** echter Name, Leiste „Unverbindlich · Ohne Druck · Ehrlich beraten“, neuer Abschnitt „Beratung ohne Druck – mein Versprechen“ mit drei Karten; Zitat, Ablauf und Rückruf-Hinweis angepasst. Platzhalter sind nur noch Kontaktdaten und Impressum.
 
