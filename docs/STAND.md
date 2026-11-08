@@ -18,12 +18,12 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 
 ### Neu in 0.10.35
 - [x] Karte: Standort-Knopf mit sofortiger Rückmeldung, Wachhund nach 30 s, Ortungen nacheinander.
-- [ ] Auf dem iPad 6 im WLAN prüfen, ob der Standort jetzt kommt.
+- [x] iPad 6: Standort kommt (lag an Safari-Standorteinstellungen, 08.11.).
 
 ### Neu in 0.10.34
 - [x] Runde Knöpfe („?“ usw.) auf altem iPad-Safari nicht mehr gestaucht.
 - [x] iPad quer: schmale Seitenleiste (96 px) für mehr Inhaltsbreite.
-- [ ] Auf dem iPad 6 prüfen: „?“-Knöpfe rund, Seitenleiste quer.
+- [x] Auf dem iPad 6 geprüft: „?“-Knöpfe rund (08.11.).
 
 ### Neu in 0.10.33
 - [x] Karte: Standort auch auf iPads ohne GPS (erst grob per WLAN, dann genau), Ungenauigkeitskreis, Hinweis bei abgeschaltetem Standortzugriff.
