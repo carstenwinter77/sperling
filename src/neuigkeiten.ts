@@ -2,6 +2,13 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.14.3',
+    punkte: [
+      'Auswertung: Am Verkaufstrichter stehen jetzt an jeder Stufe Anzahl und Prozent, im Balken die Zahl je Sparte. Auch im PDF-Bericht.',
+      'Gespräche im Verlauf: Die Anzahl steht über jeder Säule; in der Entwicklung je Sparte stehen die Prozente im Balken.',
+    ],
+  },
+  {
     version: '0.14.2',
     punkte: [
       'Karte: Der Hinweis „Tippe lange auf ein Haus …“ verschwindet, sobald du drei Häuser markiert hast, oder sofort mit ✕. Zurückholen: Einstellungen → Hilfe → „Ausgeblendete Hinweise wieder zeigen“.',

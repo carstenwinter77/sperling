@@ -781,6 +781,8 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForSelector('#awTrichter');
   await p.waitForSelector('#awNachfassen');
   if ((await p.$$('.aw-kern .aw-kern-zahl')).length !== 4) fail('Vier Kernzahlen fehlen');
+  // Trichter: Zahl und Anteil am Start an jeder Stufe (erste Stufe 100 %)
+  if (await p.$('.aw-tr-stufe') && !/^\d+100 %$/.test(((await p.textContent('.aw-tr-stufe .aw-tr-zahl')) || '').trim())) fail('Trichter ohne Zahl/Prozent an der ersten Stufe');
   if (!(await p.textContent('.aw-kopf')).includes('verglichen mit')) fail('Vergleichszeitraum fehlt');
   await p.waitForSelector('#awSparten');
   // Details aufklappen: dort stehen die übrigen Kennzahlen, der Verlauf und der Fokus
@@ -802,6 +804,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   // Alles zusammen: Säulen nach Thema gestapelt, mit Legende; PDF auch hier
   await p.click('[data-bereich=alle]');
   await p.waitForFunction(() => document.querySelector('.aw-kopf')?.textContent.includes('Alles zusammen'));
+  if (await p.$('.aw-verlauf') && !(await p.$('.aw-verlauf .aw-wert'))) fail('Säulen ohne Zahl');
   if (await p.$('.aw-verlauf') && (!(await p.$('.aw-legende')) || !(await p.$('.aw-stapel .aw-teil')))) fail('Gesprächssäulen nicht nach Thema gestapelt');
   // Fokus je Sparte: drei Anteile, sechs Zeiträume in der Entwicklung; nur bei „Alles zusammen“
   await p.waitForSelector('#awFokus');

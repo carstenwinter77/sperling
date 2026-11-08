@@ -523,9 +523,12 @@ body.ka-aktiv { overflow: hidden; }
 .aw-zahl .aw-delta { display: inline-flex; align-items: baseline; gap: .25rem; flex-wrap: wrap; }
 .aw-pfeil { font-size: .7em; }
 .aw-prozent { font-weight: 600; opacity: .9; }
-.aw-verlauf { display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 2px; height: 160px; align-items: end; padding-bottom: 1.2rem; }
+.aw-verlauf { display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 2px; height: 176px; align-items: end; padding: 1.1rem 0 1.2rem; }
 .aw-saeule { position: relative; height: 100%; display: flex; align-items: flex-end; }
 .aw-saeule span { display: block; width: 100%; background: var(--bereich); border-radius: 4px 4px 0 0; min-height: 0; }
+.aw-wert { position: absolute; left: 50%; transform: translateX(-50%); margin-bottom: 2px; font-size: .72rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; white-space: nowrap; pointer-events: none; }
+.aw-verlauf.dicht .aw-wert { font-size: .62rem; }
+@media (max-width: 600px) { .aw-verlauf.dicht .aw-wert { font-size: .5rem; letter-spacing: -.02em; } }
 .aw-saeule em { position: absolute; bottom: -1.2rem; left: 50%; transform: translateX(-50%); font-style: normal; font-size: .65rem; color: var(--text-2); white-space: nowrap; }
 .aw-verlauf[style*="--n:31"] .aw-saeule:nth-child(even) em, .aw-verlauf[style*="--n:30"] .aw-saeule:nth-child(even) em, .aw-verlauf[style*="--n:29"] .aw-saeule:nth-child(even) em, .aw-verlauf[style*="--n:28"] .aw-saeule:nth-child(even) em { visibility: hidden; }
 .aw-tabelle { width: 100%; border-collapse: collapse; }
@@ -1080,6 +1083,11 @@ tr.li-gleich { opacity: .7; }
 .aw-balken { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--feld); min-width: 0; }
 .aw-balken .aw-teil { height: 100%; flex-basis: auto; min-height: 0; }
 .aw-balken.aw-mix .aw-teil { flex-basis: 0; }
+/* Zahl/Prozent im Balkenteil: helles Schildchen, lesbar auf allen Spartenfarben und Mustern, hell wie dunkel */
+.aw-n { display: inline-block; max-width: 100%; overflow: hidden; padding: 0 .28rem; border-radius: 4px; background: rgba(255,255,255,.92); color: #1d211c; font-size: .74rem; font-weight: 700; font-style: normal; line-height: 1.3; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.aw-reihe .aw-balken { height: 20px; border-radius: 6px; }
+.aw-balken .aw-teil, .aw-tr-balken .aw-teil { display: flex; align-items: center; justify-content: center; min-width: 0; overflow: hidden; }
+.aw-reihe .aw-n { font-size: .66rem; line-height: 1.2; }
 .aw-reihe li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr) 2.5rem; align-items: center; gap: .5rem; font-size: .88rem; }
 .aw-reihe li.jetzt { font-weight: 700; }
 .aw-reihe-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1383,13 +1391,16 @@ body.schutz-aktiv .plus-knopf, body.ka-aktiv .plus-knopf { display: none; }
 .aw-zwei > .karte-box { margin: 0; }
 .aw-zwei + * { margin-top: 1rem; }
 .aw-trichter { list-style: none; margin: .6rem 0 0; padding: 0; }
-.aw-tr-stufe { display: grid; grid-template-columns: 6.2rem minmax(0, 1fr) 2.6rem; align-items: center; gap: .6rem; }
+.aw-tr-stufe { display: grid; grid-template-columns: 6.2rem minmax(0, 1fr) 3.4rem; align-items: center; gap: .6rem; }
 .aw-tr-name { font-weight: 600; }
 .aw-tr-spur { display: flex; justify-content: center; }
 .aw-tr-balken { display: flex; height: 28px; border-radius: 6px; overflow: hidden; background: var(--feld); }
 .aw-tr-balken .aw-teil { height: 100%; min-height: 0; flex-basis: 0; }
-.aw-tr-zahl { text-align: right; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
-.aw-tr-zwischen { display: grid; grid-template-columns: 6.2rem minmax(0, 1fr) 2.6rem; gap: .6rem; }
+.aw-tr-zahl { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.aw-tr-zahl b { font-size: 1.1rem; }
+.aw-tr-zahl small { font-size: .75rem; color: var(--text-2); font-weight: 600; }
+.aw-tr-legende { margin-top: .5rem; }
+.aw-tr-zwischen { display: grid; grid-template-columns: 6.2rem minmax(0, 1fr) 3.4rem; gap: .6rem; }
 .aw-tr-quote { grid-column: 2; text-align: center; font-size: .8rem; color: var(--text-2); padding: .15rem 0; }
 .aw-tr-quote.schwach { color: var(--rot); font-weight: 700; }
 .aw-tipp.warn { background: color-mix(in srgb, var(--orange) 12%, var(--karte)); border-left-color: var(--orange); }
@@ -1433,7 +1444,7 @@ body.schutz-aktiv .plus-knopf, body.ka-aktiv .plus-knopf { display: none; }
 @media (max-width: 640px) {
   .aw-kern { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
   .aw-kern-zahl strong { font-size: 1.8rem; }
-  .aw-tr-stufe, .aw-tr-zwischen { grid-template-columns: 5.2rem minmax(0, 1fr) 2.2rem; gap: .4rem; }
+  .aw-tr-stufe, .aw-tr-zwischen { grid-template-columns: 5.2rem minmax(0, 1fr) 2.9rem; gap: .4rem; }
 }
 /* ---------- Einstellungen in Bereichen ----------
    Schmal (Handy, iPad hochkant): Übersicht der Bereiche → Tipp öffnet den Bereich als Unterseite.

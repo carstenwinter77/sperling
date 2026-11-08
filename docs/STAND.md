@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.14.2
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.14.3
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,13 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.14.2)
+## Erledigt (Version 0.14.3)
+
+### Neu in 0.14.3
+- [x] Auswertung: Zahlen und Prozente an den Balken (`trichterHtml`, `verlaufHtml`, `fokusHtml` in `src/ui/views/auswertung.ts`, CSS `.aw-n`, `.aw-wert`, `.aw-tr-zahl`). Trichter: Anzahl + Anteil am Start rechts, Zahl je Sparte im Balkenteil (ab 10 % Breite), Quote zur Vorstufe dazwischen, Erklärzeile. Verlauf: Anzahl über jeder Säule. Entwicklung: Prozent je Sparte im Balken (ab 16 %).
+- [x] PDF-Bericht (`berichtPdf`): Trichter mit Schildchen je Sparte, „Anzahl (Anteil %)“, Erklärzeile; Säulen mit Anzahl. Weiter genau eine Seite.
+- [x] Browser-Test prüft Zahl/Prozent am Trichter und Zahlen an den Säulen.
+- [ ] Auf dem iPad hell und dunkel ansehen.
 
 ### Neu in 0.14.2
 - [x] Karten-Hinweis „Tippe lange (oder Rechtsklick) auf ein Haus …“ verschwindet nach der Eingewöhnung: nach drei Markierungen auf der Karte (Potenzial, Kunde anlegen, Haustür-Ergebnis an neuem Haus) oder sofort mit ✕. Gerätevorliebe in `sperling.hilfe` (`kartenMarkiert`, `kartenHinweisWeg`), Logik `kartenHinweisSichtbar()`/`KARTEN_HINWEIS_BIS` in `src/core/hilfe.ts`. Einstellungen → Hilfe → „Ausgeblendete Hinweise wieder zeigen“ holt ihn (und den Installationshinweis) zurück. Unit-Test, Browser-Test.

@@ -47,10 +47,11 @@ function verlaufHtml(verlauf: Kennzahlen['verlauf'], bereich: Bereich, max: numb
     const innen = gestapelt && nennungen
       ? `<span class="aw-stapel" style="height:${hoehe}%">${THEMEN.filter((t) => v.je[t]).map((t) => `<i class="aw-teil aw-${t}" style="flex-grow:${v.je[t]}"></i>`).join('')}</span>`
       : `<span style="height:${hoehe}%"></span>`;
-    return `<div class="aw-saeule" title="${esc(text)}" aria-label="${esc(text)}" role="img">${innen}<em>${esc(v.label)}</em></div>`;
+    const wert = v.wert ? `<b class="aw-wert" style="bottom:${hoehe}%" aria-hidden="true">${v.wert}</b>` : '';
+    return `<div class="aw-saeule" title="${esc(text)}" aria-label="${esc(text)}" role="img">${innen}${wert}<em>${esc(v.label)}</em></div>`;
   }).join('');
   const legende = gestapelt ? `<ul class="aw-legende">${THEMEN.filter((t) => t !== 'ohne' || summe.ohne).map((t) => `<li><i class="aw-teil aw-${t}"></i>${esc(themaLabel(t))} <b>${summe[t]}</b></li>`).join('')}</ul>${THEMEN.some((t) => t !== 'ohne') ? '<p class="hinweis klein">Ein Gespräch über zwei Themen zählt bei beiden; die Säule zeigt die Anzahl der Gespräche.</p>' : ''}` : '';
-  return `<div class="aw-verlauf bereich-${bereich}" style="--n:${verlauf.length}">${saeulen}</div>${legende}`;
+  return `<div class="aw-verlauf bereich-${bereich}${verlauf.length > 16 ? ' dicht' : ''}" style="--n:${verlauf.length}">${saeulen}</div>${legende}`;
 }
 
 const pkt = (d: number | null) => (d === null ? '' : d === 0 ? '±0 Pkt.' : `${d > 0 ? '+' : '−'}${Math.abs(d)} Pkt.`);
@@ -90,7 +91,7 @@ function fokusHtml(f: Fokus): string {
   const reihe = f.reihe.map((r, i) => {
     const text = `${r.label}: ${r.summe ? SPARTEN_KEYS.filter((s) => r.je[s]).map((s) => `${SPARTEN[s].label} ${Math.round((r.je[s] / r.summe) * 100)} %`).join(', ') : 'nichts'}`;
     return `<li${i === f.reihe.length - 1 ? ' class="jetzt"' : ''}><span class="aw-reihe-label">${esc(r.label)}</span>
-      <span class="aw-balken aw-mix" role="img" aria-label="${esc(text)}" title="${esc(text)}">${r.summe ? SPARTEN_KEYS.filter((s) => r.je[s]).map((s) => `<i class="aw-teil aw-${s}" style="flex-grow:${r.je[s]}"></i>`).join('') : ''}</span>
+      <span class="aw-balken aw-mix" role="img" aria-label="${esc(text)}" title="${esc(text)}">${r.summe ? SPARTEN_KEYS.filter((s) => r.je[s]).map((s) => { const a = Math.round((r.je[s] / r.summe) * 100); return `<i class="aw-teil aw-${s}" style="flex-grow:${r.je[s]}">${a >= 16 ? `<span class="aw-n">${a} %</span>` : ''}</i>`; }).join('') : ''}</span>
       <span class="aw-reihe-summe">${r.summe}</span></li>`;
   }).join('');
   return `<section class="aw-unter aw-fokus" id="awFokus">
@@ -120,17 +121,20 @@ function trichterHtml(t: Trichter, bereich: Bereich): string {
   if (!t.stufen[0]!.anzahl) return '<p class="hinweis">In diesem Zeitraum stand kein Kunde im Trichter. Sobald du bei Kunden einen Status setzt, erscheint er hier.</p>';
   const zeilen = t.stufen.map((x, i) => {
     const breite = Math.max(6, Math.round((x.anzahl / max) * 100));
+    const anteil = Math.round((x.anzahl / max) * 100);
+    // Zahl je Sparte direkt im Balkenteil, wenn der Teil breit genug ist (sonst nur im Tooltip)
     const teile = bereich === 'alle'
-      ? SPARTEN_KEYS.filter((s) => x.je[s]).map((s) => `<i class="aw-teil aw-${s}" style="flex-grow:${x.je[s]}"></i>`).join('')
+      ? SPARTEN_KEYS.filter((s) => x.je[s]).map((s) => `<i class="aw-teil aw-${s}" style="flex-grow:${x.je[s]}">${(breite * x.je[s]) / x.anzahl >= 10 ? `<span class="aw-n">${x.je[s]}</span>` : ''}</i>`).join('')
       : `<i class="aw-teil aw-${bereich}" style="flex-grow:1"></i>`;
-    const text = `${STUFEN_LABEL[x.stufe]}: ${x.anzahl}${bereich === 'alle' && x.anzahl ? ` (${SPARTEN_KEYS.filter((s) => x.je[s]).map((s) => `${SPARTEN[s].kurz} ${x.je[s]}`).join(', ')})` : ''}`;
+    const text = `${STUFEN_LABEL[x.stufe]}: ${x.anzahl} (${anteil} % vom Start)${bereich === 'alle' && x.anzahl ? `, ${SPARTEN_KEYS.filter((s) => x.je[s]).map((s) => `${SPARTEN[s].kurz} ${x.je[s]}`).join(', ')}` : ''}`;
     const q = i < t.quoten.length ? t.quoten[i] : undefined;
     const quote = q === undefined ? '' : `<div class="aw-tr-quote${t.schwach === i ? ' schwach' : ''}">${q === null ? '–' : `↓ ${Math.round(q * 100)} % kommen weiter`}${t.schwach === i ? ' · schwächste Stufe' : ''}</div>`;
     return `<li class="aw-tr-stufe" data-stufe="${x.stufe}"><span class="aw-tr-name">${esc(STUFEN_LABEL[x.stufe])}</span>
       <span class="aw-tr-spur"><span class="aw-tr-balken" style="width:${breite}%" role="img" aria-label="${esc(text)}" title="${esc(text)}">${x.anzahl ? teile : ''}</span></span>
-      <b class="aw-tr-zahl">${x.anzahl}</b></li>${quote ? `<li class="aw-tr-zwischen" aria-hidden="${q === null}">${quote}</li>` : ''}`;
+      <span class="aw-tr-zahl"><b>${x.anzahl}</b><small>${anteil} %</small></span></li>${quote ? `<li class="aw-tr-zwischen" aria-hidden="${q === null}">${quote}</li>` : ''}`;
   }).join('');
-  return `<ol class="aw-trichter">${zeilen}</ol>${t.tipp ? `<p class="aw-tipp warn">💡 ${esc(t.tipp)}</p>` : ''}`;
+  const legende = `<p class="hinweis klein aw-tr-legende">Rechts: Kunden auf der Stufe und ihr Anteil an allen im Trichter.${bereich === 'alle' ? ' Im Balken: Kunden je Sparte.' : ''} Dazwischen: wie viele von der Stufe darüber weiterkamen.</p>`;
+  return `<ol class="aw-trichter">${zeilen}</ol>${legende}${t.tipp ? `<p class="aw-tipp warn">💡 ${esc(t.tipp)}</p>` : ''}`;
 }
 
 const SPARTE_PUNKT = (s: Sparte | '') => `<i class="aw-punkt ${s ? `aw-${s}` : 'aw-ohne'}" aria-hidden="true"></i>`;
@@ -320,12 +324,12 @@ export async function berichtPdf(ber: Bericht, fokus: Fokus | null = null): Prom
   const erg = (Object.keys(AUSGANG) as Ausgang[]).filter((a) => ber.jetzt.ergebnisse[a] || ber.vorher.ergebnisse[a]);
   const top = ber.jetzt.topProdukte;
   const unten = 287;
-  const diagramm = ber.jetzt.gespraeche ? 6 + 34 + 6 + (ber.bereich === 'alle' ? 6 : 0) : 0;
+  const diagramm = ber.jetzt.gespraeche ? 9 + 34 + 6 + (ber.bereich === 'alle' ? 6 : 0) : 0;
   const zweiSpalten = Math.max(erg.length, top.length);
   const zeilen = kennzahlZeilen.length + 1 + (zweiSpalten ? zweiSpalten + 1 : 0);
   const mitFokus = !!fokus && fokus.gesamt > 0;
   const fokusHoehe = mitFokus ? 6 + 6 + 5 + (fokus!.tipp ? 10 : 0) + 4 : 0;
-  const trichterHoehe = ber.vt.trichter.stufen[0]!.anzahl ? 6 + 5 * 5.2 + (ber.vt.trichter.tipp ? 13.6 : 0) + 3 : 0;
+  const trichterHoehe = ber.vt.trichter.stufen[0]!.anzahl ? 6 + 5 * 5.2 + (ber.vt.trichter.tipp ? 13.6 : 0) + 4 + 3 : 0;
   const fest = 6 + 22 + trichterHoehe + (zweiSpalten ? 7 + 6 : 0) + diagramm + fokusHoehe;
   const zh = Math.max(3.6, Math.min(6, (unten - y - fest) / Math.max(1, zeilen)));
   const fs = Math.max(7, Math.min(10, zh * 1.7));
@@ -369,19 +373,36 @@ export async function berichtPdf(ber: Bericht, fokus: Fokus | null = null): Prom
   if (trichterHoehe) {
     const t = ber.vt.trichter; const maxT = Math.max(1, t.stufen[0]!.anzahl);
     doc.setFont('helvetica', 'bold'); doc.setFontSize(Math.min(12, fs + 2)); doc.text('Verkaufstrichter', R, y); y += 5;
-    const bx = R + 26; const bw = 100;
+    const bx = R + 26; const bw = 84;
+    // Schildchen mit Zahl im Balkenteil (weiß hinterlegt, damit es auf jeder Spartenfarbe lesbar ist)
+    const schild = (txt: string, mitte: number) => {
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5);
+      const w = doc.getTextWidth(txt) + 1.6;
+      doc.setFillColor(255, 255, 255); doc.roundedRect(mitte - w / 2, y - 2.6, w, 3.2, 0.6, 0.6, 'F');
+      doc.setTextColor(25); doc.text(txt, mitte, y - 0.1, { align: 'center' }); doc.setTextColor(0);
+    };
     t.stufen.forEach((x, i) => {
       doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.text(STUFEN_LABEL[x.stufe], R, y + 0.5);
       const w = Math.max(1.5, (bw * x.anzahl) / maxT); let px = bx + (bw - w) / 2;
       const teile = ber.bereich === 'alle' ? SPARTEN_KEYS.filter((s) => x.je[s]) : [ber.bereich as Sparte];
       const summe = ber.bereich === 'alle' ? x.anzahl : 1;
-      for (const s of teile) { const tw = ber.bereich === 'alle' ? (w * x.je[s]) / Math.max(1, summe) : w; doc.setFillColor(...PDF_FARBE[s]); doc.rect(px, y - 3, tw, 4, 'F'); px += tw; }
-      doc.setFont('helvetica', 'bold'); doc.text(String(x.anzahl), bx + bw + 3, y + 0.5);
+      const marken: [string, number][] = [];
+      for (const s of teile) {
+        const tw = ber.bereich === 'alle' ? (w * x.je[s]) / Math.max(1, summe) : w;
+        doc.setFillColor(...PDF_FARBE[s]); doc.rect(px, y - 3, tw, 4, 'F');
+        if (ber.bereich === 'alle' && tw >= 6) marken.push([String(x.je[s]), px + tw / 2]);
+        px += tw;
+      }
+      marken.forEach(([txt, m]) => schild(txt, m));
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.text(String(x.anzahl), bx + bw + 3, y + 0.5);
+      const nw = doc.getTextWidth(String(x.anzahl));
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(110);
+      doc.text(`(${Math.round((x.anzahl / maxT) * 100)} %)`, bx + bw + 4.5 + nw, y + 0.5); doc.setTextColor(0);
       const q = t.quoten[i];
       if (i < t.quoten.length) {
         doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5);
         if (t.schwach === i) doc.setTextColor(180, 45, 45); else doc.setTextColor(110);
-        doc.text(q === null ? '' : `${Math.round(q * 100)} % weiter${t.schwach === i ? ' (schwächste Stufe)' : ''}`, bx + bw + 14, y + 3);
+        doc.text(q === null ? '' : `${Math.round(q * 100)} % weiter${t.schwach === i ? ' (schwächste Stufe)' : ''}`, bx + bw + 22, y + 3);
         doc.setTextColor(0);
       }
       y += 5.2;
@@ -391,6 +412,9 @@ export async function berichtPdf(ber: Bericht, fokus: Fokus | null = null): Prom
       const z = doc.splitTextToSize(ansi(`Tipp: ${t.tipp}`), B - 2 * R).slice(0, 3);
       doc.text(z, R, y + 1); y += 4.2 * z.length + 1;
     }
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(110);
+    doc.text(`Zahl = Kunden auf der Stufe, (%) = Anteil an allen im Trichter${ber.bereich === 'alle' ? ', im Balken: je Sparte' : ''}, rechts daneben: weiter zur nächsten Stufe.`, R, y + 1);
+    doc.setTextColor(0); y += 4;
     y += 3;
   }
   y = tabelle(['Kennzahl', 'Jetzt', 'Vergleich', 'Veränderung (%)'], kennzahlZeilen, [R, R + 88, R + 110, R + 132], B - R,
@@ -433,7 +457,7 @@ export async function berichtPdf(ber: Bericht, fokus: Fokus | null = null): Prom
   }
   // Verlauf als einfache Säulen
   if (ber.jetzt.gespraeche) {
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(Math.min(12, fs + 2)); doc.text('Gespräche im Verlauf', R, y); y += 4;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(Math.min(12, fs + 2)); doc.text('Gespräche im Verlauf', R, y); y += 7;
     const v = ber.jetzt.verlauf; const max = Math.max(1, ...v.map((x) => x.wert));
     const breite = (B - 2 * R) / v.length; const hoehe = 34;
     doc.setFontSize(6); doc.setFont('helvetica', 'normal');
@@ -451,6 +475,8 @@ export async function berichtPdf(ber: Bericht, fokus: Fokus | null = null): Prom
           unten -= teil;
         }
       } else if (h > 0) { doc.setFillColor(90, 140, 70); doc.rect(R + i * breite + breite * 0.15, y + hoehe - h, breite * 0.7, h, 'F'); }
+      // Anzahl über der Säule
+      if (x.wert) { doc.setFont('helvetica', 'bold'); doc.setFontSize(v.length > 16 ? 5.5 : 6.5); doc.text(String(x.wert), R + i * breite + breite / 2, y + hoehe - h - 1, { align: 'center' }); doc.setFont('helvetica', 'normal'); doc.setFontSize(6); }
       if (v.length <= 14 || i % 2 === 0) doc.text(x.label, R + i * breite + breite / 2, y + hoehe + 4, { align: 'center' });
     });
     y += hoehe + 8;

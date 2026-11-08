@@ -1,5 +1,12 @@
 # Änderungsverlauf
 
+## 0.14.3 – 08.11.2026
+- **Auswertung: Zahlen und Prozente direkt an den Balken.** Verkaufstrichter: rechts an jeder Stufe die Anzahl Kunden und ihr Anteil an allen im Trichter (erste Stufe 100 %); bei „Alles zusammen“ steht im Balken die Zahl je Sparte; zwischen den Stufen wie bisher die Quote zur Vorstufe. Kurze Erklärung unter dem Trichter.
+- **Gespräche im Verlauf:** über jeder Säule die Anzahl (leere Zeiträume ohne Zahl, bei vielen Säulen kleiner).
+- **Fokus je Sparte → Entwicklung:** Anteil je Sparte in Prozent im Balken.
+- **PDF-Bericht:** Trichter mit Zahl je Sparte im Balken, Anzahl und Anteil („74 (100 %)“), Erklärzeile; Säulen im Verlauf mit Anzahl darüber.
+- Lesbarkeit: Zahlen im Balken stehen auf einem hellen Schildchen, damit sie auf Gelb, Blau, Grün und den Mustern hell wie dunkel gut lesbar sind.
+
 ## 0.14.2 – 08.11.2026
 - **Karten-Hinweis verschwindet nach der Eingewöhnung.** „Tippe lange (oder Rechtsklick) auf ein Haus, um es zu markieren.“ steht nur noch, bis drei Häuser auf der Karte markiert wurden (Potenzial, Kunde anlegen oder Haustür-Ergebnis). Ein ✕ am Hinweis blendet ihn sofort aus. Unter Einstellungen → Hilfe holt „Ausgeblendete Hinweise wieder zeigen“ ihn zurück, ebenso den Installationshinweis der Übersicht. Gemerkt wird das nur auf dem Gerät (`sperling.hilfe`, keine Kundendaten).
 
