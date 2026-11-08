@@ -47,6 +47,8 @@ export const THEMEN = {
       '„Nachbarn“ zeigt Kunden in der Nähe; den Umkreis wählst du direkt daneben.',
       'Unter „Verlauf“ steht die ganze Gesprächshistorie als Zeitstrahl.',
       'Unter „Texte“ kopierst du die Zusammenfassung für Enpal oder Vorwerk, immer getrennt.',
+      '„Angebot & Auftrag“: Angebote mit Betrag und „gültig bis“ erfassen; auf Wunsch legt Sperling Nachfass-Wiedervorlagen nach 3 und 7 Tagen an. „Angenommen“ setzt den Abschluss und startet den Auftragsstand (Vertrag, Planung, Montage, Netzanmeldung, Inbetriebnahme). Ist der letzte Schritt abgehakt, schlägt Sperling Pflege-Wiedervorlagen vor.',
+      '„Ansprechpartner“ in der Übersicht: bei Firmen, Höfen oder Familien mehrere Personen mit Rolle (entscheidet, Technik, Buchhaltung) und eigener Telefonnummer.',
     ],
   },
   gespraechsmodus: {
@@ -67,7 +69,9 @@ export const THEMEN = {
       'Oben eine Adresse suchen, dann „Als Potenzial markieren“ oder „Kunde anlegen“.',
       'Lange auf ein Haus tippen (am Laptop Rechtsklick) markiert genau diese Stelle.',
       '„Filter“ zeigt nur bestimmte Bereiche, Status oder lange nicht kontaktierte Kunden.',
-      'Namen gehen nie an den Kartendienst, nur die gesuchte Adresse.',
+      'An der Haustür: In der Infobox eines Hauses mit einem Tipp festhalten, wie es lief (nicht angetroffen, später, Gespräch, kein Interesse, keine Werbung). Bei einem neuen Haus legt das gleich eine Markierung an. „Keine Werbung“ zeigt ein ⛔ am Pin, Sperling schlägt die Adresse nicht mehr vor.',
+      '„🚗 Tagesroute“ zeigt die Termine eines Tages nummeriert in zeitlicher Reihenfolge mit Linie dazwischen. Darunter „Unterwegs vorbeischauen“: Kunden nahe der Strecke mit offenem Angebot, fälliger Wiedervorlage, Interesse oder Potenzial, ideal für Lücken oder ausgefallene Termine.',
+      'Namen gehen nie an den Kartendienst, nur die gesuchte Adresse. „Ganze Route in Google Maps“ übergibt nur Koordinaten.',
     ],
   },
   termine: {
@@ -75,7 +79,9 @@ export const THEMEN = {
     kurz: 'Termine, Wiedervorlagen und Leihgaben als Liste, Monat, Woche oder Tag; „Geräte“ zeigt die Belegung der Vorführgeräte.',
     schritte: [
       'Im Monat einen Tag antippen öffnet die Tagesansicht dieses Tages; dort legst du Termine an. In Woche und Tag eine Uhrzeit antippen ergibt eine Stunde; Finger halten und ziehen wählt eine andere Dauer.',
-      'Einen Termin kurz antippen öffnet die Termin-Karte: Kunde, Adresse, Notiz, letzte Gespräche und die Knöpfe Route, Anrufen, E-Mail, Erledigt, In Kalender-App, Bearbeiten und Löschen (mit Sicherheitsabfrage).',
+      'Einen Termin kurz antippen öffnet die Termin-Karte: Kunde, Adresse, Notiz, letzte Gespräche und die Knöpfe Route, Anrufen, E-Mail, Termin bestätigen, Erledigt, In Kalender-App, Bearbeiten und Löschen (mit Sicherheitsabfrage).',
+      '„Termin bestätigen“ bereitet eine SMS, WhatsApp-Nachricht oder E-Mail an den Kunden vor, mit Datum, Uhrzeit und was er bereitlegen soll (z. B. Stromrechnung, Foto vom Zählerschrank). Verschickt wird von deinem Gerät.',
+      'In der Tagesansicht öffnet „Route des Tages“ die Karte mit allen Terminen des Tages.',
       'Finger auf einem Termin halten zeigt Griffe: in der Mitte verschieben (in der Woche auch auf einen anderen Tag), oben oder unten länger und kürzer ziehen, im 15-Minuten-Raster. Mit der Maus einfach ziehen. Tipp daneben wählt ab.',
       'Im Monat einen Termin halten und auf einen anderen Tag ziehen; die Uhrzeit bleibt.',
       'Leihgaben (↗ geht raus, ↙ kommt zurück, 📌 Reservierung, ⚠ überfällig) stehen mit im Kalender; der Schalter „Leihgaben zeigen“ blendet sie aus. Antippen zeigt Gerät, Kunde und Leihschein.',

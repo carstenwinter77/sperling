@@ -2,6 +2,7 @@
 import { emptyData, type Daten, type Geraet } from './core/model.ts';
 import type { Rec } from './core/util.ts';
 import { gebietsKunden, demoStatusVerlauf } from './demo-gebiet.ts';
+import { vertriebBeispiele } from './demo-vertrieb.ts';
 
 function tageAb(tage: number, stunde = 10, minute = 0): string {
   const d = new Date();
@@ -120,6 +121,8 @@ export function demoDaten(): Rec {
   gebietsKunden(d, tageAb);
   // Statusverlauf mit Datum (Verkaufstrichter, Abschlüsse je Zeitraum) und Anlagedatum je Kunde
   demoStatusVerlauf(d);
+  // Angebote, Auftragsstand, Ansprechpartner, Haustür, Tag für die Tagesroute
+  vertriebBeispiele(d, tageAb);
   return d;
 }
 

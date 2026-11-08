@@ -45,7 +45,7 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/badge.ts ...... Zahl am App-Symbol
  ├─ src/ui/update.ts ..... Update-Hinweis, „Was ist neu“ (Texte in src/neuigkeiten.ts)
  ├─ src/ui/kalender.ts ... Monats-/Wochen-/Tagesansicht, Termin per Fingertipp, Griffe zum Verschieben/Ziehen, Leihgaben
- ├─ src/ui/terminkarte.ts  Termin-Karte (Route, Anrufen, E-Mail, Erledigt, Bearbeiten, Löschen)
+ ├─ src/ui/terminkarte.ts  Termin-Karte (Route, Anrufen, E-Mail, Termin bestätigen, Erledigt, Bearbeiten, Löschen)
  ├─ src/ui/kundenansicht.ts  Vollbild zum Herzeigen, Beenden mit Passwort/Face ID
  ├─ src/ui/belege.ts ..... Fotos (verkleinert) und Unterschriftsfeld
  ├─ src/ui/leihschein.ts . Leihschein/Rückgabeschein als PDF (jsPDF aus vendor/)
@@ -75,6 +75,9 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/abgleich.ts  Leiste beim Start, Datei holen, in iCloud sichern, Ersteinrichtung aus Sicherung
  ├─ src/core/schnellwahl.ts  Wiedervorlage-Schnellwahl: Zieldatum je Schritt (rein)
  ├─ src/ui/schnellwahl.ts  Knopfreihe unter datetime-Feldern, ein Klick-Handler am document
+ ├─ src/core/vertrieb.ts  Angebote (Frist, Summe, Nachfassen), Auftragsstand und Pflege, Ansprechpartner, Haustür, Terminbestätigung, Tagesroute (rein)
+ ├─ src/ui/vertrieb.ts  Reiter „Angebot & Auftrag“, Ansprechpartner und Haustür in der Kundenübersicht, Dialog „Termin bestätigen“
+ ├─ src/demo-vertrieb.ts  Beispiel-Angebote, Aufträge, Ansprechpartner, Haustür und ein Tag für die Tagesroute
  ├─ src/core/abhaken.ts  Abhaken mit Notiz und Folge-Wiedervorlage (rein)
  ├─ src/ui/abhaken.ts  Fenster „Wie ging's aus?“ für Haken und Termin-Karte
  ├─ src/core/naechstes.ts  „Als Nächstes“ auf der Übersicht: Auswahl und Zeittext (rein)

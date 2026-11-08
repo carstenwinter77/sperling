@@ -7,8 +7,9 @@ import { normalizeFeldEinstellungen, normalizeEigeneWerte } from './felder.ts';
 import { normalizeProduktMarkierung, type ProduktMarkierung } from './produkte.ts';
 import { normalizeBausteine } from './bausteine.ts';
 import { normalizeFotoListe } from './fotos.ts';
+import { normalizeAngebot, normalizeAuftrag, normalizeAnsprechpartner, normalizeHaustuer, ANGEBOTE_MAX, ANSPRECHPARTNER_MAX, HAUSTUER_MAX, type HaustuerEintrag } from './vertrieb.ts';
 
-export const SCHEMA_VERSION = 8;
+export const SCHEMA_VERSION = 9;
 
 /** Die drei Geschäftszweige, jeder mit eigenem Anbieter und eigenem Textgenerator (R-TEXT). */
 export const SPARTEN = {
@@ -464,7 +465,7 @@ export function geraetBelegung(data: Daten, geraetId: string, von: string, bis: 
 /** Papierkorb-Eintrag: gelöschtes Objekt mit Typ, wiederherstellbar. */
 export function normalizePapierkorb(e: unknown) {
   const src: Rec = e && typeof e === 'object' ? e : {};
-  const typ = (['kunde', 'notiz', 'termin', 'geraet', 'enpalKontakt'].includes(src.typ) ? src.typ : null) as 'kunde' | 'notiz' | 'termin' | 'geraet' | 'enpalKontakt' | null;
+  const typ = (['kunde', 'notiz', 'termin', 'geraet', 'enpalKontakt', 'ansprechpartner'].includes(src.typ) ? src.typ : null) as 'kunde' | 'notiz' | 'termin' | 'geraet' | 'enpalKontakt' | 'ansprechpartner' | null;
   if (!typ || !src.objekt || typeof src.objekt !== 'object') return null;
   return {
     id: typeof src.id === 'string' && src.id ? src.id : uid(),
@@ -600,6 +601,14 @@ export function normalizeKunde(k: unknown) {
     /** Statuswechsel je Sparte mit Datum (ab Schema 8), älteste zuerst; Grundlage für den Verkaufstrichter */
     statusVerlauf: (Array.isArray(src.statusVerlauf) ? src.statusVerlauf.map(normalizeStatusWechsel).filter((x): x is StatusWechsel => !!x) : [])
       .sort((a, b) => (a.zeitpunkt < b.zeitpunkt ? -1 : a.zeitpunkt > b.zeitpunkt ? 1 : 0)).slice(-STATUS_VERLAUF_MAX),
+    /** Angebote je Sparte mit Betrag und Frist (ab Schema 9), src/core/vertrieb.ts */
+    angebote: (Array.isArray(src.angebote) ? src.angebote.map(normalizeAngebot) : []).slice(-ANGEBOTE_MAX),
+    /** Auftragsstand nach dem Abschluss je Sparte (ab Schema 9); nur begonnene Sparten */
+    auftrag: normalizeAuftrag(src.auftrag),
+    /** Weitere Ansprechpartner mit Rolle, vor allem bei Firmen und Höfen (ab Schema 9) */
+    ansprechpartner: (Array.isArray(src.ansprechpartner) ? src.ansprechpartner.map(normalizeAnsprechpartner) : []).slice(0, ANSPRECHPARTNER_MAX),
+    /** Ergebnisse an der Haustür (ab Schema 9), jüngstes gilt */
+    haustuer: (Array.isArray(src.haustuer) ? src.haustuer.map(normalizeHaustuer).filter((x): x is HaustuerEintrag => !!x) : []).slice(-HAUSTUER_MAX),
   };
 }
 
@@ -704,7 +713,8 @@ export function migrate(input: unknown): Daten {
   // v6 → v7: Texte je Bereich (PV, WP, Vorwerk): vorlagen/empfaenger.enpal → pv und wp (normalizeEinstellungen).
   // v7 → v8: kunde.statusVerlauf. Vorhandene Status werden als geschätzter Wechsel zum Anlagedatum nachgetragen
   // (später abweichende Status zum letzten Änderungsdatum), damit Trichter und Abschlüsse sofort etwas zeigen.
-  // Künftige Migrationen hier schrittweise: if (v < 9) { ... }
+  // v8 → v9: kunde.angebote, kunde.auftrag, kunde.ansprechpartner, kunde.haustuer (Vertriebswerkzeuge), alles leer ergänzt.
+  // Künftige Migrationen hier schrittweise: if (v < 10) { ... }
   const kunden = Array.isArray(data.kunden) ? data.kunden.map(normalizeKunde) : [];
   for (const k of kunden) statusVerlaufAbgleichen(k, v < 8 || !k.statusVerlauf.length ? k.createdAt : k.updatedAt, true);
   // Doppelte IDs verhindern (z. B. nach manuellem Zusammenführen)

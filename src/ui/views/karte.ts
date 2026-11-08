@@ -9,7 +9,9 @@ import { statusChips } from '../parts.ts';
 import { passt, pinStatus, leererKartenFilter, filterAktiv, type KartenFilter } from '../../core/kartenfilter.ts';
 import { letzterKontakt, tageSeit, seitText } from '../../core/verlauf.ts';
 import { filterPanelHtml, filterPanelZeigen, filterPanelVerdrahten } from '../filterpanel.ts';
-import { hinfahrenKnopf } from '../navi.ts';
+import { hinfahrenKnopf, naviLink } from '../navi.ts';
+import { HAUSTUER, letzteHaustuer, werbeverbot, tagesStopps, streckeKm, unterwegs, googleRoute, ortsTag, euro, angebotsSumme, haustuerStatus, neuerHaustuerEintrag, type HaustuerErgebnis } from '../../core/vertrieb.ts';
+import { haustuerKnoepfe, haustuerSpeichern } from '../vertrieb.ts';
 
 const LAYER = {
   satellit: {
@@ -24,9 +26,9 @@ const LAYER = {
 // Straßennamen als Overlay über dem Satellitenbild
 const LABELS = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}';
 
-function pinIcon(L, farbe) {
+function pinIcon(L, farbe, extra = '') {
   return L.divIcon({
-    className: 'pin',
+    className: `pin${extra ? ` ${extra}` : ''}`,
     html: `<span style="--c:${farbe}"></span>`,
     iconSize: [26, 26],
     iconAnchor: [13, 26],
@@ -59,8 +61,16 @@ export function render(el: HTMLElement, params: URLSearchParams) {
           <button data-layer="satellit">Satellit</button><button data-layer="strasse">Karte</button>
         </div>
         <button type="button" class="btn klein" id="fKnopf" aria-expanded="false" aria-controls="fPanel">Filter <span id="fAnzahl"></span></button>
+        <button type="button" class="btn klein" id="rKnopf" aria-expanded="false" aria-controls="rPanel">🚗 Tagesroute</button>
         <button class="btn klein" id="ich" title="Mein Standort">◎</button>
       </div>
+      <section class="route-panel" id="rPanel" hidden aria-label="Tagesroute">
+        <div class="route-kopf">
+          <label>Tag <input type="date" id="rTag"></label>
+          <label>Unterwegs im Umkreis <select id="rRadius"><option value="500">500 m</option><option value="1500" selected>1,5 km</option><option value="3000">3 km</option><option value="6000">6 km</option></select></label>
+        </div>
+        <div id="rInhalt"></div>
+      </section>
       ${filterPanelHtml('fPanel', store.getData().einstellungen.felder)}
       <div id="map" class="map"></div>
       <div class="karte-hinweis" id="kHinweis">${maskottchen('karte', 'mini')} Tippe lange (oder Rechtsklick) auf ein Haus, um es zu markieren.</div>
@@ -117,8 +127,12 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       if (!passt(k, filter, tageSeit(letzterKontakt(daten, k)), daten.einstellungen.felder)) continue;
       sichtbar++;
       const st = pinStatus(k, filter);
-      const m = L.marker([k.lat, k.lng], { icon: pinIcon(L, STATUS[st].farbe), title: kundenTitel(k) });
-      m.bindPopup(() => `<div class="popup"><strong>${esc(kundenTitel(k))}</strong><br><small>${esc(adresseEinzeilig(k))}</small><br>${statusChips(k)}<br><small>Letzter Kontakt: ${esc(seitText(tageSeit(letzterKontakt(store.getData(), k))))}</small><br><a class="btn klein primary" href="#/kunde/${esc(k.id)}">Öffnen</a>${hinfahrenKnopf(k, 'btn klein')}${['potenzial', 'unbekannt'].includes(hauptStatus(k)) ? ` <button type="button" class="btn klein ghost" data-pin-loeschen="${esc(k.id)}" aria-label="Markierung löschen" title="Markierung löschen">🗑</button>` : ''}</div>`);
+      const m = L.marker([k.lat, k.lng], { icon: pinIcon(L, STATUS[st].farbe, werbeverbot(k) ? 'werbeverbot' : ''), title: `${kundenTitel(k)}${werbeverbot(k) ? ' (keine Werbung)' : ''}` });
+      m.bindPopup(() => {
+        const akt = store.findKunde(k.id) || k;
+        const tuer = letzteHaustuer(akt);
+        return `<div class="popup"><strong>${esc(kundenTitel(akt))}</strong><br><small>${esc(adresseEinzeilig(akt))}</small><br>${statusChips(akt)}<br><small>Letzter Kontakt: ${esc(seitText(tageSeit(letzterKontakt(store.getData(), akt))))}</small>${tuer ? `<small>Haustür: ${HAUSTUER[tuer.ergebnis].symbol} ${esc(HAUSTUER[tuer.ergebnis].label)} (${esc(seitText(tageSeit(tuer.zeitpunkt)))})</small>` : ''}<br><a class="btn klein primary" href="#/kunde/${esc(akt.id)}">Öffnen</a>${hinfahrenKnopf(akt, 'btn klein')}${['potenzial', 'unbekannt'].includes(hauptStatus(akt)) ? ` <button type="button" class="btn klein ghost" data-pin-loeschen="${esc(akt.id)}" aria-label="Markierung löschen" title="Markierung löschen">🗑</button>` : ''}<small class="popup-tuer">An der Haustür:</small>${haustuerKnoepfe(akt.id, 'btn klein ghost')}</div>`;
+      });
       pins.addLayer(m);
     }
     const aktiv = filterAktiv(filter);
@@ -129,6 +143,15 @@ export function render(el: HTMLElement, params: URLSearchParams) {
   zeichnen();
   // Potenzial-Markierung direkt aus der Infobox löschen (mit Sicherheitsabfrage, landet im Papierkorb)
   map.on('popupopen', (e) => {
+    // Haustür-Ergebnis mit einem Tipp (bestehende Markierung)
+    (e.popup.getElement() as HTMLElement | undefined)?.querySelector('.haustuer-knoepfe')?.addEventListener('click', (ev) => {
+      const b = (ev.target as Element).closest<HTMLElement>('[data-haustuer]');
+      if (!b || !b.dataset.kunde) return;
+      haustuerSpeichern(b.dataset.kunde, b.dataset.haustuer as HaustuerErgebnis);
+      map.closePopup();
+      zeichnen();
+      if (routeAn) routeZeigen();
+    });
     const knopf = (e.popup.getElement() as HTMLElement | undefined)?.querySelector('[data-pin-loeschen]') as HTMLElement | null;
     knopf?.addEventListener('click', async () => {
       const id = knopf.dataset.pinLoeschen || '';
@@ -228,13 +251,26 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     if (!isValidCoord(lat, lng)) return;
     const html = `<div class="popup" id="neuPopup"><strong>Neuer Standort</strong><br><small id="adrVorschlag">Adresse wird gesucht …</small><br>
       <button class="btn klein primary" data-neu="potenzial">Als Potenzial markieren</button>
-      <button class="btn klein" data-neu="kunde">Kunde anlegen</button></div>`;
+      <button class="btn klein" data-neu="kunde">Kunde anlegen</button>
+      <small class="popup-tuer">An der Haustür (legt eine Markierung an):</small>${haustuerKnoepfe('', 'btn klein ghost')}</div>`;
     const popup = L.popup().setLatLng(e.latlng).setContent(html).openOn(map);
     let adresse = { strasse: '', plz: '', ort: '' };
     adresseZuKoordinate(lat, lng)
       .then((a) => { if (a) adresse = a; const s = popup.getElement()?.querySelector('#adrVorschlag'); if (s) s.textContent = a ? [a.strasse, [a.plz, a.ort].filter(Boolean).join(' ')].filter(Boolean).join(', ') || 'Keine Adresse gefunden' : 'Keine Adresse gefunden'; })
       .catch((err) => { const s = popup.getElement()?.querySelector('#adrVorschlag'); if (s) s.textContent = err.message; });
     popup.getElement()?.addEventListener('click', (ev) => {
+      const tuer = (ev.target as Element).closest<HTMLElement>('[data-haustuer]');
+      if (tuer) {
+        const ergebnis = tuer.dataset.haustuer as HaustuerErgebnis;
+        const k = neuerKunde({ lat, lng, ...adresse, status: { pv: 'potenzial', wp: 'unbekannt', vorwerk: 'unbekannt' } });
+        k.haustuer.push(neuerHaustuerEintrag(ergebnis));
+        k.status = haustuerStatus(k.status, ergebnis);
+        store.mutate((d) => { d.kunden.push(k); });
+        map.closePopup();
+        zeichnen();
+        toast(`Markiert: ${HAUSTUER[ergebnis].label}`, 'ok');
+        return;
+      }
       const b = (ev.target as Element).closest('[data-neu]');
       if (!b) return;
       const status = b.dataset.neu === 'potenzial' ? { pv: 'potenzial', wp: 'unbekannt', vorwerk: 'unbekannt' } : undefined;
@@ -307,6 +343,65 @@ export function render(el: HTMLElement, params: URLSearchParams) {
   suche.querySelector('input').addEventListener('input', (e) => { if (!(e.target as HTMLInputElement).value) listeZu(); });
   map.on('click', listeZu);
 
+  // ---------- Tagesroute ----------
+  // Termine eines Tages in zeitlicher Reihenfolge, Linie dazwischen, dazu lohnende Kunden entlang der Strecke.
+  const routeEbene = L.layerGroup().addTo(map);
+  let routeAn = false;
+  const rPanel = el.querySelector<HTMLElement>('#rPanel');
+  const rTag = el.querySelector<HTMLInputElement>('#rTag');
+  const rRadius = el.querySelector<HTMLSelectElement>('#rRadius');
+  rTag.value = /^\d{4}-\d{2}-\d{2}$/.test(params.get('route') || '') ? params.get('route')! : ortsTag(new Date());
+  const uhr = (iso: string) => new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  const routeZeigen = () => {
+    routeEbene.clearLayers();
+    const d = store.getData();
+    const stopps = tagesStopps(d, rTag.value);
+    const mitOrt = stopps.filter((x) => x.lat !== null && x.lng !== null);
+    const vorschlaege = unterwegs(d, stopps, Number(rRadius.value) || 1500);
+    if (mitOrt.length > 1) L.polyline(mitOrt.map((x) => [x.lat, x.lng]), { color: '#2a7de1', weight: 4, opacity: 0.85, dashArray: '8 6', interactive: false }).addTo(routeEbene);
+    for (const x of mitOrt) {
+      L.marker([x.lat, x.lng], { icon: L.divIcon({ className: 'route-nr', html: `<span>${x.nr}</span>`, iconSize: [28, 28], iconAnchor: [14, 40] }), interactive: false, zIndexOffset: 1000 }).addTo(routeEbene);
+    }
+    for (const v of vorschlaege) L.circleMarker([v.kunde.lat, v.kunde.lng], { radius: 17, color: '#e8892c', weight: 3, fillOpacity: 0, interactive: false }).addTo(routeEbene);
+    const km = streckeKm(stopps);
+    const google = googleRoute(stopps);
+    const offen = vorschlaege.filter((v) => v.grund === 'Angebot offen');
+    el.querySelector('#rInhalt').innerHTML = stopps.length ? `
+      <p class="route-summe"><b>${stopps.length}</b> Termin${stopps.length === 1 ? '' : 'e'}${mitOrt.length > 1 ? ` · etwa ${km.toLocaleString('de-DE')} km Luftlinie` : ''}${stopps.length > mitOrt.length ? ` · ${stopps.length - mitOrt.length} ohne Standort` : ''}</p>
+      <ol class="route-liste">${stopps.map((x) => {
+        const link = x.kunde ? naviLink(x.kunde) : (x.termin.ort ? naviLink({ ort: x.termin.ort }) : '');
+        return `<li><span class="route-nr-klein">${x.nr}</span><span class="zeile-haupt"><b>${esc(uhr(x.termin.beginn))}</b> ${esc(x.termin.titel || 'Termin')}<small>${x.kunde ? `<a href="#/kunde/${esc(x.kunde.id)}">${esc(kundenTitel(x.kunde))}</a> · ` : ''}${esc(x.termin.ort || (x.kunde ? adresseEinzeilig(x.kunde) : ''))}${x.lat === null ? ' · <span class="tag warn">ohne Standort</span>' : ''}</small></span>${link ? `<a class="btn klein ghost" href="${esc(link)}" target="_blank" rel="noopener noreferrer" aria-label="Hinfahren">🚗</a>` : ''}</li>`;
+      }).join('')}</ol>
+      ${google ? `<p><a class="btn klein" href="${esc(google)}" target="_blank" rel="noopener noreferrer">Ganze Route in Google Maps</a> <small class="hinweis">übergibt nur die Koordinaten</small></p>` : ''}
+      <h3>Unterwegs vorbeischauen <small>(${vorschlaege.length})</small></h3>
+      ${vorschlaege.length ? `${offen.length ? `<p class="hinweis">${offen.length} offene${offen.length === 1 ? 's Angebot' : ' Angebote'} an der Strecke über ${esc(euro(angebotsSumme(offen.flatMap((v) => v.kunde.angebote.filter((a) => a.status === 'offen')))))}.</p>` : ''}
+        <ul class="route-liste">${vorschlaege.map((v) => `<li><span class="zeile-haupt"><a href="#/kunde/${esc(v.kunde.id)}"><b>${esc(kundenTitel(v.kunde))}</b></a><small>${esc(v.grund)} · ${v.abstandM >= 1000 ? `${(v.abstandM / 1000).toLocaleString('de-DE', { maximumFractionDigits: 1 })} km` : `${v.abstandM} m`} von der Strecke</small></span><button type="button" class="btn klein ghost" data-zeige="${esc(v.kunde.id)}" aria-label="Auf der Karte zeigen">📍</button></li>`).join('')}</ul>`
+        : '<p class="hinweis">Keine offenen Angebote, fälligen Wiedervorlagen oder Interessenten in der Nähe der Strecke. Größeren Umkreis wählen?</p>'}`
+      : `<p class="hinweis">Am ${esc(rTag.value.split('-').reverse().join('.'))} sind keine Termine eingetragen. Wiedervorlagen zählen nicht, nur Termine vor Ort.</p>`;
+    map.invalidateSize();
+    if (mitOrt.length) { nutzerHatBewegt = true; map.fitBounds(L.latLngBounds(mitOrt.map((x) => [x.lat, x.lng])).pad(0.3), { maxZoom: 15, animate: false }); }
+  };
+  const routeSchalten = (an: boolean) => {
+    routeAn = an;
+    rPanel.hidden = !an;
+    el.querySelector('#rKnopf').classList.toggle('primary', an);
+    el.querySelector('#rKnopf').setAttribute('aria-expanded', String(an));
+    el.querySelector('.karte-seite')?.classList.toggle('route-offen', an);
+    map.invalidateSize();
+    if (an) routeZeigen(); else routeEbene.clearLayers();
+  };
+  el.querySelector('#rKnopf').addEventListener('click', () => routeSchalten(!routeAn));
+  rTag.addEventListener('change', () => { if (rTag.value) routeZeigen(); });
+  rRadius.addEventListener('change', routeZeigen);
+  el.querySelector('#rInhalt').addEventListener('click', (ev) => {
+    const b = (ev.target as Element).closest<HTMLElement>('[data-zeige]');
+    const k = b ? store.findKunde(b.dataset.zeige || '') : null;
+    if (!k || k.lat === null) return;
+    map.setView([k.lat, k.lng], 18);
+    pins.eachLayer((m) => { const ll = m.getLatLng(); if (ll.lat === k.lat && ll.lng === k.lng) m.openPopup(); });
+  });
+  if (params.has('route')) routeSchalten(true);
+
   // Kartenposition merken (ohne Speichervorgang auszulösen)
   map.on('moveend', () => {
     if (entfernt || store.isDemo() || !store.isUnlocked()) return; // beim Sperren läuft ggf. noch eine Kamerafahrt aus
@@ -316,7 +411,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
 
   const fokus = params.get('kunde');
   // Beim Öffnen: zum aktuellen Standort, außer ein Kunde soll gezeigt werden (oder Demo).
-  if (!fokus && !store.isDemo()) zuMirZoomen({ still: true, zoom: 17 });
+  if (!fokus && !store.isDemo() && !routeAn) zuMirZoomen({ still: true, zoom: 17 });
   if (fokus) {
     const k = store.findKunde(fokus);
     if (k && k.lat !== null) {
