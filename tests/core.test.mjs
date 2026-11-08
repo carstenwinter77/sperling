@@ -433,7 +433,10 @@ test('Auswertungen: Zeiträume, Navigation, Kennzahlen je Bereich, Vergleich', a
   assert.equal(a.kennzahlen(emptyData(), 'alle', '2026-10-08', '2026-11-07', 'm1').verlauf.length, 31);
   assert.ok(a.kennzahlen(emptyData(), 'alle', '2026-08-08', '2026-11-07', 'm3').verlauf.every((v) => v.label.startsWith('KW')));
   assert.equal(a.kennzahlen(emptyData(), 'alle', '2026-05-08', '2026-11-07', 'm6').verlauf.length, 7);
-  assert.equal(a.PERIODEN_REIHE.length, 8);
+  assert.equal(a.PERIODEN_REIHE.length, 9);
+  assert.deepEqual([a.zeitraum("quartal", "2026-11-08").von, a.zeitraum("quartal", "2026-11-08").bis], ["2026-10-01", "2026-12-31"]);
+  assert.equal(a.verschieben("quartal", "2026-11-08", -1), "2026-08-08");
+  assert.equal(a.periodenLabel("quartal", a.zeitraum("quartal", "2026-02-01")), "Q1 26");
   assert.equal(a.verschieben('monat', '2026-03-31', -1), '2026-02-28');
   assert.equal(a.verschieben('jahr', '2028-02-29', 1), '2029-02-28');
   assert.equal(a.verschieben('woche', '2026-11-08', 1), '2026-11-15');
@@ -1500,4 +1503,103 @@ test('Als Nächstes: laufender Termin vor fälliger Wiedervorlage, sonst ältest
   assert.equal(zeitText(n, jetzt), 'in 25 Min. (10:25 Uhr)');
   assert.equal(alsNaechstes([neuerTermin({ art: 'termin', beginn: iso(10, 0, 8) })], jetzt), null, 'morgen ist nicht „als Nächstes“');
   assert.equal(alsNaechstes([], jetzt), null);
+});
+
+test('Statusverlauf (Schema 8): Migration schätzt, Änderungen werden mit Datum festgehalten', async () => {
+  const { statusVerlaufAbgleichen, letzterVerlaufStatus, SCHEMA_VERSION } = await import('../src/core/model.ts');
+  assert.equal(SCHEMA_VERSION, 8);
+  // Alte Daten (Schema 7): vorhandener Status wird als geschätzter Wechsel zum Anlagedatum nachgetragen
+  const alt = migrate({ schemaVersion: 7, kunden: [{ id: 'k1', nachname: 'A', createdAt: '2026-10-01T08:00:00.000Z', status: { pv: 'angebot' } }] });
+  const k = alt.kunden[0];
+  assert.deepEqual(k.statusVerlauf, [{ zeitpunkt: '2026-10-01T08:00:00.000Z', sparte: 'pv', von: 'unbekannt', nach: 'angebot', geschaetzt: true }]);
+  // erneutes Laden ergänzt nichts (idempotent)
+  assert.equal(migrate(JSON.parse(JSON.stringify(alt))).kunden[0].statusVerlauf.length, 1);
+  // Wechsel festhalten, unveränderter Status ergänzt nichts
+  k.status.pv = 'abschluss'; k.status.vorwerk = 'interesse';
+  assert.equal(statusVerlaufAbgleichen(k, '2026-11-05T10:00:00.000Z'), true);
+  assert.equal(statusVerlaufAbgleichen(k, '2026-11-06T10:00:00.000Z'), false);
+  assert.deepEqual(k.statusVerlauf.slice(1).map((w) => `${w.sparte}:${w.von}>${w.nach}`), ['pv:angebot>abschluss', 'vorwerk:unbekannt>interesse']);
+  assert.equal(letzterVerlaufStatus(k.statusVerlauf, 'pv'), 'abschluss');
+  // Ungültige Einträge fallen weg, Reihenfolge wird sortiert
+  const n = normalizeKunde({ status: { wp: 'termin' }, statusVerlauf: [
+    { zeitpunkt: '2026-11-02T10:00:00.000Z', sparte: 'wp', von: 'interesse', nach: 'termin' },
+    { zeitpunkt: 'kaputt', sparte: 'wp', nach: 'termin' }, { zeitpunkt: '2026-11-01T10:00:00.000Z', sparte: 'xx', nach: 'termin' },
+    { zeitpunkt: '2026-11-01T10:00:00.000Z', sparte: 'wp', von: 'unbekannt', nach: 'interesse' }] });
+  assert.deepEqual(n.statusVerlauf.map((w) => w.nach), ['interesse', 'termin']);
+});
+
+test('Vertriebssicht: Abschlüsse, Abschlussquote, Trichter, fairer Vergleich, Nachfassliste', async () => {
+  const a = await import('../src/core/auswertung.ts');
+  const { normalizeTermin, neuerLeihvorgang, normalizeKunde: nk } = await import('../src/core/model.ts');
+  const t = (s, h = 10) => new Date(`${s}T${String(h).padStart(2, '0')}:00`).toISOString();
+  const w = (tag, sparte, von, nach) => ({ zeitpunkt: t(tag), sparte, von, nach });
+  const data = emptyData();
+  data.kunden = [
+    // PV: im Oktober Interesse, im November Termin → Angebot → Abschluss
+    nk({ id: 'k1', nachname: 'A', status: { pv: 'abschluss' }, statusVerlauf: [w('2026-10-05', 'pv', 'unbekannt', 'interesse'), w('2026-11-02', 'pv', 'interesse', 'termin'), w('2026-11-03', 'pv', 'termin', 'angebot'), w('2026-11-06', 'pv', 'angebot', 'abschluss')] }),
+    // PV: Termin, dann im November abgesagt → verlorene Chance
+    nk({ id: 'k2', nachname: 'B', status: { pv: 'kein_interesse' }, statusVerlauf: [w('2026-10-10', 'pv', 'unbekannt', 'termin'), w('2026-11-04', 'pv', 'termin', 'kein_interesse')] }),
+    // WP: Angebot seit September, nichts passiert → Nachfassliste
+    nk({ id: 'k3', nachname: 'C', status: { wp: 'angebot' }, statusVerlauf: [w('2026-09-01', 'wp', 'unbekannt', 'angebot')] }),
+    // Vorwerk: schon im Oktober abgeschlossen → nicht mehr im November-Trichter
+    nk({ id: 'k4', nachname: 'D', status: { vorwerk: 'abschluss' }, statusVerlauf: [w('2026-10-02', 'vorwerk', 'unbekannt', 'abschluss')] }),
+    // nur Potenzial
+    nk({ id: 'k5', nachname: 'E', status: { pv: 'potenzial' }, statusVerlauf: [w('2026-10-20', 'pv', 'unbekannt', 'potenzial')] }),
+  ];
+  const v = a.vertrieb(data, 'alle', '2026-11-01', '2026-11-30');
+  assert.equal(v.abschluesse, 1);
+  assert.equal(v.verloren, 1);
+  assert.equal(v.quote, 0.5);
+  assert.equal(v.offen, 1, 'nur k3 (Angebot) ist am Monatsende offen');
+  assert.deepEqual(v.trichter.stufen.map((x) => x.anzahl), [4, 3, 3, 2, 1]);
+  assert.equal(v.trichter.stufen[3].je.wp, 1);
+  // Status an einem Stichtag
+  assert.equal(a.statusAm(data.kunden[0], 'pv', '2026-11-02'), 'termin');
+  assert.equal(a.statusVor(data.kunden[0], 'pv', '2026-11-02'), 'interesse');
+  assert.equal(a.statusVor(data.kunden[0], 'pv', '2026-10-01'), 'unbekannt');
+  // Bereich PV
+  const pv = a.vertrieb(data, 'pv', '2026-11-01', '2026-11-30');
+  assert.deepEqual(pv.trichter.stufen.map((x) => x.anzahl), [3, 2, 2, 1, 1]);
+  assert.equal(pv.trichter.schwach, 0, 'Potenzial → Interesse am schwächsten (2 von 3)');
+  assert.match(pv.trichter.tipp, /zwischen Potenzial und Interesse \(67 % kommen weiter\)/);
+  // Fairer Vergleich im laufenden Monat: 1.–8. November gegen 1.–8. Oktober
+  const ber = a.bericht(data, 'alle', 'monat', '2026-11-08', '2026-11-08');
+  assert.equal(ber.laufend, true);
+  assert.equal(ber.vbis, '2026-10-08');
+  assert.match(ber.vergleich, /^1\.10\.–8\.10\.2026 \(gleich viele Tage\)$/);
+  assert.equal(ber.vtVorher.abschluesse, 1, 'k4 am 2.10.');
+  assert.equal(ber.jetzt.verlauf.length, 30, 'Säulen über den ganzen Monat');
+  const okt = a.bericht(data, 'alle', 'monat', '2026-10-15', '2026-11-08');
+  assert.equal(okt.laufend, false);
+  assert.equal(okt.vbis, '2026-09-30');
+  // Nachfassliste
+  data.termine = [
+    normalizeTermin({ kundeId: 'k5', sparte: 'pv', art: 'wiedervorlage', titel: 'nochmal klingeln', beginn: t('2026-11-03') }),
+    normalizeTermin({ kundeId: 'k5', sparte: 'pv', art: 'wiedervorlage', titel: 'erledigt', beginn: t('2026-11-02'), erledigt: true }),
+  ];
+  data.geraete = [{ id: 'g', name: 'Kobold VK7' }];
+  data.leihvorgaenge = [neuerLeihvorgang({ geraetId: 'g', kundeId: 'k4', ausgabe: t('2026-11-01'), rueckgabeGeplant: t('2026-11-06') })];
+  const nf = a.nachfassListe(data, 'alle', '2026-11-08');
+  assert.deepEqual(nf.ueberfaellig.map((e) => [e.kundeId, e.wann]), [['k5', 'seit 5 Tagen']]);
+  assert.deepEqual(nf.angebot.map((e) => e.kundeId), ['k3']);
+  assert.match(nf.angebot[0].text, /^Wärmepumpe · Angebot vom 1\.9\.$/);
+  assert.deepEqual(nf.test.map((e) => [e.kundeId, e.wann, e.dringend]), [['k4', 'seit 2 Tagen', true]]);
+  assert.equal(a.nachfassListe(data, 'pv', '2026-11-08').test.length, 0, 'Testgeräte nur bei Vorwerk');
+  // Ein kommender Termin nimmt das Angebot von der Liste
+  data.termine.push(normalizeTermin({ kundeId: 'k3', sparte: 'wp', art: 'termin', beginn: t('2026-11-12') }));
+  assert.equal(a.nachfassListe(data, 'alle', '2026-11-08').angebot.length, 0);
+  // Leere Daten stürzen nicht ab
+  const leer = a.vertrieb(emptyData(), 'alle', '2026-11-01', '2026-11-30');
+  assert.equal(leer.quote, null); assert.equal(leer.trichter.schwach, null);
+});
+
+test('Demo: Statusverlauf passt zum Status, Kunden haben ein Anlagedatum', async () => {
+  const { demoDaten } = await import('../src/demo.ts');
+  const { letzterVerlaufStatus, SPARTEN_KEYS } = await import('../src/core/model.ts');
+  const d = migrate(demoDaten());
+  for (const k of d.kunden) {
+    for (const s of SPARTEN_KEYS) assert.equal(letzterVerlaufStatus(k.statusVerlauf, s), k.status[s], `${k.id} ${s}`);
+    assert.ok(k.statusVerlauf.every((w) => !w.geschaetzt), 'Demo ohne geschätzte Einträge');
+    assert.ok(k.createdAt <= (k.statusVerlauf[0]?.zeitpunkt ?? k.createdAt));
+  }
 });

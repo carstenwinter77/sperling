@@ -1,5 +1,13 @@
 # Änderungsverlauf
 
+## 0.11.0 – 08.11.2026
+- **Auswertungen nach Vertriebssicht neu geordnet** (`src/ui/views/auswertung.ts`): oben vier Kernzahlen (Abschlüsse, Abschlussquote, offene Chancen, Gespräche), darunter **Verkaufstrichter** (Potenzial → Interesse → Termin → Angebot → Abschluss mit Quote je Übergang, schwächste Stufe markiert, Tipp), **Jetzt nachfassen** (überfällige Termine/Wiedervorlagen, Angebote ohne Kontakt seit 7 Tagen ohne kommenden Termin, Testgeräte mit fälliger Rückgabe; Tippen öffnet den Kunden) und bei „Alles zusammen“ **Sparten im Vergleich** als Tabelle. Die bisherigen Inhalte (weitere Kennzahlen, Gespräche im Verlauf, Fokus je Sparte, Ergebnisse, meistgefragte Produkte) stehen eingeklappt unter „Aktivität im Detail“.
+- **Fairer Vergleich:** Läuft der Zeitraum noch (Woche, Monat, Quartal, Jahr), zählt er bis heute und wird mit gleich vielen Tagen des Vorzeitraums verglichen (z. B. 1.–8. November gegen 1.–8. Oktober statt gegen den ganzen Oktober).
+- **Zeiträume:** Woche, Monat, Quartal (neu), Kalenderjahr direkt; Tag, 1 Monat, 3 Monate, ½ Jahr und 365 Tage unter „Mehr“. Datumsfeld entfällt, „Heute“ erscheint nur beim Blättern.
+- **Statusverlauf (Schema 8):** Jede Statusänderung je Sparte wird mit Datum gespeichert (`kunde.statusVerlauf`), egal wo der Status geändert wird (zentral in `store.mutate`). Vorhandene Status werden bei der Umstellung als geschätzter Wechsel zum Anlagedatum nachgetragen. Abschlüsse und Abschlussquote zählen jetzt Statuswechsel („Abschluss“ bzw. offene Chance → „Kein Interesse“), nicht mehr Gesprächsergebnisse.
+- **PDF-Bericht:** Kernzahlen als Kästen und Verkaufstrichter mit Tipp; weiterhin eine Seite, ohne Kundennamen (die Nachfassliste steht nicht im PDF).
+- **Demo:** Beispielkunden haben einen Statusverlauf über mehrere Monate, ein Anlagedatum und Gespräche zu jedem Schritt; dazu mehr Absagen, damit Trichter, Abschlussquote und Vergleich realistisch aussehen.
+
 ## 0.10.35 – 08.11.2026
 - **Karte: Standort-Knopf gibt immer Rückmeldung.** Auf dem iPad 6 passierte im WLAN beim Tippen auf ◎ gar nichts. Jetzt erscheint sofort „Standort wird gesucht …“ und der Knopf pulsiert. Antwortet Safari nach 30 Sekunden nicht, zeigt Sperling, wo die Standort-Einstellungen auf dem iPad stehen. Grobe und genaue Ortung laufen nacheinander statt gleichzeitig, weil zwei parallele Anfragen auf älterem iPad-Safari teils ohne Antwort bleiben.
 

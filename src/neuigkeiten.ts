@@ -2,6 +2,15 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.11.0',
+    punkte: [
+      'Auswertungen neu: oben die vier wichtigsten Zahlen (Abschlüsse, Abschlussquote, offene Chancen, Gespräche), darunter der Verkaufstrichter mit Tipp, wo die meisten Kunden hängen bleiben.',
+      '„Jetzt nachfassen“ zeigt überfällige Wiedervorlagen, Angebote ohne Antwort und Testgeräte, die zurück müssen. Ein Tipp öffnet den Kunden.',
+      'Fairer Vergleich: Der laufende Monat wird mit gleich vielen Tagen des Vormonats verglichen. Neu ist der Zeitraum „Quartal“.',
+      'Sperling merkt sich jetzt bei jeder Statusänderung das Datum. Daraus entstehen Trichter und Abschlüsse.',
+    ],
+  },
+  {
     version: '0.10.35',
     punkte: [
       'Karte: Der Standort-Knopf zeigt jetzt, dass er sucht, und sagt nach 30 Sekunden Bescheid, falls das iPad nicht antwortet.',

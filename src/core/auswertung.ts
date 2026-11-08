@@ -1,20 +1,23 @@
 // Sperling – Auswertungen (rein, ohne DOM, in Node testbar).
 // Berichte je Bereich (PV, WP, Vorwerk) oder für alles zusammen, als Tag, Woche, Monat, Kalenderjahr
 // oder letzte 365 Tage bis zum gewählten Tag. Jeder Bericht kennt den Vorzeitraum zum Vergleich.
-import { AUSGANG, SPARTEN, SPARTEN_KEYS, type Daten, type Sparte } from './model.ts';
+import { AUSGANG, SPARTEN, SPARTEN_KEYS, STATUS, type Daten, type Kunde, type Sparte, type StatusKey } from './model.ts';
+import { letzterKontakt, tageSeit } from './verlauf.ts';
 import { MARKIERUNG_KEYS, type Markierung } from './produkte.ts';
 import { tagVon, tagDatum, plusTage, wochenanfang, kalenderwoche, type Tag } from './belegung.ts';
 
 export type Bereich = 'alle' | Sparte;
-export type Periode = 'tag' | 'woche' | 'monat' | 'm1' | 'm3' | 'm6' | 'jahr' | '365';
+export type Periode = 'tag' | 'woche' | 'monat' | 'quartal' | 'm1' | 'm3' | 'm6' | 'jahr' | '365';
 export type Ausgang = keyof typeof AUSGANG;
 
 export const BEREICHE: Record<Bereich, string> = { alle: 'Alles zusammen', pv: 'Photovoltaik', wp: 'Wärmepumpe', vorwerk: 'Vorwerk' };
-export const PERIODEN: Record<Periode, string> = { tag: 'Tag', woche: 'Woche', monat: 'Monat', m1: 'Letzter Monat', m3: 'Letzte 3 Monate', m6: 'Letztes halbes Jahr', jahr: 'Kalenderjahr', '365': 'Letzte 365 Tage' };
+export const PERIODEN: Record<Periode, string> = { tag: 'Tag', woche: 'Woche', monat: 'Monat', quartal: 'Quartal', m1: 'Letzter Monat', m3: 'Letzte 3 Monate', m6: 'Letztes halbes Jahr', jahr: 'Kalenderjahr', '365': 'Letzte 365 Tage' };
 /** Gleitende Zeiträume in Monaten, die am Stichtag enden. */
 const GLEITEND: Partial<Record<Periode, number>> = { m1: 1, m3: 3, m6: 6 };
 /** Feste Reihenfolge (Object.keys sortiert '365' als Zahl nach vorn). */
-export const PERIODEN_REIHE: Periode[] = ['tag', 'woche', 'monat', 'm1', 'm3', 'm6', 'jahr', '365'];
+export const PERIODEN_REIHE: Periode[] = ['tag', 'woche', 'monat', 'quartal', 'm1', 'm3', 'm6', 'jahr', '365'];
+/** Hauptauswahl in der Ansicht; der Rest steht unter „Mehr“. */
+export const PERIODEN_HAUPT: Periode[] = ['woche', 'monat', 'quartal', 'jahr'];
 
 const MONATE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
 const kurzDatum = (t: Tag) => tagDatum(t).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -35,6 +38,12 @@ export function zeitraum(periode: Periode, anker: Tag): Zeitraum {
       const von = tagVon(new Date(d.getFullYear(), d.getMonth(), 1));
       const bis = tagVon(new Date(d.getFullYear(), d.getMonth() + 1, 0));
       return { von, bis, titel: `${MONATE[d.getMonth()]} ${d.getFullYear()}` };
+    }
+    case 'quartal': {
+      const q = Math.floor(d.getMonth() / 3);
+      const von = tagVon(new Date(d.getFullYear(), q * 3, 1));
+      const bis = tagVon(new Date(d.getFullYear(), q * 3 + 3, 0));
+      return { von, bis, titel: `${q + 1}. Quartal ${d.getFullYear()} · ${kurzDatum(von)} – ${kurzDatum(bis)}` };
     }
     case 'jahr':
       return { von: `${d.getFullYear()}-01-01`, bis: `${d.getFullYear()}-12-31`, titel: `Kalenderjahr ${d.getFullYear()}` };
@@ -60,7 +69,7 @@ function monateVerschieben(anker: Tag, monate: number): Tag {
 }
 
 export function verschieben(periode: Periode, anker: Tag, n: number): Tag {
-  if (periode === 'monat' || periode === 'jahr') return monateVerschieben(anker, periode === 'monat' ? n : 12 * n);
+  if (periode === 'monat' || periode === 'jahr' || periode === 'quartal') return monateVerschieben(anker, periode === 'monat' ? n : periode === 'quartal' ? 3 * n : 12 * n);
   if (GLEITEND[periode]) return monateVerschieben(anker, n * GLEITEND[periode]!);
   return plusTage(anker, n * (periode === 'tag' ? 1 : periode === 'woche' ? 7 : 365));
 }
@@ -186,7 +195,7 @@ function verlaufAbschnitte(periode: Periode, von: Tag, bis: Tag) {
     for (let h = 7; h <= 20; h++) {
       out.push({ label: `${h}`, wert: 0, je: leerJe(), passt: (iso) => { const s = new Date(iso).getHours(); return h === 7 ? s <= 7 : h === 20 ? s >= 20 : s === h; } });
     }
-  } else if (periode === 'm3') {
+  } else if (periode === 'm3' || periode === 'quartal') {
     // Wochenbalken (KW), erste/letzte Woche angeschnitten
     for (let t = wochenanfang(von); t <= bis; t = plusTage(t, 7)) {
       const start = t; const ende = plusTage(t, 6);
@@ -237,11 +246,29 @@ export const veraenderungText = (v: Veraenderung | null) => (!v ? '–' : v.proz
 
 export const prozent = (q: number | null) => (q === null ? '–' : `${Math.round(q * 100)} %`);
 
-/** Vollständiger Bericht inkl. Vorzeitraum. */
-export function bericht(data: Daten, bereich: Bereich, periode: Periode, anker: Tag = tagVon(new Date())) {
+/** Zeiträume, die gerade laufen können und dann fair verglichen werden (gleich viele Tage). */
+const KALENDER: Periode[] = ['woche', 'monat', 'quartal', 'jahr'];
+const tageZwischen = (a: Tag, b: Tag) => Math.round((tagDatum(b).getTime() - tagDatum(a).getTime()) / 86400000);
+const tagMonat = (t: Tag) => tagDatum(t).toLocaleDateString('de-DE', { day: 'numeric', month: 'numeric' });
+
+/**
+ * Vollständiger Bericht inkl. Vorzeitraum. Läuft der Zeitraum noch (Woche, Monat, Quartal, Jahr mit `heute` darin),
+ * zählen nur die Tage bis heute, und der Vorzeitraum wird auf gleich viele Tage gekürzt („1.–8. Okt.“ statt ganzer Oktober).
+ */
+export function bericht(data: Daten, bereich: Bereich, periode: Periode, anker: Tag = tagVon(new Date()), heute: Tag = tagVon(new Date())) {
   const z = zeitraum(periode, anker);
   const vz = vorzeitraum(periode, anker);
-  return { bereich, periode, anker, zeitraum: z, vorzeitraum: vz, jetzt: kennzahlen(data, bereich, z.von, z.bis, periode), vorher: kennzahlen(data, bereich, vz.von, vz.bis, periode) };
+  const laufend = KALENDER.includes(periode) && z.von <= heute && heute < z.bis;
+  const bis = laufend ? heute : z.bis;
+  const vbis = laufend ? (() => { const x = plusTage(vz.von, tageZwischen(z.von, heute)); return x < vz.bis ? x : vz.bis; })() : vz.bis;
+  const vergleich = laufend ? `${tagMonat(vz.von)}–${tagMonat(vbis)}${tagDatum(vbis).getFullYear()} (gleich viele Tage)` : vz.titel;
+  const jetzt = kennzahlen(data, bereich, z.von, bis, periode);
+  if (laufend) jetzt.verlauf = kennzahlen(data, bereich, z.von, z.bis, periode).verlauf; // Achse über den ganzen Zeitraum
+  return {
+    bereich, periode, anker, zeitraum: z, vorzeitraum: vz, laufend, bis, vbis, vergleich,
+    jetzt, vorher: kennzahlen(data, bereich, vz.von, vbis, periode),
+    vt: vertrieb(data, bereich, z.von, bis), vtVorher: vertrieb(data, bereich, vz.von, vbis),
+  };
 }
 export type Bericht = ReturnType<typeof bericht>;
 
@@ -299,6 +326,7 @@ export function periodenLabel(periode: Periode, z: Zeitraum): string {
     case 'tag': return d.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
     case 'woche': return `KW ${kalenderwoche(z.von)}`;
     case 'monat': case 'm1': return MON_KURZ(z.bis);
+    case 'quartal': return `Q${Math.floor(tagDatum(z.von).getMonth() / 3) + 1} ${String(d.getFullYear()).slice(2)}`;
     case 'm3': case 'm6': return `${MONATE[tagDatum(z.von).getMonth()]!.slice(0, 3)}–${MON_KURZ(z.bis)}`;
     case 'jahr': return String(d.getFullYear());
     case '365': return `bis ${d.toLocaleDateString('de-DE', { month: '2-digit', year: '2-digit' })}`;
@@ -376,3 +404,152 @@ export function fokusBericht(data: Daten, periode: Periode, anker: Tag, heute: T
   }
   return { gesamt, sparten, schwerpunkt: top.sparte, urteil, reihe, tipp };
 }
+
+// ---------- Vertriebssicht: Statusverlauf, Abschlüsse, Verkaufstrichter, Nachfassliste ----------
+
+/** Stufen des Verkaufstrichters in Reihenfolge. */
+export const STUFEN = ['potenzial', 'interesse', 'termin', 'angebot', 'abschluss'] as const;
+export type Stufe = (typeof STUFEN)[number];
+export const STUFEN_LABEL: Record<Stufe, string> = { potenzial: 'Potenzial', interesse: 'Interesse', termin: 'Termin', angebot: 'Angebot', abschluss: 'Abschluss' };
+const RANG: Partial<Record<StatusKey, number>> = { potenzial: 0, interesse: 1, termin: 2, angebot: 3, abschluss: 4 };
+const CHANCE: StatusKey[] = ['interesse', 'termin', 'angebot'];
+const sparten = (bereich: Bereich): Sparte[] => (bereich === 'alle' ? [...SPARTEN_KEYS] : [bereich]);
+
+/** Status einer Sparte vor Beginn des Tages `tag` (laut Statusverlauf). Ohne Verlauf: aktueller Status. */
+export function statusVor(k: Kunde, s: Sparte, tag: Tag): StatusKey {
+  let erster: StatusKey | null = null;
+  let letzter: StatusKey | null = null;
+  for (const w of k.statusVerlauf) {
+    if (w.sparte !== s) continue;
+    if (erster === null) erster = w.von;
+    if (tagVon(w.zeitpunkt) < tag) letzter = w.nach; else break;
+  }
+  return letzter ?? erster ?? k.status[s];
+}
+/** Status am Ende des Tages `tag`. */
+export const statusAm = (k: Kunde, s: Sparte, tag: Tag) => statusVor(k, s, plusTage(tag, 1));
+
+export interface Trichter {
+  /** je Stufe: Kunden (je Sparte gezählt), die im Zeitraum mindestens bis hierher kamen */
+  stufen: { stufe: Stufe; anzahl: number; je: Record<Sparte, number> }[];
+  /** Anteil, der von Stufe i zu Stufe i+1 kam (0..1); null ohne Basis */
+  quoten: (number | null)[];
+  /** Index der schwächsten Übergangs (i → i+1), nur bei genug Fällen */
+  schwach: number | null;
+  /** Kunden, die gerade (Ende des Zeitraums) auf der Stufe vor dem schwächsten Übergang stehen, je Sparte */
+  wartend: Record<Sparte, number>;
+  tipp: string | null;
+}
+
+export interface Vertrieb {
+  /** Wechsel auf „Abschluss / Kunde“ im Zeitraum */
+  abschluesse: number;
+  /** offene Chancen (Interesse, Termin, Angebot), die im Zeitraum zu „Kein Interesse“ wurden */
+  verloren: number;
+  /** Abschlüsse / (Abschlüsse + verlorene Chancen); null, wenn nichts entschieden wurde */
+  quote: number | null;
+  /** offene Chancen am Ende des Zeitraums */
+  offen: number;
+  /** davon je Stufe */
+  offenJe: Record<'interesse' | 'termin' | 'angebot', number>;
+  trichter: Trichter;
+}
+
+const MIN_BASIS = 3;
+const TIPPS = [
+  'Beim Erstkontakt mehr fragen und zuhören, bevor du Produkte zeigst.',
+  'Bei Interesse gleich einen festen Termin vorschlagen, solange das Thema frisch ist.',
+  'Im Termin fragen, ob eine Berechnung oder ein Angebot gewünscht ist.',
+  'Offene Angebote nach ein paar Tagen freundlich nachfassen und offene Fragen klären.',
+];
+
+/** Abschlüsse, Abschlussquote, offene Chancen und Verkaufstrichter für Bereich und Zeitraum (aus dem Statusverlauf). */
+export function vertrieb(data: Daten, bereich: Bereich, von: Tag, bis: Tag): Vertrieb {
+  const sp = sparten(bereich);
+  const leerJeS = () => Object.fromEntries(SPARTEN_KEYS.map((x) => [x, 0])) as Record<Sparte, number>;
+  const stufen = STUFEN.map((stufe) => ({ stufe, anzahl: 0, je: leerJeS() }));
+  const v: Vertrieb = { abschluesse: 0, verloren: 0, quote: null, offen: 0, offenJe: { interesse: 0, termin: 0, angebot: 0 }, trichter: { stufen, quoten: [], schwach: null, wartend: leerJeS(), tipp: null } };
+  const amEnde: { s: Sparte; st: StatusKey }[] = [];
+  for (const k of data.kunden) {
+    for (const s of sp) {
+      const ende = statusAm(k, s, bis);
+      amEnde.push({ s, st: ende });
+      if (CHANCE.includes(ende)) { v.offen++; v.offenJe[ende as 'interesse']++; }
+      const start = statusVor(k, s, von);
+      const bewegt = k.statusVerlauf.filter((w) => w.sparte === s && tagVon(w.zeitpunkt) >= von && tagVon(w.zeitpunkt) <= bis);
+      const zu = start === 'abschluss' || start === 'kein_interesse';
+      // Schon vorher abgeschlossen oder abgesagt und im Zeitraum nicht bewegt: nicht mehr im Trichter
+      if (zu && !bewegt.length) continue;
+      let max = zu ? -1 : RANG[start] ?? -1;
+      for (const w of bewegt) {
+        if (w.nach === 'abschluss' && w.von !== 'abschluss') v.abschluesse++;
+        if (w.nach === 'kein_interesse' && CHANCE.includes(w.von)) v.verloren++;
+        max = Math.max(max, RANG[w.nach] ?? -1, w.von === 'abschluss' ? -1 : RANG[w.von] ?? -1);
+      }
+      for (let r = 0; r <= max; r++) { stufen[r]!.anzahl++; stufen[r]!.je[s]++; }
+    }
+  }
+  v.quote = v.abschluesse + v.verloren ? v.abschluesse / (v.abschluesse + v.verloren) : null;
+  const tr = v.trichter;
+  tr.quoten = stufen.slice(0, -1).map((x, i) => (x.anzahl ? stufen[i + 1]!.anzahl / x.anzahl : null));
+  let schwach: number | null = null;
+  tr.quoten.forEach((q, i) => { if (q !== null && stufen[i]!.anzahl >= MIN_BASIS && (schwach === null || q < tr.quoten[schwach]!)) schwach = i; });
+  tr.schwach = schwach;
+  if (schwach !== null) {
+    const i: number = schwach;
+    for (const x of amEnde) if (x.st === STUFEN[i]) tr.wartend[x.s]++;
+    const q = Math.round(tr.quoten[i]! * 100);
+    const n = SPARTEN_KEYS.reduce((a, s) => a + tr.wartend[s], 0);
+    const meist = [...SPARTEN_KEYS].sort((a, b) => tr.wartend[b] - tr.wartend[a])[0]!;
+    const wer = n ? ` ${n} Kunde${n === 1 ? ' steht' : 'n stehen'} gerade bei „${STUFEN_LABEL[STUFEN[i]!]}“${bereich === 'alle' && sp.length > 1 && tr.wartend[meist] ? `, die meisten bei ${SPARTEN[meist].label}` : ''}.` : '';
+    tr.tipp = `Die meisten verlierst du zwischen ${STUFEN_LABEL[STUFEN[i]!]} und ${STUFEN_LABEL[STUFEN[i + 1]!]} (${q} % kommen weiter). ${TIPPS[i]}${wer}`;
+  }
+  return v;
+}
+
+export type NachfassArt = 'ueberfaellig' | 'angebot' | 'test';
+export interface NachfassEintrag { art: NachfassArt; kundeId: string; sparte: Sparte | ''; text: string; wann: string; tage: number; dringend: boolean }
+export const NACHFASS_GRUPPEN: Record<NachfassArt, string> = { ueberfaellig: 'Überfällig', angebot: 'Angebot ohne Antwort', test: 'Gerät im Test – Kaufentscheidung fällig' };
+/** Angebote ohne Kontakt seit so vielen Tagen erscheinen in der Nachfassliste. */
+export const ANGEBOT_STILL_TAGE = 7;
+
+/** Wen sollte Jan jetzt kontaktieren? Nur auf dem Gerät, nie im PDF (enthält Kundenbezüge). */
+export function nachfassListe(data: Daten, bereich: Bereich, heute: Tag = tagVon(new Date())): Record<NachfassArt, NachfassEintrag[]> {
+  const sp = sparten(bereich);
+  const out: Record<NachfassArt, NachfassEintrag[]> = { ueberfaellig: [], angebot: [], test: [] };
+  const plural = (n: number, e: string, m: string) => `${n} ${n === 1 ? e : m}`;
+  for (const t of data.termine) {
+    if (t.erledigt || tagVon(t.beginn) >= heute) continue;
+    if (bereich !== 'alle' && t.sparte !== bereich) continue;
+    const tage = tageZwischen(tagVon(t.beginn), heute);
+    out.ueberfaellig.push({ art: 'ueberfaellig', kundeId: t.kundeId, sparte: t.sparte, text: `${t.art === 'termin' ? 'Termin' : 'Wiedervorlage'}: ${t.titel || 'ohne Titel'}`, wann: `seit ${plural(tage, 'Tag', 'Tagen')}`, tage, dringend: true });
+  }
+  const jetztIso = tagDatum(plusTage(heute, 1)).toISOString();
+  for (const k of data.kunden) {
+    for (const s of sp) {
+      if (k.status[s] !== 'angebot') continue;
+      const kommt = data.termine.some((t) => t.kundeId === k.id && !t.erledigt && tagVon(t.beginn) >= heute && (!t.sparte || t.sparte === s));
+      if (kommt) continue;
+      const w = [...k.statusVerlauf].reverse().find((x) => x.sparte === s && x.nach === 'angebot');
+      // Das Angebot selbst war ein Kontakt: „still“ zählt ab dem jüngeren von letztem Kontakt und Angebotsdatum
+      const lk = [letzterKontakt(data, k, jetztIso), w && !w.geschaetzt ? w.zeitpunkt : null].filter((x): x is string => !!x).sort().at(-1) ?? null;
+      const tage = tageSeit(lk, tagDatum(heute));
+      if (tage !== null && tage < ANGEBOT_STILL_TAGE) continue;
+      out.angebot.push({ art: 'angebot', kundeId: k.id, sparte: s, text: `${SPARTEN[s].label}${w ? ` · Angebot vom ${tagMonat(tagVon(w.zeitpunkt))}` : ''}`, wann: tage === null ? 'noch kein Kontakt' : `${plural(tage, 'Tag', 'Tage')} still`, tage: tage ?? 999, dringend: false });
+    }
+  }
+  if (sp.includes('vorwerk')) {
+    for (const l of data.leihvorgaenge) {
+      if (l.rueckgabe || !l.rueckgabeGeplant || l.kaufinteresse === 'gekauft') continue;
+      const tage = tageZwischen(tagVon(l.rueckgabeGeplant), heute); // > 0: überfällig
+      if (tage < -2) continue;
+      const geraet = data.geraete.find((g) => g.id === l.geraetId)?.name || 'Gerät';
+      out.test.push({ art: 'test', kundeId: l.kundeId, sparte: 'vorwerk', text: `${geraet} · ${tage > 0 ? 'Rückgabe überfällig' : 'Rückgabe steht an'}`, wann: tage > 0 ? `seit ${plural(tage, 'Tag', 'Tagen')}` : tage === 0 ? 'heute' : tage === -1 ? 'morgen' : 'übermorgen', tage, dringend: tage > 0 });
+    }
+  }
+  for (const a of Object.keys(out) as NachfassArt[]) out[a].sort((x, y) => y.tage - x.tage);
+  return out;
+}
+
+/** Status-Label für Texte. */
+export const statusLabel = (s: StatusKey) => STATUS[s].label;

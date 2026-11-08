@@ -6,7 +6,7 @@
 //           - Speicherfehler gehen nie verloren: dirty bleibt true, nächster Versuch folgt.
 
 import { KeyRing, validateEnvelope } from '../core/crypto.ts';
-import { emptyData, migrate, type Daten, type Kunde } from '../core/model.ts';
+import { emptyData, migrate, statusVerlaufAbgleichen, type Daten, type Kunde } from '../core/model.ts';
 import { istEinstellungsPaket } from '../core/einstellungsdatei.ts';
 import { uid, nowIso, clone, type Rec } from '../core/util.ts';
 import * as db from './db.ts';
@@ -162,6 +162,9 @@ export function mutate(fn: (d: Daten) => void): void {
     data = backup; // Zustand zurückrollen
     throw e;
   }
+  // Jeden Statuswechsel mit Datum festhalten (Verkaufstrichter), egal an welcher Stelle der Status geändert wurde
+  const jetzt = nowIso();
+  for (const k of d.kunden) statusVerlaufAbgleichen(k, jetzt);
   if (!demo) {
     dirty = true;
     scheduleSave();

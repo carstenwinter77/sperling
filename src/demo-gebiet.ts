@@ -89,7 +89,7 @@ const PRODUKT_NAMEN: Record<string, [string, 'pv' | 'wp' | 'vorwerk']> = {
 };
 
 type Profil = 'pvNeu' | 'pvAbschluss' | 'pvAngebot' | 'wpOel' | 'wpGas' | 'wpAbschluss' | 'vwKunde' | 'vwTest' | 'vwInteresse' | 'kombi' | 'adresse' | 'kein' | 'gewerbe';
-const PROFILE: Profil[] = ['pvNeu', 'pvAbschluss', 'pvAngebot', 'wpOel', 'wpGas', 'wpAbschluss', 'vwKunde', 'vwTest', 'vwInteresse', 'kombi', 'adresse', 'kein', 'gewerbe'];
+const PROFILE: Profil[] = ['pvNeu', 'pvAbschluss', 'pvAngebot', 'wpOel', 'kein', 'wpGas', 'wpAbschluss', 'vwKunde', 'vwTest', 'vwInteresse', 'kombi', 'adresse', 'kein', 'gewerbe'];
 
 /**
  * Hängt die Gebiets-Beispielkunden an (Kunden, Termine, Leihvorgänge). `tageAb(tage, std, min)` liefert ISO-Zeiten
@@ -122,7 +122,7 @@ export function gebietsKunden(d: Rec, tageAb: (t: number, h?: number, m?: number
       for (let v = 0; benutzt.has(`${vor} ${nach}`) && v < 20; v++) { vor = z.wahl(VORNAMEN); nach = z.wahl(NACHNAMEN); }
       benutzt.add(`${vor} ${nach}`);
       const id = `demo-${nr}`;
-      const vor0 = z.zahl(3, 60); // erster Kontakt vor … Tagen
+      const vor0 = z.ja(0.45) ? z.zahl(3, 35) : z.zahl(36, 150); // erster Kontakt vor … Tagen (knapp die Hälfte im letzten Monat)
       const k: Rec = {
         id, vorname: vor, nachname: nach,
         strasse: `${z.wahl(STRASSEN)} ${z.zahl(1, 48)}${z.ja(0.15) ? 'a' : ''}`, plz: o.plz, ort: o.ort,
@@ -292,4 +292,64 @@ export function gebietsKunden(d: Rec, tageAb: (t: number, h?: number, m?: number
   d.kunden.push(...kunden);
   d.termine.push(...termine);
   return kunden.length;
+}
+
+// ---------- Statusverlauf der Beispielkunden (ab Schema 8) ----------
+// Aus den Aktivitäten je Sparte wird ein glaubwürdiger Weg durch den Verkaufstrichter erzeugt:
+// erster Kontakt = Potenzial, dann Schritt für Schritt bis zum heutigen Status, verteilt bis zur letzten Aktivität.
+// So zeigen Trichter, Abschlüsse und Vergleichszeiträume in der Demo sinnvolle Zahlen.
+const WEG = ['potenzial', 'interesse', 'termin', 'angebot', 'abschluss'];
+const AUSGANG_ZU: Record<string, string> = { interesse: 'wiedervorlage', termin: 'termin', angebot: 'angebot', abschluss: 'abschluss', kein_interesse: 'kein' };
+const SCHRITT_ZU: Record<string, string> = { interesse: 'Nochmal melden', termin: 'Termin vor Ort', angebot: 'Angebot besprechen', abschluss: '', kein_interesse: '' };
+
+export function demoStatusVerlauf(d: Rec): void {
+  const z = zufall(31224);
+  const jetzt = Date.now();
+  const iso = (ms: number) => new Date(Math.min(ms, jetzt - 60000)).toISOString();
+  for (const k of d.kunden as Rec[]) {
+    if (Array.isArray(k.statusVerlauf)) continue; // von Hand vorgegeben
+    const status: Rec = k.status || {};
+    const daten: Record<string, number[]> = { pv: [], wp: [], vorwerk: [] };
+    const dazu = (sp: unknown, zeit: unknown) => {
+      const t = typeof zeit === 'string' ? Date.parse(zeit) : NaN;
+      if (!Number.isFinite(t) || t > jetzt) return;
+      for (const s of Array.isArray(sp) ? sp : [sp]) if (typeof s === 'string' && daten[s]) daten[s].push(t);
+    };
+    for (const n of k.notizen || []) dazu(n.sparten, n.zeitpunkt);
+    for (const g of k.gespraeche || []) dazu(g.sparte, g.zeitpunkt);
+    for (const c of k.enpalKontakte || []) dazu(c.themen, c.zeitpunkt);
+    for (const m of k.produkte || []) if (Date.parse(m.zeitpunkt) > jetzt - 200 * 86400000) dazu(m.bereich, m.zeitpunkt);
+    for (const t of d.termine as Rec[]) if (t.kundeId === k.id) dazu(t.sparte, t.beginn);
+    const alle = Object.values(daten).flat();
+    const erster = alle.length ? Math.min(...alle) : jetzt - z.zahl(5, 90) * 86400000;
+    const verlauf: Rec[] = [];
+    for (const s of ['pv', 'wp', 'vorwerk']) {
+      const ziel = status[s];
+      if (!ziel || ziel === 'unbekannt') continue;
+      const ds = daten[s]!.sort((a, b) => a - b);
+      const start = (ds[0] ?? erster) - z.zahl(0, 3) * 86400000 - z.zahl(1, 5) * 3600000;
+      const ende = Math.min(jetzt - 3600000, Math.max(start + 3600000, ds.at(-1) ?? start + z.zahl(1, 20) * 86400000));
+      let vorige = 0;
+      let weg: string[];
+      if (ziel === 'kein_interesse') { const bis = z.wahl([0, 1, 1, 2, 2, 3]); weg = [...WEG.slice(0, bis + 1), 'kein_interesse']; }
+      else weg = WEG.slice(0, WEG.indexOf(ziel) + 1);
+      let von = 'unbekannt';
+      weg.forEach((nach, i) => {
+        const anteil = weg.length === 1 ? 0 : i / (weg.length - 1);
+        // streng aufsteigend, damit die Reihenfolge der Schritte nie kippt
+        const zeit = Math.max(vorige + 60000, Math.min(ende, start + (ende - start) * anteil + (i ? z.zahl(0, 3) * 3600000 : 0)));
+        vorige = zeit;
+        verlauf.push({ zeitpunkt: iso(zeit), sparte: s, von, nach });
+        // Zu jedem Schritt ab „Interesse“ gehört ein Gespräch, falls dort noch keins liegt (Gespräche über die Monate verteilt)
+        if (i && !ds.some((t) => Math.abs(t - zeit) < 86400000) && zeit < jetzt) {
+          k.gespraeche = k.gespraeche || [];
+          k.gespraeche.push({ id: `gsv-${k.id}-${s}-${i}`, zeitpunkt: iso(zeit), sparte: s, ausgang: AUSGANG_ZU[nach] || '', naechsterSchritt: SCHRITT_ZU[nach] || '', einwaende: [] });
+        }
+        von = nach;
+      });
+    }
+    verlauf.sort((a, b) => (a.zeitpunkt < b.zeitpunkt ? -1 : a.zeitpunkt > b.zeitpunkt ? 1 : 0));
+    k.statusVerlauf = verlauf;
+    if (!k.createdAt) k.createdAt = iso(Math.min(erster, ...verlauf.map((w) => Date.parse(w.zeitpunkt))) - 3600000);
+  }
 }

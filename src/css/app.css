@@ -1346,3 +1346,63 @@ body.schutz-aktiv .plus-knopf, body.ka-aktiv .plus-knopf { display: none; }
 #ich.sucht { animation: ich-puls 1s ease-in-out infinite; }
 @keyframes ich-puls { 50% { opacity: .35; } }
 @media (prefers-reduced-motion: reduce) { #ich.sucht { animation: none; opacity: .5; } }
+
+/* ---------- Auswertung: Vertriebssicht (Kernzahlen, Trichter, Nachfassen, Spartenvergleich) ---------- */
+.aw-mehr { width: auto; max-width: 11rem; min-height: 40px; font-weight: 600; border-radius: 12px; }
+.aw-mehr.aktiv { background: var(--aktiv-bg); }
+.aw-kern { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; margin: 1rem 0; }
+.aw-kern-zahl { background: var(--karte); border-radius: var(--radius); box-shadow: var(--schatten); padding: .9rem 1rem; display: grid; gap: .2rem; align-content: start; }
+.aw-kern-zahl strong { font-size: 2.2rem; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.aw-kern-zahl small { color: var(--text-2); font-size: .78rem; }
+.aw-zwei { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+.aw-zwei > .karte-box { margin: 0; }
+.aw-zwei + * { margin-top: 1rem; }
+.aw-trichter { list-style: none; margin: .6rem 0 0; padding: 0; }
+.aw-tr-stufe { display: grid; grid-template-columns: 6.2rem minmax(0, 1fr) 2.6rem; align-items: center; gap: .6rem; }
+.aw-tr-name { font-weight: 600; }
+.aw-tr-spur { display: flex; justify-content: center; }
+.aw-tr-balken { display: flex; height: 28px; border-radius: 6px; overflow: hidden; background: var(--feld); }
+.aw-tr-balken .aw-teil { height: 100%; min-height: 0; flex-basis: 0; }
+.aw-tr-zahl { text-align: right; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.aw-tr-zwischen { display: grid; grid-template-columns: 6.2rem minmax(0, 1fr) 2.6rem; gap: .6rem; }
+.aw-tr-quote { grid-column: 2; text-align: center; font-size: .8rem; color: var(--text-2); padding: .15rem 0; }
+.aw-tr-quote.schwach { color: var(--rot); font-weight: 700; }
+.aw-tipp.warn { background: color-mix(in srgb, var(--orange) 12%, var(--karte)); border-left-color: var(--orange); }
+.aw-nf-gruppe { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-2); margin: .9rem 0 .2rem; display: flex; gap: .4rem; align-items: center; }
+.aw-nf-gruppe span { background: var(--flaeche-2); border-radius: 999px; padding: 0 .45rem; font-size: .75rem; }
+.aw-nachfassen { list-style: none; margin: 0; padding: 0; }
+.aw-nachfassen li { border-bottom: 1px solid var(--linie); }
+.aw-nachfassen a, .aw-nf-ohne { display: flex; align-items: center; gap: .6rem; min-height: 44px; padding: .3rem .1rem; color: inherit; text-decoration: none; }
+.aw-nachfassen a:hover { background: var(--flaeche-2); }
+.aw-nf-text { min-width: 0; flex: 1; display: grid; line-height: 1.25; }
+.aw-nf-text b, .aw-nf-text small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aw-nf-text small { color: var(--text-2); font-size: .8rem; }
+.aw-nf-wann { font-size: .8rem; color: var(--text-2); white-space: nowrap; }
+.aw-nf-wann.dringend { color: var(--rot); font-weight: 700; }
+.aw-punkt { width: 10px; height: 10px; border-radius: 50%; flex: none; display: inline-block; }
+.aw-nf-mehr summary { cursor: pointer; color: var(--text-2); font-size: .88rem; padding: .5rem 0; min-height: 32px; }
+.aw-tabelle-rahmen { overflow-x: auto; }
+.aw-vergleich td + td, .aw-vergleich th + th { width: auto; white-space: nowrap; }
+.aw-vergleich th { font-size: .85rem; color: var(--text-2); }
+.aw-kopf-pv { border-bottom: 3px solid var(--pv) !important; }
+.aw-kopf-wp { border-bottom: 3px solid var(--wp) !important; }
+.aw-kopf-vorwerk { border-bottom: 3px solid var(--vw) !important; }
+.aw-mini { font-size: .7rem; }
+.aw-mini.auf { color: color-mix(in srgb, var(--gruen) 75%, var(--text)); }
+.aw-mini.ab, .aw-rot { color: var(--rot); font-weight: 700; }
+.aw-details > summary { cursor: pointer; list-style: none; display: grid; gap: .1rem; }
+.aw-details > summary::-webkit-details-marker { display: none; }
+.aw-details > summary h2 { margin: 0; display: flex; justify-content: space-between; align-items: center; }
+.aw-details > summary h2::after { content: '▾'; font-size: 1rem; color: var(--text-2); transition: transform .2s; }
+.aw-details[open] > summary h2::after { transform: rotate(180deg); }
+.aw-unter { margin-top: 1.4rem; }
+.aw-unter h3 { font-size: 1.05rem; margin: 0 0 .5rem; }
+.aw-fokus h4 { font-size: .95rem; margin: 1rem 0 .4rem; }
+@media (max-width: 900px) {
+  .aw-zwei { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .aw-kern { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+  .aw-kern-zahl strong { font-size: 1.8rem; }
+  .aw-tr-stufe, .aw-tr-zwischen { grid-template-columns: 5.2rem minmax(0, 1fr) 2.2rem; gap: .4rem; }
+}

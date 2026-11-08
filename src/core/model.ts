@@ -8,7 +8,7 @@ import { normalizeProduktMarkierung, type ProduktMarkierung } from './produkte.t
 import { normalizeBausteine } from './bausteine.ts';
 import { normalizeFotoListe } from './fotos.ts';
 
-export const SCHEMA_VERSION = 7;
+export const SCHEMA_VERSION = 8;
 
 /** Die drei Geschäftszweige, jeder mit eigenem Anbieter und eigenem Textgenerator (R-TEXT). */
 export const SPARTEN = {
@@ -518,6 +518,44 @@ export function normalizeNotiz(n: unknown) {
   };
 }
 
+/** Ein Statuswechsel je Sparte (ab Schema 8). `geschaetzt`: nachgetragen ohne echten Zeitpunkt (Migration). */
+export function normalizeStatusWechsel(w: unknown) {
+  const src: Rec = w && typeof w === 'object' ? w : {};
+  if (!isValidDate(src.zeitpunkt) || !SPARTEN_KEYS.includes(src.sparte) || !STATUS_KEYS.includes(src.nach)) return null;
+  return {
+    zeitpunkt: new Date(src.zeitpunkt).toISOString(),
+    sparte: src.sparte as Sparte,
+    von: (STATUS_KEYS.includes(src.von) ? src.von : 'unbekannt') as StatusKey,
+    nach: src.nach as StatusKey,
+    ...(src.geschaetzt === true ? { geschaetzt: true as const } : {}),
+  };
+}
+export type StatusWechsel = NonNullable<ReturnType<typeof normalizeStatusWechsel>>;
+export const STATUS_VERLAUF_MAX = 1000;
+
+/** Letzter bekannter Status einer Sparte laut Verlauf ('unbekannt' ohne Einträge). */
+export function letzterVerlaufStatus(verlauf: readonly StatusWechsel[], s: Sparte): StatusKey {
+  for (let i = verlauf.length - 1; i >= 0; i--) if (verlauf[i]!.sparte === s) return verlauf[i]!.nach;
+  return 'unbekannt';
+}
+
+/**
+ * Statusverlauf an den aktuellen Status angleichen: Weicht der Status einer Sparte vom letzten Verlaufseintrag ab,
+ * wird ein Wechsel mit `zeitpunkt` angehängt. Läuft nach jeder Änderung (store.mutate) und bei der Migration.
+ * Gibt zurück, ob etwas ergänzt wurde.
+ */
+export function statusVerlaufAbgleichen(k: { status: Record<Sparte, StatusKey>; statusVerlauf: StatusWechsel[] }, zeitpunkt: string, geschaetzt = false): boolean {
+  let neu = false;
+  for (const s of SPARTEN_KEYS) {
+    const von = letzterVerlaufStatus(k.statusVerlauf, s);
+    if (von === k.status[s]) continue;
+    k.statusVerlauf.push({ zeitpunkt, sparte: s, von, nach: k.status[s], ...(geschaetzt ? { geschaetzt: true as const } : {}) });
+    neu = true;
+  }
+  if (neu && k.statusVerlauf.length > STATUS_VERLAUF_MAX) k.statusVerlauf.splice(0, k.statusVerlauf.length - STATUS_VERLAUF_MAX);
+  return neu;
+}
+
 export function normalizeKunde(k: unknown) {
   const src: Rec = k && typeof k === 'object' ? k : {};
   const t = nowIso();
@@ -559,6 +597,9 @@ export function normalizeKunde(k: unknown) {
     produkte: (Array.isArray(src.produkte) ? src.produkte.map(normalizeProduktMarkierung).filter((x): x is ProduktMarkierung => !!x) : []).slice(-2000),
     /** Fotos je Sparte (ab 0.10.16): nur Beschreibung, die Bilder liegen verschlüsselt in der Tabelle „fotos“ */
     fotos: normalizeFotoListe(src.fotos),
+    /** Statuswechsel je Sparte mit Datum (ab Schema 8), älteste zuerst; Grundlage für den Verkaufstrichter */
+    statusVerlauf: (Array.isArray(src.statusVerlauf) ? src.statusVerlauf.map(normalizeStatusWechsel).filter((x): x is StatusWechsel => !!x) : [])
+      .sort((a, b) => (a.zeitpunkt < b.zeitpunkt ? -1 : a.zeitpunkt > b.zeitpunkt ? 1 : 0)).slice(-STATUS_VERLAUF_MAX),
   };
 }
 
@@ -661,8 +702,11 @@ export function migrate(input: unknown): Daten {
   // v4 → v5: kunde.produkte (Produkte im Gespräch markieren), leer ergänzt.
   // v5 → v6: einstellungen.bausteine (Textbausteine im Gesprächsmodus), mit Startliste ergänzt.
   // v6 → v7: Texte je Bereich (PV, WP, Vorwerk): vorlagen/empfaenger.enpal → pv und wp (normalizeEinstellungen).
-  // Künftige Migrationen hier schrittweise: if (v < 8) { ... }
+  // v7 → v8: kunde.statusVerlauf. Vorhandene Status werden als geschätzter Wechsel zum Anlagedatum nachgetragen
+  // (später abweichende Status zum letzten Änderungsdatum), damit Trichter und Abschlüsse sofort etwas zeigen.
+  // Künftige Migrationen hier schrittweise: if (v < 9) { ... }
   const kunden = Array.isArray(data.kunden) ? data.kunden.map(normalizeKunde) : [];
+  for (const k of kunden) statusVerlaufAbgleichen(k, v < 8 || !k.statusVerlauf.length ? k.createdAt : k.updatedAt, true);
   // Doppelte IDs verhindern (z. B. nach manuellem Zusammenführen)
   const seen = new Set();
   const kundenUnique = kunden.filter((k) => (seen.has(k.id) ? false : (seen.add(k.id), true)));

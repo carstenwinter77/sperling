@@ -17,7 +17,7 @@ Browser (Tablet / Handy / Laptop)
  │   ├─ papierkorb.ts .... Löschen in „Gelöscht“, Wiederherstellen, endgültig löschen
  │   ├─ belegung.ts ...... Belegungskalender: Tage, Balken, freie Zeiträume
  │   ├─ kalender.ts ...... Leihgaben je Tag für den Kalender, Termine ziehen (15-Min-Raster), auf anderen Tag legen
- │   ├─ auswertung.ts .... Zeiträume, Kennzahlen, Vergleich mit dem Vorzeitraum, Fokus je Sparte (Trend, Kurztipp)
+ │   ├─ auswertung.ts .... Zeiträume, Kennzahlen, fairer Vergleich, Statusverlauf → Abschlüsse/Trichter, Nachfassliste, Fokus je Sparte
  │   ├─ gespraech.ts ..... Gesprächsmodus speichern (je Bereich, Notiz je Firma, R-TEXT)
  │   ├─ verlauf.ts ....... Gesprächshistorie, letzter Kontakt
  │   ├─ kartenfilter.ts .. Mehrfachfilter für Karte und Kundenliste (auch eigene Ja/Nein- und Auswahlfelder)

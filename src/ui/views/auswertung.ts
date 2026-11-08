@@ -1,11 +1,11 @@
 // Sperling – Auswertungen: je Bereich oder alles zusammen, als Tag, Woche, Monat, Kalenderjahr oder letzte 365 Tage.
 // Die Zahlen entstehen nur auf dem Gerät; der PDF-Bericht wird nur weitergegeben, wenn der Nutzer ihn teilt.
 import { esc } from '../../core/util.ts';
-import { AUSGANG, SPARTEN, SPARTEN_KEYS } from '../../core/model.ts';
+import { AUSGANG, SPARTEN, SPARTEN_KEYS, kundenTitel, type Sparte } from '../../core/model.ts';
 import { tagVon } from '../../core/belegung.ts';
 import {
-  bericht, fokusBericht, verschieben, veraenderung, veraenderungText, prozent, BEREICHE, PERIODEN, PERIODEN_REIHE,
-  type Bereich, type Periode, type Bericht, type Kennzahlen, type Ausgang, type Fokus,
+  bericht, fokusBericht, verschieben, veraenderung, veraenderungText, prozent, nachfassListe, BEREICHE, PERIODEN, PERIODEN_REIHE, PERIODEN_HAUPT,
+  STUFEN_LABEL, NACHFASS_GRUPPEN, type Bereich, type Periode, type Bericht, type Kennzahlen, type Ausgang, type Fokus, type Trichter, type Vertrieb, type NachfassArt,
 } from '../../core/auswertung.ts';
 import * as store from '../../storage/store.ts';
 import { maskottchen, toast, dialog } from '../dom.ts';
@@ -15,8 +15,7 @@ interface Zahl { titel: string; wert: (k: Kennzahlen) => number | null; quote?: 
 
 const ZAHLEN: Zahl[] = [
   { titel: 'Gespräche', wert: (k) => k.gespraeche, sub: (k) => `${k.erreicht} erreicht${k.telefon || k.hausbesuch ? ` · ${k.telefon} Telefon, ${k.hausbesuch} Hausbesuch` : ''}` },
-  { titel: 'Abschlüsse', wert: (k) => k.abschluesse },
-  { titel: 'Abschlussquote', wert: (k) => k.abschlussquote, quote: true, sub: () => 'Abschlüsse je erreichtes Gespräch' },
+  { titel: 'Abschlüsse im Gespräch', wert: (k) => k.abschluesse, sub: () => 'Gesprächsergebnis „Abschluss“' },
   { titel: 'Neue Kunden', wert: (k) => k.neueKunden },
   { titel: 'Termine', wert: (k) => k.termine, sub: (k) => `${k.termineErledigt} erledigt · ${k.termine - k.termineErledigt} offen` },
   { titel: 'Wiedervorlagen', wert: (k) => k.wiedervorlagen, sub: (k) => `${k.wiedervorlagenErledigt} erledigt · ${k.wiedervorlagen - k.wiedervorlagenErledigt} offen` },
@@ -31,7 +30,7 @@ const ZAHLEN: Zahl[] = [
 const zahlenFuer = (bereich: Bereich) => ZAHLEN.filter((z) => !z.nurVorwerk || bereich === 'alle' || bereich === 'vorwerk');
 const anzeigen = (z: Zahl, k: Kennzahlen) => { const w = z.wert(k); return z.quote ? prozent(w) : String(w ?? 0); };
 
-const PERIODE_KURZ: Record<Periode, string> = { tag: 'Tag', woche: 'Woche', monat: 'Monat', m1: '1 Monat', m3: '3 Monate', m6: '½ Jahr', jahr: 'Kalenderjahr', '365': '365 Tage' };
+const PERIODE_KURZ: Record<Periode, string> = { tag: 'Tag', woche: 'Woche', monat: 'Monat', quartal: 'Quartal', m1: '1 Monat', m3: '3 Monate', m6: '½ Jahr', jahr: 'Kalenderjahr', '365': '365 Tage' };
 const THEMEN = [...SPARTEN_KEYS, 'ohne'] as const;
 const PDF_FARBE: Record<(typeof THEMEN)[number], [number, number, number]> = { pv: [224, 168, 0], wp: [47, 127, 214], vorwerk: [47, 154, 60], ohne: [140, 150, 145] };
 const themaLabel = (t: (typeof THEMEN)[number]) => (t === 'ohne' ? 'ohne Thema' : SPARTEN[t].label);
@@ -93,34 +92,119 @@ function fokusHtml(f: Fokus): string {
       <span class="aw-balken aw-mix" role="img" aria-label="${esc(text)}" title="${esc(text)}">${r.summe ? SPARTEN_KEYS.filter((s) => r.je[s]).map((s) => `<i class="aw-teil aw-${s}" style="flex-grow:${r.je[s]}"></i>`).join('') : ''}</span>
       <span class="aw-reihe-summe">${r.summe}</span></li>`;
   }).join('');
-  return `<section class="karte-box aw-fokus" id="awFokus">
-      <h2>Fokus je Sparte</h2>
+  return `<section class="aw-unter aw-fokus" id="awFokus">
+      <h3>Fokus je Sparte</h3>
       <p>${esc(urteilText(f))}</p>
       <ul class="aw-anteile">${anteile}</ul>
-      <h3>Entwicklung</h3>
+      <h4>Entwicklung</h4>
       <ul class="aw-reihe">${reihe}</ul>
       ${f.tipp ? `<p class="aw-tipp">💡 ${esc(f.tipp)}</p>` : ''}
       <p class="hinweis klein">Gezählt werden Gespräche, Notizen, Termine und Wiedervorlagen je Sparte. Ein Gespräch über zwei Sparten zählt bei beiden. „Zu kurz“ heißt: unter 15 % oder um 15 Punkte oder mehr gesunken.</p>
     </section>`;
 }
 
+/** Kernzahl-Kachel oben: großer Wert, Veränderung, kurze Erklärung. */
+function kernHtml(titel: string, wert: string, v: ReturnType<typeof veraenderung>, vorher: string, sub: string, id: string): string {
+  return `<div class="aw-kern-zahl" data-kern="${id}">
+    <span class="aw-titel">${esc(titel)}</span>
+    <strong>${esc(wert)}</strong>
+    ${v ? `<span class="aw-delta ${v.richtung}" title="Vergleich: ${esc(vorher)}"><span class="aw-pfeil" aria-hidden="true">${PFEIL[v.richtung]}</span> ${esc(v.text)}<span class="sr-only"> ${RICHTUNG[v.richtung]}, vorher ${esc(vorher)}</span></span>` : '<span class="aw-delta gleich">–</span>'}
+    <small>${esc(sub)}</small>
+  </div>`;
+}
+
+/** Verkaufstrichter: Stufen als zentrierte Balken (nach Sparte geteilt), dazwischen die Quote; schwächster Übergang markiert. */
+function trichterHtml(t: Trichter, bereich: Bereich): string {
+  const max = Math.max(1, t.stufen[0]!.anzahl);
+  if (!t.stufen[0]!.anzahl) return '<p class="hinweis">In diesem Zeitraum stand kein Kunde im Trichter. Sobald du bei Kunden einen Status setzt, erscheint er hier.</p>';
+  const zeilen = t.stufen.map((x, i) => {
+    const breite = Math.max(6, Math.round((x.anzahl / max) * 100));
+    const teile = bereich === 'alle'
+      ? SPARTEN_KEYS.filter((s) => x.je[s]).map((s) => `<i class="aw-teil aw-${s}" style="flex-grow:${x.je[s]}"></i>`).join('')
+      : `<i class="aw-teil aw-${bereich}" style="flex-grow:1"></i>`;
+    const text = `${STUFEN_LABEL[x.stufe]}: ${x.anzahl}${bereich === 'alle' && x.anzahl ? ` (${SPARTEN_KEYS.filter((s) => x.je[s]).map((s) => `${SPARTEN[s].kurz} ${x.je[s]}`).join(', ')})` : ''}`;
+    const q = i < t.quoten.length ? t.quoten[i] : undefined;
+    const quote = q === undefined ? '' : `<div class="aw-tr-quote${t.schwach === i ? ' schwach' : ''}">${q === null ? '–' : `↓ ${Math.round(q * 100)} % kommen weiter`}${t.schwach === i ? ' · schwächste Stufe' : ''}</div>`;
+    return `<li class="aw-tr-stufe" data-stufe="${x.stufe}"><span class="aw-tr-name">${esc(STUFEN_LABEL[x.stufe])}</span>
+      <span class="aw-tr-spur"><span class="aw-tr-balken" style="width:${breite}%" role="img" aria-label="${esc(text)}" title="${esc(text)}">${x.anzahl ? teile : ''}</span></span>
+      <b class="aw-tr-zahl">${x.anzahl}</b></li>${quote ? `<li class="aw-tr-zwischen" aria-hidden="${q === null}">${quote}</li>` : ''}`;
+  }).join('');
+  return `<ol class="aw-trichter">${zeilen}</ol>${t.tipp ? `<p class="aw-tipp warn">💡 ${esc(t.tipp)}</p>` : ''}`;
+}
+
+const SPARTE_PUNKT = (s: Sparte | '') => `<i class="aw-punkt ${s ? `aw-${s}` : 'aw-ohne'}" aria-hidden="true"></i>`;
+
+/** „Jetzt nachfassen“: drei Gruppen, je drei Einträge sichtbar, der Rest aufklappbar. Tippen öffnet den Kunden. */
+function nachfassHtml(liste: ReturnType<typeof nachfassListe>, kundeVon: (id: string) => string | null): string {
+  const gruppen = (Object.keys(liste) as NachfassArt[]).filter((a) => liste[a].length);
+  if (!gruppen.length) return '<p class="hinweis">Nichts liegen geblieben: keine überfälligen Wiedervorlagen, keine stillen Angebote, keine fälligen Testgeräte. 👍</p>';
+  const zeile = (e: ReturnType<typeof nachfassListe>[NachfassArt][number]) => {
+    const name = e.kundeId ? kundeVon(e.kundeId) : null;
+    const inhalt = `${SPARTE_PUNKT(e.sparte)}<span class="aw-nf-text"><b>${esc(name || 'ohne Kunde')}</b><small>${esc(e.text)}</small></span><span class="aw-nf-wann${e.dringend ? ' dringend' : ''}">${esc(e.wann)}</span>`;
+    return `<li>${name ? `<a href="#/kunde/${esc(e.kundeId)}">${inhalt}</a>` : `<span class="aw-nf-ohne">${inhalt}</span>`}</li>`;
+  };
+  return gruppen.map((a) => {
+    const alle = liste[a];
+    return `<h3 class="aw-nf-gruppe">${esc(NACHFASS_GRUPPEN[a])} <span>${alle.length}</span></h3>
+      <ul class="aw-nachfassen" data-gruppe="${a}">${alle.slice(0, 3).map(zeile).join('')}</ul>
+      ${alle.length > 3 ? `<details class="aw-nf-mehr"><summary>${alle.length - 3} weitere anzeigen</summary><ul class="aw-nachfassen">${alle.slice(3).map(zeile).join('')}</ul></details>` : ''}`;
+  }).join('');
+}
+
+/** Sparten nebeneinander (nur „Alles zusammen“). */
+function spartenHtml(je: Record<Sparte, Bericht>, fokus: Fokus, ueberfaellig: Record<Sparte, number>, gesamtGespraeche: number): string {
+  const pfeil = (jetzt: number | null, vorher: number | null, quote = false) => {
+    const v = veraenderung(jetzt, vorher, quote);
+    return v && v.richtung !== 'gleich' ? ` <span class="aw-mini ${v.richtung}" title="Vergleich: ${esc(quote ? prozent(vorher) : String(vorher))}">${PFEIL[v.richtung]}<span class="sr-only"> ${RICHTUNG[v.richtung]}</span></span>` : '';
+  };
+  const summe = (f: (b: Bericht) => number) => SPARTEN_KEYS.reduce((n, s) => n + f(je[s]), 0);
+  const ab = summe((b) => b.vt.abschluesse); const vl = summe((b) => b.vt.verloren);
+  const zeilen: [string, (s: Sparte) => string, string][] = [
+    ['Gespräche', (s) => `${je[s].jetzt.gespraeche}${pfeil(je[s].jetzt.gespraeche, je[s].vorher.gespraeche)}`, String(gesamtGespraeche)],
+    ['Abschlüsse', (s) => `${je[s].vt.abschluesse}${pfeil(je[s].vt.abschluesse, je[s].vtVorher.abschluesse)}`, String(ab)],
+    ['Abschlussquote', (s) => `${prozent(je[s].vt.quote)}${pfeil(je[s].vt.quote, je[s].vtVorher.quote, true)}`, prozent(ab + vl ? ab / (ab + vl) : null)],
+    ['Offene Chancen', (s) => `${je[s].vt.offen}${pfeil(je[s].vt.offen, je[s].vtVorher.offen)}`, String(summe((b) => b.vt.offen))],
+    ['Überfällig', (s) => (ueberfaellig[s] ? `<span class="aw-rot">${ueberfaellig[s]}</span>` : '0'), String(SPARTEN_KEYS.reduce((n, s) => n + ueberfaellig[s], 0))],
+    ['Anteil deiner Zeit', (s) => anteilText(fokus.sparten.find((x) => x.sparte === s)!.anteil), ''],
+    ['Test → Kauf', (s) => (s === 'vorwerk' && je.vorwerk.jetzt.verleihe ? `${je.vorwerk.jetzt.kaeufe} von ${je.vorwerk.jetzt.verleihe} (${prozent(je.vorwerk.jetzt.kaufquote)})` : '–'), ''],
+  ];
+  return `<section class="karte-box aw-sparten" id="awSparten">
+    <h2>Sparten im Vergleich</h2>
+    <div class="aw-tabelle-rahmen"><table class="aw-tabelle aw-vergleich"><thead><tr><th></th>${SPARTEN_KEYS.map((s) => `<th class="aw-kopf-${s}">${esc(SPARTEN[s].label)}</th>`).join('')}<th>Gesamt</th></tr></thead><tbody>
+      ${zeilen.map(([titel, wert, gesamt]) => `<tr><td>${esc(titel)}</td>${SPARTEN_KEYS.map((s) => `<td>${wert(s)}</td>`).join('')}<td><b>${esc(gesamt)}</b></td></tr>`).join('')}
+    </tbody></table></div>
+    <p class="hinweis klein">▲ ▼ = besser oder schlechter als im Vergleichszeitraum. „Überfällig“: offene Termine und Wiedervorlagen vor heute.</p>
+  </section>`;
+}
+
+/** Aufgeklappter Zustand der Details bleibt beim Umschalten erhalten (nur Ansicht, nichts gespeichert). */
+let detailsOffen = false;
+
 export function render(el: HTMLElement, params: URLSearchParams) {
   const p = (n: string) => params.get(n) || '';
   const bereich: Bereich = p('bereich') in BEREICHE ? p('bereich') as Bereich : 'alle';
   const periode: Periode = p('periode') in PERIODEN ? p('periode') as Periode : 'monat';
-  const anker = /^\d{4}-\d{2}-\d{2}$/.test(p('datum')) ? p('datum') : tagVon(new Date());
+  const heute = tagVon(new Date());
+  const anker = /^\d{4}-\d{2}-\d{2}$/.test(p('datum')) ? p('datum') : heute;
   const neu = (b: Bereich, pe: Periode, dt: string) => {
     const q = new URLSearchParams({ bereich: b, periode: pe, datum: dt });
     history.replaceState(null, '', `#/auswertung?${q}`);
     render(el, q);
   };
-  const ber = bericht(store.getData(), bereich, periode, anker);
-  const { jetzt, vorher } = ber;
-  const fokus = fokusBericht(store.getData(), periode, anker);
+  const data = store.getData();
+  const ber = bericht(data, bereich, periode, anker, heute);
+  const { jetzt, vorher, vt, vtVorher } = ber;
+  const fokus = fokusBericht(data, periode, anker);
   const meinAnteil = bereich === 'alle' ? null : fokus.sparten.find((x) => x.sparte === bereich)!;
+  const nachfassen = nachfassListe(data, bereich, heute);
+  const kundeVon = (id: string) => { const k = data.kunden.find((x) => x.id === id); return k ? kundenTitel(k) : null; };
+  const jeSparte = bereich === 'alle' ? Object.fromEntries(SPARTEN_KEYS.map((s) => [s, bericht(data, s, periode, anker, heute)])) as Record<Sparte, Bericht> : null;
+  const ueberfaellig = Object.fromEntries(SPARTEN_KEYS.map((s) => [s, nachfassen.ueberfaellig.filter((e) => e.sparte === s).length])) as Record<Sparte, number>;
 
   const max = Math.max(1, ...jetzt.verlauf.map((v) => v.wert));
   const ergebnisse = (Object.keys(AUSGANG) as Ausgang[]).filter((a) => jetzt.ergebnisse[a] || vorher.ergebnisse[a]);
+  const mehr = PERIODEN_REIHE.filter((x) => !PERIODEN_HAUPT.includes(x));
+  const kurzVergleich = ber.laufend ? ber.vergleich.replace(' (gleich viele Tage)', '') : 'Vorzeitraum';
 
   el.innerHTML = `
     <header class="seitenkopf">
@@ -129,51 +213,76 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     </header>
     <nav class="tabs aw-bereiche" aria-label="Bereich">${(Object.keys(BEREICHE) as Bereich[]).map((b) => `<button type="button" data-bereich="${b}" class="bereich-${b}${b === bereich ? ' aktiv' : ''}">${BEREICHE[b]}</button>`).join('')}</nav>
     <div class="aw-leiste">
-      <div class="segment aw-perioden" role="group" aria-label="Zeitraum">${PERIODEN_REIHE.map((pe) => `<button type="button" data-periode="${pe}" class="${pe === periode ? 'aktiv' : ''}" title="${PERIODEN[pe]}" aria-pressed="${pe === periode}">${PERIODE_KURZ[pe]}</button>`).join('')}</div>
-      <div class="k-nav"><button type="button" class="btn klein ghost" data-schritt="-1" aria-label="Voriger Zeitraum">‹</button><button type="button" class="btn klein ghost" data-schritt="0">Heute</button><button type="button" class="btn klein ghost" data-schritt="1" aria-label="Nächster Zeitraum">›</button></div>
-      <input type="date" id="awDatum" value="${anker}" aria-label="Stichtag">
+      <div class="segment aw-perioden" role="group" aria-label="Zeitraum">${PERIODEN_HAUPT.map((pe) => `<button type="button" data-periode="${pe}" class="${pe === periode ? 'aktiv' : ''}" title="${PERIODEN[pe]}" aria-pressed="${pe === periode}">${PERIODE_KURZ[pe]}</button>`).join('')}</div>
+      <select id="awMehr" class="aw-mehr${mehr.includes(periode) ? ' aktiv' : ''}" aria-label="Weitere Zeiträume">
+        <option value="">Mehr …</option>${mehr.map((pe) => `<option value="${pe}"${pe === periode ? ' selected' : ''}>${PERIODEN[pe]}</option>`).join('')}
+      </select>
+      <div class="k-nav"><button type="button" class="btn klein ghost" data-schritt="-1" aria-label="Voriger Zeitraum">‹</button>${anker !== heute ? '<button type="button" class="btn klein ghost" data-schritt="0">Heute</button>' : ''}<button type="button" class="btn klein ghost" data-schritt="1" aria-label="Nächster Zeitraum">›</button></div>
     </div>
     <section class="karte-box aw-kopf bereich-${bereich}">
       <h2>${esc(ber.zeitraum.titel)}</h2>
-      <p class="hinweis">${esc(BEREICHE[bereich])} · Vergleich mit ${esc(ber.vorzeitraum.titel)}</p>
+      <p class="hinweis">${esc(BEREICHE[bereich])}${ber.laufend ? ` · bis heute` : ''} · verglichen mit ${esc(ber.vergleich)}</p>
       ${meinAnteil && fokus.gesamt ? `<p class="aw-mein-anteil">Anteil an allem, was du in diesem Zeitraum gemacht hast: <b>${anteilText(meinAnteil.anteil)}</b>${meinAnteil.deltaPkt !== null ? ` (${pkt(meinAnteil.deltaPkt)})` : ''}${meinAnteil.vernachlaessigt ? ' · ⚠️ kam zu kurz' : ''}</p>` : ''}
     </section>
-    <div class="aw-zahlen">${zahlenFuer(bereich).map((z) => {
+    <div class="aw-kern">
+      ${kernHtml('Abschlüsse', String(vt.abschluesse), veraenderung(vt.abschluesse, vtVorher.abschluesse), String(vtVorher.abschluesse), `Status auf „Abschluss“ gewechselt · ${kurzVergleich}: ${vtVorher.abschluesse}`, 'abschluesse')}
+      ${kernHtml('Abschlussquote', prozent(vt.quote), veraenderung(vt.quote, vtVorher.quote, true), prozent(vtVorher.quote), vt.quote === null ? 'Noch keine Chance entschieden' : `${vt.abschluesse} von ${vt.abschluesse + vt.verloren} entschiedenen Chancen gewonnen`, 'quote')}
+      ${kernHtml('Offene Chancen', String(vt.offen), veraenderung(vt.offen, vtVorher.offen), String(vtVorher.offen), `${vt.offenJe.interesse} Interesse · ${vt.offenJe.termin} Termin · ${vt.offenJe.angebot} Angebot`, 'offen')}
+      ${kernHtml('Gespräche', String(jetzt.gespraeche), veraenderung(jetzt.gespraeche, vorher.gespraeche), String(vorher.gespraeche), `${jetzt.erreicht} erreicht${jetzt.telefon || jetzt.hausbesuch ? ` · ${jetzt.telefon} Telefon · ${jetzt.hausbesuch} vor Ort` : ''}`, 'gespraeche')}
+    </div>
+    <div class="aw-zwei">
+      <section class="karte-box aw-trichter-box" id="awTrichter">
+        <h2>Verkaufstrichter</h2>
+        <p class="hinweis klein">Wie viele Kunden kamen in diesem Zeitraum bis zu welcher Stufe – und wo bleiben sie hängen?</p>
+        ${trichterHtml(vt.trichter, bereich)}
+      </section>
+      <section class="karte-box aw-nf-box" id="awNachfassen">
+        <h2>Jetzt nachfassen</h2>
+        <p class="hinweis klein">Stand heute, sortiert nach Dringlichkeit. Tippen öffnet den Kunden.</p>
+        ${nachfassHtml(nachfassen, kundeVon)}
+      </section>
+    </div>
+    ${jeSparte ? spartenHtml(jeSparte, fokus, ueberfaellig, jetzt.gespraeche) : ''}
+    <details class="aw-details karte-box" id="awDetails"${detailsOffen ? ' open' : ''}>
+      <summary><h2>Aktivität im Detail</h2><span class="hinweis klein">Weitere Kennzahlen, Gespräche im Verlauf${bereich === 'alle' ? ', Fokus je Sparte' : ''}, Ergebnisse, meistgefragte Produkte</span></summary>
+      <div class="aw-zahlen">${zahlenFuer(bereich).map((z) => {
     const v = veraenderung(z.wert(jetzt), z.wert(vorher), z.quote);
     return `<div class="aw-zahl">
         <span class="aw-titel">${z.titel}</span>
         <strong>${anzeigen(z, jetzt)}</strong>
-        ${v ? `<span class="aw-delta ${v.richtung}" title="Vorzeitraum: ${anzeigen(z, vorher)}"><span class="aw-pfeil" aria-hidden="true">${PFEIL[v.richtung]}</span> ${v.text}${v.prozent ? ` <span class="aw-prozent">(${v.prozent})</span>` : ''}<span class="sr-only"> ${RICHTUNG[v.richtung]}, vorher ${anzeigen(z, vorher)}</span></span>` : '<span class="aw-delta gleich">–</span>'}
+        ${v ? `<span class="aw-delta ${v.richtung}" title="Vergleich: ${anzeigen(z, vorher)}"><span class="aw-pfeil" aria-hidden="true">${PFEIL[v.richtung]}</span> ${v.text}${v.prozent ? ` <span class="aw-prozent">(${v.prozent})</span>` : ''}<span class="sr-only"> ${RICHTUNG[v.richtung]}, vorher ${anzeigen(z, vorher)}</span></span>` : '<span class="aw-delta gleich">–</span>'}
         ${z.sub ? `<small>${esc(z.sub(jetzt))}</small>` : ''}
       </div>`;
   }).join('')}</div>
-    <section class="karte-box">
-      <h2>Gespräche im Verlauf</h2>
-      ${jetzt.gespraeche ? verlaufHtml(jetzt.verlauf, bereich, max) : '<p class="hinweis">In diesem Zeitraum gibt es keine Gespräche.</p>'}
-    </section>
-    ${bereich === 'alle' ? fokusHtml(fokus) : ''}
-    ${jetzt.topProdukte.length ? `<section class="karte-box">
-      <h2>Meistgefragte Produkte</h2>
-      <table class="aw-tabelle"><thead><tr><th>Produkt</th><th>Interesse</th></tr></thead><tbody>
-        ${jetzt.topProdukte.map((x) => `<tr><td>${esc(x.name)}</td><td>${x.anzahl}</td></tr>`).join('')}
-      </tbody></table>
-    </section>` : ''}
-    <section class="karte-box">
-      <h2>Ergebnisse der Gespräche</h2>
-      ${ergebnisse.length ? `<table class="aw-tabelle"><thead><tr><th>Ergebnis</th><th>Jetzt</th><th>Vorher</th></tr></thead><tbody>
-        ${ergebnisse.map((a) => `<tr><td>${esc(AUSGANG[a])}</td><td>${jetzt.ergebnisse[a]}</td><td>${vorher.ergebnisse[a]}</td></tr>`).join('')}
-      </tbody></table>` : '<p class="hinweis">Noch keine Gespräche mit Ergebnis in diesem oder dem vorigen Zeitraum.</p>'}
-    </section>`;
+      <section class="aw-unter">
+        <h3>Gespräche im Verlauf</h3>
+        ${jetzt.gespraeche ? verlaufHtml(jetzt.verlauf, bereich, max) : '<p class="hinweis">In diesem Zeitraum gibt es keine Gespräche.</p>'}
+      </section>
+      ${bereich === 'alle' ? fokusHtml(fokus) : ''}
+      ${jetzt.topProdukte.length ? `<section class="aw-unter">
+        <h3>Meistgefragte Produkte</h3>
+        <table class="aw-tabelle"><thead><tr><th>Produkt</th><th>Interesse</th></tr></thead><tbody>
+          ${jetzt.topProdukte.map((x) => `<tr><td>${esc(x.name)}</td><td>${x.anzahl}</td></tr>`).join('')}
+        </tbody></table>
+      </section>` : ''}
+      <section class="aw-unter">
+        <h3>Ergebnisse der Gespräche</h3>
+        ${ergebnisse.length ? `<table class="aw-tabelle"><thead><tr><th>Ergebnis</th><th>Jetzt</th><th>Vergleich</th></tr></thead><tbody>
+          ${ergebnisse.map((a) => `<tr><td>${esc(AUSGANG[a])}</td><td>${jetzt.ergebnisse[a]}</td><td>${vorher.ergebnisse[a]}</td></tr>`).join('')}
+        </tbody></table>` : '<p class="hinweis">Noch keine Gespräche mit Ergebnis in diesem oder dem vorigen Zeitraum.</p>'}
+      </section>
+    </details>`;
 
   el.querySelector('.aw-bereiche')!.addEventListener('click', (e) => { const b = (e.target as Element).closest('[data-bereich]'); if (b) neu(b.dataset.bereich as Bereich, periode, anker); });
   el.querySelector('.segment')!.addEventListener('click', (e) => { const b = (e.target as Element).closest('[data-periode]'); if (b) neu(bereich, b.dataset.periode as Periode, anker); });
+  el.querySelector('#awMehr')!.addEventListener('change', (e) => { const v = (e.target as HTMLSelectElement).value; if (v in PERIODEN) neu(bereich, v as Periode, anker); });
   el.querySelector('.k-nav')!.addEventListener('click', (e) => {
     const b = (e.target as Element).closest('[data-schritt]');
     if (!b) return;
     const n = Number(b.dataset.schritt);
-    neu(bereich, periode, n === 0 ? tagVon(new Date()) : verschieben(periode, anker, n));
+    neu(bereich, periode, n === 0 ? heute : verschieben(periode, anker, n));
   });
-  el.querySelector('#awDatum')!.addEventListener('change', (e) => { const v = (e.target as HTMLInputElement).value; if (/^\d{4}-\d{2}-\d{2}$/.test(v)) neu(bereich, periode, v); });
+  el.querySelector('#awDetails')!.addEventListener('toggle', (e) => { detailsOffen = (e.target as HTMLDetailsElement).open; });
   el.querySelector('#awPdf')!.addEventListener('click', async () => {
     try { await pdfAnbieten(await berichtPdf(ber, bereich === 'alle' ? fokus : null), 'Bericht (PDF)', 'Der Bericht', dialog); } catch (err) { toast((err as Error).message, 'error'); }
   });
@@ -191,7 +300,7 @@ export async function berichtPdf(ber: Bericht, fokus: Fokus | null = null): Prom
   doc.setFont('helvetica', 'normal'); doc.setFontSize(11);
   doc.text(ber.zeitraum.titel, R, y); y += 6;
   doc.setFontSize(9); doc.setTextColor(110);
-  doc.text(`Vergleich: ${ber.vorzeitraum.titel} · erstellt am ${new Date().toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })}`, R, y); y += 10;
+  doc.text(`${ber.laufend ? 'Stand heute · ' : ''}Vergleich: ${ber.vergleich} · erstellt am ${new Date().toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })}`, R, y); y += 10;
   doc.setTextColor(0);
 
   // Immer genau eine Seite: Zeilenhöhe und Schrift schrumpfen, wenn es viele Zeilen sind.
@@ -207,7 +316,8 @@ export async function berichtPdf(ber: Bericht, fokus: Fokus | null = null): Prom
   const zeilen = kennzahlZeilen.length + 1 + (zweiSpalten ? zweiSpalten + 1 : 0);
   const mitFokus = !!fokus && fokus.gesamt > 0;
   const fokusHoehe = mitFokus ? 6 + 6 + 5 + (fokus!.tipp ? 10 : 0) + 4 : 0;
-  const fest = 6 + (zweiSpalten ? 7 + 6 : 0) + diagramm + fokusHoehe;
+  const trichterHoehe = ber.vt.trichter.stufen[0]!.anzahl ? 6 + 5 * 5.2 + (ber.vt.trichter.tipp ? 9 : 0) + 3 : 0;
+  const fest = 6 + 22 + trichterHoehe + (zweiSpalten ? 7 + 6 : 0) + diagramm + fokusHoehe;
   const zh = Math.max(3.6, Math.min(6, (unten - y - fest) / Math.max(1, zeilen)));
   const fs = Math.max(7, Math.min(10, zh * 1.7));
 
@@ -227,7 +337,54 @@ export async function berichtPdf(ber: Bericht, fokus: Fokus | null = null): Prom
     reihe.forEach((z, n) => { z.forEach((t, i) => { if (!t) return; const f = farbe?.(n, i); if (f) doc.setTextColor(...f); doc.text(passend(t, (sp[i + 1] ?? bis) - sp[i]! - 2), sp[i]!, yy); if (f) doc.setTextColor(0); }); yy += zh; });
     return yy;
   };
-  y = tabelle(['Kennzahl', 'Jetzt', 'Vorher', 'Veränderung (%)'], kennzahlZeilen, [R, R + 88, R + 110, R + 132], B - R,
+  // Vier Kernzahlen als Kästen
+  {
+    const { vt, vtVorher, jetzt, vorher } = ber;
+    const kern: [string, string, ReturnType<typeof veraenderung>][] = [
+      ['Abschlüsse', String(vt.abschluesse), veraenderung(vt.abschluesse, vtVorher.abschluesse)],
+      ['Abschlussquote', prozent(vt.quote), veraenderung(vt.quote, vtVorher.quote, true)],
+      ['Offene Chancen', String(vt.offen), veraenderung(vt.offen, vtVorher.offen)],
+      ['Gespräche', String(jetzt.gespraeche), veraenderung(jetzt.gespraeche, vorher.gespraeche)],
+    ];
+    const bw = (B - 2 * R - 9) / 4;
+    kern.forEach(([titel, wert, v], i) => {
+      const x = R + i * (bw + 3);
+      doc.setDrawColor(200); doc.setFillColor(246, 249, 243); doc.roundedRect(x, y - 4, bw, 18, 2, 2, 'FD');
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(90); doc.text(titel, x + 3, y);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.setTextColor(0); doc.text(wert, x + 3, y + 7);
+      if (v) { doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...PDF_RICHTUNG[v.richtung]); doc.text(ansi(v.text), x + 3, y + 12); doc.setTextColor(0); }
+    });
+    y += 22;
+  }
+  // Verkaufstrichter: fünf Balken, Quote daneben
+  if (trichterHoehe) {
+    const t = ber.vt.trichter; const maxT = Math.max(1, t.stufen[0]!.anzahl);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(Math.min(12, fs + 2)); doc.text('Verkaufstrichter', R, y); y += 5;
+    const bx = R + 26; const bw = 100;
+    t.stufen.forEach((x, i) => {
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.text(STUFEN_LABEL[x.stufe], R, y + 0.5);
+      const w = Math.max(1.5, (bw * x.anzahl) / maxT); let px = bx + (bw - w) / 2;
+      const teile = ber.bereich === 'alle' ? SPARTEN_KEYS.filter((s) => x.je[s]) : [ber.bereich as Sparte];
+      const summe = ber.bereich === 'alle' ? x.anzahl : 1;
+      for (const s of teile) { const tw = ber.bereich === 'alle' ? (w * x.je[s]) / Math.max(1, summe) : w; doc.setFillColor(...PDF_FARBE[s]); doc.rect(px, y - 3, tw, 4, 'F'); px += tw; }
+      doc.setFont('helvetica', 'bold'); doc.text(String(x.anzahl), bx + bw + 3, y + 0.5);
+      const q = t.quoten[i];
+      if (i < t.quoten.length) {
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5);
+        if (t.schwach === i) doc.setTextColor(180, 45, 45); else doc.setTextColor(110);
+        doc.text(q === null ? '' : `${Math.round(q * 100)} % weiter${t.schwach === i ? ' (schwächste Stufe)' : ''}`, bx + bw + 14, y + 3);
+        doc.setTextColor(0);
+      }
+      y += 5.2;
+    });
+    if (t.tipp) {
+      doc.setFontSize(8.5);
+      const z = doc.splitTextToSize(ansi(`Tipp: ${t.tipp}`), B - 2 * R).slice(0, 2);
+      doc.text(z, R, y + 1); y += 4.2 * z.length + 1;
+    }
+    y += 3;
+  }
+  y = tabelle(['Kennzahl', 'Jetzt', 'Vergleich', 'Veränderung (%)'], kennzahlZeilen, [R, R + 88, R + 110, R + 132], B - R,
     (n, i) => (i === 3 && kennzahlVer[n] ? PDF_RICHTUNG[kennzahlVer[n]!.richtung] : null)) + 4;
   if (zweiSpalten) {
     const mitte = R + 90;

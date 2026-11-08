@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.10.35
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.11.0
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,13 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.35)
+## Erledigt (Version 0.11.0)
+
+### Neu in 0.11.0
+- [x] Auswertungen nach Vertriebssicht: vier Kernzahlen, Verkaufstrichter mit schwächster Stufe und Tipp, „Jetzt nachfassen“, Sparten im Vergleich, Details eingeklappt; fairer Vergleich bei laufenden Zeiträumen; Zeitraum „Quartal“, Rest unter „Mehr“. Kein Monatsziel (auf Wunsch bewusst weggelassen).
+- [x] Statusverlauf mit Datum (Schema 8), zentral in `store.mutate`; Migration trägt vorhandene Status geschätzt nach.
+- [x] PDF-Bericht mit Kernzahlen und Trichter (ohne Kundennamen). Demo mit Statusverlauf über mehrere Monate.
+- [ ] Trichter und Quoten mit echten Daten prüfen, sobald einige Wochen Statusverlauf vorliegen (vorher zählen die geschätzten Einträge zum Anlagedatum).
 
 ### Neu in 0.10.35
 - [x] Karte: Standort-Knopf mit sofortiger Rückmeldung, Wachhund nach 30 s, Ortungen nacheinander.

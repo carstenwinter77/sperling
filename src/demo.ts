@@ -1,7 +1,7 @@
 // Sperling – Beispieldaten für den Demo-Modus (frei erfunden, nur im Arbeitsspeicher).
 import { emptyData, type Daten, type Geraet } from './core/model.ts';
 import type { Rec } from './core/util.ts';
-import { gebietsKunden } from './demo-gebiet.ts';
+import { gebietsKunden, demoStatusVerlauf } from './demo-gebiet.ts';
 
 function tageAb(tage: number, stunde = 10, minute = 0): string {
   const d = new Date();
@@ -58,6 +58,18 @@ export function demoDaten(): Rec {
       status: { pv: 'kein_interesse', wp: 'unbekannt', vorwerk: 'abschluss' },
       vorwerk: { interesseAn: 'Kobold Saugroboter', bodenbelaege: 'Parkett, Fliesen', flaeche: 95, allergien: true, vorfuehrung: true },
       notizen: [{ id: 'n5', zeitpunkt: tageAb(-7, 11, 0), sparten: ['vorwerk'], text: 'Saugroboter gekauft. Wohnung ist gemietet, deshalb kein PV-Thema.' }],
+      createdAt: tageAb(-41, 9, 0),
+      // PV bis zum Termin, dann abgesagt (Mietwohnung); Vorwerk über den Test zum Kauf
+      statusVerlauf: [
+        { zeitpunkt: tageAb(-40, 15, 0), sparte: 'pv', von: 'unbekannt', nach: 'potenzial' },
+        { zeitpunkt: tageAb(-40, 15, 5), sparte: 'vorwerk', von: 'unbekannt', nach: 'potenzial' },
+        { zeitpunkt: tageAb(-30, 11, 0), sparte: 'pv', von: 'potenzial', nach: 'interesse' },
+        { zeitpunkt: tageAb(-25, 16, 0), sparte: 'vorwerk', von: 'potenzial', nach: 'interesse' },
+        { zeitpunkt: tageAb(-20, 11, 0), sparte: 'vorwerk', von: 'interesse', nach: 'termin' },
+        { zeitpunkt: tageAb(-12, 10, 0), sparte: 'pv', von: 'interesse', nach: 'termin' },
+        { zeitpunkt: tageAb(-7, 11, 0), sparte: 'vorwerk', von: 'termin', nach: 'abschluss' },
+        { zeitpunkt: tageAb(-6, 10, 30), sparte: 'pv', von: 'termin', nach: 'kein_interesse' },
+      ],
     },
     {
       id: 'demo-4', vorname: 'Dieter', nachname: 'Test', firma: 'Bäckerei Test', strasse: 'Hauptstraße 20', plz: '38159', ort: 'Vechelde',
@@ -106,6 +118,8 @@ export function demoDaten(): Rec {
   d.termine.push({ id: 't6', kundeId: 'demo-4', sparte: 'vorwerk', art: 'wiedervorlage', titel: 'Nachfragen: Kobold SP7 Saugwischer bei Dieter Test (Bäckerei Test)', beginn: tageAb(-2, 10, 0), dauerMin: 60, notiz: 'Wie gefällt das Gerät? Kaufinteresse? Rückgabe abholen.' });
   // Viele weitere Kunden im Beratungsgebiet (Lengede, Raum Peine bis Salzgitter)
   gebietsKunden(d, tageAb);
+  // Statusverlauf mit Datum (Verkaufstrichter, Abschlüsse je Zeitraum) und Anlagedatum je Kunde
+  demoStatusVerlauf(d);
   return d;
 }
 

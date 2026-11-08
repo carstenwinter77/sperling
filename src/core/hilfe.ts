@@ -113,10 +113,14 @@ export const THEMEN = {
   },
   auswertung: {
     titel: 'Auswertungen',
-    kurz: 'Gespräche, Abschlüsse, Termine und Verleihe für einen Zeitraum, mit Vergleich zum Zeitraum davor.',
+    kurz: 'Wie läuft der Vertrieb? Abschlüsse, Abschlussquote, offene Chancen, Verkaufstrichter und wen du jetzt nachfassen solltest.',
     schritte: [
-      'Bereich wählen (alles, PV, WP oder Vorwerk) und den Zeitraum: Tag, Woche, Monat, 1 Monat, 3 Monate, ½ Jahr, Kalenderjahr oder letzte 365 Tage.',
-      'Mit ‹ und › blätterst du in die Vergangenheit.',
+      'Bereich wählen (alles, PV, WP oder Vorwerk) und den Zeitraum: Woche, Monat, Quartal oder Kalenderjahr; Tag, 1 Monat, 3 Monate, ½ Jahr und 365 Tage unter „Mehr“.',
+      'Mit ‹ und › blätterst du in die Vergangenheit. Ein laufender Zeitraum wird mit gleich vielen Tagen davor verglichen (1.–8. November gegen 1.–8. Oktober).',
+      'Abschlüsse: Kunden, deren Status auf „Abschluss“ wechselte. Abschlussquote: Anteil der gewonnenen an allen entschiedenen Chancen (Abschluss oder Absage nach Interesse, Termin oder Angebot).',
+      'Verkaufstrichter: wie viele Kunden im Zeitraum bis zu welcher Stufe kamen. Die rot markierte Stufe verliert die meisten; darunter steht ein Tipp.',
+      '„Jetzt nachfassen“: überfällige Termine und Wiedervorlagen, Angebote ohne Kontakt seit einer Woche und Testgeräte, die zurück müssen. Tippen öffnet den Kunden.',
+      'Weitere Zahlen, Gespräche im Verlauf, Fokus je Sparte und meistgefragte Produkte findest du unter „Aktivität im Detail“.',
       '„Fokus je Sparte“ (bei „Alles zusammen“) zeigt, wie sich deine Aufmerksamkeit auf PV, WP und Vorwerk verteilt, wie es sich über die letzten sechs Zeiträume entwickelt hat, und gibt einen Kurztipp, wenn eine Sparte zu kurz kommt.',
       '„PDF-Bericht“ erstellt einen Bericht zum Teilen oder Speichern.',
     ],

@@ -666,14 +666,24 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   if (!(await p.textContent('#liste')).includes('Prüfer')) fail('Kunde nicht wiederhergestellt');
   // Auswertungen: Bereich, Zeitraum, Blättern, PDF-Bericht
   await p.goto(BASE + '#/auswertung');
+  await p.waitForSelector('.aw-kern [data-kern=abschluesse]');
+  await p.waitForSelector('#awTrichter');
+  await p.waitForSelector('#awNachfassen');
+  if ((await p.$$('.aw-kern .aw-kern-zahl')).length !== 4) fail('Vier Kernzahlen fehlen');
+  if (!(await p.textContent('.aw-kopf')).includes('verglichen mit')) fail('Vergleichszeitraum fehlt');
+  await p.waitForSelector('#awSparten');
+  // Details aufklappen: dort stehen die übrigen Kennzahlen, der Verlauf und der Fokus
+  await p.click('#awDetails summary');
   await p.waitForSelector('.aw-zahlen .aw-zahl');
   await p.click('[data-bereich=pv]');
+  await p.waitForSelector('.aw-zahlen .aw-zahl');
+  if (await p.$('#awSparten')) fail('Spartenvergleich nur bei „Alles zusammen“');
   await p.click('[data-periode=woche]');
   const kw = await p.textContent('.aw-kopf h2');
   await p.click('.k-nav [data-schritt="-1"]');
   if ((await p.textContent('.aw-kopf h2')) === kw) fail('Blättern in Auswertungen ohne Wirkung');
   if (await p.$('.aw-zahl >> text=Kaufquote')) fail('Kaufquote im PV-Bericht');
-  await p.click('[data-periode="365"]');
+  await p.selectOption('#awMehr', '365');
   if (!(await p.textContent('.aw-kopf h2')).startsWith('Letzte 365 Tage')) fail('365-Tage-Bericht fehlt');
   await p.click('#awPdf');
   await p.waitForFunction(() => /auswertung-pv-365-.*\.pdf/.test(document.querySelector('dialog')?.textContent || ''));
