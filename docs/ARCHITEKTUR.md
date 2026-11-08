@@ -26,7 +26,7 @@ Browser (Tablet / Handy / Laptop)
  │   ├─ produkte.ts ...... Produktkatalog prüfen, filtern, suchen; Markierungen „Produkte im Gespräch“
  │   ├─ foerderung.ts .... Förderung/Rechtsgrundlagen PV + WP: Abschnitte mit Quellen, Zeitleiste, Filter, Kopiertext
  │   ├─ amortisation.ts .. grober Amortisationsrechner PV/WP (Annahmen, Jahreswerte, Staffel, Höchstpreis, Kopiertext)
- │   ├─ rechnervorlagen.ts  Startwerte des Rechners je Kundentyp (Privat, Gewerbe, eigene), Normalisierung, Firma → Gewerbe
+ │   ├─ rechnervorlagen.ts  Startwerte des Rechners je Kundentyp (Privat, Gewerbe, eigene), Normalisierung, zuletzt gewählte Vorlage
  │   ├─ felder.ts ........ Feldverwaltung: Kontaktfelder, eigene Felder, sichtbare Felder, Anzeige je Typ
  │   ├─ suche.ts ......... Kommandozeile: Normalisierung, Bewertung, Gruppen, Verben, Zuletzt
  │   ├─ hilfe.ts ......... Hilfetexte (Themen, Begriffe, Fragen) und Hilfe-Suche

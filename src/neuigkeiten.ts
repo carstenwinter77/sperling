@@ -4,7 +4,7 @@ export const NEUIGKEITEN = [
   {
     version: '0.13.10',
     punkte: [
-      'Rechner: Oben wählst du die Vorlage „Privat“ oder „Gewerbe“. Beim Kunden mit Firma startet der Rechner gleich mit „Gewerbe“.',
+      'Rechner: Oben wählst du die Vorlage „Privat“ oder „Gewerbe“. Der Rechner merkt sich die zuletzt gewählte und startet beim nächsten Mal wieder damit.',
       'Eigene Startwerte: Unter Einstellungen → Vertrieb → „Rechner: Vorlagen“ änderst du die Werte oder legst eigene Vorlagen an. Im Rechner geht das auch mit „⭐ Als Vorlage merken“.',
     ],
   },

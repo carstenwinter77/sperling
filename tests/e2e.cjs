@@ -960,7 +960,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForSelector('#rechner .rz-uebernommen');
   if ((await p.inputValue('#rz-strompreis')) !== '41') fail('Rechner: Strompreis vom Kunden nicht übernommen');
   if (!(await p.$('.rz-kunde [data-rz-zurueck-kunde]'))) fail('Rechner: Zurück zum Kunden fehlt');
-  if (!(await p.$('[data-rz-vorlage=privat].aktiv'))) fail('Rechner: Kunde ohne Firma startet nicht mit Vorlage Privat');
+  if (!(await p.$('[data-rz-vorlage=privat].aktiv'))) fail('Rechner: startet nicht mit Vorlage Privat');
   // Vorlage wechseln: Gewerbe lädt andere Startwerte, der Strompreis vom Kunden bleibt
   await p.click('[data-rz-vorlage=gewerbe]');
   await p.waitForSelector('[data-rz-vorlage=gewerbe].aktiv');
@@ -1157,9 +1157,10 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     await p.fill('[data-feld="telefon"]', '0170 1112223');
     await p.waitForTimeout(500);
     const vid = (await p.evaluate(() => location.hash)).match(/kunde\/([^?]+)/)[1];
-    // Kunde mit Firma: Rechner startet mit der (angepassten) Vorlage Gewerbe
+    // Rechner bleibt bei der zuletzt gewählten Vorlage (vorhin „Landwirtschaft“), auch aus der Kundenkartei
     await p.goto(BASE + '#/rechner?kunde=' + vid + '&art=pv');
-    await p.waitForSelector('[data-rz-vorlage=gewerbe].aktiv');
+    await p.waitForSelector('[data-rz-vorlage].aktiv:has-text("Landwirtschaft")');
+    await p.click('[data-rz-vorlage=gewerbe]');
     if ((await p.inputValue('#rz-strompreis')) !== '23,5') fail('Rechner: angepasste Vorlage Gewerbe nicht verwendet');
     await p.goto(BASE + '#/kunde/' + vid);
     await p.waitForSelector('.ap-box [data-ap-neu]');

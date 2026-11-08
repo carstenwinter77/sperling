@@ -1477,7 +1477,7 @@ test('Rechner: Angaben aus der Kundenkartei übernehmen (nur passende Werte)', a
   assert.deepEqual(wpAusKunde({ heizungsart: 'Gas', verbrauchMenge: 2000, verbrauchEinheit: 'Liter' }).werte, {}, 'Einheit passt nicht zur Heizung');
 });
 
-test('Rechner-Vorlagen: Privat und Gewerbe immer da, Grenzen, eigene, Firma → Gewerbe', async () => {
+test('Rechner-Vorlagen: Privat und Gewerbe immer da, Grenzen, eigene, zuletzt gewählte', async () => {
   const rv = await import('../src/core/rechnervorlagen.ts');
   const leer = rv.normalizeRechnerVorlagen(undefined);
   assert.deepEqual(leer.map((v) => v.id), ['privat', 'gewerbe']);
@@ -1498,11 +1498,12 @@ test('Rechner-Vorlagen: Privat und Gewerbe immer da, Grenzen, eigene, Firma → 
   assert.ok(rv.angepasst(n[1]) && !rv.angepasst(leer[1]) && !rv.angepasst(n[2]));
   const viele = Array.from({ length: 30 }, (_, i) => ({ id: `v-${i}`, name: `V${i}` }));
   assert.equal(rv.normalizeRechnerVorlagen(viele).length, rv.VORLAGEN_MAX);
-  assert.equal(rv.vorlageFuerKunde({ firma: 'Bäckerei Krause' }), 'gewerbe');
-  assert.equal(rv.vorlageFuerKunde({ firma: '  ' }), 'privat');
-  assert.equal(rv.vorlageFuerKunde(null), 'privat');
   const { normalizeEinstellungen } = await import('../src/core/model.ts');
   assert.equal(normalizeEinstellungen({}).rechnerVorlagen.length, 2, 'ältere Daten bekommen die Werksvorlagen');
+  assert.equal(normalizeEinstellungen({}).rechnerVorlageZuletzt, 'privat', 'Start mit Privat');
+  assert.equal(normalizeEinstellungen({ rechnerVorlageZuletzt: 'gewerbe' }).rechnerVorlageZuletzt, 'gewerbe', 'letzte Wahl bleibt');
+  assert.equal(normalizeEinstellungen({ rechnerVorlagen: [{ id: 'v-9', name: 'X' }], rechnerVorlageZuletzt: 'v-9' }).rechnerVorlageZuletzt, 'v-9');
+  assert.equal(normalizeEinstellungen({ rechnerVorlageZuletzt: 'v-geloescht' }).rechnerVorlageZuletzt, 'privat', 'gelöschte Vorlage → Privat');
 });
 
 test('Abhaken mit Folgeschritt: erledigt, Notiz im Bereich des Termins, nächste Wiedervorlage', async () => {

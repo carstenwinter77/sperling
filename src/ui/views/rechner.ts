@@ -12,7 +12,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
   rechner.artSetzen(params.get('art'));
   const kid = params.get('kunde') || '';
   const k = kid ? store.findKunde(kid) : null; // im Beratungs-Schutz nur der geschützte Kunde
-  if (k) rechner.kundeLaden(k.id, { firma: k.firma, pv: k.pv, wp: k.wp });
+  if (k) rechner.kundeLaden(k.id, { pv: k.pv, wp: k.wp });
   else rechner.kundeVergessen();
   const zurueck = k ? ruecksprung.ziel(`#/kunde/${k.id}?tab=${rechner.aktuelleArt()}`, `#/kunde/${k.id}`) : '';
 

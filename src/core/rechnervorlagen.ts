@@ -65,8 +65,8 @@ export function normalizeRechnerVorlagen(src: unknown): RechnerVorlage[] {
   return [...werk, ...eigene];
 }
 
-/** Vorlage, mit der der Rechner für einen Kunden startet: mit Firma „Gewerbe“, sonst „Privat“. */
-export const vorlageFuerKunde = (k: { firma?: unknown } | null | undefined) => (typeof k?.firma === 'string' && k.firma.trim() ? VORLAGE_GEWERBE : VORLAGE_PRIVAT);
+/** Zuletzt gewählte Vorlage, wenn es sie noch gibt, sonst „Privat“ (Start beim ersten Mal und nach dem Löschen). */
+export const zuletztGewaehlt = (id: unknown, vorlagen: RechnerVorlage[]) => (typeof id === 'string' && vorlagen.some((v) => v.id === id) ? id : VORLAGE_PRIVAT);
 
 /** Weicht eine Werksvorlage von der Auslieferung ab? (für „angepasst“ und „Auf Werkseinstellung“) */
 export function angepasst(v: RechnerVorlage): boolean {

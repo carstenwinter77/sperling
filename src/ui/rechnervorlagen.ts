@@ -26,7 +26,7 @@ export function html(vs: RechnerVorlage[]): string {
   return `
     <section class="karte-box" id="rechnerVorlagen">
       <h2>Rechner: Vorlagen</h2>
-      <p class="hinweis">Startwerte für „Wann rechnet sich das?“. Im Rechner wählst du oben die Vorlage. Aus der Kundenkartei startet er mit „Gewerbe“, wenn beim Kunden eine Firma eingetragen ist, sonst mit „Privat“. Angaben des Kunden wie Strompreis oder Verbrauch kommen obendrauf.</p>
+      <p class="hinweis">Startwerte für „Wann rechnet sich das?“. Im Rechner wählst du oben die Vorlage. Er startet mit „Privat“ und merkt sich danach die zuletzt gewählte Vorlage, auch beim Öffnen aus der Kundenkartei. Angaben des Kunden wie Strompreis oder Verbrauch kommen obendrauf.</p>
       ${vs.map((v) => {
         const werk = istWerksvorlage(v.id);
         const marke = werk ? (angepasst(v) ? 'angepasst' : 'Werkseinstellung') : 'eigene';

@@ -7,7 +7,7 @@ import { normalizeFeldEinstellungen, normalizeEigeneWerte } from './felder.ts';
 import { normalizeProduktMarkierung, type ProduktMarkierung } from './produkte.ts';
 import { normalizeBausteine } from './bausteine.ts';
 import { normalizeFotoListe } from './fotos.ts';
-import { normalizeRechnerVorlagen } from './rechnervorlagen.ts';
+import { normalizeRechnerVorlagen, zuletztGewaehlt } from './rechnervorlagen.ts';
 import { normalizeAngebot, normalizeAuftrag, normalizeNachfassTage, normalizeBereitlegen, normalizeAnsprechpartner, normalizeHaustuer, ANGEBOTE_MAX, ANSPRECHPARTNER_MAX, HAUSTUER_MAX, type HaustuerEintrag } from './vertrieb.ts';
 
 export const SCHEMA_VERSION = 9;
@@ -704,6 +704,8 @@ export function normalizeEinstellungen(e: unknown) {
     bereitlegen: normalizeBereitlegen(src.bereitlegen),
     /** Startwerte des Rechners je Kundentyp (ab 0.13.10): Privat, Gewerbe und eigene Vorlagen */
     rechnerVorlagen: normalizeRechnerVorlagen(src.rechnerVorlagen),
+    /** Zuletzt im Rechner gewählte Vorlage (ab 0.13.10, Standard „privat“); der Rechner startet wieder damit */
+    rechnerVorlageZuletzt: zuletztGewaehlt(src.rechnerVorlageZuletzt, normalizeRechnerVorlagen(src.rechnerVorlagen)),
   };
 }
 

@@ -1,7 +1,7 @@
 # Änderungsverlauf
 
 ## 0.13.10 – 08.11.2026
-- **Rechner: Vorlagen für Privat und Gewerbe.** Oben im Rechner wählst du die Vorlage: „Privat (Einfamilienhaus)“ mit den bisherigen Werten oder „Gewerbe (netto)“ mit typischen Firmenzahlen (30 kWp, 25 ct Strom, mehr Eigenverbrauch, größere Wärmepumpe). Aus der Kundenkartei startet der Rechner automatisch mit „Gewerbe“, wenn beim Kunden eine Firma eingetragen ist. Strompreis, Verbrauch und Heizkosten des Kunden kommen wie bisher obendrauf.
+- **Rechner: Vorlagen für Privat und Gewerbe.** Oben im Rechner wählst du die Vorlage: „Privat (Einfamilienhaus)“ mit den bisherigen Werten oder „Gewerbe (netto)“ mit typischen Firmenzahlen (30 kWp, 25 ct Strom, mehr Eigenverbrauch, größere Wärmepumpe). Beim ersten Mal startet der Rechner mit „Privat“, danach merkt er sich die zuletzt gewählte Vorlage und startet wieder damit, auch aus der Kundenkartei. Strompreis, Verbrauch und Heizkosten des Kunden kommen wie bisher obendrauf.
 - **Eigene Startwerte.** Unter Einstellungen → Vertrieb → „Rechner: Vorlagen“ lassen sich die Werte beider Vorlagen ändern und eigene Vorlagen anlegen, umbenennen und löschen. Im Rechner speichert „⭐ Als Vorlage merken“ die aktuellen Werte in eine Vorlage oder als neue Vorlage.
 
 ## 0.13.9 – 08.11.2026

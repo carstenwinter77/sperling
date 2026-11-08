@@ -6,7 +6,7 @@ import {
   pvAusKunde, wpAusKunde, zahlLesen, euro, jahreText, rechnerText, type Rechner, type PvAnnahmen, type WpAnnahmen, type Ergebnis, type Feld,
 } from '../core/amortisation.ts';
 import {
-  WERKS_VORLAGEN, VORLAGE_HINWEIS, VORLAGE_PRIVAT, VORLAGEN_MAX, VORLAGE_NAME_MAX, normalizeRechnerVorlagen, vorlageFuerKunde, neueVorlagenId,
+  WERKS_VORLAGEN, VORLAGE_HINWEIS, VORLAGE_PRIVAT, VORLAGEN_MAX, VORLAGE_NAME_MAX, normalizeRechnerVorlagen, zuletztGewaehlt, neueVorlagenId,
   type RechnerVorlage,
 } from '../core/rechnervorlagen.ts';
 import * as store from '../storage/store.ts';
@@ -38,8 +38,18 @@ function vorlageAnwenden(id: string) {
   wp = { ...v.wp, ...kundeWerte.wp };
 }
 
-/** Vor dem Zeichnen: beim ersten Mal oder nach Änderung der Vorlage in den Einstellungen neu laden. */
+/** Zuletzt gewählte Vorlage (gespeichert in den Einstellungen, Standard „Privat“). */
+function gemerkt(): string {
+  try { return zuletztGewaehlt(store.getData().einstellungen.rechnerVorlageZuletzt, vorlagen()); } catch { return VORLAGE_PRIVAT; }
+}
+/** Auswahl merken, damit der Rechner beim nächsten Mal wieder damit startet. */
+function auswahlMerken(id: string) {
+  try { if (store.getData().einstellungen.rechnerVorlageZuletzt !== id) store.mutate((d) => { d.einstellungen.rechnerVorlageZuletzt = id; }); } catch { /* gesperrt */ }
+}
+
+/** Vor dem Zeichnen: beim ersten Mal mit der gemerkten Vorlage starten; nach Änderung in den Einstellungen neu laden. */
 export function vorbereiten() {
+  if (!angewandt || !vorlagen().some((v) => v.id === vorlageId)) { vorlageAnwenden(gemerkt()); return; }
   if (JSON.stringify(vorlage()) !== angewandt) vorlageAnwenden(vorlageId);
 }
 
@@ -158,7 +168,7 @@ export function binden(box: HTMLElement) {
     const wahl = t.closest<HTMLElement>('[data-rz-art]');
     if (wahl) { art = wahl.dataset.rzArt as Rechner; neuZeichnen(); box.querySelector<HTMLElement>(`[data-rz-art=${art}]`)?.focus(); return; }
     const vw = t.closest<HTMLElement>('[data-rz-vorlage]');
-    if (vw) { vorlageAnwenden(vw.dataset.rzVorlage || VORLAGE_PRIVAT); neuZeichnen(); box.querySelector<HTMLElement>(`[data-rz-vorlage="${CSS.escape(vorlageId)}"]`)?.focus(); return; }
+    if (vw) { vorlageAnwenden(vw.dataset.rzVorlage || VORLAGE_PRIVAT); auswahlMerken(vorlageId); neuZeichnen(); box.querySelector<HTMLElement>(`[data-rz-vorlage="${CSS.escape(vorlageId)}"]`)?.focus(); return; }
     if (t.closest('[data-rz-zurueck]')) {
       const v = vorlage();
       if (art === 'pv') { pv = { ...v.pv }; kundeWerte.pv = {}; } else { wp = { ...v.wp }; kundeWerte.wp = {}; }
@@ -178,13 +188,12 @@ export function artSetzen(b: string | null) { if (b === 'pv' || b === 'wp') art 
 export const aktuelleArt = () => art;
 
 /**
- * Angaben eines Kunden übernehmen (Strompreis, Speicher; Gas/Öl-Verbrauch und Heizkosten) auf die passende
- * Vorlage (mit Firma „Gewerbe“, sonst „Privat“). Kommt Jan zum selben Kunden zurück und hat sich in der Kartei
- * nichts geändert, bleiben seine Änderungen stehen.
+ * Angaben eines Kunden übernehmen (Strompreis, Speicher; Gas/Öl-Verbrauch und Heizkosten) auf die zuletzt gewählte
+ * Vorlage. Kommt Jan zum selben Kunden zurück und hat sich in der Kartei nichts geändert, bleiben seine Änderungen stehen.
  */
-export function kundeLaden(id: string, angaben: { firma?: unknown; pv?: Record<string, unknown>; wp?: Record<string, unknown> }) {
+export function kundeLaden(id: string, angaben: { pv?: Record<string, unknown>; wp?: Record<string, unknown> }) {
   const p = pvAusKunde(angaben.pv); const w = wpAusKunde(angaben.wp);
-  const start = vorlageFuer(angaben);
+  const start = gemerkt();
   const schluessel = `${id}|${start}|${JSON.stringify(p.werte)}|${JSON.stringify(w.werte)}`;
   if (schluessel === kundeGeladen) return;
   kundeGeladen = schluessel;
@@ -192,7 +201,6 @@ export function kundeLaden(id: string, angaben: { firma?: unknown; pv?: Record<s
   uebernommen = { pv: p.liste, wp: w.liste };
   vorlageAnwenden(start);
 }
-const vorlageFuer = (k: { firma?: unknown }) => { const id = vorlageFuerKunde(k); return vorlagen().some((v) => v.id === id) ? id : VORLAGE_PRIVAT; };
 export const aktuelleVorlage = () => vorlageId;
 
 /** Ohne Kunden geöffnet: Werte eines vorher geladenen Kunden verwerfen (kein Rest im Beratungs-Schutz). */
@@ -201,7 +209,7 @@ export function kundeVergessen() {
   kundeGeladen = '';
   kundeWerte = { pv: {}, wp: {} };
   uebernommen = { pv: [], wp: [] };
-  vorlageAnwenden(VORLAGE_PRIVAT);
+  vorlageAnwenden(gemerkt());
 }
 
 /** „Als Vorlage merken“: die Werte der gewählten Sparte in eine bestehende oder neue Vorlage schreiben. */
@@ -244,6 +252,7 @@ async function alsVorlageMerken(): Promise<boolean> {
     d.einstellungen.rechnerVorlagen = normalizeRechnerVorlagen(vs);
   });
   vorlageAnwenden(ziel);
+  auswahlMerken(ziel);
   toast(store.isDemo() ? 'Gemerkt (im Demo-Modus nur bis zum Neuladen)' : `${sparte}-Werte in „${vorlage().name}“ gespeichert`, 'ok');
   return true;
 }
