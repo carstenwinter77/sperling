@@ -424,7 +424,7 @@ function texte(el, k) {
         </div>
       </section>`).join('')}
     </div>
-    <p class="hinweis">Vorlagen kannst du unter <a href="#/einstellungen">Einstellungen</a> anpassen.</p>`;
+    <p class="hinweis">Vorlagen kannst du unter <a href="#/einstellungen?bereich=texte">Einstellungen → Texte &amp; E-Mail</a> anpassen.</p>`;
   el.querySelectorAll('[data-kopieren]').forEach((b) => b.addEventListener('click', async () => {
     const ok = await kopieren(el.querySelector(`#text-${b.dataset.kopieren}`).value);
     toast(ok ? 'Kopiert' : 'Kopieren nicht möglich – bitte Text markieren.', ok ? 'ok' : 'error');

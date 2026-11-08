@@ -1,4 +1,5 @@
-// Einstellungen: Absender, Textvorlagen, Sicherung (iCloud), Historie, Passwort, Datenschutz.
+// Einstellungen in Bereichen (GRUPPEN): breit links Liste, rechts Inhalt; schmal Übersicht → Unterseite.
+// Alle Bereiche werden gezeichnet und nur ein-/ausgeblendet, damit Suche und Verdrahtung überall greifen.
 import * as abgleich from '../abgleich.ts';
 import { esc, formatDateTime, parseNumber } from '../../core/util.ts';
 import { DEFAULT_VORLAGEN, KUNDENANSICHT_TEILE, SPARTEN, SPARTEN_KEYS, migrate, normalizeGeraet, type KundenansichtTeil, type Sparte } from '../../core/model.ts';
@@ -15,6 +16,7 @@ import { KeyRing } from '../../core/crypto.ts';
 import { MAILPROGRAMME, gemerktesMailprogramm, mailprogrammMerken } from '../kontakt.ts';
 import { maskottchen, toast, download, dateiWaehlen, dialog, bestaetigen, teilenOderSpeichern } from '../dom.ts';
 import * as hilfe from '../hilfe.ts';
+import { symbol } from '../symbole.ts';
 import * as kontaktseite from '../kontaktseite.ts';
 import * as feldverwaltung from '../feldverwaltung.ts';
 import * as bausteinverwaltung from '../bausteinverwaltung.ts';
@@ -23,86 +25,88 @@ import { einstellungenPaket, einstellungenAusPaket, geraeteWahl } from '../../co
 
 export const APP_VERSION = __APP_VERSION__; // aus package.json (vite.config.ts)
 
-export function render(el: HTMLElement) {
-  const e = store.getData().einstellungen;
-  const demo = store.isDemo();
-  el.innerHTML = `
-    <header class="seitenkopf"><h1>${maskottchen('einstellungen', 'titel-bild')} Einstellungen</h1></header>
-    ${demo ? '<p class="hinweis demo-hinweis">Demo-Modus: Änderungen werden nicht gespeichert. Sicherung und Passwort sind hier deaktiviert.</p>' : ''}
+/** „heute“, „gestern“, „vor 5 Tagen“ */
+function tageText(iso: string): string {
+  const tage = Math.floor((Date.now() - new Date(iso).getTime()) / (24 * 3600 * 1000));
+  return tage <= 0 ? 'heute' : tage === 1 ? 'gestern' : `vor ${tage} Tagen`;
+}
 
+/** Bereiche der Einstellungen: links (iPad quer) bzw. als Übersicht (Handy, iPad hochkant). */
+export const GRUPPEN = [
+  { key: 'allgemein', sym: 'allgemein', titel: 'Allgemein', such: 'absender gruss name farbschema hell dunkel automatisch kalender start ansicht hinfahren navigation karten app apple google waze' },
+  { key: 'texte', sym: 'texte', titel: 'Texte & E-Mail', such: 'textvorlagen vorlage platzhalter textbausteine baustein mail e-mail mailprogramm empfaenger gmail outlook' },
+  { key: 'kunden', sym: 'kundendaten', titel: 'Kundendaten', such: 'felder eigene felder feldverwaltung kundenansicht herzeigen fotos kundenfotos speicher' },
+  { key: 'sicherung', sym: 'sicherung', titel: 'Sicherung', such: 'sicherung icloud backup datei einspielen wiederherstellen versionen einstellungen uebertragen abgleich geraet wechseln fotos mitsichern' },
+  { key: 'sicherheit', sym: 'sicherheit', titel: 'Sicherheit & Datenschutz', such: 'sperren automatisch sperre face id touch id passwort master-passwort datenschutz alles loeschen zuruecksetzen' },
+  { key: 'kontaktseite', sym: 'kontaktseite', titel: 'Meine Kontaktseite', such: 'kontaktseite qr code link teilen werbung' },
+  { key: 'hilfe', sym: 'hilfe', titel: 'Hilfe', such: 'hilfe fragezeichen knoepfe rund-tour tour anleitung installieren' },
+  { key: 'aufraeumen', sym: 'aufraeumen', titel: 'Gelöscht & Beispieldaten', such: 'geloescht papierkorb beispieldaten beispielkunden beispielbestand demo ueben' },
+] as const;
+type GruppeKey = typeof GRUPPEN[number]['key'];
+
+const KARTEN_APPS: [string, string][] = [['auto', 'Beim ersten Mal fragen'], ['apple', 'Apple Karten'], ['google', 'Google Maps'], ['waze', 'Waze']];
+const SPERR_MINUTEN = [0, 1, 2, 5, 10, 15, 20, 30, 45, 60, 90, 120, 240];
+
+/** Zum Suchen: klein, ohne Akzente/Umlaute-Punkte, ß → ss. */
+const such = (s: string) => s.toLowerCase().replace(/ß/g, 'ss').replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+/** Ein/Aus-Schalter als Zeile: Text links, Schalter rechts. */
+const schalter = (id: string, text: string, an: boolean, aus = false, unter = '') => `<label class="schalter-zeile"><span>${text}${unter ? `<small>${unter}</small>` : ''}</span><input type="checkbox" role="switch" class="schalter" id="${id}" ${an ? 'checked' : ''} ${aus ? 'disabled' : ''}></label>`;
+/** Längere Erklärungen eingeklappt hinter „ⓘ“. */
+const mehr = (titel: string, inhalt: string) => `<details class="mehr-info"><summary>ⓘ ${titel}</summary><div>${inhalt}</div></details>`;
+
+function statusText(key: GruppeKey, demo: boolean): string {
+  const d = store.getData();
+  const e = d.einstellungen;
+  const n = (z: number, ein: string, mehrz: string) => `${z} ${z === 1 ? ein : mehrz}`;
+  switch (key) {
+    case 'allgemein': return `Farbe: ${theme.SCHEMATA[theme.lesen() as keyof typeof theme.SCHEMATA] || 'Automatisch'} · Kalender: ${(KALENDER_ANSICHTEN.find(([k]) => k === e.kalenderStart) || KALENDER_ANSICHTEN[0])[1]}`;
+    case 'texte': {
+      const b = SPARTEN_KEYS.reduce((z, s) => z + (e.bausteine?.[s]?.length || 0), 0);
+      const m = gemerktesMailprogramm();
+      return `3 Vorlagen · ${n(b, 'Baustein', 'Bausteine')} · ${m && m in MAILPROGRAMME ? esc(MAILPROGRAMME[m as keyof typeof MAILPROGRAMME]) : 'Mail: jedes Mal fragen'}`;
+    }
+    case 'kunden': {
+      const st = fotoStatistik(d);
+      return `${n(e.felder.eigene.length, 'eigenes Feld', 'eigene Felder')} · ${st.anzahl ? `${n(st.anzahl, 'Foto', 'Fotos')} (${groesseText(st.bytes)})` : 'keine Fotos'}`;
+    }
+    case 'sicherung': return demo ? 'Im Demo-Modus aus' : 'Wird geprüft …';
+    case 'sicherheit': return demo ? 'Im Demo-Modus eingeschränkt' : (e.autoSperreMin ? `Sperrt nach ${e.autoSperreMin} Min.` : 'Sperrt nicht automatisch');
+    case 'kontaktseite': return 'Link und QR-Code für Kunden';
+    case 'hilfe': return `?-Knöpfe ${hilfe.vorlieben().knoepfe ? 'an' : 'aus'} · Rund-Tour · Installieren`;
+    case 'aufraeumen': {
+      const g = (d.papierkorb || []).length;
+      const bsp = demo ? 0 : beispielAnzahl(d);
+      return `${g ? `${g} gelöscht` : 'Nichts gelöscht'}${bsp ? ` · ${n(bsp, 'Beispielkunde', 'Beispielkunden')}` : ''}`;
+    }
+  }
+}
+
+function inhalt(key: GruppeKey, demo: boolean): string {
+  const d = store.getData();
+  const e = d.einstellungen;
+  const aus = demo ? 'disabled' : '';
+  switch (key) {
+    case 'allgemein': return `
     <section class="karte-box">
-      <h2>Darstellung</h2>
-      <div class="segment farbschema-wahl" role="group" aria-label="Farbschema">
-        ${Object.entries(theme.SCHEMATA).map(([k, v]) => `<button data-schema="${k}" class="${theme.lesen() === k ? 'aktiv' : ''}">${v}</button>`).join('')}
+      <div class="formgrid einst-felder">
+        <label class="breit">Absender (Gruß unter Texten)<input id="absender" value="${esc(e.absender)}" placeholder="z. B. Jan Sperling"></label>
+        <div class="breit einst-feld"><span class="einst-label">Farbschema</span>
+          <div class="segment farbschema-wahl" role="group" aria-label="Farbschema">
+            ${Object.entries(theme.SCHEMATA).map(([k, v]) => `<button type="button" data-schema="${k}" class="${theme.lesen() === k ? 'aktiv' : ''}">${v}</button>`).join('')}
+          </div>
+          <small class="hinweis">„Automatisch“ folgt der Einstellung des Geräts.</small></div>
+        <label>Kalender startet mit<select id="kalenderStart">
+          ${KALENDER_ANSICHTEN.map(([k, l]) => `<option value="${k}" ${e.kalenderStart === k ? 'selected' : ''}>${l}</option>`).join('')}
+        </select></label>
+        <label class="breit">„Hinfahren“ öffnet<select id="kartenApp">
+          ${KARTEN_APPS.map(([k, v]) => `<option value="${k}" ${e.kartenApp === k ? 'selected' : ''}>${v}</option>`).join('')}
+        </select></label>
       </div>
-      <p class="hinweis">Automatisch folgt der Einstellung des Geräts.</p>
-    </section>
+      ${mehr('Warum nicht die Standard-App von iOS?', '<p class="hinweis">Eine Web-App kann die in iOS gewählte Standard-Navigations-App nicht direkt aufrufen. Wähle hier die App, mit der du fährst; Google Maps und Waze öffnen sich, wenn sie installiert sind, sonst im Browser.</p>')}
+    </section>`;
 
-    <section class="karte-box" id="hilfeEinstellungen">
-      <h2>Hilfe</h2>
-      <label class="check"><input type="checkbox" id="hilfeKnoepfe" ${hilfe.vorlieben().knoepfe ? 'checked' : ''}> ?-Knöpfe mit Kurzhilfe anzeigen</label>
-      <div class="knopfreihe"><button type="button" class="btn primary" data-tour-start>🧭 Rund-Tour starten</button><a class="btn" href="#/hilfe">📖 Hilfe öffnen</a><a class="btn ghost" href="#/hilfe?thema=installieren">📲 App installieren</a></div>
-      <p class="hinweis">Die Hilfe-Seite bleibt auch ohne ?-Knöpfe erreichbar (hier und über die Suche).</p>
-    </section>
-    ${kontaktseite.abschnitt()}
-
-    <section class="karte-box">
-      <h2>Allgemein</h2>
-      <div class="formgrid">
-        <label class="breit">Absender (Gruß unter Texten)<input id="absender" value="${esc(e.absender)}"></label>
-        <label>Automatisch sperren nach (Minuten, 0 = nie)<input id="autoSperre" type="number" min="0" max="240" value="${esc(e.autoSperreMin)}"></label>
-      </div>
-    </section>
-
-    <section class="karte-box ${demo ? 'aus' : ''}">
-      <h2>Beispieldaten</h2>
-      <h3>Beispielkunden</h3>
-      <p class="hinweis">Lädt fünf erfundene Kunden mit Notizen, Gesprächen, Enpal-Doku, Terminen und Vorführgeräten – zum Zeigen und Üben. Sie sind mit „Beispiel“ markiert und lassen sich mit einem Tipp wieder vollständig entfernen. Deine echten Kunden bleiben unberührt.</p>
-      <p id="beispielInfo" class="hinweis">${demo ? '' : (beispielAnzahl(store.getData()) ? `<b>${beispielAnzahl(store.getData())} Beispielkunden</b> sind geladen.` : 'Keine Beispielkunden geladen.')}</p>
-      <div class="knopfreihe">
-        <button class="btn ghost" id="beispielLaden" ${demo ? 'disabled' : ''}>Beispielkunden laden</button>
-        <button class="btn danger" id="beispielWeg" ${demo || !beispielAnzahl(store.getData()) ? 'disabled' : ''}>Beispielkunden entfernen</button>
-      </div>
-      <h3>Beispiel-Vorführbestand (Vorwerk)</h3>
-      <p class="hinweis">Lädt einen typischen Kobold-Vorführbestand (VK7, VR7, SP7, VB100, Polsterboy, Zubehör-Koffer) ohne Kunden – zum Ausprobieren von Verleih, Erinnerung und Kaufinteresse. Erfundene Seriennummern beginnen mit „BSP“.</p>
-      <p id="bestandInfo" class="hinweis">${demo ? '' : (bestandAnzahl(store.getData()) ? `<b>${bestandAnzahl(store.getData())} Beispielgeräte</b> sind im Bestand.` : 'Kein Beispielbestand geladen.')}</p>
-      <div class="knopfreihe">
-        <button class="btn ghost" id="bestandLaden" ${demo ? 'disabled' : ''}>Beispielbestand laden</button>
-        <button class="btn danger" id="bestandWeg" ${demo || !bestandAnzahl(store.getData()) ? 'disabled' : ''}>Beispielbestand entfernen</button>
-      </div>
-    </section>
-
-    <section class="karte-box">
-      <h2>Kalender</h2>
-      <label>Kalender startet mit<select id="kalenderStart">
-        ${KALENDER_ANSICHTEN.map(([k, l]) => `<option value="${k}" ${e.kalenderStart === k ? 'selected' : ''}>${l}</option>`).join('')}
-      </select></label>
-    </section>
-
-    <section class="karte-box">
-      <h2>Navigation</h2>
-      <label>„Hinfahren“ öffnet<select id="kartenApp">
-        ${[['auto', 'Beim ersten Mal fragen (iPhone/iPad), sonst Google Maps'], ['apple', 'Apple Karten'], ['google', 'Google Maps'], ['waze', 'Waze']].map(([k, v]) => `<option value="${k}" ${e.kartenApp === k ? 'selected' : ''}>${v}</option>`).join('')}
-      </select></label>
-      <p class="hinweis">Eine Web-App kann die in iOS gewählte Standard-Navigations-App nicht direkt aufrufen. Wähle hier die App, mit der du fährst; Google Maps und Waze öffnen sich, wenn sie installiert sind, sonst im Browser.</p>
-    </section>
-
-    ${feldverwaltung.html(e.felder)}
-
-    ${bausteinverwaltung.html(e.bausteine)}
-
-    <section class="karte-box" id="kaEinstellungen">
-      <h2>Kundenansicht zum Herzeigen ${hilfe.knopf('kundenansicht')}</h2>
-      <p class="hinweis">Lege fest, was der Kunde sieht, wenn du ihm das Tablet mit der Kundenansicht gibst. Andere Kunden und Einwände sind dort nie zu sehen.</p>
-      <div class="ka-wahl">${Object.entries(KUNDENANSICHT_TEILE).map(([k, v]) => `<label class="check"><input type="checkbox" data-ka="${k}" ${e.kundenansicht[k] ? 'checked' : ''}> ${esc(v.label)}</label>`).join('')}</div>
-    </section>
-
-    <section class="karte-box">
-      <h2>Gelöscht</h2>
-      <p class="hinweis">Gelöschte Kunden, Notizen, Termine und Enpal-Dokumentationen gehen nie verloren. Sie bleiben in der Liste „Gelöscht“, bis du sie dort einzeln endgültig löschst.</p>
-      <a class="btn" href="#/geloescht" id="geloeschtLink">Gelöscht öffnen (${(store.getData().papierkorb || []).length})</a>
-    </section>
-
+    case 'texte': return `
     <section class="karte-box">
       <h2>E-Mail</h2>
       <div class="formgrid">
@@ -110,70 +114,202 @@ export function render(el: HTMLElement) {
           <option value="">Jedes Mal fragen</option>
           ${Object.entries(MAILPROGRAMME).map(([k, v]) => `<option value="${k}" ${gemerktesMailprogramm() === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}
         </select></label>
-        ${SPARTEN_KEYS.map((s) => `<label>Empfänger für ${esc(SPARTEN[s].label)}-Texte (${esc(SPARTEN[s].anbieter)})<input data-empf="${s}" type="email" value="${esc(e.empfaenger[s])}" placeholder="z. B. team@…" autocomplete="off"></label>`).join('')}
+        ${SPARTEN_KEYS.map((s) => `<label>Empfänger ${esc(SPARTEN[s].label)} (${esc(SPARTEN[s].anbieter)})<input data-empf="${s}" type="email" value="${esc(e.empfaenger[s])}" placeholder="z. B. team@…" autocomplete="off"></label>`).join('')}
       </div>
-      <p class="hinweis">Die Empfänger werden beim „Per E-Mail senden“ im Texte-Tab vorausgefüllt. Die Mail geht erst raus, wenn du sie im Mailprogramm abschickst.</p>
+      ${mehr('Wofür sind die Empfänger?', '<p class="hinweis">Sie werden beim „Per E-Mail senden“ im Texte-Tab vorausgefüllt. Die Mail geht erst raus, wenn du sie im Mailprogramm abschickst.</p>')}
     </section>
-
-    <section class="karte-box">
+    <section class="karte-box" id="vorlagenEinstellungen">
       <h2>Textvorlagen</h2>
-      <p class="hinweis">Platzhalter: ${PLATZHALTER.map((p) => `<code>{{${p}}}</code>`).join(' ')}. Jede Vorlage bekommt nur die Daten ihres eigenen Bereichs.</p>
-      ${SPARTEN_KEYS.map((s) => `<label>${esc(SPARTEN[s].label)} (${esc(SPARTEN[s].anbieter)})<textarea data-vorlage="${s}" rows="10">${esc(e.vorlagen[s])}</textarea></label>`).join('')}
-      <button class="btn ghost" id="vReset">Vorlagen zurücksetzen</button>
+      ${SPARTEN_KEYS.map((s) => `<details class="felder-kat einst-vorlage" data-vorlage-bereich="${s}"><summary><b>${esc(SPARTEN[s].label)}</b> <small>${esc(SPARTEN[s].anbieter)}${e.vorlagen[s] !== DEFAULT_VORLAGEN[s] ? ' · angepasst' : ''}</small></summary>
+        <textarea data-vorlage="${s}" rows="10" aria-label="Vorlage ${esc(SPARTEN[s].label)}">${esc(e.vorlagen[s])}</textarea></details>`).join('')}
+      ${mehr('Platzhalter', `<p class="hinweis">${PLATZHALTER.map((p) => `<code>{{${p}}}</code>`).join(' ')}</p><p class="hinweis">Jede Vorlage bekommt nur die Daten ihres eigenen Bereichs.</p>`)}
+      <div class="knopfreihe"><button type="button" class="btn ghost" id="vReset">Vorlagen zurücksetzen</button></div>
     </section>
+    ${bausteinverwaltung.html(e.bausteine)}`;
 
-    <section class="karte-box ${demo ? 'aus' : ''}">
-      <h2>Datensicherung ${hilfe.knopf('sicherung')}</h2>
-      <p class="hinweis">Die Sicherungsdatei ist mit deinem Master-Passwort verschlüsselt. <b>iCloud:</b> „In iCloud / Dateien sichern“ tippen, im Teilen-Menü „In Dateien sichern“ wählen und den Ordner in iCloud Drive aussuchen. <b>Zwischen Geräten wechseln:</b> auf dem einen Gerät sichern, auf dem anderen „Neueren Stand holen“. Übernommen wird nur, was neuer ist.</p>
-      <p id="letzteSicherung" class="hinweis"></p>
-      <div class="knopfreihe">
-        <button class="btn primary" id="icloud" ${demo ? 'disabled' : ''}>☁️ In iCloud / Dateien sichern</button>
-        <button class="btn" id="abgleichHolen" ${demo ? 'disabled' : ''}>☁️ Neueren Stand holen</button>
-        <button class="btn ghost" id="backup" ${demo ? 'disabled' : ''}>Sicherung herunterladen</button>
-        <button class="btn ghost" id="import" ${demo ? 'disabled' : ''}>Sicherung einspielen</button>
-      </div>
-      <label class="check"><input type="checkbox" id="abgleichFragen" ${demo ? 'disabled' : ''}> Beim Start fragen, ob ein neuerer Stand aus iCloud geholt werden soll</label>
-      <h3>Einstellungen übertragen</h3>
-      <p class="hinweis">Nur die Einstellungen, ohne Kunden: Vorlagen, Empfänger, Textbausteine, Felder, Kalender, Navigation, Kundenansicht, Farbschema und Mailprogramm. So richtest du alles einmal ein (z. B. auf dem iPad) und spielst es auf iPhone oder Laptop ein. Die Datei ist mit deinem Master-Passwort verschlüsselt. Die volle Sicherung oben enthält die Einstellungen ohnehin mit.</p>
-      <div class="knopfreihe">
-        <button class="btn ghost" id="einstExport" ${demo ? 'disabled' : ''}>⚙️ Einstellungen sichern</button>
-        <button class="btn ghost" id="einstImport" ${demo ? 'disabled' : ''}>Einstellungen einlesen</button>
-      </div>
-      <h3>Automatische Versionen auf diesem Gerät</h3>
-      <ul class="liste" id="historie"><li class="hinweis">${demo ? 'Im Demo-Modus nicht verfügbar.' : 'Wird geladen …'}</li></ul>
+    case 'kunden': return `
+    ${feldverwaltung.html(e.felder)}
+    <section class="karte-box" id="kaEinstellungen">
+      <h2>Kundenansicht zum Herzeigen ${hilfe.knopf('kundenansicht')}</h2>
+      <p class="hinweis">Was der Kunde sieht, wenn du ihm das Tablet gibst. Andere Kunden und Einwände sind dort nie zu sehen.</p>
+      <div class="ka-wahl">${Object.entries(KUNDENANSICHT_TEILE).map(([k, v]) => `<label class="check"><input type="checkbox" data-ka="${k}" ${e.kundenansicht[k as KundenansichtTeil] ? 'checked' : ''}> ${esc(v.label)}</label>`).join('')}</div>
     </section>
-
     <section class="karte-box" id="fotoEinstellungen">
       <h2>📷 Kundenfotos</h2>
       <p id="fotoStatistik"></p>
-      <label class="check"><input type="checkbox" id="fotosMitsichern" ${e.fotosMitsichern !== false ? 'checked' : ''}> Fotos in die iCloud-Sicherung aufnehmen (für den Wechsel zwischen iPad und iPhone)</label>
       <h3>Alte Fotos löschen</h3>
-      <p class="hinweis">Damit der Speicher nicht vollläuft: Fotos löschen, die älter sind als …</p>
-      <div class="knopfreihe">
+      <div class="knopfreihe einst-zeile">
         <select id="fotoAlter" aria-label="Alter der Fotos">
-          <option value="90">3 Monate</option><option value="182">6 Monate</option><option value="365" selected>1 Jahr</option><option value="730">2 Jahre</option><option value="1095">3 Jahre</option>
+          <option value="90">älter als 3 Monate</option><option value="182">älter als 6 Monate</option><option value="365" selected>älter als 1 Jahr</option><option value="730">älter als 2 Jahre</option><option value="1095">älter als 3 Jahre</option>
         </select>
         <button type="button" class="btn ghost" id="fotosAltLoeschen">Löschen …</button>
       </div>
       <p class="hinweis" id="fotoAlterInfo"></p>
-    </section>
+      <p class="hinweis">Ob Fotos in die iCloud-Sicherung kommen, stellst du unter <a href="#/einstellungen?bereich=sicherung">Sicherung</a> ein.</p>
+    </section>`;
 
+    case 'sicherung': return `
+    <p id="letzteSicherung" class="einst-stand"></p>
     <section class="karte-box ${demo ? 'aus' : ''}">
-      <h2>Sicherheit</h2>
-      <p><button class="btn primary" id="jetztSperren">🔒 Jetzt sperren</button></p>
-      <p class="hinweis" id="bioInfo"></p>
+      <h2>Zwischen iPad und iPhone ${hilfe.knopf('sicherung')}</h2>
       <div class="knopfreihe">
-        <button class="btn ghost" id="bio" hidden>Face ID einrichten</button>
-        <button class="btn ghost" id="pw" ${demo ? 'disabled' : ''}>Master-Passwort ändern</button>
-        <button class="btn danger" id="reset" ${demo ? 'disabled' : ''}>Alle Daten auf diesem Gerät löschen</button>
+        <button type="button" class="btn primary" id="icloud" ${aus}>☁️ In iCloud sichern</button>
+        <button type="button" class="btn" id="abgleichHolen" ${aus}>☁️ Neueren Stand holen</button>
+      </div>
+      <div class="schalter-liste">
+        ${schalter('abgleichFragen', 'Beim Start nach neuerem Stand fragen', false, demo)}
+        ${schalter('fotosMitsichern', 'Fotos mitsichern', e.fotosMitsichern !== false, false, 'Für den Wechsel zwischen iPad und iPhone')}
+      </div>
+      ${mehr('So funktioniert’s', '<p class="hinweis">Die Sicherungsdatei ist mit deinem Master-Passwort verschlüsselt. „In iCloud sichern“ tippen, im Teilen-Menü „In Dateien sichern“ wählen und den Ordner in iCloud Drive aussuchen. Zum Gerätewechsel auf dem einen Gerät sichern, auf dem anderen „Neueren Stand holen“. Übernommen wird nur, was neuer ist.</p>')}
+    </section>
+    <section class="karte-box ${demo ? 'aus' : ''}">
+      <h2>Als Datei</h2>
+      <div class="knopfreihe">
+        <button type="button" class="btn" id="backup" ${aus}>Sicherung herunterladen</button>
+        <button type="button" class="btn ghost" id="import" ${aus}>Sicherung einspielen</button>
       </div>
     </section>
+    <section class="karte-box ${demo ? 'aus' : ''}">
+      <details class="felder-kat">
+        <summary><b>Nur Einstellungen übertragen</b> <small>ohne Kunden, z. B. aufs iPhone</small></summary>
+        <p class="hinweis">Vorlagen, Empfänger, Textbausteine, Felder, Kalender, Navigation, Kundenansicht, Farbschema und Mailprogramm. Einmal einrichten (z. B. auf dem iPad) und auf iPhone oder Laptop einspielen. Die Datei ist mit deinem Master-Passwort verschlüsselt; die volle Sicherung enthält die Einstellungen ohnehin mit.</p>
+        <div class="knopfreihe">
+          <button type="button" class="btn ghost" id="einstExport" ${aus}>⚙️ Einstellungen sichern</button>
+          <button type="button" class="btn ghost" id="einstImport" ${aus}>Einstellungen einlesen</button>
+        </div>
+      </details>
+      <details class="felder-kat" id="versionenBox">
+        <summary><b>Automatische Versionen</b> <small id="versionenAnzahl">auf diesem Gerät</small></summary>
+        <ul class="liste" id="historie"><li class="hinweis">${demo ? 'Im Demo-Modus nicht verfügbar.' : 'Wird geladen …'}</li></ul>
+      </details>
+    </section>`;
 
+    case 'sicherheit': return `
+    <section class="karte-box ${demo ? 'aus' : ''}">
+      <div class="knopfreihe" style="margin-top:0"><button type="button" class="btn primary" id="jetztSperren">🔒 Jetzt sperren</button></div>
+      <div class="schalter-liste">
+        <label class="schalter-zeile"><span>Automatisch sperren nach</span><select id="autoSperre" class="einst-kurz">
+          ${[...new Set([...SPERR_MINUTEN, e.autoSperreMin])].sort((x, y) => x - y).map((m) => `<option value="${m}" ${m === e.autoSperreMin ? 'selected' : ''}>${m === 0 ? 'Nie' : `${m} Minute${m === 1 ? '' : 'n'}`}</option>`).join('')}
+        </select></label>
+        <div class="schalter-zeile"><span>Face ID / Touch ID<small id="bioInfo"></small></span><button type="button" class="btn ghost" id="bio" hidden>Face ID einrichten</button></div>
+        <div class="schalter-zeile"><span>Master-Passwort</span><button type="button" class="btn ghost" id="pw" ${aus}>Ändern …</button></div>
+      </div>
+    </section>
     <section class="karte-box">
       <h2>Datenschutz</h2>
-      <p class="hinweis">Sperling speichert alle Kundendaten ausschließlich verschlüsselt auf diesem Gerät und – falls eingerichtet – als verschlüsselte Sicherungsdatei, die du selbst in iCloud Drive ablegst. Es gibt keinen Sperling-Server. Für Kartenbilder werden Kartenausschnitte bei Esri bzw. OpenStreetMap geladen, für Adressvorschläge werden Koordinaten bzw. Adressen an OpenStreetMap Nominatim gesendet – niemals Namen oder Notizen. Produktbilder in der Produktübersicht kommen direkt von den Hersteller-Websites (ohne Angaben über Kunden). Kunden können auf Wunsch jederzeit vollständig gelöscht werden (Kunde öffnen → Kunde löschen).</p>
+      <p class="hinweis">Alle Kundendaten liegen nur verschlüsselt auf diesem Gerät. Es gibt keinen Sperling-Server.</p>
+      ${mehr('Was wohin geht', '<p class="hinweis">Sperling speichert alle Kundendaten ausschließlich verschlüsselt auf diesem Gerät und – falls eingerichtet – als verschlüsselte Sicherungsdatei, die du selbst in iCloud Drive ablegst. Für Kartenbilder werden Kartenausschnitte bei Esri bzw. OpenStreetMap geladen, für Adressvorschläge werden Koordinaten bzw. Adressen an OpenStreetMap Nominatim gesendet – niemals Namen oder Notizen. Produktbilder in der Produktübersicht kommen direkt von den Hersteller-Websites (ohne Angaben über Kunden). Kunden können auf Wunsch jederzeit vollständig gelöscht werden (Kunde öffnen → Kunde löschen).</p>')}
       <p><small>Sperling ${APP_VERSION} · Kartenbibliothek Leaflet (BSD-2)</small></p>
+    </section>
+    <section class="karte-box gefahrenbereich ${demo ? 'aus' : ''}">
+      <h2>Gefahrenbereich</h2>
+      <p class="hinweis">Löscht alle Kunden, Notizen, Termine und Versionen auf diesem Gerät. Sicherungsdateien in iCloud Drive bleiben.</p>
+      <button type="button" class="btn danger" id="reset" ${aus}>Alle Daten auf diesem Gerät löschen</button>
     </section>`;
+
+    case 'kontaktseite': return kontaktseite.abschnitt();
+
+    case 'hilfe': return `
+    <section class="karte-box" id="hilfeEinstellungen">
+      <div class="schalter-liste">${schalter('hilfeKnoepfe', '?-Knöpfe mit Kurzhilfe anzeigen', hilfe.vorlieben().knoepfe, false, 'Die Hilfe-Seite bleibt auch ohne ?-Knöpfe erreichbar.')}</div>
+      <div class="knopfreihe"><button type="button" class="btn primary" data-tour-start>🧭 Rund-Tour starten</button><a class="btn" href="#/hilfe">📖 Hilfe öffnen</a><a class="btn ghost" href="#/hilfe?thema=installieren">📲 App installieren</a></div>
+    </section>`;
+
+    case 'aufraeumen': {
+      const bsp = demo ? 0 : beispielAnzahl(d);
+      const best = demo ? 0 : bestandAnzahl(d);
+      return `
+    <section class="karte-box">
+      <h2>Gelöscht</h2>
+      <p class="hinweis">Gelöschtes geht nie verloren: Es bleibt dort, bis du es einzeln endgültig löschst.</p>
+      <a class="btn" href="#/geloescht" id="geloeschtLink">Gelöscht öffnen (${(d.papierkorb || []).length})</a>
+    </section>
+    <section class="karte-box ${demo ? 'aus' : ''}">
+      <h2>Beispieldaten zum Üben</h2>
+      <h3>Beispielkunden</h3>
+      <p id="beispielInfo" class="hinweis">${demo ? '' : (bsp ? `<b>${bsp} Beispielkunden</b> sind geladen.` : 'Keine Beispielkunden geladen.')}</p>
+      <div class="knopfreihe">
+        <button type="button" class="btn ghost" id="beispielLaden" ${aus}>Beispielkunden laden</button>
+        <button type="button" class="btn danger" id="beispielWeg" ${demo || !bsp ? 'disabled' : ''}>Beispielkunden entfernen</button>
+      </div>
+      <h3>Beispiel-Vorführbestand (Vorwerk)</h3>
+      <p id="bestandInfo" class="hinweis">${demo ? '' : (best ? `<b>${best} Beispielgeräte</b> sind im Bestand.` : 'Kein Beispielbestand geladen.')}</p>
+      <div class="knopfreihe">
+        <button type="button" class="btn ghost" id="bestandLaden" ${aus}>Beispielbestand laden</button>
+        <button type="button" class="btn danger" id="bestandWeg" ${demo || !best ? 'disabled' : ''}>Beispielbestand entfernen</button>
+      </div>
+      ${mehr('Was wird geladen?', '<p class="hinweis"><b>Beispielkunden:</b> erfundene Kunden mit Notizen, Gesprächen, Enpal-Doku, Terminen und Vorführgeräten – zum Zeigen und Üben. Sie sind mit „Beispiel“ markiert und lassen sich mit einem Tipp wieder vollständig entfernen. Deine echten Kunden bleiben unberührt.</p><p class="hinweis"><b>Beispielbestand:</b> ein typischer Kobold-Vorführbestand (VK7, VR7, SP7, VB100, Polsterboy, Zubehör-Koffer) ohne Kunden – zum Ausprobieren von Verleih, Erinnerung und Kaufinteresse. Erfundene Seriennummern beginnen mit „BSP“.</p>')}
+    </section>`;
+    }
+  }
+}
+
+export function render(el: HTMLElement, params?: URLSearchParams) {
+  const demo = store.isDemo();
+  // Neuzeichnen von innen (ohne params) bleibt im gewählten Bereich
+  params ??= new URLSearchParams(location.hash.split('?')[1] || '');
+  const gewuenscht = params?.get('bereich') || '';
+  const bereich = GRUPPEN.some((g) => g.key === gewuenscht) ? gewuenscht as GruppeKey : null;
+  const gewaehlt: GruppeKey = bereich || 'allgemein'; // breite Ansicht zeigt immer einen Bereich
+  el.innerHTML = `
+    <header class="seitenkopf"><h1>${maskottchen('einstellungen', 'titel-bild')} Einstellungen</h1></header>
+    ${demo ? '<p class="hinweis demo-hinweis">Demo-Modus: Änderungen werden nicht gespeichert. Sicherung und Passwort sind hier deaktiviert.</p>' : ''}
+    <div class="einst ${bereich ? 'mit-bereich' : ''}">
+      <div class="einst-suche"><input type="search" id="einstSuche" placeholder="Einstellung suchen, z. B. „Passwort“" aria-label="Einstellungen durchsuchen" autocomplete="off" enterkeyhint="search"></div>
+      <p class="hinweis einst-keine" hidden>Keine passende Einstellung gefunden.</p>
+      <nav class="einst-gruppen" aria-label="Bereiche der Einstellungen">
+        ${GRUPPEN.map((g) => `<a href="#/einstellungen?bereich=${g.key}" class="einst-gruppe${g.key === gewaehlt ? ' aktiv' : ''}" data-gruppe-link="${g.key}"${g.key === gewaehlt ? ' aria-current="true"' : ''}>
+          <span class="eg-sym">${symbol(g.sym)}</span>
+          <span class="eg-text"><b>${esc(g.titel)}</b><small data-status="${g.key}">${statusText(g.key, demo)}</small></span>
+          <span class="eg-pfeil" aria-hidden="true">›</span></a>`).join('')}
+      </nav>
+      <div class="einst-inhalt">
+        <a class="einst-zurueck" href="#/einstellungen">‹ Alle Einstellungen</a>
+        ${GRUPPEN.map((g) => `<div class="einst-bereich" data-gruppe="${g.key}" ${g.key === gewaehlt ? '' : 'hidden'}>
+          <h2 class="eb-titel">${symbol(g.sym)} ${esc(g.titel)}</h2>
+          ${inhalt(g.key, demo)}
+        </div>`).join('')}
+      </div>
+    </div>`;
+
+  // Bereich wechseln ohne neuen Verlaufseintrag auf breiten Bildschirmen; schmal: normale Unterseite
+  el.querySelector('.einst-gruppen')?.addEventListener('click', (ev) => {
+    const a = (ev.target as Element).closest<HTMLAnchorElement>('[data-gruppe-link]');
+    if (!a || !matchMedia('(min-width: 900px)').matches) return;
+    ev.preventDefault();
+    const key = a.dataset.gruppeLink!;
+    history.replaceState(null, '', `#/einstellungen?bereich=${key}`);
+    el.querySelectorAll<HTMLElement>('[data-gruppe-link]').forEach((x) => { const an = x === a; x.classList.toggle('aktiv', an); if (an) x.setAttribute('aria-current', 'true'); else x.removeAttribute('aria-current'); });
+    el.querySelectorAll<HTMLElement>('.einst-bereich').forEach((b) => { b.hidden = b.dataset.gruppe !== key; });
+    el.querySelector('.einst')?.classList.add('mit-bereich');
+    el.querySelector('.einst-inhalt')?.scrollIntoView({ block: 'nearest' });
+  });
+
+  // Suche über alle Bereiche: zeigt passende Kästen, Bereichstitel bleiben als Orientierung
+  const sucheFeld = el.querySelector<HTMLInputElement>('#einstSuche')!;
+  sucheFeld.addEventListener('input', () => {
+    const woerter = such(sucheFeld.value.trim()).split(/\s+/).filter(Boolean);
+    const box = el.querySelector('.einst')!;
+    box.classList.toggle('suchend', woerter.length > 0);
+    let treffer = 0;
+    el.querySelectorAll<HTMLElement>('.einst-bereich').forEach((b) => {
+      const g = GRUPPEN.find((x) => x.key === b.dataset.gruppe)!;
+      if (!woerter.length) { b.hidden = !(b.dataset.gruppe === (el.querySelector<HTMLElement>('.einst-gruppe.aktiv')?.dataset.gruppeLink || gewaehlt)); b.querySelectorAll<HTMLElement>(':scope > section, :scope > p').forEach((s) => { s.hidden = false; }); return; }
+      const gruppeTrifft = woerter.every((w) => such(`${g.titel} ${g.such}`).includes(w));
+      let sichtbar = 0;
+      b.querySelectorAll<HTMLElement>(':scope > section').forEach((s) => {
+        const ja = gruppeTrifft || woerter.every((w) => such(s.textContent || '').includes(w));
+        s.hidden = !ja;
+        if (ja) sichtbar++;
+      });
+      b.querySelectorAll<HTMLElement>(':scope > p').forEach((s) => { s.hidden = !gruppeTrifft; });
+      b.hidden = !sichtbar;
+      b.classList.toggle('vorne', gruppeTrifft); // passender Bereich zuerst
+      treffer += sichtbar;
+    });
+    const keine = el.querySelector<HTMLElement>('.einst-keine');
+    if (keine) keine.hidden = !woerter.length || treffer > 0;
+  });
 
   el.querySelectorAll('[data-schema]').forEach((b) => b.addEventListener('click', () => {
     theme.setzen(b.dataset.schema);
@@ -277,8 +413,11 @@ export function render(el: HTMLElement) {
   const sicherungsName = () => `sperling-sicherung-${new Date().toISOString().slice(0, 10)}.sperling`;
   const letzteZeigen = () => {
     db.getMeta<string>('letzteSicherung').then((t) => {
+      const alt = !t || Date.now() - new Date(t).getTime() > 7 * 24 * 3600 * 1000;
       const p = el.querySelector('#letzteSicherung');
-      if (p) p.textContent = t ? `Letzte Sicherung: ${formatDateTime(t)}` : 'Noch keine Sicherung erstellt.';
+      if (p) { p.textContent = t ? `Letzte Sicherung: ${formatDateTime(t)}` : 'Noch keine Sicherung erstellt.'; p.classList.toggle('warnung', alt); }
+      const st = el.querySelector<HTMLElement>('[data-status=sicherung]');
+      if (st) { st.textContent = t ? `Letzte Sicherung ${tageText(t)}` : 'Noch keine Sicherung'; st.classList.toggle('warnung', alt); }
     }).catch(() => {});
   };
   if (!demo) letzteZeigen();
@@ -364,6 +503,8 @@ export function render(el: HTMLElement) {
     const ul = el.querySelector('#historie');
     if (!ul) return;
     if (!liste.length) { ul.innerHTML = '<li class="hinweis">Noch keine älteren Versionen.</li>'; return; }
+    const anz = el.querySelector('#versionenAnzahl');
+    if (anz) anz.textContent = `${liste.length} ${liste.length === 1 ? 'Stand' : 'Stände'} auf diesem Gerät`;
     ul.innerHTML = liste.map((h, i) => `<li class="zeile"><span class="zeile-haupt">${esc(formatDateTime(h.updatedAt))}</span><button class="btn klein ghost" data-i="${i}">Wiederherstellen</button></li>`).join('');
     ul.addEventListener('click', async (ev) => {
       const b = (ev.target as Element).closest('[data-i]');
@@ -415,13 +556,15 @@ export function render(el: HTMLElement) {
     const name = bio.bezeichnung();
     if (await bio.eingerichtet()) {
       knopf.hidden = false; knopf.textContent = `${name} ausschalten`; knopf.dataset.an = '1';
-      info.textContent = `Entsperren mit ${name} ist eingeschaltet. Das Master-Passwort funktioniert weiterhin.`;
+      info.textContent = `Eingeschaltet. Das Master-Passwort funktioniert weiterhin.`;
+      const st = el.querySelector('[data-status=sicherheit]');
+      if (st && !st.textContent?.includes(name)) st.textContent = `${name} an · ${st.textContent}`;
     } else if (await bio.verfuegbar()) {
       knopf.hidden = false; knopf.textContent = `${name} einrichten`; knopf.dataset.an = '';
-      info.textContent = `Statt des Passworts mit ${name} entsperren (iPhone/iPad ab iOS 18, installierte App).`;
+      info.textContent = `Statt des Passworts entsperren (iPhone/iPad ab iOS 18, installierte App).`;
     } else {
       knopf.hidden = true;
-      info.textContent = 'Entsperren per Face ID ist auf diesem Gerät bzw. in diesem Browser nicht verfügbar.';
+      info.textContent = 'Auf diesem Gerät bzw. in diesem Browser nicht verfügbar.';
     }
   };
   bioZeigen();

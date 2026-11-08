@@ -98,7 +98,7 @@ function sicherungErinnern(box, d) {
   db.getMeta<string>('letzteSicherung').then((t) => {
     const alt = !t || Date.now() - new Date(t).getTime() > 7 * 24 * 3600 * 1000;
     if (!alt || !box.isConnected) return;
-    box.innerHTML = `<p class="hinweis warnung-box">☁️ ${t ? 'Die letzte Sicherung ist älter als eine Woche.' : 'Es gibt noch keine Sicherung.'} <a href="#/einstellungen">Jetzt in iCloud sichern</a></p>`;
+    box.innerHTML = `<p class="hinweis warnung-box">☁️ ${t ? 'Die letzte Sicherung ist älter als eine Woche.' : 'Es gibt noch keine Sicherung.'} <a href="#/einstellungen?bereich=sicherung">Jetzt in iCloud sichern</a></p>`;
   }).catch(() => {});
 }
 

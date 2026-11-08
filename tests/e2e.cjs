@@ -137,7 +137,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     if (klar.length !== 2 || klar.some((x) => x === '255,216,255')) fail('Fotos nicht verschlüsselt gespeichert');
   }
   // Backup herunterladen, Klartext darf nicht drin sein
-  await p.goto(BASE + '#/einstellungen');
+  await p.goto(BASE + '#/einstellungen?bereich=sicherung');
   const [bk] = await Promise.all([p.waitForEvent('download'), p.click('#backup')]);
   const bkTxt = require('fs').readFileSync(await bk.path(), 'utf8');
   if (bkTxt.includes('Prüfer') || bkTxt.includes('Testnotiz')) fail('Backup enthält Klartext!');
@@ -158,7 +158,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('dialog button.primary');
   await p.waitForFunction(() => document.querySelector('#toast')?.textContent.includes('eingespielt'));
   // Abgleich mit derselben Datei: nichts zu tun
-  await p.goto(BASE + '#/einstellungen');
+  await p.goto(BASE + '#/einstellungen?bereich=sicherung');
   const [ab] = await Promise.all([p.waitForEvent('filechooser'), p.click('#abgleichHolen')]);
   await ab.setFiles(icPfad);
   await p.waitForFunction(() => /Schon aktuell|schon aktueller/.test(document.querySelector('#toast')?.textContent || ''));
@@ -184,24 +184,39 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     await p2.click('button[data-tab=fotos]');
     await p2.waitForFunction(() => [...document.querySelectorAll('[data-foto-sparte=pv] .foto-kachel img')].filter((i) => i.complete && i.naturalWidth > 0).length === 2, null, { timeout: 15000 })
       .catch(() => fail('Fotos auf dem zweiten Gerät nicht lesbar'));
+    // Handy: Einstellungen als Übersicht, Bereich als Unterseite mit Zurück
+    await p2.goto(BASE + '#/einstellungen');
+    await p2.waitForSelector('.einst-gruppe');
+    if (await p2.isVisible('#absender')) fail('Handy: Einstellungen zeigen schon Inhalt statt Übersicht');
+    await p2.click('[data-gruppe-link=sicherung]');
+    await p2.waitForSelector('#icloud', { state: 'visible' });
+    if (await p2.isVisible('.einst-gruppe')) fail('Handy: Bereichsliste bleibt in der Unterseite sichtbar');
+    await p2.click('.einst-zurueck');
+    await p2.waitForSelector('.einst-gruppe', { state: 'visible' });
     await ctx2.close();
   }
   // Einstellungen sichern (ohne Kunden, verschlüsselt), ändern, wieder einlesen
-  await p.goto(BASE + '#/einstellungen');
+  await p.goto(BASE + '#/einstellungen?bereich=allgemein');
   await p.selectOption('#kalenderStart', 'woche');
+  await p.click('[data-gruppe-link=sicherung]');
+  await p.click('summary:has-text("Nur Einstellungen übertragen")');
   await p.click('#einstExport');
   await p.waitForSelector('dialog');
   const [es] = await Promise.all([p.waitForEvent('download'), p.click('dialog button.primary')]);
   const esPfad = await es.path();
   const esTxt = require('fs').readFileSync(esPfad, 'utf8');
   if (esTxt.includes('Prüfer') || esTxt.includes('woche') || !esTxt.includes('"ct"')) fail('Einstellungsdatei nicht verschlüsselt');
+  await p.click('[data-gruppe-link=allgemein]');
   await p.selectOption('#kalenderStart', 'tag');
+  await p.click('[data-gruppe-link=sicherung]');
+  if (!(await p.isVisible('#einstImport'))) fail('Aufgeklapptes bleibt beim Bereichswechsel nicht offen');
   const [efc] = await Promise.all([p.waitForEvent('filechooser'), p.click('#einstImport')]);
   await efc.setFiles(esPfad);
   await p.fill('dialog [name=pw]', 'testpasswort');
   await p.click('dialog button.primary');
   await p.waitForFunction(() => document.querySelector('#toast')?.textContent.includes('Einstellungen übernommen'));
   if ((await p.inputValue('#kalenderStart')) !== 'woche') fail('Einstellungen nicht übernommen');
+  if (!(await p.isVisible('#import'))) fail('Nach dem Einlesen nicht mehr im Bereich Sicherung');
   // Einstellungsdatei als Sicherung einspielen wird abgelehnt (würde sonst Kunden ersetzen)
   const [efc2] = await Promise.all([p.waitForEvent('filechooser'), p.click('#import')]);
   await efc2.setFiles(esPfad);
@@ -210,9 +225,10 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForFunction(() => document.querySelector('#toast')?.textContent.includes('Einstellungsdatei'));
   await p.goto(BASE + '#/kunden');
   if (!(await p.locator('#liste .zeile').count())) fail('Kunden nach Einstellungsdatei-Versuch weg');
-  await p.goto(BASE + '#/einstellungen');
+  await p.goto(BASE + '#/einstellungen?bereich=allgemein');
   await p.selectOption('#kalenderStart', 'monat');
   // Beispielkunden laden und entfernen
+  await p.goto(BASE + '#/einstellungen?bereich=aufraeumen');
   await p.click('#beispielLaden');
   await p.waitForFunction(() => document.querySelector('#beispielInfo')?.textContent.includes('54 Beispielkunden'));
   await p.goto(BASE + '#/kunden');
@@ -236,7 +252,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     await p.waitForSelector('.leaflet-popup');
     if (await p.$('.leaflet-popup [data-pin-loeschen]')) fail('Papierkorb auch bei Kunden mit Abschluss');
   }
-  await p.goto(BASE + '#/einstellungen');
+  await p.goto(BASE + '#/einstellungen?bereich=aufraeumen');
   await p.click('#beispielWeg');
   await p.click('dialog button.danger');
   await p.waitForFunction(() => document.querySelector('#beispielInfo')?.textContent.includes('Keine Beispielkunden'));
@@ -244,7 +260,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForSelector('#liste .zeile');
   if (await p.$('#liste .tag-beispiel')) fail('Beispielkunden nicht entfernt');
   if (!(await p.textContent('#liste')).includes('Prüfer')) fail('Echter Kunde beim Entfernen verloren!');
-  await p.goto(BASE + '#/einstellungen');
+  await p.goto(BASE + '#/einstellungen?bereich=hilfe');
   // Rund-Tour aus den Einstellungen: startet bei 1, Weiter/Zurück, Esc beendet
   await p.click('[data-tour-start]');
   await p.waitForFunction(() => (document.querySelector('.tour-zaehler')?.textContent || '').startsWith('1 von'));
@@ -253,7 +269,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   if (!(await p.isVisible('.tour-loch'))) fail('Tour hebt nichts hervor');
   await p.keyboard.press('Escape');
   await p.waitForFunction(() => !document.querySelector('#tour'));
-  await p.goto(BASE + '#/einstellungen');
+  await p.goto(BASE + '#/einstellungen?bereich=aufraeumen');
   // Beispiel-Vorführbestand
   await p.click('#bestandLaden');
   await p.waitForFunction(() => /\d+ Beispielgeräte/.test(document.querySelector('#bestandInfo')?.textContent || ''));
@@ -397,7 +413,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   if (await p.$('.k-geraet')) fail('Leihgaben lassen sich nicht ausblenden');
   await p.click('#kLeih');
   await p.waitForSelector('.k-geraet');
-  await p.goto(BASE + '#/einstellungen');
+  await p.goto(BASE + '#/einstellungen?bereich=aufraeumen');
   await p.click('#bestandWeg');
   await p.click('dialog button.danger');
   // reserviertes Beispielgerät bleibt (echte Reservierung), alle anderen sind weg
@@ -747,26 +763,38 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.fill('#hilfeSuche', 'passwort vergessen');
   await p.waitForSelector('#hilfeTreffer details');
   if (!(await p.isHidden('#hilfeAlles'))) fail('Hilfe-Suche blendet den Rest nicht aus');
-  await p.goto(BASE + '#/einstellungen');
+  await p.goto(BASE + '#/einstellungen?bereich=hilfe');
   await p.uncheck('#hilfeKnoepfe');
   await p.goto(BASE + '#/kunden');
   await p.waitForSelector('#liste');
   if (await p.isVisible('.seitenkopf h1 .hilfe-knopf')) fail('?-Knopf trotz Abschalten sichtbar');
-  await p.goto(BASE + '#/einstellungen');
+  await p.goto(BASE + '#/einstellungen?bereich=hilfe');
   await p.check('#hilfeKnoepfe');
-  // Kalender-Startansicht aus den Einstellungen
+  // Einstellungen in Bereichen: breit Liste + Inhalt, Wechsel ohne Neuladen, Suche über alle Bereiche
   await p.goto(BASE + '#/einstellungen');
+  if ((await p.locator('.einst-gruppe').count()) !== 8) fail('Einstellungen: nicht 8 Bereiche');
+  if (!(await p.isVisible('#absender'))) fail('Einstellungen breit: Allgemein nicht vorausgewählt');
+  await p.click('[data-gruppe-link=sicherheit]');
+  if (!(await p.isVisible('#autoSperre')) || (await p.isVisible('#absender'))) fail('Bereichswechsel zeigt falschen Inhalt');
+  await p.fill('#einstSuche', 'vorlage');
+  if (!(await p.isVisible('#vReset')) || (await p.isVisible('#autoSperre'))) fail('Einstellungssuche findet Vorlagen nicht');
+  await p.fill('#einstSuche', 'xyzunbekannt');
+  if (!(await p.isVisible('.einst-keine'))) fail('Einstellungssuche ohne Treffer-Hinweis');
+  await p.fill('#einstSuche', '');
+  if (!(await p.isVisible('#autoSperre'))) fail('Nach Leeren der Suche nicht zurück im Bereich');
+  // Kalender-Startansicht aus den Einstellungen
+  await p.goto(BASE + '#/einstellungen?bereich=allgemein');
   await p.selectOption('#kalenderStart', 'woche');
   await p.goto(BASE + '#/termine');
   await p.waitForSelector('.k-raster');
-  await p.goto(BASE + '#/einstellungen');
+  await p.goto(BASE + '#/einstellungen?bereich=allgemein');
   await p.selectOption('#kalenderStart', 'monat');
   // Klick aufs Logo führt zur Übersicht
   await p.goto(BASE + '#/termine');
   await p.click('.hauptnav .marke');
   await p.waitForSelector('.hero');
   // Feldverwaltung: Feld ausblenden (Daten bleiben), eigenes Ja/Nein-Feld anlegen, ausfüllen, filtern
-  await p.goto(BASE + '#/einstellungen');
+  await p.goto(BASE + '#/einstellungen?bereich=kunden');
   await p.click('#felderEinstellungen details[data-kat=kontakt] summary');
   await p.uncheck('[data-feld-an="kontakt.firma"]');
   await p.click('#felderEinstellungen details[data-kat=vorwerk] summary');
@@ -794,7 +822,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('[data-f-eigen][data-wert=ja]');
   if ((await p.$$('#liste a.zeile')).length !== 1) fail('Filter eigenes Feld ja falsch');
   await p.click('[data-f-alle]');
-  await p.goto(BASE + '#/einstellungen');
+  await p.goto(BASE + '#/einstellungen?bereich=kunden');
   await p.click('#felderEinstellungen details[data-kat=kontakt] summary');
   await p.check('[data-feld-an="kontakt.firma"]');
   // Produktübersicht: Reiter, Kategorie, Suche, Detail
@@ -874,7 +902,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('[data-f-alle]');
   if (!markiert) fail('Markiertes Produkt nicht erkennbar');
   // Einstellungen → Textbausteine: hinzufügen, erscheint im Gesprächsmodus
-  await p.goto(BASE + '#/einstellungen');
+  await p.goto(BASE + '#/einstellungen?bereich=texte');
   await p.click('#bausteinEinstellungen details[data-baustein-bereich=vorwerk] summary');
   await p.fill('[data-bs-neu=vorwerk] input', 'E2E-Baustein Rückruf abends');
   await p.click('[data-bs-neu=vorwerk] button');

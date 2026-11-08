@@ -127,11 +127,12 @@ export const THEMEN = {
   },
   einstellungen: {
     titel: 'Einstellungen',
-    kurz: 'Sicherung, Felder, Passwort und Face ID, Vorlagen, Kundenansicht, Darstellung und Hilfe.',
+    kurz: 'Acht Bereiche statt einer langen Liste: Allgemein, Texte & E-Mail, Kundendaten, Sicherung, Sicherheit & Datenschutz, Kontaktseite, Hilfe, Gelöscht & Beispieldaten.',
     schritte: [
-      'Sicherung: regelmäßig „In iCloud / Dateien sichern“.',
-      'Unter „Kundenansicht zum Herzeigen“ legst du fest, was ein Kunde sehen darf.',
-      'Unter „Hilfe“ schaltest du die ?-Knöpfe aus und findest die Installationsanleitung.',
+      'Bereich antippen; auf dem iPad quer steht der Inhalt gleich rechts daneben, auf dem Handy führt „‹ Alle Einstellungen“ zurück.',
+      'Oben suchen, z. B. „Passwort“ oder „Vorlage“: zeigt passende Einstellungen aus allen Bereichen.',
+      'Unter jedem Bereich steht der aktuelle Stand; „Sicherung“ wird orange, wenn die letzte Sicherung älter als eine Woche ist.',
+      'Sicherung: regelmäßig „In iCloud sichern“. Kundenansicht und Felder findest du unter „Kundendaten“, die ?-Knöpfe unter „Hilfe“.',
     ],
   },
   geloescht: {

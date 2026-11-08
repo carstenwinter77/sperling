@@ -29,7 +29,7 @@ async function lauf(mitPrf) {
     await p.click('#bioEntsperren');
     await p.waitForSelector('.hauptnav', { timeout: 8000 }).catch(() => fail('Entsperren per Face ID klappt nicht'));
     // Passwort ändern schaltet Face ID ab
-    await p.goto(BASE + '#/einstellungen');
+    await p.goto(BASE + '#/einstellungen?bereich=sicherheit');
     await p.click('#pw');
     await p.fill('dialog [name=alt]', 'testpasswort');
     await p.fill('dialog [name=neu]', 'neuespasswort');

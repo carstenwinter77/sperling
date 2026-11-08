@@ -31,6 +31,7 @@ import * as navi from './ui/navi.ts';
 import * as fotos from './storage/fotos.ts';
 import * as suche from './ui/suche.ts';
 import * as hilfe from './ui/hilfe.ts';
+import { symbol } from './ui/symbole.ts';
 import * as vHilfe from './ui/views/hilfe.ts';
 import * as vProdukte from './ui/views/produkte.ts';
 import * as vFoerderung from './ui/views/foerderung.ts';
@@ -78,10 +79,10 @@ function mehrMenue() {
   dialog({
     titel: 'Mehr',
     html: `<div class="mehr-raster">
-      <button type="button" class="mehr-eintrag" data-mehr="suche"><span class="nav-lupe" aria-hidden="true">🔍</span><span>Suchen</span></button>
-      ${eintraege.map((n) => `<a class="mehr-eintrag" href="${n.href}" data-mehr="link">${n.bild ? maskottchen(n.bild, 'nav-bild') : '<span class="nav-lupe" aria-hidden="true">🏷️</span>'}<span>${n.label}</span></a>`).join('')}
-      <button type="button" class="mehr-eintrag" data-mehr="tour"><span class="nav-lupe" aria-hidden="true">🧭</span><span>Rund-Tour</span></button>
-      <button type="button" class="mehr-eintrag" data-mehr="sperren"><span class="nav-lupe" aria-hidden="true">🔒</span><span>Sperren</span></button>
+      <button type="button" class="mehr-eintrag" data-mehr="suche">${symbol('suche', 'nav-bild')}<span>Suchen</span></button>
+      ${eintraege.map((n) => `<a class="mehr-eintrag" href="${n.href}" data-mehr="link">${symbol(n.key, 'nav-bild')}<span>${n.label}</span></a>`).join('')}
+      <button type="button" class="mehr-eintrag" data-mehr="tour">${symbol('tour', 'nav-bild')}<span>Rund-Tour</span></button>
+      <button type="button" class="mehr-eintrag" data-mehr="sperren">${symbol('sperren', 'nav-bild')}<span>Sperren</span></button>
     </div><p class="hinweis mehr-version">Version ${esc(APP_VERSION)}</p>`,
     knoepfe: [],
     onOpen: (dlg) => {
@@ -245,11 +246,11 @@ function shell() {
     <nav class="hauptnav" aria-label="Hauptnavigation">
       <div class="marke-zeile">
         <a class="marke" href="#/" aria-label="Sperling – zur Übersicht">${logo('marke-logo')}</a>
-        <button class="sperr-knopf" id="sperren" title="Sperren" aria-label="Sperling sperren"><span aria-hidden="true">🔒</span><small>Sperren</small></button>
+        <button class="sperr-knopf" id="sperren" title="Sperren" aria-label="Sperling sperren">${symbol('sperren', 'sperr-sym')}<small>Sperren</small></button>
       </div>
-      <button type="button" class="nav-suche" id="navSuche" title="Suchen (${suche.kuerzel()})"><span class="nav-bild nav-lupe" aria-hidden="true">🔍</span><span>Suchen</span></button>
-      ${NAV.map((n) => `<a href="${n.href}" data-nav="${n.key}"${NEBEN.includes(n.key) ? ' data-neben' : ''}${n.key === 'einstellungen' ? ' class="nav-einstellungen"' : n.key === 'produkte' ? ' class="nav-produkte"' : ''}>${n.bild ? maskottchen(n.bild, 'nav-bild') : '<span class="nav-bild nav-lupe" aria-hidden="true">🏷️</span>'}<span>${n.label}${n.key === 'einstellungen' ? `<small class="nav-version">Version ${esc(APP_VERSION)}</small>` : ''}</span></a>`).join('')}
-      <button type="button" class="nav-mehr" id="navMehr" aria-haspopup="dialog"><span class="nav-bild nav-lupe" aria-hidden="true">☰</span><span>Mehr</span></button>
+      <button type="button" class="nav-suche" id="navSuche" title="Suchen (${suche.kuerzel()})">${symbol('suche', 'nav-bild')}<span>Suchen</span></button>
+      ${NAV.map((n) => `<a href="${n.href}" data-nav="${n.key}"${NEBEN.includes(n.key) ? ' data-neben' : ''}${n.key === 'einstellungen' ? ' class="nav-einstellungen"' : n.key === 'produkte' ? ' class="nav-produkte"' : ''}>${symbol(n.key, 'nav-bild')}<span>${n.label}${n.key === 'einstellungen' ? `<small class="nav-version">Version ${esc(APP_VERSION)}</small>` : ''}</span></a>`).join('')}
+      <button type="button" class="nav-mehr" id="navMehr" aria-haspopup="dialog">${symbol('mehr', 'nav-bild')}<span>Mehr</span></button>
     </nav>
     <div class="schutz-band" id="schutzBand" role="status" hidden></div>
     <button type="button" class="schutz-knopf" id="schutzKnopf" aria-pressed="false" aria-label="Beratungs-Schutz">🛡</button>

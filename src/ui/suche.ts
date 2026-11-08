@@ -224,7 +224,7 @@ function befehl(b: Befehl) {
     case 'sichern':
       if (store.isDemo()) { toast('In der Demo wird nichts gespeichert.', 'info', 5000); break; }
       // Das Teilen-Menü braucht einen eigenen Tipp (Safari), deshalb zum Knopf führen statt direkt zu sichern
-      gehe('#/einstellungen');
+      gehe('#/einstellungen?bereich=sicherung');
       setTimeout(() => {
         const b = document.getElementById('icloud');
         b?.scrollIntoView({ block: 'center' });

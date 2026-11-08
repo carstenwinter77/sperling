@@ -1406,3 +1406,98 @@ body.schutz-aktiv .plus-knopf, body.ka-aktiv .plus-knopf { display: none; }
   .aw-kern-zahl strong { font-size: 1.8rem; }
   .aw-tr-stufe, .aw-tr-zwischen { grid-template-columns: 5.2rem minmax(0, 1fr) 2.2rem; gap: .4rem; }
 }
+/* ---------- Einstellungen in Bereichen ----------
+   Schmal (Handy, iPad hochkant): Übersicht der Bereiche → Tipp öffnet den Bereich als Unterseite.
+   Breit (ab 900 px): links die Bereiche, rechts der Inhalt. Suche zeigt passende Kästen aller Bereiche. */
+.einst-suche input { min-height: 48px; padding-left: 2.4rem; background: var(--feld) no-repeat .8rem center / 1.1rem; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2356665b' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E"); }
+.einst-suche { margin-bottom: 1rem; }
+.einst-keine { margin: 0 0 1rem; }
+.einst-gruppen { display: flex; flex-direction: column; gap: .5rem; }
+.einst-gruppe { display: flex; align-items: center; gap: .85rem; padding: .75rem 1rem; min-height: 64px; background: var(--karte); border: 1px solid var(--linie); border-radius: var(--radius); color: var(--text); text-decoration: none; box-shadow: var(--schatten); }
+.einst-gruppe:hover { border-color: var(--braun-hell); }
+.einst-gruppe:focus-visible { outline: 3px solid rgba(232, 137, 44, .45); outline-offset: 1px; }
+.eg-sym { font-size: 1.6rem; width: 2.2rem; flex: none; text-align: center; line-height: 1; }
+.eg-sym .mini { width: 32px; height: 32px; }
+.eg-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.eg-text b { font-size: 1.02rem; }
+.eg-text small { font-size: .85rem; color: var(--text-2); }
+.eg-text small.warnung, .einst-stand.warnung { color: var(--tag-pv); font-weight: 700; }
+.eg-pfeil { color: var(--text-2); font-size: 1.5rem; line-height: 1; flex: none; }
+.einst-zurueck { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; color: var(--braun); text-decoration: none; margin-bottom: .25rem; }
+.eb-titel { margin: 0 0 .75rem; font-size: 1.35rem; display: flex; align-items: center; gap: .4rem; }
+.einst-bereich[data-gruppe=kontaktseite] .eb-titel { display: none; }
+.einst-bereich .karte-box h2 { font-size: 1.1rem; margin-top: 0; }
+.einst-bereich [hidden] { display: none !important; }
+.einst-stand { margin: -.35rem 0 .75rem; color: var(--text-2); }
+.einst-label { font-size: .9rem; font-weight: 600; color: var(--text-2); display: block; margin-bottom: .25rem; }
+.einst-feld .hinweis { display: block; margin-top: .25rem; }
+.einst-zeile select { width: auto; flex: 1 1 200px; }
+.einst-vorlage textarea { margin-top: .5rem; }
+.gefahrenbereich { border: 1px solid color-mix(in srgb, var(--rot) 45%, transparent); }
+.gefahrenbereich h2 { color: var(--rot); }
+
+/* Ein/Aus-Zeilen: Text links, Schalter oder Knopf rechts */
+.schalter-liste { margin-top: .5rem; }
+.schalter-zeile { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 1rem; min-height: 52px; padding: .4rem 0; border-top: 1px solid var(--linie); font-size: 1rem; font-weight: 500; color: var(--text); }
+.schalter-liste > .schalter-zeile:first-child { border-top: 0; }
+.schalter-zeile > span { display: flex; flex-direction: column; min-width: 0; }
+.schalter-zeile small { font-size: .85rem; color: var(--text-2); font-weight: 400; }
+.schalter-zeile select.einst-kurz { width: auto; min-width: 9rem; flex: none; }
+.schalter-zeile .btn { flex: none; }
+input.schalter { -webkit-appearance: none; appearance: none; flex: none; width: 52px; height: 32px; min-height: 0; padding: 0; border: 0; border-radius: 16px; background: var(--linie); position: relative; cursor: pointer; transition: background .15s; }
+input.schalter::before { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); transition: transform .15s; }
+input.schalter:checked { background: var(--gruen); }
+input.schalter:checked::before { transform: translateX(20px); }
+input.schalter:disabled { opacity: .5; cursor: not-allowed; }
+@media (prefers-reduced-motion: reduce) { input.schalter, input.schalter::before { transition: none; } }
+
+/* ⓘ-Erklärungen eingeklappt */
+.mehr-info { margin-top: .5rem; }
+.mehr-info > summary { cursor: pointer; color: var(--braun); font-weight: 600; font-size: .92rem; min-height: 44px; display: inline-flex; align-items: center; list-style: none; }
+.mehr-info > summary::-webkit-details-marker { display: none; }
+.mehr-info > div > p:first-child { margin-top: 0; }
+
+/* Schmal: entweder Übersicht oder Bereich */
+@media (max-width: 899px) {
+  .einst:not(.mit-bereich):not(.suchend) .einst-inhalt { display: none; }
+  .einst.mit-bereich .einst-gruppen, .einst.mit-bereich:not(.suchend) .einst-suche { display: none; }
+}
+.einst.suchend .einst-gruppen, .einst.suchend .einst-zurueck { display: none; }
+/* Breit: zwei Spalten */
+@media (min-width: 900px) {
+  .einst { display: grid; grid-template-columns: minmax(240px, 300px) minmax(0, 1fr); gap: 0 1.25rem; align-items: start; }
+  .einst-suche, .einst-keine { grid-column: 1 / -1; }
+  .einst-gruppen { position: sticky; top: 1rem; }
+  .einst-gruppe { min-height: 60px; padding: .6rem .8rem; box-shadow: none; }
+  .einst-gruppe.aktiv { background: var(--aktiv-bg); border-color: var(--braun); box-shadow: inset 4px 0 0 var(--braun); }
+  .einst-zurueck { display: none; }
+  .einst.suchend .einst-inhalt { grid-column: 1 / -1; }
+  .einst-bereich .formgrid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ---------- Einheitliche Symbole (src/ui/symbole.ts) ----------
+   Linien-Symbole in der Akzentfarbe mit heller Füllfläche, ersetzen in Leiste, „Mehr“ und
+   Einstellungen die kleinen Logo-Bildchen. Farbe folgt hell/dunkel über die Variablen. */
+.sym { display: inline-block; flex: none; width: 24px; height: 24px; color: var(--braun); vertical-align: middle; }
+.sym .fs { fill: var(--braun-hell); fill-opacity: .28; }
+.hauptnav .sym.nav-bild { width: 26px; height: 26px; padding: 0; }
+.hauptnav a .sym.nav-bild, .nav-mehr .sym.nav-bild, .nav-suche .sym.nav-bild { color: var(--text-2); }
+.hauptnav a.aktiv .sym.nav-bild, .nav-mehr.aktiv .sym.nav-bild { color: var(--braun); transform: none; }
+.hauptnav a.aktiv .sym .fs, .nav-mehr.aktiv .sym .fs { fill: var(--braun); fill-opacity: .22; }
+.sperr-sym { width: 22px; height: 22px; color: inherit; }
+.mehr-eintrag .sym.nav-bild { width: 30px; height: 30px; }
+.eg-sym { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 12px; background: var(--flaeche-2); }
+.eg-sym .sym { width: 26px; height: 26px; }
+.einst-gruppe.aktiv .eg-sym { background: var(--karte); }
+.eb-titel .sym { width: 28px; height: 28px; }
+@media (min-width: 900px) {
+  .hauptnav .sym.nav-bild { width: 26px; height: 26px; }
+  .hauptnav a { min-height: 44px; }
+  .hauptnav a.aktiv { color: var(--braun); }
+}
+@media (min-width: 900px) and (max-width: 1199px) {
+  .hauptnav .sym.nav-bild { width: 26px; height: 26px; }
+  .hauptnav a, .nav-suche { min-height: 56px; gap: 4px; }
+}
+.einst.suchend .einst-inhalt { display: flex; flex-direction: column; }
+.einst.suchend .einst-bereich.vorne { order: -1; }
