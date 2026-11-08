@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.10.34
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.10.35
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,11 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.34)
+## Erledigt (Version 0.10.35)
+
+### Neu in 0.10.35
+- [x] Karte: Standort-Knopf mit sofortiger Rückmeldung, Wachhund nach 30 s, Ortungen nacheinander.
+- [ ] Auf dem iPad 6 im WLAN prüfen, ob der Standort jetzt kommt.
 
 ### Neu in 0.10.34
 - [x] Runde Knöpfe („?“ usw.) auf altem iPad-Safari nicht mehr gestaucht.

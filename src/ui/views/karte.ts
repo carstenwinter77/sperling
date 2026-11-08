@@ -162,8 +162,22 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     const meinLauf = ++lauf;
     let gezoomt = false;
     let fehlerGezeigt = false;
+    // Sichtbare Rückmeldung: Knopf zeigt „sucht“, bis eine Antwort kommt
+    const knopf = el.querySelector<HTMLElement>('#ich');
+    const fertig = () => { if (meinLauf !== lauf) return; clearTimeout(wachhund); knopf?.classList.remove('sucht'); knopf?.removeAttribute('aria-busy'); };
+    if (!still) { knopf?.classList.add('sucht'); knopf?.setAttribute('aria-busy', 'true'); toast('Standort wird gesucht …', 'info', 2500); }
+    // Safari auf dem iPad antwortet manchmal gar nicht (z. B. wenn die Standort-Frage nicht erscheint).
+    // Dann nach 30 Sekunden selbst Bescheid geben statt still zu bleiben.
+    const wachhund = window.setTimeout(() => {
+      if (entfernt || meinLauf !== lauf) return;
+      knopf?.classList.remove('sucht'); knopf?.removeAttribute('aria-busy');
+      if (gezoomt || fehlerGezeigt || still) return;
+      fehlerGezeigt = true;
+      toast('Keine Antwort vom Standort. iPad: Einstellungen → Datenschutz & Sicherheit → Ortungsdienste an, dort „Safari-Websites“ auf „Beim Verwenden“. Außerdem Einstellungen → Safari → Standort auf „Fragen“ oder „Erlauben“.', 'error', 12000);
+    }, 30000);
     const setzen = (p: GeolocationPosition) => {
       if (entfernt || meinLauf !== lauf) return; // Ansicht verlassen oder neuer Versuch gestartet
+      fertig();
       const ll: [number, number] = [p.coords.latitude, p.coords.longitude];
       if (!isValidCoord(ll[0], ll[1])) return;
       const genau = Math.min(Math.max(p.coords.accuracy || 0, 0), 5000);
@@ -181,16 +195,24 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     };
     const fehler = (e: GeolocationPositionError) => {
       if (entfernt || meinLauf !== lauf || gezoomt || fehlerGezeigt) return;
+      fertig();
       if (still && e.code !== e.PERMISSION_DENIED) return;
       fehlerGezeigt = true;
       toast(e.code === e.PERMISSION_DENIED
         ? 'Standortzugriff ist aus. iPad/iPhone: Einstellungen → Datenschutz & Sicherheit → Ortungsdienste einschalten, dort bei „Safari-Websites“ „Beim Verwenden“ wählen.'
         : 'Standort konnte nicht ermittelt werden. Ist WLAN an? Ohne WLAN oder Mobilfunk findet ein iPad den Standort oft nicht.', 'error', 8000);
     };
-    // 1. schnell und grob (auch aus dem Zwischenspeicher bis 5 Minuten)
-    navigator.geolocation.getCurrentPosition(setzen, (e) => { if (e.code === e.PERMISSION_DENIED) fehler(e); }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 });
-    // 2. genau nachbessern
-    navigator.geolocation.getCurrentPosition(setzen, fehler, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+    // Nacheinander statt gleichzeitig: Zwei parallele Anfragen bleiben auf älterem iPad-Safari teils ohne Antwort.
+    const genauNachbessern = () => {
+      if (entfernt || meinLauf !== lauf) return;
+      navigator.geolocation.getCurrentPosition(setzen, fehler, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+    };
+    // 1. schnell und grob (auch aus dem Zwischenspeicher bis 5 Minuten), 2. danach genau nachbessern
+    navigator.geolocation.getCurrentPosition(
+      (p) => { setzen(p); genauNachbessern(); },
+      (e) => { if (e.code === e.PERMISSION_DENIED) fehler(e); else genauNachbessern(); },
+      { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 },
+    );
   };
   let nutzerHatBewegt = false;
   let entfernt = false;

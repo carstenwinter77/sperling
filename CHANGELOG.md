@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.10.35 – 08.11.2026
+- **Karte: Standort-Knopf gibt immer Rückmeldung.** Auf dem iPad 6 passierte im WLAN beim Tippen auf ◎ gar nichts. Jetzt erscheint sofort „Standort wird gesucht …“ und der Knopf pulsiert. Antwortet Safari nach 30 Sekunden nicht, zeigt Sperling, wo die Standort-Einstellungen auf dem iPad stehen. Grobe und genaue Ortung laufen nacheinander statt gleichzeitig, weil zwei parallele Anfragen auf älterem iPad-Safari teils ohne Antwort bleiben.
+
 ## 0.10.34 – 08.11.2026
 - **iPad: runde Knöpfe bleiben rund.** Die „?“-Hilfeknöpfe und andere runde Knöpfe/Punkte wirkten auf älterem iPad-Safari (iPad 6, iOS 17) gestaucht. Sie haben jetzt kein Standard-Polster mehr, schrumpfen in Flex-Zeilen nicht und halten das Seitenverhältnis 1:1 (`aspect-ratio`). Dazu `text-size-adjust: 100 %`, damit Safari die Schrift beim Drehen nicht aufbläht.
 - **iPad quer (900–1199 px): schmale Seitenleiste.** Statt 220 px breiter Leiste eine 96 px schmale Leiste mit Bild über dem Text; der Inhalt bekommt rund 120 px mehr Breite (Monatskalender, Übersicht, Kunde).

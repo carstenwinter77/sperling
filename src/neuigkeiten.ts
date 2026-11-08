@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.35',
+    punkte: [
+      'Karte: Der Standort-Knopf zeigt jetzt, dass er sucht, und sagt nach 30 Sekunden Bescheid, falls das iPad nicht antwortet.',
+    ],
+  },
+  {
     version: '0.10.34',
     punkte: [
       'iPad: Die runden „?“-Knöpfe sehen nicht mehr gestaucht aus.',
