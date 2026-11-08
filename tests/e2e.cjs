@@ -234,6 +234,41 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.goto(BASE + '#/kunden');
   await p.waitForSelector('#liste .tag-beispiel');
   if ((await p.locator('#liste .tag-beispiel').count()) !== 54) fail(`Beispielkunden nicht markiert (${await p.locator('#liste .tag-beispiel').count()})`);
+  // Kundenliste exportieren: genau die angezeigte (gesuchte, sortierte) Liste als CSV, Excel und PDF
+  {
+    await p.fill('#suche', 'Lengede');
+    await p.selectOption('#sortierung', 'name');
+    const namen = await p.$$eval('#liste .zeile-haupt strong', (xs) => xs.map((x) => x.childNodes[0].textContent.trim()));
+    if (!namen.length) fail('Export-Test: keine Treffer für die Suche');
+    // Buchstaben-Trenner bei „Name A–Z“, nicht bei anderer Sortierung
+    const buchst = await p.$$eval('#liste li.buchstabe', (xs) => xs.map((x) => x.textContent.trim()));
+    if (!buchst.length || buchst.some((x, i) => i && x <= buchst[i - 1])) fail('Buchstaben-Trenner fehlen oder unsortiert: ' + buchst.join(','));
+    await p.selectOption('#sortierung', 'neu');
+    if (await p.$('#liste li.buchstabe')) fail('Buchstaben-Trenner bei Sortierung „Zuletzt angelegt“');
+    await p.selectOption('#sortierung', 'name');
+    await p.click('#export');
+    await p.waitForSelector('dialog .export-wahl');
+    if (!(await p.textContent('dialog')).includes(`${namen.length} von`)) fail('Export-Dialog nennt die Anzahl nicht');
+    if (!(await p.textContent('dialog')).includes('nicht verschlüsselt')) fail('Export-Dialog ohne Datenschutz-Hinweis');
+    const laden = async (format) => {
+      const [dl] = await Promise.all([p.waitForEvent('download'), p.click(`dialog [data-format=${format}]`)]);
+      const datei = await dl.path();
+      if (!/^Kundenliste-\d{4}-\d{2}-\d{2}\./.test(dl.suggestedFilename())) fail('Export-Dateiname: ' + dl.suggestedFilename());
+      return require('fs').readFileSync(datei);
+    };
+    const csvText = (await laden('csv')).toString('utf8');
+    const csvZeilen = csvText.replace(/^\uFEFF/, '').trim().split('\r\n');
+    if (csvZeilen.length !== namen.length + 1) fail(`CSV hat ${csvZeilen.length - 1} statt ${namen.length} Kunden`);
+    if (!csvZeilen[0].startsWith('Nachname;Vorname;Firma')) fail('CSV-Kopf falsch');
+    await p.click('#export');
+    const x = await laden('xlsx');
+    if (x[0] !== 0x50 || x[1] !== 0x4B || !x.toString('latin1').includes('xl/worksheets/sheet1.xml')) fail('Excel-Datei ungültig');
+    await p.click('#export');
+    const pdf = await laden('pdf');
+    if (!pdf.slice(0, 5).toString().startsWith('%PDF')) fail('PDF-Export ungültig');
+    await p.fill('#suche', '');
+    await p.dispatchEvent('#suche', 'input');
+  }
   // Potenzial-Markierung auf der Karte über die Infobox löschen (mit Sicherheitsabfrage)
   await p.goto(BASE + '#/karte');
   await p.waitForSelector('.leaflet-marker-icon');
@@ -938,6 +973,23 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForSelector('#rechner .rz-uebernommen');
   if ((await p.inputValue('#rz-strompreis')) !== '41') fail('Rechner: Strompreis vom Kunden nicht übernommen');
   if (!(await p.$('.rz-kunde [data-rz-zurueck-kunde]'))) fail('Rechner: Zurück zum Kunden fehlt');
+  if (!(await p.$('[data-rz-vorlage=privat].aktiv'))) fail('Rechner: startet nicht mit Vorlage Privat');
+  // Vorlage wechseln: Gewerbe lädt andere Startwerte, der Strompreis vom Kunden bleibt
+  await p.click('[data-rz-vorlage=gewerbe]');
+  await p.waitForSelector('[data-rz-vorlage=gewerbe].aktiv');
+  if ((await p.inputValue('#rz-leistung')) !== '30') fail('Rechner: Vorlage Gewerbe nicht geladen');
+  if ((await p.inputValue('#rz-strompreis')) !== '41') fail('Rechner: Kundenwert nach Vorlagenwechsel verloren');
+  // Als Vorlage merken: neue Vorlage anlegen
+  await p.fill('#rz-leistung', '55');
+  await p.click('[data-rz-merken]');
+  await p.selectOption('dialog [name=ziel]', '__neu');
+  await p.fill('dialog [name=name]', 'Landwirtschaft');
+  await p.click('dialog .dlg-actions button.primary');
+  await p.waitForSelector('[data-rz-vorlage].aktiv:has-text("Landwirtschaft")');
+  await p.click('[data-rz-vorlage=privat]');
+  if ((await p.inputValue('#rz-leistung')) !== '10') fail('Rechner: Vorlage Privat nicht geladen');
+  await p.click('[data-rz-vorlage]:has-text("Landwirtschaft")');
+  if ((await p.inputValue('#rz-leistung')) !== '55') fail('Rechner: eigene Vorlage hat den gemerkten Wert nicht');
   await p.click('[data-rz-zurueck-kunde]');
   await p.waitForSelector('button[data-tab=pv].aktiv');
   await p.waitForTimeout(150);
@@ -1098,6 +1150,18 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     await p.press('textarea[data-bereitlegen=pv]', 'Tab');
     await p.waitForTimeout(300);
     if (!(await p.textContent('[data-status=vertrieb]')).includes('3, 7 und 14 Tagen')) fail('Vertrieb: Stand unter dem Bereich falsch: ' + (await p.textContent('[data-status=vertrieb]')));
+    // Rechner-Vorlagen: Gewerbe ändern, eigene Vorlage von vorhin ist da, Name mit HTML bleibt Text
+    if (!(await p.$('#rechnerVorlagen [data-rv]:has-text("Landwirtschaft")'))) fail('Rechner-Vorlagen: gemerkte Vorlage fehlt in den Einstellungen');
+    await p.click('[data-rv=gewerbe] summary');
+    await p.fill('[data-rv=gewerbe] [data-rv-feld="pv.strompreis"]', '23,5');
+    await p.press('[data-rv=gewerbe] [data-rv-feld="pv.strompreis"]', 'Tab');
+    await p.waitForFunction(() => document.querySelector('[data-rv=gewerbe] > summary small')?.textContent === 'angepasst');
+    await p.click('#rvNeu');
+    await p.waitForSelector('[data-rv] [data-rv-name]:focus');
+    await p.fill('[data-rv] [data-rv-name]:focus', '<img src=x onerror="window.__xss=1">');
+    await p.press('[data-rv] [data-rv-name]:focus', 'Tab');
+    await p.waitForTimeout(200);
+    if (await p.evaluate(() => window.__xss)) fail('XSS im Namen einer Rechner-Vorlage ausgeführt!');
     await p.goto(BASE + '#/kunden');
     await p.click('#neu');
     await p.waitForSelector('[data-feld="nachname"]');
@@ -1106,6 +1170,11 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     await p.fill('[data-feld="telefon"]', '0170 1112223');
     await p.waitForTimeout(500);
     const vid = (await p.evaluate(() => location.hash)).match(/kunde\/([^?]+)/)[1];
+    // Rechner bleibt bei der zuletzt gewählten Vorlage (vorhin „Landwirtschaft“), auch aus der Kundenkartei
+    await p.goto(BASE + '#/rechner?kunde=' + vid + '&art=pv');
+    await p.waitForSelector('[data-rz-vorlage].aktiv:has-text("Landwirtschaft")');
+    await p.click('[data-rz-vorlage=gewerbe]');
+    if ((await p.inputValue('#rz-strompreis')) !== '23,5') fail('Rechner: angepasste Vorlage Gewerbe nicht verwendet');
     await p.goto(BASE + '#/kunde/' + vid);
     await p.waitForSelector('.ap-box [data-ap-neu]');
     await p.click('.ap-box [data-ap-neu]');

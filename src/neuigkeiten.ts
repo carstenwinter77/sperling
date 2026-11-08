@@ -13,6 +13,20 @@ export const NEUIGKEITEN = [
     ],
   },
   {
+    version: '0.13.10',
+    punkte: [
+      'Rechner: Oben wählst du die Vorlage „Privat“ oder „Gewerbe“. Der Rechner merkt sich die zuletzt gewählte und startet beim nächsten Mal wieder damit.',
+      'Eigene Startwerte: Unter Einstellungen → Vertrieb → „Rechner: Vorlagen“ änderst du die Werte oder legst eigene Vorlagen an. Im Rechner geht das auch mit „⭐ Als Vorlage merken“.',
+    ],
+  },
+  {
+    version: '0.13.9',
+    punkte: [
+      'Kundenliste exportieren: Unter Kunden neben der Sortierung „⬇ Export“ tippen und PDF (zum Ausdrucken), Excel-Tabelle oder CSV wählen. Exportiert wird genau die Liste, die du gerade siehst, mit Suche, Filter und Sortierung. Notizen und Fotos bleiben in Sperling.',
+      'Bei „Name A–Z“ trennen Buchstaben (A, B, C …) die Kundenliste. Der aktuelle Buchstabe bleibt beim Scrollen oben stehen. Auch im PDF und in der Excel-Tabelle stehen die Trenner.',
+    ],
+  },
+  {
     version: '0.13.8',
     punkte: [
       'Übersicht: Die drei großen Bereichs-Kacheln sind jetzt eine schmale farbige Leiste. Tippe auf eine Zahl (Potenzial, in Arbeit, Kunden), dann öffnet sich die Kundenliste gleich mit diesem Bereich und Status gefiltert.',

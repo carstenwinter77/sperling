@@ -26,6 +26,7 @@ Browser (Tablet / Handy / Laptop)
  │   ├─ produkte.ts ...... Produktkatalog prüfen, filtern, suchen; Markierungen „Produkte im Gespräch“
  │   ├─ foerderung.ts .... Förderung/Rechtsgrundlagen PV + WP: Abschnitte mit Quellen, Zeitleiste, Filter, Kopiertext
  │   ├─ amortisation.ts .. grober Amortisationsrechner PV/WP (Annahmen, Jahreswerte, Staffel, Höchstpreis, Kopiertext)
+ │   ├─ rechnervorlagen.ts  Startwerte des Rechners je Kundentyp (Privat, Gewerbe, eigene), Normalisierung, zuletzt gewählte Vorlage
  │   ├─ felder.ts ........ Feldverwaltung: Kontaktfelder, eigene Felder, sichtbare Felder, Anzeige je Typ
  │   ├─ suche.ts ......... Kommandozeile: Normalisierung, Bewertung, Gruppen, Verben, Zuletzt
  │   ├─ hilfe.ts ......... Hilfetexte (Themen, Begriffe, Fragen) und Hilfe-Suche
@@ -58,7 +59,9 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/bausteinverwaltung.ts  Einstellungen → Textbausteine
  ├─ src/demo-gebiet.ts  Beispielkunden im Beratungsgebiet (fester Startwert)
  ├─ src/ui/ziehsortieren.ts  Listen per Griff umsortieren (Zeiger + Pfeiltasten)
+ ├─ src/core/kundenexport.ts  Kundenliste als Tabelle, CSV und XLSX (eigene ZIP-Erzeugung, rein, in Node getestet)
  ├─ src/core/listenimport.ts  Vorwerk-PDF-Liste: Zeilen aus Textstücken, Abgleich, Übernahme (rein, in Node getestet)
+ ├─ src/ui/kundenexport.ts  Export-Dialog der Kundenliste, PDF mit jsPDF (lazy geladen)
  ├─ src/ui/listenimport.ts  PDF wählen, mit pdf.js lesen (lazy geladen), Vorschau-Dialog
  ├─ src/core/kundenwahl.ts  Kundensuche und „zuletzt benutzt“ für Auswahlfelder (rein)
  ├─ src/core/bestandkunde.ts  Geräte aus Sicht eines Kunden, Verkauf buchen (rein)
@@ -89,6 +92,7 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/views/produkte.ts  Produktübersicht #/produkte (auch im Beratungs-Schutz)
  ├─ src/ui/rechner.ts .... Rechner „Wann rechnet sich das?“ (Baustein, nur Arbeitsspeicher, übernimmt Kundenangaben)
  ├─ src/ui/views/rechner.ts  Rechner #/rechner?kunde=ID&art=pv|wp (eigener Menüpunkt, auch im Beratungs-Schutz)
+ ├─ src/ui/rechnervorlagen.ts  Einstellungen → Vertrieb → Rechner-Vorlagen (Privat, Gewerbe, eigene)
  ├─ src/ui/ruecksprung.ts  merkt Adresse + Scrollstelle vor einem verzahnten Schritt (Links ins Gespräch automatisch), `zurueck()` führt nach dem Abstecher dorthin, Router stellt die Scrollstelle wieder her
  ├─ src/core/verzahnung.ts  was eine Auswahl für den nächsten Schritt bedeutet: „Vereinbart“ → Ergebnis/Status/Wiedervorlage, Status zum Ergebnis, Querverkauf, nächster Stopp (rein)
  ├─ src/ui/folgeschritte.ts  Fenster „Als Nächstes“ nach dem Gespräch (Termin bestätigen, Angebot erfassen, Auftrag, Enpal-Doku, Partner, Querverkauf, nächster Termin)

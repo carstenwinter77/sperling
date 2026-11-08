@@ -5,7 +5,12 @@ import {
   PV_STANDARD, WP_STANDARD, PV_FELDER, WP_FELDER, RECHNER_HINWEIS, rechnePv, rechneWp, staffel, hoechstpreis, wpZuschuss,
   pvAusKunde, wpAusKunde, zahlLesen, euro, jahreText, rechnerText, type Rechner, type PvAnnahmen, type WpAnnahmen, type Ergebnis, type Feld,
 } from '../core/amortisation.ts';
-import { kopieren, toast } from './dom.ts';
+import {
+  WERKS_VORLAGEN, VORLAGE_HINWEIS, VORLAGE_PRIVAT, VORLAGEN_MAX, VORLAGE_NAME_MAX, normalizeRechnerVorlagen, zuletztGewaehlt, neueVorlagenId,
+  type RechnerVorlage,
+} from '../core/rechnervorlagen.ts';
+import * as store from '../storage/store.ts';
+import { dialog, kopieren, toast } from './dom.ts';
 
 let art: Rechner = 'pv';
 let pv: PvAnnahmen = { ...PV_STANDARD };
@@ -13,6 +18,40 @@ let wp: WpAnnahmen = { ...WP_STANDARD };
 /** Kunde und übernommene Werte, zuletzt geladen (damit Änderungen beim Zurückkommen bleiben). */
 let kundeGeladen = '';
 let uebernommen: Record<Rechner, string[]> = { pv: [], wp: [] };
+let kundeWerte: { pv: Partial<PvAnnahmen>; wp: Partial<WpAnnahmen> } = { pv: {}, wp: {} };
+/** Gewählte Vorlage und ihr Stand beim Anwenden (ändert Jan sie in den Einstellungen, gilt der neue Stand). */
+let vorlageId = VORLAGE_PRIVAT;
+let angewandt = '';
+
+/** Vorlagen aus den Einstellungen (gesperrt oder alt: Werksvorlagen). */
+export function vorlagen(): RechnerVorlage[] {
+  try { return store.getData().einstellungen.rechnerVorlagen || [...WERKS_VORLAGEN]; } catch { return [...WERKS_VORLAGEN]; }
+}
+const vorlage = (id = vorlageId) => vorlagen().find((v) => v.id === id) || vorlagen()[0]!;
+
+/** Vorlage laden; Werte vom Kunden kommen obendrauf. */
+function vorlageAnwenden(id: string) {
+  const v = vorlage(id);
+  vorlageId = v.id;
+  angewandt = JSON.stringify(v);
+  pv = { ...v.pv, ...kundeWerte.pv };
+  wp = { ...v.wp, ...kundeWerte.wp };
+}
+
+/** Zuletzt gewählte Vorlage (gespeichert in den Einstellungen, Standard „Privat“). */
+function gemerkt(): string {
+  try { return zuletztGewaehlt(store.getData().einstellungen.rechnerVorlageZuletzt, vorlagen()); } catch { return VORLAGE_PRIVAT; }
+}
+/** Auswahl merken, damit der Rechner beim nächsten Mal wieder damit startet. */
+function auswahlMerken(id: string) {
+  try { if (store.getData().einstellungen.rechnerVorlageZuletzt !== id) store.mutate((d) => { d.einstellungen.rechnerVorlageZuletzt = id; }); } catch { /* gesperrt */ }
+}
+
+/** Vor dem Zeichnen: beim ersten Mal mit der gemerkten Vorlage starten; nach Änderung in den Einstellungen neu laden. */
+export function vorbereiten() {
+  if (!angewandt || !vorlagen().some((v) => v.id === vorlageId)) { vorlageAnwenden(gemerkt()); return; }
+  if (JSON.stringify(vorlage()) !== angewandt) vorlageAnwenden(vorlageId);
+}
 
 const zahl = (n: number) => n.toLocaleString('de-DE', { maximumFractionDigits: 2 });
 
@@ -73,16 +112,28 @@ export function html(): string {
   const felder = art === 'pv' ? PV_FELDER : WP_FELDER;
   const werte = (art === 'pv' ? pv : wp) as Record<string, number>;
   const aus = uebernommen[art];
+  const v = vorlage();
   return `<section class="karte-box rz" id="rechner" aria-label="Rechner">
     <p class="hinweis">Grober Rechner mit Annahmen, die du anpassen kannst. ${art === 'pv' ? 'Photovoltaik: Ersparnis durch selbst genutzten Strom plus Einspeisevergütung, abzüglich laufender Kosten.' : 'Wärmepumpe: Vergleich mit dem Weiterheizen mit Gas oder Öl.'}</p>
+    <div class="rz-vorlagen-zeile">
+      <span class="rz-vorlagen-titel" id="rzVorlagenTitel">Vorlage</span>
+      <div class="chips-filter rz-vorlagen" role="group" aria-labelledby="rzVorlagenTitel">
+        ${vorlagen().map((x) => `<button type="button" data-rz-vorlage="${esc(x.id)}" class="${x.id === v.id ? 'aktiv' : ''}" aria-pressed="${x.id === v.id}">${esc(x.name)}</button>`).join('')}
+      </div>
+      <a class="rz-vorlagen-verwalten" href="#/einstellungen?bereich=vertrieb">Vorlagen verwalten</a>
+    </div>
+    ${VORLAGE_HINWEIS[v.id] ? `<p class="hinweis rz-vorlage-hinweis">${esc(VORLAGE_HINWEIS[v.id])}</p>` : ''}
     <div class="segment rz-art" role="tablist" aria-label="Rechner">
       <button type="button" role="tab" data-rz-art="pv" class="bereich-pv${art === 'pv' ? ' aktiv' : ''}" aria-selected="${art === 'pv'}">Photovoltaik</button>
       <button type="button" role="tab" data-rz-art="wp" class="bereich-wp${art === 'wp' ? ' aktiv' : ''}" aria-selected="${art === 'wp'}">Wärmepumpe</button>
     </div>
-    ${aus.length ? `<p class="rz-uebernommen" role="note"><span aria-hidden="true">📋</span> <span><b>Vom Kunden übernommen:</b> ${aus.map(esc).join(', ')}. Alles andere sind Beispielwerte.</span></p>` : ''}
+    ${aus.length ? `<p class="rz-uebernommen" role="note"><span aria-hidden="true">📋</span> <span><b>Vom Kunden übernommen:</b> ${aus.map(esc).join(', ')}. Alles andere aus der Vorlage „${esc(v.name)}“.</span></p>` : ''}
     <div class="rz-raster">
       <fieldset class="rz-annahmen"><legend>Annahmen</legend>${felder.map((f) => feldHtml(f, werte[f.key])).join('')}
-        <button type="button" class="btn klein ghost" data-rz-zurueck>Auf Beispielwerte zurücksetzen</button>
+        <div class="rz-annahmen-knoepfe">
+          <button type="button" class="btn klein" data-rz-merken>⭐ Als Vorlage merken</button>
+          <button type="button" class="btn klein ghost" data-rz-zurueck>Auf „${esc(v.name)}“ zurücksetzen</button>
+        </div>
       </fieldset>
       <div class="rz-ergebnis" aria-live="polite">${ergebnisHtml()}</div>
     </div>
@@ -116,10 +167,17 @@ export function binden(box: HTMLElement) {
     const t = ev.target as Element;
     const wahl = t.closest<HTMLElement>('[data-rz-art]');
     if (wahl) { art = wahl.dataset.rzArt as Rechner; neuZeichnen(); box.querySelector<HTMLElement>(`[data-rz-art=${art}]`)?.focus(); return; }
-    if (t.closest('[data-rz-zurueck]')) { if (art === 'pv') pv = { ...PV_STANDARD }; else wp = { ...WP_STANDARD }; uebernommen[art] = []; neuZeichnen(); return; }
+    const vw = t.closest<HTMLElement>('[data-rz-vorlage]');
+    if (vw) { vorlageAnwenden(vw.dataset.rzVorlage || VORLAGE_PRIVAT); auswahlMerken(vorlageId); neuZeichnen(); box.querySelector<HTMLElement>(`[data-rz-vorlage="${CSS.escape(vorlageId)}"]`)?.focus(); return; }
+    if (t.closest('[data-rz-zurueck]')) {
+      const v = vorlage();
+      if (art === 'pv') { pv = { ...v.pv }; kundeWerte.pv = {}; } else { wp = { ...v.wp }; kundeWerte.wp = {}; }
+      uebernommen[art] = []; neuZeichnen(); return;
+    }
+    if (t.closest('[data-rz-merken]')) { if (await alsVorlageMerken()) neuZeichnen(); return; }
     if (t.closest('[data-rz-kopieren]')) {
       const { a, e } = rechnen();
-      const ok = await kopieren(rechnerText(art, a, e));
+      const ok = await kopieren(rechnerText(art, a, e).replace('\n', `\nVorlage: ${vorlage().name}\n`));
       toast(ok ? 'Rechnung mit Annahmen kopiert' : 'Kopieren hat nicht geklappt', ok ? 'ok' : 'error');
     }
   });
@@ -130,23 +188,71 @@ export function artSetzen(b: string | null) { if (b === 'pv' || b === 'wp') art 
 export const aktuelleArt = () => art;
 
 /**
- * Angaben eines Kunden übernehmen (Strompreis, Speicher; Gas/Öl-Verbrauch und Heizkosten).
- * Kommt Jan zum selben Kunden zurück und hat sich in der Kartei nichts geändert, bleiben seine Änderungen stehen.
+ * Angaben eines Kunden übernehmen (Strompreis, Speicher; Gas/Öl-Verbrauch und Heizkosten) auf die zuletzt gewählte
+ * Vorlage. Kommt Jan zum selben Kunden zurück und hat sich in der Kartei nichts geändert, bleiben seine Änderungen stehen.
  */
 export function kundeLaden(id: string, angaben: { pv?: Record<string, unknown>; wp?: Record<string, unknown> }) {
   const p = pvAusKunde(angaben.pv); const w = wpAusKunde(angaben.wp);
-  const schluessel = `${id}|${JSON.stringify(p.werte)}|${JSON.stringify(w.werte)}`;
+  const start = gemerkt();
+  const schluessel = `${id}|${start}|${JSON.stringify(p.werte)}|${JSON.stringify(w.werte)}`;
   if (schluessel === kundeGeladen) return;
   kundeGeladen = schluessel;
-  pv = { ...PV_STANDARD, ...p.werte };
-  wp = { ...WP_STANDARD, ...w.werte };
+  kundeWerte = { pv: p.werte, wp: w.werte };
   uebernommen = { pv: p.liste, wp: w.liste };
+  vorlageAnwenden(start);
 }
+export const aktuelleVorlage = () => vorlageId;
 
 /** Ohne Kunden geöffnet: Werte eines vorher geladenen Kunden verwerfen (kein Rest im Beratungs-Schutz). */
 export function kundeVergessen() {
   if (!kundeGeladen) return;
   kundeGeladen = '';
-  pv = { ...PV_STANDARD }; wp = { ...WP_STANDARD };
+  kundeWerte = { pv: {}, wp: {} };
   uebernommen = { pv: [], wp: [] };
+  vorlageAnwenden(gemerkt());
+}
+
+/** „Als Vorlage merken“: die Werte der gewählten Sparte in eine bestehende oder neue Vorlage schreiben. */
+async function alsVorlageMerken(): Promise<boolean> {
+  const liste = vorlagen();
+  const voll = liste.length >= VORLAGEN_MAX;
+  const sparte = art === 'pv' ? 'Photovoltaik' : 'Wärmepumpe';
+  const res = await dialog<{ ziel: string; name: string }>({
+    titel: 'Als Vorlage merken',
+    html: `<p class="hinweis">Speichert die ${sparte}-Werte, die gerade im Rechner stehen, als Startwerte. Die anderen Werte der Vorlage bleiben, wie sie sind.</p>
+      <label>Speichern in<select name="ziel">
+        ${liste.map((x) => `<option value="${esc(x.id)}" ${x.id === vorlageId ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}
+        ${voll ? '' : '<option value="__neu">Neue Vorlage …</option>'}
+      </select></label>
+      <label class="rz-merken-name" hidden>Name der neuen Vorlage<input name="name" maxlength="${VORLAGE_NAME_MAX}" placeholder="z. B. Landwirtschaft" autocomplete="off"></label>`,
+    knoepfe: [{
+      label: 'Speichern', primaer: true,
+      pruefen: (d) => ((d.querySelector('[name=ziel]') as HTMLSelectElement).value === '__neu' && !(d.querySelector('[name=name]') as HTMLInputElement).value.trim() ? 'Bitte einen Namen eingeben.' : ''),
+      wert: (d) => ({ ziel: (d.querySelector('[name=ziel]') as HTMLSelectElement).value, name: (d.querySelector('[name=name]') as HTMLInputElement).value.trim() }),
+    }],
+    onOpen: (d) => {
+      const sel = d.querySelector('[name=ziel]') as HTMLSelectElement;
+      const feld = d.querySelector('.rz-merken-name') as HTMLElement;
+      sel.addEventListener('change', () => { feld.hidden = sel.value !== '__neu'; if (!feld.hidden) feld.querySelector('input')?.focus(); });
+    },
+  });
+  if (!res) return false;
+  const werte = art === 'pv' ? { pv: { ...pv } } : { wp: { ...wp } };
+  let ziel = res.ziel;
+  store.mutate((d) => {
+    const vs = d.einstellungen.rechnerVorlagen;
+    if (ziel === '__neu') {
+      const basis = vs.find((x) => x.id === vorlageId) || vs[0]!;
+      ziel = neueVorlagenId();
+      vs.push({ id: ziel, name: res.name, pv: { ...basis.pv }, wp: { ...basis.wp }, ...werte });
+    } else {
+      const v = vs.find((x) => x.id === ziel);
+      if (v) Object.assign(v, werte);
+    }
+    d.einstellungen.rechnerVorlagen = normalizeRechnerVorlagen(vs);
+  });
+  vorlageAnwenden(ziel);
+  auswahlMerken(ziel);
+  toast(store.isDemo() ? 'Gemerkt (im Demo-Modus nur bis zum Neuladen)' : `${sparte}-Werte in „${vorlage().name}“ gespeichert`, 'ok');
+  return true;
 }

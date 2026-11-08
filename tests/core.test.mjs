@@ -1477,6 +1477,35 @@ test('Rechner: Angaben aus der Kundenkartei übernehmen (nur passende Werte)', a
   assert.deepEqual(wpAusKunde({ heizungsart: 'Gas', verbrauchMenge: 2000, verbrauchEinheit: 'Liter' }).werte, {}, 'Einheit passt nicht zur Heizung');
 });
 
+test('Rechner-Vorlagen: Privat und Gewerbe immer da, Grenzen, eigene, zuletzt gewählte', async () => {
+  const rv = await import('../src/core/rechnervorlagen.ts');
+  const leer = rv.normalizeRechnerVorlagen(undefined);
+  assert.deepEqual(leer.map((v) => v.id), ['privat', 'gewerbe']);
+  assert.equal(leer[0].pv.investition, PV_STANDARD.investition);
+  assert.ok(leer[1].pv.leistung > leer[0].pv.leistung, 'Gewerbe rechnet mit größerer Anlage');
+  const n = rv.normalizeRechnerVorlagen([
+    { id: 'gewerbe', name: '  Firma  ', pv: { strompreis: 999, leistung: 50, fremd: 1 } },
+    { id: 'v-1', name: 'Landwirtschaft', wp: { waermebedarf: 80000 } },
+    { id: 'v-1', name: 'doppelt' }, { id: '<b>', name: 'böse' }, 'quatsch',
+  ]);
+  assert.deepEqual(n.map((v) => v.id), ['privat', 'gewerbe', 'v-1'], 'Werksvorlagen zuerst, doppelte/ungültige IDs raus');
+  assert.equal(n[1].name, 'Firma');
+  assert.equal(n[1].pv.strompreis, 100, 'auf Feldgrenze gekappt');
+  assert.equal(n[1].pv.leistung, 50);
+  assert.equal(n[1].pv.fremd, undefined);
+  assert.equal(n[1].wp.investition, rv.GEWERBE_WP.investition, 'fehlende Werte aus der Werksvorlage');
+  assert.equal(n[2].wp.waermebedarf, 80000);
+  assert.ok(rv.angepasst(n[1]) && !rv.angepasst(leer[1]) && !rv.angepasst(n[2]));
+  const viele = Array.from({ length: 30 }, (_, i) => ({ id: `v-${i}`, name: `V${i}` }));
+  assert.equal(rv.normalizeRechnerVorlagen(viele).length, rv.VORLAGEN_MAX);
+  const { normalizeEinstellungen } = await import('../src/core/model.ts');
+  assert.equal(normalizeEinstellungen({}).rechnerVorlagen.length, 2, 'ältere Daten bekommen die Werksvorlagen');
+  assert.equal(normalizeEinstellungen({}).rechnerVorlageZuletzt, 'privat', 'Start mit Privat');
+  assert.equal(normalizeEinstellungen({ rechnerVorlageZuletzt: 'gewerbe' }).rechnerVorlageZuletzt, 'gewerbe', 'letzte Wahl bleibt');
+  assert.equal(normalizeEinstellungen({ rechnerVorlagen: [{ id: 'v-9', name: 'X' }], rechnerVorlageZuletzt: 'v-9' }).rechnerVorlageZuletzt, 'v-9');
+  assert.equal(normalizeEinstellungen({ rechnerVorlageZuletzt: 'v-geloescht' }).rechnerVorlageZuletzt, 'privat', 'gelöschte Vorlage → Privat');
+});
+
 test('Abhaken mit Folgeschritt: erledigt, Notiz im Bereich des Termins, nächste Wiedervorlage', async () => {
   const { abhakenAnwenden, notizText } = await import('../src/core/abhaken.ts');
   const { neuerTermin } = await import('../src/core/model.ts');
@@ -1881,4 +1910,72 @@ test('Namensanzeige und Sortierung nach Nachname', () => {
   } finally {
     anzeigeSetzen(null);
   }
+});
+
+// ---------- Kundenliste exportieren (0.13.9) ----------
+import { tabelle as exportTabelle, pdfZeilen, csv as exportCsv, csvZelle, xlsx as exportXlsx, crc32, spalte, dateiname as exportDateiname, SPALTEN as EXPORT_SPALTEN } from '../src/core/kundenexport.ts';
+
+const exportEintraege = [
+  { k: { vorname: 'Erika', nachname: 'Muster', firma: '', strasse: 'Teststraße 1', plz: '01234', ort: 'Beispielstadt', telefon: '+49 5344 0000', email: 'e@example.org', status: { pv: 'interesse', wp: 'unbekannt', vorwerk: 'potenzial' }, notizen: [{ text: 'GEHEIM' }] }, kontakt: '2026-11-01T10:00:00.000Z' },
+  { k: { vorname: '', nachname: '=HYPERLINK("x")', firma: 'Firma; "A"', status: {} }, kontakt: null },
+];
+
+test('Export: Tabelle in Listenreihenfolge, ohne Notizen, Status lesbar', () => {
+  const t = exportTabelle(exportEintraege);
+  assert.deepEqual(t[0], [...EXPORT_SPALTEN]);
+  assert.equal(t.length, 3);
+  assert.deepEqual(t[1].slice(0, 8), ['Muster', 'Erika', '', 'Teststraße 1', '01234', 'Beispielstadt', '+49 5344 0000', 'e@example.org']);
+  assert.deepEqual(t[1].slice(8, 11), ['Interesse', '', 'Potenzial'], '„Unbekannt“ leer, Klammerzusatz weg');
+  assert.equal(t[1][11], '01.11.2026');
+  assert.equal(t[2][11], '');
+  assert.ok(!JSON.stringify(t).includes('GEHEIM'), 'Notizen dürfen nicht exportiert werden');
+  assert.ok(!JSON.stringify(pdfZeilen(exportEintraege)).includes('GEHEIM'));
+  assert.equal(pdfZeilen(exportEintraege)[0][3], 'PV: Interesse\nVW: Potenzial');
+});
+
+test('Export: CSV mit BOM, Semikolon, Schutz vor Formeln', () => {
+  const c = exportCsv(exportTabelle(exportEintraege));
+  assert.ok(c.startsWith('﻿Nachname;Vorname;'));
+  assert.equal(csvZelle('=SUMME(A1)'), "'=SUMME(A1)");
+  assert.equal(csvZelle('@x'), "'@x");
+  assert.equal(csvZelle('a;b'), '"a;b"');
+  assert.equal(csvZelle('sag "hi"'), '"sag ""hi"""');
+  assert.ok(c.includes(`"'=HYPERLINK(""x"")"`));
+  assert.ok(c.includes('"Firma; ""A"""'));
+});
+
+test('Export: XLSX ist gültiges ZIP mit Textzellen', () => {
+  assert.equal(crc32(new TextEncoder().encode('123456789')), 0xCBF43926);
+  assert.equal(spalte(0), 'A'); assert.equal(spalte(25), 'Z'); assert.equal(spalte(26), 'AA'); assert.equal(spalte(27), 'AB');
+  const z = exportXlsx(exportTabelle(exportEintraege), 'Kundenliste', new Date(2026, 10, 8, 12, 0, 0));
+  assert.equal(z[0], 0x50); assert.equal(z[1], 0x4B);
+  const text = new TextDecoder().decode(z);
+  for (const teil of ['[Content_Types].xml', 'xl/workbook.xml', 'xl/worksheets/sheet1.xml', 'xl/styles.xml']) assert.ok(text.includes(teil), teil);
+  assert.ok(text.includes('<t xml:space="preserve">01234</t>'), 'PLZ bleibt Text mit führender Null');
+  assert.ok(text.includes('=HYPERLINK(&quot;x&quot;)'), 'Formeltext escaped');
+  assert.ok(!/<f>/.test(text), 'keine Formeln');
+  assert.ok(!text.includes('GEHEIM'));
+  assert.equal(exportDateiname('xlsx', new Date(2026, 10, 8)), 'Kundenliste-2026-11-08.xlsx');
+});
+
+test('Buchstaben-Trenner passen zur Sortierung, Excel bekommt Trennzeilen', async () => {
+  const { anfangsbuchstabe, kundenVergleich, anzeigeSetzen } = await import('../src/core/model.ts');
+  const { trenner, tabelleMitTrennern } = await import('../src/core/kundenexport.ts');
+  anzeigeSetzen(null);
+  assert.equal(anfangsbuchstabe({ vorname: 'Ute', nachname: 'Ärmel' }), 'A');
+  assert.equal(anfangsbuchstabe({ firma: 'öko GmbH' }), 'O');
+  assert.equal(anfangsbuchstabe({ ort: 'Lengede', strasse: 'Am Markt 1' }), 'L');
+  assert.equal(anfangsbuchstabe({ ort: 'Lengede', strasse: 'Am Markt 1' }, 'strasse'), 'A');
+  assert.equal(anfangsbuchstabe({ firma: '1. FC Test' }), '#');
+  assert.equal(anfangsbuchstabe({}), '#');
+  const liste = [{ nachname: 'Becker' }, { nachname: 'Adler' }, { ort: 'Peine' }, { nachname: 'Ähnlich' }, { nachname: 'Bauer' }].sort(kundenVergleich);
+  const eintraege = liste.map((k) => ({ k, kontakt: null }));
+  assert.deepEqual(trenner(eintraege, true), ['A', null, 'B', null, 'P']);
+  assert.deepEqual(trenner(eintraege, false), [null, null, null, null, null]);
+  const { zeilen, trennZeilen } = tabelleMitTrennern(eintraege, true);
+  assert.deepEqual([...trennZeilen], [1, 4, 7]);
+  assert.deepEqual(zeilen[1], ['A']);
+  assert.equal(zeilen.length, 1 + 5 + 3);
+  const text = new TextDecoder().decode(exportXlsx(zeilen, 'Kundenliste', new Date(), trennZeilen));
+  assert.ok(text.includes('<c r="A2" t="inlineStr" s="2"><is><t>A</t></is></c>'));
 });

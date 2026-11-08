@@ -7,6 +7,7 @@ import { normalizeFeldEinstellungen, normalizeEigeneWerte } from './felder.ts';
 import { normalizeProduktMarkierung, type ProduktMarkierung } from './produkte.ts';
 import { normalizeBausteine } from './bausteine.ts';
 import { normalizeFotoListe } from './fotos.ts';
+import { normalizeRechnerVorlagen, zuletztGewaehlt } from './rechnervorlagen.ts';
 import { normalizeAngebot, normalizeAuftrag, normalizeNachfassTage, normalizeBereitlegen, normalizeAnsprechpartner, normalizeHaustuer, ANGEBOTE_MAX, ANSPRECHPARTNER_MAX, HAUSTUER_MAX, type HaustuerEintrag } from './vertrieb.ts';
 
 export const SCHEMA_VERSION = 10;
@@ -715,6 +716,10 @@ export function normalizeEinstellungen(e: unknown) {
     nachfassTage: normalizeNachfassTage(src.nachfassTage),
     /** „Bitte bereitlegen“-Listen der Terminbestätigung je Bereich (ab 0.13.0) */
     bereitlegen: normalizeBereitlegen(src.bereitlegen),
+    /** Startwerte des Rechners je Kundentyp (ab 0.13.10): Privat, Gewerbe und eigene Vorlagen */
+    rechnerVorlagen: normalizeRechnerVorlagen(src.rechnerVorlagen),
+    /** Zuletzt im Rechner gewählte Vorlage (ab 0.13.10, Standard „privat“); der Rechner startet wieder damit */
+    rechnerVorlageZuletzt: zuletztGewaehlt(src.rechnerVorlageZuletzt, normalizeRechnerVorlagen(src.rechnerVorlagen)),
   };
 }
 
@@ -884,6 +889,18 @@ export function kundenVergleich(a: MitAdresse, b: MitAdresse, folge: OrtsFolge =
     if (c) return c;
   }
   return 0;
+}
+
+/**
+ * Buchstabe für die Trenner in „Name A–Z“ (Kundenliste und Export, ab 0.13.9). Passt zu `kundenVergleich`:
+ * erster Buchstabe des ersten Sortierschlüssels, Umlaute zum Grundbuchstaben (Ä → A), alles andere „#“.
+ */
+export function anfangsbuchstabe(k: MitAdresse, folge: OrtsFolge = anzeige.ortsFolge): string {
+  const t = (s?: string) => (s || '').trim();
+  const ort = t(k.ort) || t(k.plz);
+  const erster = t(k.nachname) || t(k.vorname) || t(k.firma) || (folge === 'strasse' ? t(k.strasse) || ort : ort || t(k.strasse));
+  const z = erster.normalize('NFD').replace(/[\u0300-\u036f]/g, '').charAt(0).toUpperCase();
+  return z >= 'A' && z <= 'Z' ? z : '#';
 }
 
 export function adresseEinzeilig(k: MitAdresse): string {

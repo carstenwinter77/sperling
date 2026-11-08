@@ -25,6 +25,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     <div id="rzBox"></div>
     <p class="hinweis rz-foe-link">Welche Zuschüsse und Vergütungen gerade gelten, steht unter <a href="#/foerderung" id="rzZurFoerderung">Förderung</a>.</p>`;
   const box = el.querySelector<HTMLElement>('#rzBox')!;
+  rechner.vorbereiten();
   box.innerHTML = rechner.html();
   rechner.binden(box);
   // Förderung passend zur gewählten Sparte öffnen
