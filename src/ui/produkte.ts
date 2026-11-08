@@ -41,7 +41,7 @@ export function bildFehlerAbfangen(root: Element) {
 export function kachelHtml(p: Produkt, markierung?: Markierung): string {
   const preis = preisText(p);
   return `<button type="button" class="produkt-kachel bereich-rand bereich-${p.bereich}" data-produkt="${esc(p.id)}">
-    ${bildHtml(p)}
+    <span class="produkt-bildrahmen">${bildHtml(p)}<span class="sparte-etikett" aria-hidden="true">${esc(SPARTEN[p.bereich].label)}</span></span>
     <span class="produkt-text">
       <strong>${esc(p.name)}</strong>
       <small>${esc(KATEGORIEN[p.kategorie])}${p.demnaechst ? ' · <b class="bald">bald verfügbar</b>' : ''}</small>

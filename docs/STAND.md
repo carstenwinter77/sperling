@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.2
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.3
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,10 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.13.2)
+## Erledigt (Version 0.13.3)
+
+### Neu in 0.13.3
+- [x] Produktübersicht: Jede Produktkachel zeigt ihre Sparte farbig, auch mit Herstellerbild: Rahmen rundum (oben breiter) und leicht getönte Karte in der Bereichsfarbe, dazu ein Etikett „Photovoltaik“/„Wärmepumpe“/„Vorwerk“ oben links auf dem Bild (`kachelHtml` in `src/ui/produkte.ts`, `.sparte-etikett` in `src/css/app.css`, Schriftfarbe über `--a-auf`). Hell und dunkel geprüft, Browser-Test prüft das Etikett.
 
 ### Neu in 0.13.2
 - [x] Klemmbrett Vorwerk, „Testgerät da gelassen“: freie Vorführgeräte direkt wählen (`geraeteFuerKunde` in `src/core/klemmbrett.ts`), Antippen öffnet `verleihDialog` aus `src/ui/views/bestand.ts` mit Kunde, Unterschrift und Leihschein-PDF. Danach Übergabe mit Leihschein-Knopf am Klemmbrett; Scrollstelle wird nach Dialog und Leihschein wiederhergestellt. Unit- und Browser-Test.

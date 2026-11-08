@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.13.3 – 08.11.2026
+- **Produktübersicht: Sparte auf einen Blick.** Jede Produktkachel hat jetzt einen farbigen Rahmen und eine leicht getönte Fläche in der Bereichsfarbe (Photovoltaik gelb, Wärmepumpe blau, Vorwerk grün) und oben links auf dem Bild ein Etikett mit dem Namen der Sparte. So ist die Zuordnung auch dann klar, wenn das Herstellerbild sie nicht verrät. Funktioniert im hellen und dunklen Farbschema.
+
 ## 0.13.2 – 08.11.2026
 - **Klemmbrett Vorwerk: Gerät gleich dalassen.** Tippt man beim nächsten Schritt „Testgerät da gelassen“ an, klappt darunter die Auswahl der freien Vorführgeräte aus dem Bestand auf. Ein Tipp auf ein Gerät öffnet den bekannten Verleih-Dialog mit vorausgefülltem Kunden: Rückgabedatum, Zustandsfotos, Unterschrift des Kunden auf dem Tablet, danach Leihschein als PDF. Anschließend steht am Klemmbrett „✓ Gerät übergeben … · unterschrieben“ mit Knopf zum Leihschein; schon verliehene Geräte des Kunden stehen ebenfalls dort. Ausgemusterte und verliehene Geräte werden nicht angeboten. Nach Unterschrift und Leihschein steht das Klemmbrett wieder genau an der Stelle, an der man war.
 

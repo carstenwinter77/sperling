@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.13.3',
+    punkte: [
+      'Produkte: Jede Kachel zeigt ihre Sparte jetzt farbig, mit Rahmen in Gelb, Blau oder Grün und einem Etikett oben auf dem Bild. So erkennst du auch bei Produktfotos sofort, ob es Photovoltaik, Wärmepumpe oder Vorwerk ist.',
+    ],
+  },
+  {
     version: '0.13.2',
     punkte: [
       'Klemmbrett Vorwerk: Bei „Testgerät da gelassen“ wählst du das Gerät gleich aus dem Bestand und lässt dir die Übergabe auf dem Tablet unterschreiben. Der Leihschein kommt danach als PDF, dann geht es an derselben Stelle im Klemmbrett weiter.',

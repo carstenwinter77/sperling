@@ -737,6 +737,8 @@ body.hilfe-aus .hilfe-knopf { display: none; }
 .bereich-pv { --a: var(--pv); --a-bg: var(--tag-pv-bg); --a-text: var(--tag-pv); }
 .bereich-wp { --a: var(--wp); --a-bg: var(--tag-wp-bg); --a-text: var(--tag-wp); }
 .bereich-vorwerk { --a: var(--vw); --a-bg: var(--tag-vw-bg); --a-text: var(--tag-vw); }
+/* Schrift auf voller Bereichsfarbe (Etiketten): dunkel auf Gelb, sonst wie auf Akzent-Knöpfen (hell/dunkel je Schema) */
+.bereich-pv { --a-auf: #241a00; } .bereich-wp, .bereich-vorwerk { --a-auf: var(--auf-akzent); }
 .bereich-rand { border-left: 5px solid var(--a); }
 .sparte-karte.bereich-pv, .sparte-karte.bereich-wp, .sparte-karte.bereich-vorwerk { border-color: var(--a); background: var(--a-bg); }
 .sparte-karte select { border-color: var(--c); }
@@ -764,6 +766,10 @@ body.hilfe-aus .hilfe-knopf { display: none; }
 .produkt-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .75rem; margin-bottom: 1rem; }
 .produkt-kachel { display: flex; flex-direction: column; text-align: left; gap: .5rem; padding: .6rem; border: 1px solid var(--linie); border-radius: 14px; background: var(--karte); color: var(--text); font: inherit; cursor: pointer; min-height: 44px; }
 .produkt-kachel.bereich-rand { border-left-width: 5px; }
+/* Sparte auf einen Blick, auch wenn das Produktbild nichts verrät: Rahmen, getönte Karte, Etikett auf dem Bild */
+.produkt-kachel.bereich-pv, .produkt-kachel.bereich-wp, .produkt-kachel.bereich-vorwerk { border: 2px solid var(--a); border-top-width: 6px; background: color-mix(in srgb, var(--a-bg) 60%, var(--karte)); }
+.produkt-bildrahmen { position: relative; display: block; }
+.sparte-etikett { position: absolute; top: .4rem; left: .4rem; padding: .15rem .55rem; border-radius: 999px; background: color-mix(in srgb, var(--a) 82%, var(--mix-text)); color: var(--a-auf); font-size: .78rem; font-weight: 700; line-height: 1.4; box-shadow: 0 1px 3px rgba(0,0,0,.25); pointer-events: none; }
 .produkt-kachel:hover, .produkt-kachel:focus-visible { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
 .produkt-bild { width: 100%; aspect-ratio: 4 / 3; object-fit: contain; background: #fff; border-radius: 10px; }
 .produkt-bild.gross { max-height: 260px; }

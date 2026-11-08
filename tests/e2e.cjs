@@ -854,6 +854,8 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.goto(BASE + '#/produkte?bereich=vorwerk');
   await p.waitForSelector('.produkt-kachel');
   if ((await p.textContent('#pListe')).includes('Enpal')) fail('Vorwerk-Reiter zeigt Enpal-Produkte');
+  // Jede Kachel zeigt ihre Sparte farbig (Etikett), auch wenn ein Bild da ist
+  if ((await p.$$('#pListe .produkt-kachel')).length !== (await p.$$('#pListe .produkt-kachel.bereich-vorwerk .sparte-etikett')).length) fail('Produktkachel ohne Sparten-Etikett');
   await p.fill('#pSuche', 'vk7');
   await p.waitForTimeout(100);
   const vk = await p.$$('.produkt-kachel');
