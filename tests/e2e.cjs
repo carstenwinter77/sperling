@@ -901,6 +901,20 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   if ((await p.$$('#liste a.zeile')).length !== 1) fail('Produktfilter Interesse falsch');
   await p.click('[data-f-alle]');
   if (!markiert) fail('Markiertes Produkt nicht erkennbar');
+  // Einstellungen → Textvorlagen: Platzhalter per Knopf an der Schreibmarke einfügen, wird gespeichert
+  await p.goto(BASE + '#/einstellungen?bereich=texte');
+  await p.click('[data-vorlage-bereich=pv] summary');
+  const vorlageAlt = await p.inputValue('[data-vorlage=pv]');
+  await p.$eval('[data-vorlage=pv]', (t) => { t.focus(); t.setSelectionRange(0, 0); });
+  await p.click('[data-ph=vorname][data-ph-ziel=pv]');
+  if (!(await p.inputValue('[data-vorlage=pv]')).startsWith('{{vorname}}' + vorlageAlt.slice(0, 5))) fail('Platzhalter nicht an der Schreibmarke eingefügt');
+  if (!(await p.evaluate(() => document.activeElement?.matches('[data-vorlage=pv]')))) fail('Vorlage verliert beim Platzhalter-Knopf den Fokus');
+  await p.goto(BASE + '#/einstellungen?bereich=allgemein');
+  await p.goto(BASE + '#/einstellungen?bereich=texte');
+  if (!(await p.inputValue('[data-vorlage=pv]')).startsWith('{{vorname}}')) fail('Eingefügter Platzhalter nicht gespeichert');
+  await p.click('[data-vorlage-bereich=pv] summary');
+  await p.fill('[data-vorlage=pv]', vorlageAlt);
+  await p.$eval('[data-vorlage=pv]', (t) => t.dispatchEvent(new Event('change')));
   // Einstellungen → Textbausteine: hinzufügen, erscheint im Gesprächsmodus
   await p.goto(BASE + '#/einstellungen?bereich=texte');
   await p.click('#bausteinEinstellungen details[data-baustein-bereich=vorwerk] summary');

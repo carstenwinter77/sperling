@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.11.1
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.11.2
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,11 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.11.1)
+## Erledigt (Version 0.11.2)
+
+### Neu in 0.11.2
+- [x] Textvorlagen: Platzhalter per Knopf („+ Vorname“, „+ Kundendaten“ …) an der Schreibmarke einfügen; Fokus bleibt in der Vorlage, wird sofort gespeichert.
+
 
 ### Neu in 0.11.1
 - [x] Einstellungen in acht Bereichen statt einer langen Liste: Allgemein, Texte & E-Mail, Kundendaten, Sicherung, Sicherheit & Datenschutz, Meine Kontaktseite, Hilfe, Gelöscht & Beispieldaten. Unter jedem Bereich der aktuelle Stand (Sicherung orange, wenn älter als eine Woche). Ab 900 px links Liste, rechts Inhalt; schmaler Übersicht → Unterseite mit „‹ Alle Einstellungen“ (`?bereich=…`). Suchfeld über alle Bereiche. Ein/Aus als Schalter, lange Erklärungen hinter „ⓘ“, Vorlagen je Bereich eingeklappt, „Alles löschen“ im Gefahrenbereich. Keine Funktion entfernt, kein Datenmodell geändert.

@@ -45,6 +45,11 @@ export const GRUPPEN = [
 type GruppeKey = typeof GRUPPEN[number]['key'];
 
 const KARTEN_APPS: [string, string][] = [['auto', 'Beim ersten Mal fragen'], ['apple', 'Apple Karten'], ['google', 'Google Maps'], ['waze', 'Waze']];
+/** Verständliche Namen für die Platzhalter-Knöpfe (die Platzhalter selbst stehen in textgen.ts). */
+const PLATZHALTER_NAMEN: Record<string, string> = {
+  name: 'Name', vorname: 'Vorname', nachname: 'Nachname', firma: 'Firma', anrede: 'Anrede', adresse: 'Adresse', telefon: 'Telefon', email: 'E-Mail',
+  sparten: 'Sparten', status: 'Status', daten: 'Kundendaten', notizen: 'Notizen', datum: 'Datum', absender: 'Absender',
+};
 const SPERR_MINUTEN = [0, 1, 2, 5, 10, 15, 20, 30, 45, 60, 90, 120, 240];
 
 /** Zum Suchen: klein, ohne Akzente/Umlaute-Punkte, ß → ss. */
@@ -121,8 +126,10 @@ function inhalt(key: GruppeKey, demo: boolean): string {
     <section class="karte-box" id="vorlagenEinstellungen">
       <h2>Textvorlagen</h2>
       ${SPARTEN_KEYS.map((s) => `<details class="felder-kat einst-vorlage" data-vorlage-bereich="${s}"><summary><b>${esc(SPARTEN[s].label)}</b> <small>${esc(SPARTEN[s].anbieter)}${e.vorlagen[s] !== DEFAULT_VORLAGEN[s] ? ' · angepasst' : ''}</small></summary>
-        <textarea data-vorlage="${s}" rows="10" aria-label="Vorlage ${esc(SPARTEN[s].label)}">${esc(e.vorlagen[s])}</textarea></details>`).join('')}
-      ${mehr('Platzhalter', `<p class="hinweis">${PLATZHALTER.map((p) => `<code>{{${p}}}</code>`).join(' ')}</p><p class="hinweis">Jede Vorlage bekommt nur die Daten ihres eigenen Bereichs.</p>`)}
+        <textarea data-vorlage="${s}" rows="10" aria-label="Vorlage ${esc(SPARTEN[s].label)}">${esc(e.vorlagen[s])}</textarea>
+        <p class="hinweis ph-titel">Einfügen an der Schreibmarke:</p>
+        <div class="ph-leiste" role="group" aria-label="Platzhalter einfügen">${PLATZHALTER.map((p) => `<button type="button" class="ph-knopf" data-ph="${p}" data-ph-ziel="${s}" title="fügt {{${p}}} ein">+ ${esc(PLATZHALTER_NAMEN[p] || p)}</button>`).join('')}</div></details>`).join('')}
+      ${mehr('Was sind Platzhalter?', '<p class="hinweis">Platzhalter wie <code>{{vorname}}</code> ersetzt Sperling beim Erstellen des Textes durch die Angaben des Kunden. Tippe in die Vorlage an die gewünschte Stelle und dann auf einen Knopf. Jede Vorlage bekommt nur die Daten ihres eigenen Bereichs.</p>')}
       <div class="knopfreihe"><button type="button" class="btn ghost" id="vReset">Vorlagen zurücksetzen</button></div>
     </section>
     ${bausteinverwaltung.html(e.bausteine)}`;
@@ -402,6 +409,20 @@ export function render(el: HTMLElement, params?: URLSearchParams) {
     const s = t.dataset.vorlage as Sparte;
     speichere((d) => { d.einstellungen.vorlagen[s] = t.value || DEFAULT_VORLAGEN[s]; });
   }));
+  // Platzhalter-Knöpfe: an der Schreibmarke einfügen, Fokus bleibt in der Vorlage (iPad: Tastatur bleibt offen)
+  el.querySelectorAll<HTMLButtonElement>('[data-ph]').forEach((b) => {
+    b.addEventListener('pointerdown', (ev) => ev.preventDefault());
+    b.addEventListener('click', () => {
+      const t = el.querySelector<HTMLTextAreaElement>(`[data-vorlage="${b.dataset.phZiel}"]`);
+      if (!t) return;
+      const text = `{{${b.dataset.ph}}}`;
+      const anfang = t.selectionStart ?? t.value.length;
+      const ende = t.selectionEnd ?? anfang;
+      t.setRangeText(text, anfang, ende, 'end');
+      t.focus();
+      t.dispatchEvent(new Event('change')); // speichert wie beim Tippen
+    });
+  });
   el.querySelector('#vReset').addEventListener('click', async () => {
     if (!(await bestaetigen('Vorlagen zurücksetzen?', 'Eigene Änderungen an allen drei Vorlagen gehen verloren.', 'Zurücksetzen'))) return;
     speichere((d) => { d.einstellungen.vorlagen = { ...DEFAULT_VORLAGEN }; });

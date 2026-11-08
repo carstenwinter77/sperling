@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.11.2',
+    punkte: [
+      'Textvorlagen: Platzhalter wie Vorname oder Adresse fügst du jetzt per Knopf ein, statt sie abzutippen.',
+    ],
+  },
+  {
     version: '0.11.1',
     punkte: [
       'Einstellungen aufgeräumt: acht Bereiche statt einer langen Liste, jeweils mit dem aktuellen Stand. Oben kannst du suchen, z. B. nach „Passwort“.',

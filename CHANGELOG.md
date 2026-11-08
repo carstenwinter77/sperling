@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.11.2 – 08.11.2026
+- **Textvorlagen: Platzhalter per Knopf.** Unter jeder Vorlage (Einstellungen → Texte & E-Mail) stehen Knöpfe mit verständlichen Namen („+ Vorname“, „+ Adresse“, „+ Kundendaten“ …). Ein Tipp fügt den Platzhalter an der Schreibmarke ein (markierter Text wird ersetzt); die Vorlage behält den Fokus, die Tastatur auf dem iPad bleibt offen, gespeichert wird sofort. Abtippen von `{{…}}` ist nicht mehr nötig.
+
 ## 0.11.1 – 08.11.2026
 - **Einstellungen übersichtlicher.** Statt 17 Kästen untereinander gibt es acht Bereiche (Allgemein, Texte & E-Mail, Kundendaten, Sicherung, Sicherheit & Datenschutz, Meine Kontaktseite, Hilfe, Gelöscht & Beispieldaten), jeweils mit einer Zeile zum aktuellen Stand. Auf dem iPad quer steht links die Liste und rechts der Inhalt; auf Handy und iPad hochkant öffnet ein Tipp den Bereich als eigene Seite (`#/einstellungen?bereich=…`, auch aus der Suche, der Sicherungs-Erinnerung und dem Kunden-Texte-Tab erreichbar). Suchfeld über alle Bereiche, Ein/Aus als Schalter, lange Erklärungen eingeklappt hinter „ⓘ“, Textvorlagen je Bereich aufklappbar, „Automatisch sperren“ als Auswahl, „Alle Daten löschen“ abgesetzt im Gefahrenbereich, „Fotos mitsichern“ jetzt bei der Sicherung. Alle Bereiche werden gezeichnet und nur ein-/ausgeblendet, daher bleiben IDs und Verhalten gleich.
 - **Einheitliche Symbole** in Menüleiste, „Mehr“-Menü und Einstellungen (`src/ui/symbole.ts`): schlichte Linien-Symbole in Sperling-Grün mit heller Füllfläche, passen sich hell/dunkel an. Ersetzen die kleinen Logo-Bildchen, die nebeneinander schwer zu unterscheiden waren.
