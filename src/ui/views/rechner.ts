@@ -12,7 +12,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
   rechner.artSetzen(params.get('art'));
   const kid = params.get('kunde') || '';
   const k = kid ? store.findKunde(kid) : null; // im Beratungs-Schutz nur der geschützte Kunde
-  if (k) rechner.kundeLaden(k.id, { pv: k.pv, wp: k.wp });
+  if (k) rechner.kundeLaden(k.id, { firma: k.firma, pv: k.pv, wp: k.wp });
   else rechner.kundeVergessen();
   const zurueck = k ? ruecksprung.ziel(`#/kunde/${k.id}?tab=${rechner.aktuelleArt()}`, `#/kunde/${k.id}`) : '';
 
@@ -25,6 +25,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     <div id="rzBox"></div>
     <p class="hinweis rz-foe-link">Welche Zuschüsse und Vergütungen gerade gelten, steht unter <a href="#/foerderung" id="rzZurFoerderung">Förderung</a>.</p>`;
   const box = el.querySelector<HTMLElement>('#rzBox')!;
+  rechner.vorbereiten();
   box.innerHTML = rechner.html();
   rechner.binden(box);
   // Förderung passend zur gewählten Sparte öffnen

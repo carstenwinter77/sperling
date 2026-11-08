@@ -26,6 +26,7 @@ Browser (Tablet / Handy / Laptop)
  │   ├─ produkte.ts ...... Produktkatalog prüfen, filtern, suchen; Markierungen „Produkte im Gespräch“
  │   ├─ foerderung.ts .... Förderung/Rechtsgrundlagen PV + WP: Abschnitte mit Quellen, Zeitleiste, Filter, Kopiertext
  │   ├─ amortisation.ts .. grober Amortisationsrechner PV/WP (Annahmen, Jahreswerte, Staffel, Höchstpreis, Kopiertext)
+ │   ├─ rechnervorlagen.ts  Startwerte des Rechners je Kundentyp (Privat, Gewerbe, eigene), Normalisierung, Firma → Gewerbe
  │   ├─ felder.ts ........ Feldverwaltung: Kontaktfelder, eigene Felder, sichtbare Felder, Anzeige je Typ
  │   ├─ suche.ts ......... Kommandozeile: Normalisierung, Bewertung, Gruppen, Verben, Zuletzt
  │   ├─ hilfe.ts ......... Hilfetexte (Themen, Begriffe, Fragen) und Hilfe-Suche
@@ -91,6 +92,7 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/views/produkte.ts  Produktübersicht #/produkte (auch im Beratungs-Schutz)
  ├─ src/ui/rechner.ts .... Rechner „Wann rechnet sich das?“ (Baustein, nur Arbeitsspeicher, übernimmt Kundenangaben)
  ├─ src/ui/views/rechner.ts  Rechner #/rechner?kunde=ID&art=pv|wp (eigener Menüpunkt, auch im Beratungs-Schutz)
+ ├─ src/ui/rechnervorlagen.ts  Einstellungen → Vertrieb → Rechner-Vorlagen (Privat, Gewerbe, eigene)
  ├─ src/ui/ruecksprung.ts  merkt Adresse + Scrollstelle vor einem verzahnten Schritt, Router stellt sie beim Zurückkommen wieder her
  ├─ src/ui/views/foerderung.ts  Förderung #/foerderung (auch im Beratungs-Schutz, iPhone und iPad hochkant unter „Mehr“)
  ├─ src/data/produkte.json  Produktkatalog (statisch, im Paket)

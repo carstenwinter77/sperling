@@ -1621,3 +1621,20 @@ input.schalter:disabled { opacity: .5; cursor: not-allowed; }
 /* Buchstaben-Trenner in „Name A–Z“ (bleibt beim Scrollen oben stehen) */
 .liste li.buchstabe { position: sticky; top: var(--band-h); z-index: 2; padding: .2rem .75rem; background: color-mix(in srgb, var(--gruen) 16%, var(--karte)); color: var(--text); font-weight: 800; font-size: .95rem; letter-spacing: .04em; border-top: 0; }
 .liste li.buchstabe + li { border-top: 0; }
+
+/* Rechner-Vorlagen (Privat, Gewerbe, eigene): Auswahl im Rechner und Verwaltung in den Einstellungen */
+.rz-vorlagen-zeile { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .6rem; margin: .25rem 0 .5rem; }
+.rz-vorlagen-titel { font-weight: 700; }
+.rz-vorlagen { margin: 0; }
+.rz-vorlagen button { min-height: 40px; }
+.rz-vorlagen-verwalten { font-size: .9rem; margin-left: auto; }
+.rz-vorlage-hinweis { margin: 0 0 .6rem; }
+.rz-annahmen-knoepfe { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .4rem; }
+.rz-annahmen .rz-annahmen-knoepfe .btn { min-height: 40px; }
+.rv-name { display: flex; flex-direction: column; gap: .2rem; font-weight: 600; margin: .5rem 0; max-width: 420px; }
+.rv-name input { min-height: 44px; }
+.rv-raster { display: grid; gap: .75rem; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .rv-raster { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.rv-felder { border: 1px solid var(--linie); border-radius: 12px; padding: .5rem .75rem .75rem; margin: 0; min-width: 0; display: grid; gap: .5rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.rv-felder legend { font-weight: 700; padding: 0 .3rem; }
+@media (max-width: 639px) { .rv-felder { grid-template-columns: 1fr; } .rz-vorlagen-verwalten { margin-left: 0; } }

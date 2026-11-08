@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.9
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.10
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,10 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.13.9)
+## Erledigt (Version 0.13.10)
+
+### Neu in 0.13.10
+- [x] Rechner-Vorlagen je Kundentyp (`src/core/rechnervorlagen.ts`, `einstellungen.rechnerVorlagen`): „Privat (Einfamilienhaus)“ und „Gewerbe (netto)“ sind immer da (änderbar, „Auf Werkseinstellung“), dazu bis zu 10 eigene. Im Rechner Auswahl „Vorlage“ oben, Hinweis bei Gewerbe (netto, Förderung selbst eintragen, keine Abschreibung), „⭐ Als Vorlage merken“ speichert die Werte der gewählten Sparte in eine bestehende oder neue Vorlage, Zurücksetzen geht auf die gewählte Vorlage. Aus der Kundenkartei startet der Rechner mit „Gewerbe“, wenn eine Firma eingetragen ist; Kundenwerte kommen obendrauf. Verwaltung unter Einstellungen → Vertrieb → „Rechner: Vorlagen“ (`src/ui/rechnervorlagen.ts`). Unit- und Browser-Test (auch XSS im Vorlagennamen).
 
 ### Neu in 0.13.9
 - [x] Kundenliste exportieren (Kunden → „⬇ Export“): die angezeigte Liste (Suche, Filter, Sortierung, Namensanzeige) als PDF (A4 quer), Excel (.xlsx, eigene ZIP-Erzeugung ohne Bibliothek, `src/core/kundenexport.ts`) oder CSV (Semikolon, UTF-8 mit BOM, Formelschutz). Nur Stammdaten, Status je Bereich, letzter Kontakt; keine Notizen/Fotos/eigenen Felder. Datei entsteht nur auf dem Gerät, Hinweis „nicht verschlüsselt“ im Dialog, Datenschutztext in den Einstellungen und R-KRYPTO/R-EXTERN ergänzt. Unit- und Browser-Test (Download von CSV, XLSX, PDF; Excel-Datei mit LibreOffice und openpyxl geprüft).

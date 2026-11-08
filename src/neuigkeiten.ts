@@ -2,6 +2,13 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.13.10',
+    punkte: [
+      'Rechner: Oben wählst du die Vorlage „Privat“ oder „Gewerbe“. Beim Kunden mit Firma startet der Rechner gleich mit „Gewerbe“.',
+      'Eigene Startwerte: Unter Einstellungen → Vertrieb → „Rechner: Vorlagen“ änderst du die Werte oder legst eigene Vorlagen an. Im Rechner geht das auch mit „⭐ Als Vorlage merken“.',
+    ],
+  },
+  {
     version: '0.13.9',
     punkte: [
       'Kundenliste exportieren: Unter Kunden neben der Sortierung „⬇ Export“ tippen und PDF (zum Ausdrucken), Excel-Tabelle oder CSV wählen. Exportiert wird genau die Liste, die du gerade siehst, mit Suche, Filter und Sortierung. Notizen und Fotos bleiben in Sperling.',

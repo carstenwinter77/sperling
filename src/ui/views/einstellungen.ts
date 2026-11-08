@@ -21,6 +21,7 @@ import { symbol } from '../symbole.ts';
 import * as kontaktseite from '../kontaktseite.ts';
 import * as feldverwaltung from '../feldverwaltung.ts';
 import * as bausteinverwaltung from '../bausteinverwaltung.ts';
+import * as rechnervorlagen from '../rechnervorlagen.ts';
 import { KALENDER_ANSICHTEN } from '../kalender.ts';
 import { einstellungenPaket, einstellungenAusPaket, geraeteWahl } from '../../core/einstellungsdatei.ts';
 
@@ -36,7 +37,7 @@ function tageText(iso: string): string {
 export const GRUPPEN = [
   { key: 'allgemein', sym: 'allgemein', titel: 'Allgemein', such: 'absender gruss name farbschema hell dunkel automatisch kalender start ansicht hinfahren navigation karten app apple google waze' },
   { key: 'texte', sym: 'texte', titel: 'Texte & E-Mail', such: 'textvorlagen vorlage platzhalter textbausteine baustein mail e-mail mailprogramm empfaenger gmail outlook' },
-  { key: 'vertrieb', sym: 'vertrieb', titel: 'Vertrieb', such: 'nachfassen angebot wiedervorlage tage abstand bereitlegen terminbestaetigung termin bestaetigen sms whatsapp stromrechnung' },
+  { key: 'vertrieb', sym: 'vertrieb', titel: 'Vertrieb', such: 'nachfassen angebot wiedervorlage tage abstand bereitlegen terminbestaetigung termin bestaetigen sms whatsapp stromrechnung rechner vorlage vorlagen beispielwerte startwerte privat gewerbe firma amortisation' },
   { key: 'kunden', sym: 'kundendaten', titel: 'Kundendaten', such: 'namen name nachname vorname reihenfolge sortierung sortieren ort strasse ohne namen felder eigene felder feldverwaltung kundenansicht herzeigen fotos kundenfotos speicher' },
   { key: 'sicherung', sym: 'sicherung', titel: 'Sicherung', such: 'sicherung icloud backup datei einspielen wiederherstellen versionen einstellungen uebertragen abgleich geraet wechseln fotos mitsichern' },
   { key: 'sicherheit', sym: 'sicherheit', titel: 'Sicherheit & Datenschutz', such: 'sperren automatisch sperre face id touch id passwort master-passwort datenschutz alles loeschen zuruecksetzen' },
@@ -75,7 +76,7 @@ function statusText(key: GruppeKey, demo: boolean): string {
       const m = gemerktesMailprogramm();
       return `3 Vorlagen · ${n(b, 'Baustein', 'Bausteine')} · ${m && m in MAILPROGRAMME ? esc(MAILPROGRAMME[m as keyof typeof MAILPROGRAMME]) : 'Mail: jedes Mal fragen'}`;
     }
-    case 'vertrieb': return `Nachfassen: ${e.nachfassTage.length ? `nach ${tageListeText(e.nachfassTage)}` : 'aus'} · Bereitlegen: ${SPARTEN_KEYS.reduce((z, s) => z + e.bereitlegen[s].length, 0)} Punkte`;
+    case 'vertrieb': return `Nachfassen: ${e.nachfassTage.length ? `nach ${tageListeText(e.nachfassTage)}` : 'aus'} · Bereitlegen: ${SPARTEN_KEYS.reduce((z, s) => z + e.bereitlegen[s].length, 0)} Punkte · ${e.rechnerVorlagen.length} Rechner-Vorlagen`;
     case 'kunden': {
       const st = fotoStatistik(d);
       return `${e.namensFolge === 'nachname' ? 'Nachname, Vorname' : 'Vorname Nachname'} · ${n(e.felder.eigene.length, 'eigenes Feld', 'eigene Felder')} · ${st.anzahl ? `${n(st.anzahl, 'Foto', 'Fotos')} (${groesseText(st.bytes)})` : 'keine Fotos'}`;
@@ -157,7 +158,8 @@ function inhalt(key: GruppeKey, demo: boolean): string {
       ${SPARTEN_KEYS.map((s) => `<details class="felder-kat einst-vorlage" data-bl-bereich="${s}"><summary><b>${esc(SPARTEN[s].label)}</b> <small>${e.bereitlegen[s].length} Punkte${e.bereitlegen[s].join('\n') !== BEREITLEGEN[s].join('\n') ? ' · angepasst' : ''}</small></summary>
         <textarea data-bereitlegen="${s}" rows="5" aria-label="Bitte bereitlegen ${esc(SPARTEN[s].label)}">${esc(e.bereitlegen[s].join('\n'))}</textarea></details>`).join('')}
       <div class="knopfreihe"><button type="button" class="btn ghost" id="blReset">Listen zurücksetzen</button></div>
-    </section>`;
+    </section>
+    ${rechnervorlagen.html(e.rechnerVorlagen)}`;
 
     case 'kunden': return `
     <section class="karte-box" id="namenEinstellungen">
@@ -433,6 +435,7 @@ export function render(el: HTMLElement, params?: URLSearchParams) {
   el.querySelector('#kartenApp').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.kartenApp = (ev.target as HTMLInputElement).value; }));
   feldverwaltung.verdrahten(el, () => { const y = scrollY; render(el); scrollTo(0, y); });
   bausteinverwaltung.verdrahten(el, () => { const y = scrollY; render(el); scrollTo(0, y); });
+  rechnervorlagen.verdrahten(el, () => { const y = scrollY; render(el); scrollTo(0, y); });
   el.querySelector('#kaEinstellungen').addEventListener('change', (ev) => {
     const c = (ev.target as Element).closest<HTMLInputElement>('[data-ka]');
     if (c) speichere((d) => { d.einstellungen.kundenansicht[c.dataset.ka as KundenansichtTeil] = c.checked; });

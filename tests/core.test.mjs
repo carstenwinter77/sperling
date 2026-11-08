@@ -1477,6 +1477,34 @@ test('Rechner: Angaben aus der Kundenkartei übernehmen (nur passende Werte)', a
   assert.deepEqual(wpAusKunde({ heizungsart: 'Gas', verbrauchMenge: 2000, verbrauchEinheit: 'Liter' }).werte, {}, 'Einheit passt nicht zur Heizung');
 });
 
+test('Rechner-Vorlagen: Privat und Gewerbe immer da, Grenzen, eigene, Firma → Gewerbe', async () => {
+  const rv = await import('../src/core/rechnervorlagen.ts');
+  const leer = rv.normalizeRechnerVorlagen(undefined);
+  assert.deepEqual(leer.map((v) => v.id), ['privat', 'gewerbe']);
+  assert.equal(leer[0].pv.investition, PV_STANDARD.investition);
+  assert.ok(leer[1].pv.leistung > leer[0].pv.leistung, 'Gewerbe rechnet mit größerer Anlage');
+  const n = rv.normalizeRechnerVorlagen([
+    { id: 'gewerbe', name: '  Firma  ', pv: { strompreis: 999, leistung: 50, fremd: 1 } },
+    { id: 'v-1', name: 'Landwirtschaft', wp: { waermebedarf: 80000 } },
+    { id: 'v-1', name: 'doppelt' }, { id: '<b>', name: 'böse' }, 'quatsch',
+  ]);
+  assert.deepEqual(n.map((v) => v.id), ['privat', 'gewerbe', 'v-1'], 'Werksvorlagen zuerst, doppelte/ungültige IDs raus');
+  assert.equal(n[1].name, 'Firma');
+  assert.equal(n[1].pv.strompreis, 100, 'auf Feldgrenze gekappt');
+  assert.equal(n[1].pv.leistung, 50);
+  assert.equal(n[1].pv.fremd, undefined);
+  assert.equal(n[1].wp.investition, rv.GEWERBE_WP.investition, 'fehlende Werte aus der Werksvorlage');
+  assert.equal(n[2].wp.waermebedarf, 80000);
+  assert.ok(rv.angepasst(n[1]) && !rv.angepasst(leer[1]) && !rv.angepasst(n[2]));
+  const viele = Array.from({ length: 30 }, (_, i) => ({ id: `v-${i}`, name: `V${i}` }));
+  assert.equal(rv.normalizeRechnerVorlagen(viele).length, rv.VORLAGEN_MAX);
+  assert.equal(rv.vorlageFuerKunde({ firma: 'Bäckerei Krause' }), 'gewerbe');
+  assert.equal(rv.vorlageFuerKunde({ firma: '  ' }), 'privat');
+  assert.equal(rv.vorlageFuerKunde(null), 'privat');
+  const { normalizeEinstellungen } = await import('../src/core/model.ts');
+  assert.equal(normalizeEinstellungen({}).rechnerVorlagen.length, 2, 'ältere Daten bekommen die Werksvorlagen');
+});
+
 test('Abhaken mit Folgeschritt: erledigt, Notiz im Bereich des Termins, nächste Wiedervorlage', async () => {
   const { abhakenAnwenden, notizText } = await import('../src/core/abhaken.ts');
   const { neuerTermin } = await import('../src/core/model.ts');

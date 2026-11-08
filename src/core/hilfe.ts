@@ -191,6 +191,7 @@ export const THEMEN = {
       'Säulen je Jahr zeigen, wann das Minus zum Plus wird. Die Tabelle darunter zeigt dasselbe für andere Anschaffungspreise.',
       'Beim Kunden (Reiter Photovoltaik oder Wärmepumpe) führt „🧮 Wann rechnet sich das?“ direkt hierher. Strompreis, Speicherwunsch, Gas- oder Ölverbrauch und Heizkosten aus der Kartei sind dann schon eingetragen.',
       '„‹ Zurück zum Kunden“ bringt dich an dieselbe Stelle in der Kartei zurück.',
+      'Oben die Vorlage wählen: „Privat“ oder „Gewerbe“ (netto) oder eine eigene. Beim Kunden mit Firma startet der Rechner mit „Gewerbe“. „⭐ Als Vorlage merken“ speichert die aktuellen Werte als Startwerte; verwalten unter Einstellungen → Vertrieb.',
       '„📋 Kopieren“ legt die Rechnung mit allen Annahmen und dem Hinweis in die Zwischenablage.',
       'Werte werden nicht gespeichert. Kein Angebot und keine Zusage, für eine belastbare Rechnung braucht es ein Angebot.',
     ],
