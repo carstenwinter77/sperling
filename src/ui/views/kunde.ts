@@ -1,7 +1,7 @@
 // Kundendetail: Stammdaten, Spartenstatus, Gesprächsnotizen, Erfassungsbögen, Termine, Texte.
 import * as bestandKunde from '../bestandkunde.ts';
 import { esc, debounce, parseNumber, isoToLocalInput, localInputToIso, formatDateTime, distanceMeters, nowIso } from '../../core/util.ts';
-import { NACHBAR_RADIEN, radiusText, AUSGANG, SPARTEN, SPARTEN_KEYS, STATUS, kundenTitel, adresseEinzeilig, notizenSortiert, neueNotiz, normalizeNotiz } from '../../core/model.ts';
+import { NACHBAR_RADIEN, radiusText, AUSGANG, SPARTEN, SPARTEN_KEYS, STATUS, kundenTitel, adresseEinzeilig, notizenSortiert, neueNotiz, normalizeNotiz, type Sparte } from '../../core/model.ts';
 import { ERGEBNIS } from '../../core/einwaende.ts';
 import { generiereText, ausgelasseneNotizen, GRUPPEN, GRUPPEN_KEYS, notizErlaubt } from '../../core/textgen.ts';
 import * as store from '../../storage/store.ts';
@@ -158,6 +158,8 @@ export function bindeFelder(root, kundeId, nachher) {
       if (setzePfad(k, pfad, wert)) k.updatedAt = nowIso();
     });
     nachher?.(pfad);
+    // Status „Abschluss“/„Kein Interesse“: offene Angebote gleich mit entscheiden, Auftragsstand anbieten
+    if (typeof pfad === 'string' && pfad.startsWith('status.')) void vertrieb.statusFolge(kundeId, pfad.slice(7) as Sparte, String(wert)).then((x) => { if (x) nachher?.(pfad); });
   };
   const verzoegert = new Map();
   root.addEventListener('input', (e) => {

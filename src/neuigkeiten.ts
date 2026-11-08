@@ -2,6 +2,17 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.14.0',
+    punkte: [
+      'Sperling führt dich jetzt Schritt für Schritt: Nach einer Auswahl kommt gleich der passende nächste Schritt, und danach landest du wieder genau dort, wo du warst.',
+      'Gespräch direkt aus dem Termin starten (Termin-Karte, „Als Nächstes“): Bereich und Hausbesuch/Telefon sind schon eingestellt, der Termin wird beim Speichern abgehakt.',
+      'Was du beim Klemmbrett unter „Vereinbart“ antippst, steht im Abschluss schon als Ergebnis, Status und Datum drin.',
+      'Nach dem Speichern: „Als Nächstes?“ mit Termin bestätigen, Angebot erfassen, Enpal-Doku kopieren, Weiter zum nächsten Termin und mehr.',
+      'Nachfassen beim Angebot oder Nachfrage beim Leihgerät abhaken: gleich „Angenommen/Abgelehnt“ bzw. „Kauft/Zurück/Verlängern“ wählen.',
+      'Haustür „Gespräch“ öffnet das Klemmbrett, „Später“ fragt nach der Wiedervorlage.',
+    ],
+  },
+  {
     version: '0.13.8',
     punkte: [
       'Übersicht: Die drei großen Bereichs-Kacheln sind jetzt eine schmale farbige Leiste. Tippe auf eine Zahl (Potenzial, in Arbeit, Kunden), dann öffnet sich die Kundenliste gleich mit diesem Bereich und Status gefiltert.',

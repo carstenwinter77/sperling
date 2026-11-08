@@ -13,6 +13,7 @@ import { anrufen, emailSchreiben } from './kontakt.ts';
 import { navigieren } from './navi.ts';
 import { terminDialog } from './parts.ts';
 import * as enpalDoku from './enpaldoku.ts';
+import * as ruecksprung from './ruecksprung.ts';
 import { verleihDialog, reservierenDialog, ruecknahme } from './views/bestand.ts';
 
 const istApfel = () => /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent || '');
@@ -190,7 +191,7 @@ function kundenAktion(id: string, aktion: Aktion) {
     case 'notiz': gehe(`#/kunde/${id}?tab=notizen&fokus=notiz`); break;
     case 'termin': terminDialog({ kundeId: id }).then((t) => { if (t) neuZeichnen(); }); break;
     case 'doku': enpalDoku.textZeigen(id); break;
-    case 'gespraech': gehe(`#/kunde/${id}/gespraech`); break;
+    case 'gespraech': if (!location.hash.startsWith(`#/kunde/${id}/gespraech`)) ruecksprung.merken(location.hash, `#/kunde/${id}/gespraech`); gehe(`#/kunde/${id}/gespraech`); break;
     default: gehe(`#/kunde/${id}`);
   }
 }

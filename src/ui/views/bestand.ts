@@ -10,6 +10,7 @@ import { leer } from '../parts.ts';
 import { istBeispielGeraet } from '../../demo.ts';
 import { fotosHtml, fotosVerdrahten, unterschriftHtml, unterschriftVerdrahten } from '../belege.ts';
 import * as leihschein from '../leihschein.ts';
+import { vorwerkKaufFolge, kaufinteresseFolge } from '../vertrieb.ts';
 import { zeitraumWahl } from '../zeitraum.ts';
 import { tagVon, plusTage, balkenFuer, istBelegt, ersterFreierTag, type Tag } from '../../core/belegung.ts';
 import { kundenName } from '../../core/model.ts';
@@ -346,7 +347,7 @@ export async function verleihDialog(g: Geraet, reservierung: Reservierung | null
     }
     if (res.erinnern && res.rueckgabeGeplant) {
       data.termine.push(neuerTermin({
-        kundeId: res.kundeId, sparte: 'vorwerk', art: 'wiedervorlage', dauerMin: 60, beginn: res.rueckgabeGeplant,
+        kundeId: res.kundeId, sparte: 'vorwerk', art: 'wiedervorlage', dauerMin: 60, beginn: res.rueckgabeGeplant, bezug: { art: 'leihe', id: l.id },
         titel: `Nachfragen: ${g.name} bei ${k ? kundenTitel(k) : 'Kunde'}`,
         notiz: 'Wie gefällt das Gerät? Kaufinteresse? Rückgabe abholen.',
         ort: k ? adresseEinzeilig(k) : '',
@@ -396,10 +397,13 @@ export async function ruecknahme(g: Geraet, gekauft: boolean): Promise<boolean> 
       kk.updatedAt = nowIso();
     }
     // Offene Nachfrage-Erinnerung zu diesem Gerät erledigen
-    for (const t of data.termine) if (!t.erledigt && t.kundeId === x.kundeId && t.titel.startsWith(`Nachfragen: ${g.name}`)) { t.erledigt = true; t.updatedAt = nowIso(); }
+    for (const t of data.termine) if (!t.erledigt && t.kundeId === x.kundeId && (t.bezug?.art === 'leihe' ? t.bezug.id === x.id : t.titel.startsWith(`Nachfragen: ${g.name}`))) { t.erledigt = true; t.updatedAt = nowIso(); }
   });
   toast(gekauft ? 'Verkauf gebucht' : 'Rücknahme gebucht', 'ok');
-  if (!gekauft) leihschein.anbieten(l.id, 'rueckgabe', dialog);
+  if (!gekauft) await leihschein.anbieten(l.id, 'rueckgabe', dialog);
+  // Gleich weiter: Kauf → Auftragsstand und Pflege; Kaufinteresse → Angebot oder Nachfassen
+  if (l.kundeId && gekauft) await vorwerkKaufFolge(l.kundeId, g.name);
+  else if (l.kundeId && res.kauf === 'interesse') await kaufinteresseFolge(l.kundeId, g.name);
   return true;
 }
 
@@ -414,7 +418,7 @@ async function erinnerung(g: Geraet): Promise<boolean> {
   });
   if (!res) return false;
   store.mutate((data) => {
-    data.termine.push(neuerTermin({ kundeId: l?.kundeId || '', sparte: 'vorwerk', art: 'wiedervorlage', dauerMin: 60, beginn: res, titel: `Nachfragen: ${g.name} bei ${k ? kundenTitel(k) : 'Kunde'}`, notiz: 'Wie gefällt das Gerät? Kaufinteresse?' }));
+    data.termine.push(neuerTermin({ kundeId: l?.kundeId || '', sparte: 'vorwerk', art: 'wiedervorlage', dauerMin: 60, beginn: res, bezug: l ? { art: 'leihe', id: l.id } : null, titel: `Nachfragen: ${g.name} bei ${k ? kundenTitel(k) : 'Kunde'}`, notiz: 'Wie gefällt das Gerät? Kaufinteresse?' }));
   });
   toast('Erinnerung angelegt', 'ok');
   return false;

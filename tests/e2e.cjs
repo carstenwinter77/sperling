@@ -321,6 +321,11 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('dialog:has(h2:has-text("Eingaben verwerfen?")) .dlg-actions button.ghost');
   await p.click('dialog button.primary');
   await p.waitForFunction(() => (document.querySelector('#toast')?.textContent || '').startsWith('Verkauf gebucht'));
+  // Verzahnung: nach dem Verkauf gleich Auftragsstand und Pflege-Wiedervorlagen anbieten
+  await p.waitForSelector('dialog h2:has-text("verkauft")');
+  if (!(await p.isChecked('dialog [name=auftrag]'))) fail('Auftragsstand nach Verkauf nicht vorausgewählt');
+  await p.click('dialog button.primary');
+  await p.waitForFunction(() => !document.querySelector('dialog'));
   await p.waitForFunction((n) => { const t = document.querySelector('#bestandKunde')?.textContent || ''; return t.includes(n) && t.includes('799,00 €'); }, verkaufName);
   await p.goto(BASE + '#/bestand');
   await p.waitForSelector('article.geraet');
@@ -632,7 +637,15 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.selectOption('[data-abschluss] [name=ausgang] >> nth=0', 'termin');
   await p.waitForSelector('#gmBilanz.gut');
   await p.selectOption('[data-abschluss] [name=ausgang] >> nth=0', 'wiedervorlage');
+  const gmKunde = await p.evaluate(() => location.hash.split('/')[2]);
   await p.click('#gmSpeichern');
+  // Verzahnung: zurück zur Kundenseite (von dort gestartet), darüber „Als Nächstes“ mit der Enpal-Doku
+  await p.waitForSelector('dialog.dlg-folge');
+  if (!(await p.evaluate(() => location.hash)).startsWith(`#/kunde/${gmKunde}`) || (await p.evaluate(() => location.hash)).includes('gespraech')) fail('Nach dem Gespräch nicht zurück zur Kundenseite');
+  if (!(await p.textContent('dialog.dlg-folge')).includes('Enpal-Doku kopieren')) fail('„Als Nächstes“ bietet die Enpal-Doku nicht an');
+  await p.click('dialog.dlg-folge button.primary');
+  await p.waitForFunction(() => !document.querySelector('dialog'));
+  await p.evaluate((id) => { location.hash = `#/kunde/${id}?tab=verlauf`; }, gmKunde);
   await p.waitForSelector('.verlauf');
   if (!(await p.textContent('.verlauf')).includes('E2E-Gesprächsnotiz')) fail('Gespräch fehlt im Verlauf');
   if (!(await p.textContent('.verlauf')).includes('Wiedervorlage vereinbart')) fail('Ergebnis fehlt im Verlauf');
@@ -1139,6 +1152,10 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     await p.fill('dialog input[name=titel]', 'Beratung vor Ort');
     await p.selectOption('dialog select[name=sparte]', 'pv');
     await p.click('dialog .dlg-actions button.primary');
+    // Verzahnung: neuer Termin mit Kunde bietet gleich die Bestätigung an; „Später“ geht über die Termin-Karte
+    await p.waitForSelector('dialog h2:has-text("Termin gespeichert")');
+    if ((await p.textContent('dialog .dlg-actions button.ghost')).trim() !== 'Später') fail('Bestätigungs-Angebot ohne „Später“');
+    await p.click('dialog .dlg-actions button.ghost');
     await p.waitForSelector('.terminliste li.termin >> text=Beratung vor Ort');
     await p.locator('.terminliste li.termin', { hasText: 'Beratung vor Ort' }).locator('.termin-titel').click();
     await p.click('dialog [data-tk=bestaetigen]');
@@ -1165,6 +1182,39 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     await p.goto(BASE + '#/kunde/' + vid + '?tab=angebote');
     await p.waitForSelector('.ang-liste li.ang-angenommen');
     await p.waitForSelector('.auftrag[data-sparte=pv] .auftrag-balken');
+    // Verzahnung: Gespräch aus der Termin-Karte. Bereich und Kontaktart kommen vom Termin, „Vereinbart“ stellt den
+    // Abschluss vor; nach dem Speichern zurück in die Terminliste, Termin abgehakt, „Als Nächstes“ bietet das Angebot an.
+    await p.click('button[data-tab=termine]');
+    await p.locator('.terminliste li.termin:not(.erledigt)', { hasText: 'Beratung vor Ort' }).locator('.termin-titel').click();
+    await p.click('dialog a:has-text("Gespräch starten")');
+    await p.waitForSelector('.gm-termin');
+    await p.click('.gk-punkt[data-pid="schritt"] [data-wert="Angebot rechnen"]');
+    await p.click('.gm-seiten [data-seite=notizen]');
+    if (!(await p.$('.gm-art [data-art=hausbesuch].aktiv'))) fail('Gespräch aus Termin: Kontaktart nicht Hausbesuch');
+    if (!(await p.$('.gm-sparten [data-sparte=pv].aktiv')) || (await p.$('.gm-sparten [data-sparte=wp].aktiv'))) fail('Gespräch aus Termin: Bereich nicht übernommen');
+    await p.click('.gm-seiten [data-seite=abschluss]');
+    if ((await p.inputValue('[data-abschluss=pv] [name=ausgang]')) !== 'angebot') fail('„Vereinbart: Angebot rechnen“ stellt das Ergebnis nicht vor');
+    if (!(await p.inputValue('[data-abschluss=pv] [name=wv]'))) fail('Wiedervorlage nicht vorgeschlagen');
+    await p.click('#gmSpeichern');
+    await p.waitForSelector('dialog.dlg-folge');
+    if (!(await p.evaluate(() => location.hash)).includes('tab=termine')) fail('Nach dem Gespräch nicht zurück zu den Terminen');
+    await p.click('dialog.dlg-folge [data-folge^="angebot:"]');
+    await p.waitForSelector('dialog [name=betrag]');
+    await p.fill('dialog [name=betrag]', '9.900');
+    await p.click('dialog .dlg-actions button.primary');
+    await p.waitForSelector('dialog.dlg-folge li.erledigt');
+    await p.click('dialog.dlg-folge .dlg-actions button.primary');
+    await p.waitForFunction(() => !document.querySelector('dialog'));
+    await p.waitForSelector('.terminliste li.termin.erledigt >> text=Beratung vor Ort');
+    // Nachfass-Wiedervorlage abhaken fragt nach dem Angebot: „Abgelehnt“ erledigt alle Nachfass-Wiedervorlagen
+    await p.locator('.terminliste li.termin:not(.erledigt)', { hasText: 'Angebot nachfassen' }).first().locator('[data-aktion=erledigt]').click();
+    await p.waitForSelector('dialog h2:has-text("Wie steht das Angebot?")');
+    await p.locator('dialog .dlg-actions button', { hasText: 'Abgelehnt' }).click();
+    await p.waitForFunction(() => /abgelehnt/i.test(document.querySelector('#toast')?.textContent || ''));
+    await p.click('button[data-tab=angebote]');
+    await p.waitForSelector('.ang-liste li.ang-abgelehnt');
+    await p.click('button[data-tab=termine]');
+    if ((await p.locator('.terminliste li.termin:not(.erledigt)', { hasText: 'Angebot nachfassen' }).count()) !== 0) fail('Abgelehnt: Nachfass-Wiedervorlagen nicht erledigt');
   }
   // Tagesroute und Haustür auf der Karte (Demo mit Beispieldaten, eigener Tab)
   {
@@ -1199,6 +1249,10 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     await dp.waitForSelector('.leaflet-popup .haustuer-knoepfe');
     await dp.click('.leaflet-popup [data-haustuer=spaeter]');
     await dp.waitForFunction(() => /Später wiederkommen/.test(document.querySelector('#toast')?.textContent || ''));
+    // Verzahnung: „Später“ fragt gleich nach der Wiedervorlage
+    await dp.waitForSelector('dialog h2:has-text("Wann wiederkommen?")');
+    await dp.click('dialog .dlg-actions button.primary');
+    await dp.waitForFunction(() => /Wiedervorlage .* angelegt/.test(document.querySelector('#toast')?.textContent || ''));
     await dp.close();
   }
   // Bereichsleiste auf der Übersicht: Zahl führt in die gefilterte Kundenliste (Bereich + Status)

@@ -508,7 +508,7 @@ export function vertrieb(data: Daten, bereich: Bereich, von: Tag, bis: Tag): Ver
 }
 
 export type NachfassArt = 'ueberfaellig' | 'angebot' | 'test';
-export interface NachfassEintrag { art: NachfassArt; kundeId: string; sparte: Sparte | ''; text: string; wann: string; tage: number; dringend: boolean }
+export interface NachfassEintrag { art: NachfassArt; kundeId: string; sparte: Sparte | ''; text: string; wann: string; tage: number; dringend: boolean; /** überfällige Wiedervorlage/Termin (ab 0.14.0) */ terminId?: string }
 export const NACHFASS_GRUPPEN: Record<NachfassArt, string> = { ueberfaellig: 'Überfällig', angebot: 'Angebot ohne Antwort', test: 'Gerät im Test – Kaufentscheidung fällig' };
 /** Angebote ohne Kontakt seit so vielen Tagen erscheinen in der Nachfassliste. */
 export const ANGEBOT_STILL_TAGE = 7;
@@ -522,7 +522,7 @@ export function nachfassListe(data: Daten, bereich: Bereich, heute: Tag = tagVon
     if (t.erledigt || tagVon(t.beginn) >= heute) continue;
     if (bereich !== 'alle' && t.sparte !== bereich) continue;
     const tage = tageZwischen(tagVon(t.beginn), heute);
-    out.ueberfaellig.push({ art: 'ueberfaellig', kundeId: t.kundeId, sparte: t.sparte, text: `${t.art === 'termin' ? 'Termin' : 'Wiedervorlage'}: ${t.titel || 'ohne Titel'}`, wann: `seit ${plural(tage, 'Tag', 'Tagen')}`, tage, dringend: true });
+    out.ueberfaellig.push({ art: 'ueberfaellig', kundeId: t.kundeId, sparte: t.sparte, text: `${t.art === 'termin' ? 'Termin' : 'Wiedervorlage'}: ${t.titel || 'ohne Titel'}`, wann: `seit ${plural(tage, 'Tag', 'Tagen')}`, tage, dringend: true, terminId: t.id });
   }
   const jetztIso = tagDatum(plusTage(heute, 1)).toISOString();
   for (const k of data.kunden) {

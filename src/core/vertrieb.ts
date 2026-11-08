@@ -123,7 +123,7 @@ export const nachfassTitel = (a: Pick<Angebot, 'titel' | 'sparte'>) => `Angebot 
 export function nachfassTermine(a: Angebot, kundeId: string, jetzt = nowIso(), tage: readonly number[] = NACHFASS_TAGE): Rec[] {
   const tag = ortsTag(a.datum);
   return tage.map((n) => ({
-    kundeId, sparte: a.sparte, art: 'wiedervorlage', titel: nachfassTitel(a), beginn: tagPlus(tag, n), dauerMin: 15,
+    kundeId, sparte: a.sparte, art: 'wiedervorlage', titel: nachfassTitel(a), beginn: tagPlus(tag, n), dauerMin: 15, bezug: { art: 'angebot', id: a.id },
     notiz: `${n} ${n === 1 ? 'Tag' : 'Tage'} nach dem Angebot vom ${tag.split('-').reverse().join('.')}${a.betrag !== null ? ` (${euro(a.betrag)})` : ''}. Fragen, ob alles verständlich ist und was noch offen ist.`,
   })).filter((t) => t.beginn > jetzt);
 }
@@ -131,7 +131,7 @@ export function nachfassTermine(a: Angebot, kundeId: string, jetzt = nowIso(), t
 /** Offene Nachfass-Wiedervorlagen eines Angebots (für „erledigt“ beim Annehmen/Ablehnen). */
 export function offeneNachfass(termine: readonly Termin[], kundeId: string, a: Angebot): Termin[] {
   const titel = nachfassTitel(a);
-  return termine.filter((t) => t.kundeId === kundeId && !t.erledigt && t.art === 'wiedervorlage' && t.sparte === a.sparte && t.titel === titel);
+  return termine.filter((t) => t.kundeId === kundeId && !t.erledigt && t.art === 'wiedervorlage' && (t.bezug?.art === 'angebot' ? t.bezug.id === a.id : t.sparte === a.sparte && t.titel === titel));
 }
 
 // ---------- Auftragsstand nach dem Abschluss ----------

@@ -1395,6 +1395,10 @@ body.schutz-aktiv .plus-knopf, body.ka-aktiv .plus-knopf { display: none; }
 .aw-nf-gruppe span { background: var(--flaeche-2); border-radius: 999px; padding: 0 .45rem; font-size: .75rem; }
 .aw-nachfassen { list-style: none; margin: 0; padding: 0; }
 .aw-nachfassen li { border-bottom: 1px solid var(--linie); }
+.aw-nachfassen li.mit-aktion { display: flex; align-items: center; gap: .3rem; }
+.aw-nachfassen li.mit-aktion > a:first-child { flex: 1; min-width: 0; }
+.aw-nf-aktion { display: flex; gap: .2rem; flex: none; }
+.aw-nf-aktion .btn { min-width: 40px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; padding: 0 .4rem; }
 .aw-nachfassen a, .aw-nf-ohne { display: flex; align-items: center; gap: .6rem; min-height: 44px; padding: .3rem .1rem; color: inherit; text-decoration: none; }
 .aw-nachfassen a:hover { background: var(--flaeche-2); }
 .aw-nf-text { min-width: 0; flex: 1; display: grid; line-height: 1.25; }
@@ -1605,3 +1609,12 @@ input.schalter:disabled { opacity: .5; cursor: not-allowed; }
 .foe-rechner-link small { color: var(--text-2); }
 .foe-rechner-link > span:last-child { font-size: 1.4rem; color: var(--text-2); }
 .foe-rechner-link .sym { width: 30px; height: 30px; }
+
+/* ---------- Verzahnung (ab 0.14.0): „Als Nächstes“ nach dem Gespräch, Termin-Hinweis im Gespräch ---------- */
+.folge-liste { list-style: none; margin: .4rem 0 0; padding: 0; display: grid; gap: .55rem; }
+.folge-liste li { display: grid; gap: .15rem; }
+.folge-liste .folge-knopf { width: 100%; justify-content: flex-start; text-align: left; min-height: 48px; white-space: normal; }
+.folge-liste li.erledigt .folge-knopf { opacity: .65; }
+.folge-liste small { color: var(--text-2); font-size: .8rem; padding-left: .3rem; }
+.gm-termin { margin: 0 0 .6rem; padding: .55rem .75rem; border-radius: 10px; background: var(--flaeche-2); border-left: 4px solid var(--gruen); }
+.gm-vorschlag { margin: .3rem 0 0; font-size: .8rem; }

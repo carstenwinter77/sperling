@@ -11,7 +11,7 @@ import { letzterKontakt, tageSeit, seitText } from '../../core/verlauf.ts';
 import { filterPanelHtml, filterPanelZeigen, filterPanelVerdrahten } from '../filterpanel.ts';
 import { hinfahrenKnopf, naviLink } from '../navi.ts';
 import { HAUSTUER, letzteHaustuer, werbeverbot, tagesStopps, streckeKm, unterwegs, googleRoute, ortsTag, euro, angebotsSumme, haustuerStatus, neuerHaustuerEintrag, type HaustuerErgebnis } from '../../core/vertrieb.ts';
-import { haustuerKnoepfe, haustuerSpeichern } from '../vertrieb.ts';
+import { haustuerKnoepfe, haustuerSpeichern, haustuerWeiter } from '../vertrieb.ts';
 
 const LAYER = {
   satellit: {
@@ -155,6 +155,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       map.closePopup();
       zeichnen();
       if (routeAn) routeZeigen();
+      void haustuerWeiter(b.dataset.kunde, b.dataset.haustuer as HaustuerErgebnis);
     });
     const knopf = (e.popup.getElement() as HTMLElement | undefined)?.querySelector('[data-pin-loeschen]') as HTMLElement | null;
     knopf?.addEventListener('click', async () => {
@@ -274,6 +275,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
         map.closePopup();
         zeichnen();
         toast(`Markiert: ${HAUSTUER[ergebnis].label}`, 'ok');
+        void haustuerWeiter(k.id, ergebnis); // „Gespräch“: Klemmbrett mit dem neuen Haus, Name links eintragen
         return;
       }
       const b = (ev.target as Element).closest('[data-neu]');

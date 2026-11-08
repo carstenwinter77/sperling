@@ -1,4 +1,4 @@
-# Datenmodell (Schema-Version 9)
+# Datenmodell (Schema-Version 10)
 
 Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Menschen. Bei Abweichungen gilt der Code, und diese Datei wird nachgezogen.
 
@@ -6,7 +6,7 @@ Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Mensch
 
 | Feld | Typ | Beschreibung |
 |---|---|---|
-| `schemaVersion` | Zahl | aktuell `9` |
+| `schemaVersion` | Zahl | aktuell `10` |
 | `kunden` | Kunde[] | alle Kunden und markierten Standorte |
 | `termine` | Termin[] | Termine und Wiedervorlagen |
 | `einstellungen` | Objekt | siehe unten |
@@ -101,6 +101,7 @@ Typen: Zahlen sind `null`, wenn leer. Ja/Nein-Felder sind `true`/`false`/`null` 
 | `beginn` | ISO-Datum | |
 | `dauerMin` | Zahl | 1 bis 1440, Standard 60 |
 | `erledigt` | Boolean | |
+| `bezug` | `{art, id}` | ab Schema 10: wozu eine Wiedervorlage gehört. `art` = `angebot` (id = Angebot), `leihe` (id = Leihvorgang), `pflege` (id = Sparte) oder `''` (kein Bezug, id leer). Beim Abhaken bietet Sperling dazu passende Knöpfe an (Angebot angenommen/abgelehnt, Leihgabe zurück/gekauft/verlängern). Migration 9 → 10 ordnet vorhandene „Angebot nachfassen: …“- und „Nachfragen: Gerät bei …“-Wiedervorlagen über den Titel zu (`bezugNachtragen()` in `src/core/model.ts`). |
 
 ## Gerät (Vorführbestand)
 

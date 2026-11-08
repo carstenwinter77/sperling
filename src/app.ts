@@ -319,6 +319,7 @@ function route() {
   ruecksprung.wiederherstellen(); // nach einem verzahnten Schritt an die alte Stelle
 }
 window.addEventListener('hashchange', route);
+ruecksprung.linksBeobachten(); // Links ins Gespräch merken sich, woher sie kommen
 
 // ---------- Auto-Sperre & sicheres Speichern ----------
 let letzteAktivitaet = Date.now();
