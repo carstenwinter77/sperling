@@ -119,18 +119,31 @@ export function kundenVerlauf(data: Daten, k: Kunde, jetzt = new Date().toISOStr
  * Letzter Kontakt: jüngstes Gespräch, Enpal-Kontakt, Notiz, erledigter Termin, Ausgabe oder Rückgabe
  * eines Geräts, Haustür-Gespräch, oder der von Hand gesetzte Tag. Nichts in der Zukunft. null = noch nie.
  */
-export function letzterKontakt(data: Pick<Daten, 'termine' | 'leihvorgaenge'>, k: Kunde, jetzt = new Date().toISOString()): string | null {
+export function letzterKontakt(data: Pick<Daten, 'termine' | 'leihvorgaenge'>, k: Kunde, jetzt = new Date().toISOString(), index?: KontaktIndex): string | null {
   let best: string | null = null;
   const nimm = (iso: string | null | undefined) => { if (iso && iso <= jetzt && (!best || iso > best)) best = iso; };
   nimm(k.letzterKontaktManuell);
   for (const g of k.gespraeche) nimm(g.zeitpunkt);
   for (const c of k.enpalKontakte) nimm(c.zeitpunkt);
   for (const n of k.notizen) nimm(n.zeitpunkt);
-  for (const t of data.termine) if (t.kundeId === k.id && t.erledigt) nimm(t.beginn);
-  for (const l of data.leihvorgaenge) if (l.kundeId === k.id) { nimm(l.ausgabe); nimm(l.rueckgabe); }
+  const i = index?.get(k.id);
+  if (index) { for (const iso of i || []) nimm(iso); } else {
+    for (const t of data.termine) if (t.kundeId === k.id && t.erledigt) nimm(t.beginn);
+    for (const l of data.leihvorgaenge) if (l.kundeId === k.id) { nimm(l.ausgabe); nimm(l.rueckgabe); }
+  }
   // An der Haustür zählt nur, wenn jemand geöffnet hat (nicht „nicht angetroffen“, nicht „keine Werbung“)
   for (const h of k.haustuer || []) if (HAUSTUER[h.ergebnis].kontakt) nimm(h.zeitpunkt);
   return best;
+}
+
+/** Kontakt-Zeitpunkte aus Terminen und Verleih je Kunde, einmal für ganze Listen gebaut (ab 0.14.6, statt je Kunde alles zu durchsuchen). */
+export type KontaktIndex = Map<string, string[]>;
+export function kontaktIndex(data: Pick<Daten, 'termine' | 'leihvorgaenge'>): KontaktIndex {
+  const m: KontaktIndex = new Map();
+  const dazu = (id: string, iso: string | null | undefined) => { if (!id || !iso) return; const l = m.get(id); if (l) l.push(iso); else m.set(id, [iso]); };
+  for (const t of data.termine) if (t.erledigt) dazu(t.kundeId, t.beginn);
+  for (const l of data.leihvorgaenge) { dazu(l.kundeId, l.ausgabe); dazu(l.kundeId, l.rueckgabe); }
+  return m;
 }
 
 /** Ganze Tage seit dem letzten Kontakt (nach Kalendertagen), null = noch nie. */

@@ -25,6 +25,7 @@
   --backdrop: rgba(10, 30, 18, .45);
   /* Bereichsfarben: PV gelb (Sonne), WP blau, Vorwerk grün */
   --pv: #e0a800; --wp: #2f7fd6; --vw: #2f9a3c;
+  --pin-misch: #a23cc4; --pin-leer: #8a939c; /* Karten-Pins: mehrere Bereiche / noch kein Bereich (ab 0.14.6) */
   --tag-pv-bg: #fff1c2; --tag-pv: #7a5a00;
   --tag-wp-bg: #dceafd; --tag-wp: #1d4f8c;
   --tag-vw-bg: #dcefd5; --tag-vw: #1f5e22;
@@ -42,6 +43,7 @@
     --feld: #1e2b22; --flaeche-2: #223127; --aktiv-bg: #233a28; --auf-akzent: #0f1712; --mix: #17221b; --mix-text: #ffffff;
     --toast-bg: #e4efe0; --overlay: rgba(23, 34, 27, .95); --backdrop: rgba(0, 0, 0, .6);
     --pv: #ffd24a; --wp: #6aaeff; --vw: #6cc96f;
+    --pin-misch: #d58cf0; --pin-leer: #9aa3ad;
     --tag-pv-bg: #4a3d10; --tag-pv: #ffd96b; --tag-wp-bg: #183456; --tag-wp: #a9cdff; --tag-vw-bg: #1f4220; --tag-vw: #a6dc93; --tag-warn-bg: #4a2222;
     --demo-karte: #2a3326;
     color-scheme: dark;
@@ -54,6 +56,7 @@
   --feld: #1e2b22; --flaeche-2: #223127; --aktiv-bg: #233a28; --auf-akzent: #0f1712; --mix: #17221b; --mix-text: #ffffff;
   --toast-bg: #e4efe0; --overlay: rgba(23, 34, 27, .95); --backdrop: rgba(0, 0, 0, .6);
   --pv: #ffd24a; --wp: #6aaeff; --vw: #6cc96f;
+  --pin-misch: #d58cf0; --pin-leer: #9aa3ad;
   --tag-pv-bg: #4a3d10; --tag-pv: #ffd96b; --tag-wp-bg: #183456; --tag-wp: #a9cdff; --tag-vw-bg: #1f4220; --tag-vw: #a6dc93; --tag-warn-bg: #4a2222;
   --demo-karte: #2a3326;
   color-scheme: dark;
@@ -625,7 +628,7 @@ body.ka-aktiv { overflow: hidden; }
 .kontakt-alter.alt { color: color-mix(in srgb, var(--rot) 75%, var(--text)); background: color-mix(in srgb, var(--rot) 12%, transparent); }
 .kontakt-alter.nie { color: var(--text-2); border: 1px dashed var(--linie); }
 .kunde-kontakt { margin: -.25rem 0 .6rem; }
-.kontakt-alter-knopf { border: 0; font: inherit; cursor: pointer; padding: .3rem .7rem; font-size: .85rem; min-height: 32px; }
+.kontakt-alter-knopf { border: 0; font: inherit; cursor: pointer; padding: .3rem .7rem; font-size: .85rem; min-height: 32px; max-width: 100%; white-space: normal; text-align: left; }
 .filterleiste #fKnopf { white-space: nowrap; }
 .filterleiste #sortierung { width: auto; }
 .ka-wahl { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .3rem 1rem; }
@@ -877,11 +880,12 @@ dialog.dlg.dlg-termin { width: min(560px, calc(100vw - 24px)); }
 .gk { padding-bottom: 5rem; }
 .gk h2 small, .gk h3 small { font-weight: 600; color: var(--text-2); font-size: .8rem; }
 .gk-titel { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
-.gk-titel h2 { margin: 0; }
+.gk-titel h2 { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 .gk-ring { flex: 0 0 56px; width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--a) calc(var(--anteil, 0) * 360deg), var(--linie) 0); transition: background .4s ease; }
 .gk-ring span { width: 44px; height: 44px; border-radius: 50%; background: var(--karte); display: grid; place-items: center; font-weight: 800; font-size: .95rem; font-variant-numeric: tabular-nums; }
 .gk-ring small { font-size: .7rem; color: var(--text-2); font-weight: 600; }
-.gk-art { margin: .75rem 0 .25rem; }
+.gk-art { margin: .75rem 0 .25rem; max-width: 100%; }
+@media (max-width: 380px) { .gk-art.segment button { padding: .4rem .55rem; font-size: .9rem; } }
 .gk-vorb { margin: .75rem 0; padding: .6rem .8rem; border-radius: 12px; background: var(--flaeche-2); }
 .gk-vorb summary { cursor: pointer; min-height: 32px; display: flex; align-items: center; gap: .4rem; }
 .gk-vorb summary small { color: var(--text-2); }
@@ -1222,6 +1226,7 @@ tr.li-gleich { opacity: .7; }
 .foe-wusstest p { margin: 0 0 .5rem; }
 .foe-wusstest-bild { width: 56px; height: 56px; flex: none; }
 .foe-wusstest-knoepfe { display: flex; gap: .4rem; flex-wrap: wrap; }
+.foe-wusstest > div { min-width: 0; overflow-wrap: anywhere; }
 .foe-wusstest-knoepfe .btn { min-height: 44px; }
 .foe-zeit > summary { cursor: pointer; list-style: none; min-height: 44px; display: flex; align-items: center; }
 .foe-zeit > summary::-webkit-details-marker { display: none; }
@@ -1421,7 +1426,7 @@ body.schutz-aktiv .plus-knopf, body.ka-aktiv .plus-knopf { display: none; }
 .aw-nf-wann.dringend { color: var(--rot); font-weight: 700; }
 .aw-punkt { width: 10px; height: 10px; border-radius: 50%; flex: none; display: inline-block; }
 .aw-nf-mehr summary { cursor: pointer; color: var(--text-2); font-size: .88rem; padding: .5rem 0; min-height: 32px; }
-.aw-tabelle-rahmen { overflow-x: auto; }
+.aw-tabelle-rahmen { overflow-x: auto; position: relative; } /* relative: versteckte Vorlesetexte (.sr-only) bleiben im Rahmen, sonst wackelt die Seite seitlich */
 .aw-vergleich td + td, .aw-vergleich th + th { width: auto; white-space: nowrap; }
 .aw-vergleich th { font-size: .85rem; color: var(--text-2); }
 .aw-kopf-pv { border-bottom: 3px solid var(--pv) !important; }
@@ -1585,6 +1590,10 @@ input.schalter:disabled { opacity: .5; cursor: not-allowed; }
 /* Haustür-Ergebnis als kleines Abzeichen oben rechts am Pin (Nicht da, Später, Kein Interesse, Keine Werbung) */
 .pin .pin-tuer { position: absolute; top: -10px; right: -13px; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 1.5px solid rgba(0,0,0,.25); box-shadow: 0 1px 3px rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; font-size: 13px; line-height: 1; font-style: normal; pointer-events: none; }
 .pin.tuer-werbeverbot span { opacity: .55; }
+/* Mehrere Bereiche: Mischfarbe, dazu ein weißer Punkt in der Mitte (Farbe nie einziges Merkmal) */
+.pin.pin-misch span::after { content: ''; position: absolute; inset: 7px; border-radius: 50%; background: #fff; }
+.pin span { position: relative; }
+.legende .legende-misch i { box-shadow: inset 0 0 0 3px var(--pin-misch); background: #fff !important; }
 .legende-tuer { display: contents; }
 .legende-tuer > span:first-child { border-left: 1px solid var(--linie); padding-left: .8rem; }
 .ap-liste .zeile { display: flex; gap: .5rem; align-items: center; justify-content: space-between; flex-wrap: wrap; }

@@ -98,9 +98,14 @@ export async function holen(): Promise<boolean> {
     return true;
   }
   if (urteil === 'konflikt') {
+    const dateiAelter = !!lokal && env!.updatedAt! < lokal;
     const ok = await dialog<boolean>({
       titel: 'Auf beiden Geräten geändert',
-      html: `<p>Die Datei ist neuer (${esc(formatDateTime(env!.updatedAt!))}), aber auch hier wurde seit dem letzten Abgleich etwas geändert (${esc(formatDateTime(lokal))}).</p>
+      html: dateiAelter
+        ? `<p>Seit dem letzten Abgleich wurde auf beiden Geräten etwas geändert: in der Datei (Stand ${esc(formatDateTime(env!.updatedAt!))}) und hier (Stand ${esc(formatDateTime(lokal))}). Zusammenführen kann Sperling die beiden Stände nicht.</p>
+        <p><b>Datei übernehmen</b> ersetzt den Stand hier. Er bleibt unter Einstellungen → Versionen erhalten und lässt sich zurückholen.</p>
+        <p><b>Abbrechen</b> lässt hier alles, wie es ist. Sicherst du danach in iCloud, fehlen dort die Änderungen vom anderen Gerät. Sie bleiben aber auf dem anderen Gerät.</p>`
+        : `<p>Die Datei ist neuer (${esc(formatDateTime(env!.updatedAt!))}), aber auch hier wurde seit dem letzten Abgleich etwas geändert (${esc(formatDateTime(lokal))}).</p>
         <p>Übernehmen ersetzt den Stand hier. Er bleibt unter Einstellungen → Versionen erhalten und lässt sich zurückholen.</p>`,
       knoepfe: [{ label: 'Datei übernehmen', primaer: true, wert: true }],
     });

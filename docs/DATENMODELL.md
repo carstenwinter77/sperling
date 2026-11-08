@@ -1,4 +1,4 @@
-# Datenmodell (Schema-Version 10)
+# Datenmodell (Schema-Version 11)
 
 Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Menschen. Bei Abweichungen gilt der Code, und diese Datei wird nachgezogen.
 
@@ -6,7 +6,7 @@ Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Mensch
 
 | Feld | Typ | Beschreibung |
 |---|---|---|
-| `schemaVersion` | Zahl | aktuell `10` |
+| `schemaVersion` | Zahl | aktuell `11` |
 | `kunden` | Kunde[] | alle Kunden und markierten Standorte |
 | `termine` | Termin[] | Termine und Wiedervorlagen |
 | `einstellungen` | Objekt | siehe unten |
@@ -14,6 +14,7 @@ Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Mensch
 | `leihvorgaenge` | Leihvorgang[] | Verleih an Kunden |
 | `reservierungen` | Reservierung[] | Vormerkungen für Vorführgeräte (ab Schema 3) |
 | `papierkorb` | Eintrag[] | Gelöschtes, bleibt bis zum endgültigen Löschen (ab Schema 3) |
+| `entwuerfe` | Entwurf[] | ab Schema 11: laufende, noch nicht gespeicherte Gespräche (einer je Kunde, höchstens 30): `{kundeId, start, kontaktart, erreicht, sparten, notiz{pv,wp,vorwerk}, verlauf, leitfadenSparte, antworten, terminId?}`. Gesichert von `src/ui/gespraechsablauf.ts` (alle 20 s bei Änderungen, beim App-Wechsel, vor Sperren und Update), nach dem Entsperren wiederhergestellt; beim Speichern oder Verwerfen entfernt. Normalisiert von `normalizeEntwurf()` (Texte gekürzt, Entwürfe zu fehlenden Kunden fallen weg). |
 | `fotoSchluessel` | Objekt | ab 0.10.16: Schlüssel-ID → AES-256-Schlüssel (Base64) für die Kundenfotos. Beim Einspielen einer Sicherung bleiben vorhandene Schlüssel erhalten. |
 | `material` | Material[] | Verbrauchsmaterial (ab 0.10.14, ohne Schemawechsel, fehlt = leer) |
 
@@ -202,7 +203,7 @@ Beispielkunden, -termine, -geräte und -verleihe in der echten App erkennt man a
 
 **Einstellungsdatei** (ab 0.10.5, `src/core/einstellungsdatei.ts`): `{art: 'sperling-einstellungen', schemaVersion, erstellt, einstellungen, geraet: {farbschema, mailprogramm}}`, ohne `zuletzt`, verschlüsselt im selben Umschlag wie die Sicherung (`deviceId: 'einstellungen'`). „Sicherung einspielen“ lehnt sie ab, damit keine Kunden verloren gehen.
 
-Schema 1 → 2: `enpalKontakte` und `einstellungen.empfaenger` kommen hinzu; die Normalisierung ergänzt sie leer. Schema 2 → 3: `reservierungen`, `papierkorb`, `einstellungen.kartenApp` und die Beleg-Felder am Leihvorgang kommen hinzu (leer). 0.9.0 bleibt bei Schema 3: die neuen Felder (`letzterKontaktManuell`, `kundenansicht`, `nachbarRadiusM`, `zuletzt`) ergänzt die Normalisierung mit Standardwerten. Schema 6 → 7 (drei Texte, Kalender-Start): `vorlagen` und `empfaenger` je Bereich; eine eigene frühere Enpal-Vorlage bzw. ein Enpal-Empfänger gilt für PV und WP, die unveränderte alte Standardvorlage wird durch die neuen ersetzt; `kalenderStart` kommt mit `monat` hinzu. Schema 5 → 6 (Textbausteine): `einstellungen.bausteine` kommt hinzu; fehlt ein Bereich, gilt die Startliste aus `src/core/bausteine.ts`. Schema 4 → 5 (Produkte im Gespräch): `kunde.produkte` kommt hinzu (leer). Schema 3 → 4 (Feldverwaltung): `kunde.eigene` und `einstellungen.felder` kommen hinzu (leer); das frühere `einstellungen.dropbox` wird verworfen. Schema 7 → 8 (Statusverlauf): `kunde.statusVerlauf` kommt hinzu; jeder Status ungleich „Unbekannt“ wird als geschätzter Wechsel zum Anlagedatum nachgetragen. Schema 8 → 9 (Vertriebswerkzeuge): `kunde.angebote`, `kunde.auftrag`, `kunde.ansprechpartner` und `kunde.haustuer` kommen hinzu (leer); `einstellungen.nachfassTage` und `einstellungen.bereitlegen` ergänzt die Normalisierung mit den Standardwerten (kein eigener Schemaschritt). 0.13.10 bleibt bei Schema 9: `einstellungen.rechnerVorlagen` und `rechnerVorlageZuletzt` ergänzt die Normalisierung mit den Werksvorlagen bzw. `privat`. Künftige Versionen ergänzen schrittweise Blöcke `if (v < 10) { … }`.
+Schema 1 → 2: `enpalKontakte` und `einstellungen.empfaenger` kommen hinzu; die Normalisierung ergänzt sie leer. Schema 2 → 3: `reservierungen`, `papierkorb`, `einstellungen.kartenApp` und die Beleg-Felder am Leihvorgang kommen hinzu (leer). 0.9.0 bleibt bei Schema 3: die neuen Felder (`letzterKontaktManuell`, `kundenansicht`, `nachbarRadiusM`, `zuletzt`) ergänzt die Normalisierung mit Standardwerten. Schema 6 → 7 (drei Texte, Kalender-Start): `vorlagen` und `empfaenger` je Bereich; eine eigene frühere Enpal-Vorlage bzw. ein Enpal-Empfänger gilt für PV und WP, die unveränderte alte Standardvorlage wird durch die neuen ersetzt; `kalenderStart` kommt mit `monat` hinzu. Schema 5 → 6 (Textbausteine): `einstellungen.bausteine` kommt hinzu; fehlt ein Bereich, gilt die Startliste aus `src/core/bausteine.ts`. Schema 4 → 5 (Produkte im Gespräch): `kunde.produkte` kommt hinzu (leer). Schema 3 → 4 (Feldverwaltung): `kunde.eigene` und `einstellungen.felder` kommen hinzu (leer); das frühere `einstellungen.dropbox` wird verworfen. Schema 7 → 8 (Statusverlauf): `kunde.statusVerlauf` kommt hinzu; jeder Status ungleich „Unbekannt“ wird als geschätzter Wechsel zum Anlagedatum nachgetragen. Schema 8 → 9 (Vertriebswerkzeuge): `kunde.angebote`, `kunde.auftrag`, `kunde.ansprechpartner` und `kunde.haustuer` kommen hinzu (leer); `einstellungen.nachfassTage` und `einstellungen.bereitlegen` ergänzt die Normalisierung mit den Standardwerten (kein eigener Schemaschritt). 0.13.10 bleibt bei Schema 9: `einstellungen.rechnerVorlagen` und `rechnerVorlageZuletzt` ergänzt die Normalisierung mit den Werksvorlagen bzw. `privat`. Schema 9 → 10 (Bezug von Wiedervorlagen): `termin.bezug` kommt hinzu; vorhandene „Angebot nachfassen: …“- und „Nachfragen: Gerät bei …“-Wiedervorlagen werden über den Titel zugeordnet (`bezugNachtragen()`). Schema 10 → 11 (Gesprächsentwürfe): `entwuerfe` kommt hinzu (leer). Künftige Versionen ergänzen schrittweise Blöcke `if (v < 12) { … }`.
 
 ## Kundenfotos (IndexedDB-Tabelle `fotos`, ab Datenbank-Version 2)
 

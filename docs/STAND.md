@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.14.5
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.14.6
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -13,6 +13,19 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 - [ ] Auf dem Tablet „Zum Home-Bildschirm“ hinzufügen und Master-Passwort festlegen
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
+
+## Erledigt (Version 0.14.6)
+
+### Neu in 0.14.6 (Korrekturen aus der Fehlerprüfung vom 08.11., Schema 11)
+- [x] Laufende Gespräche verschlüsselt im Bestand (`entwuerfe`, `sichern()` in `src/ui/gespraechsablauf.ts`): alle 20 s bei Änderungen, bei `visibilitychange`/`pagehide`, vor dem Sperren (auch Auto-Sperre) und vor „Jetzt aktualisieren“; nach dem Entsperren zurück mit Hinweis. Unit- und Browser-Test (Notiz übersteht Sperren).
+- [x] iCloud-Abgleich: ältere Datei + Änderungen auf beiden Seiten seit dem letzten Abgleich → Rückfrage (`abgleichUrteil`). Sicherung von Hand einspielen speichert als neuen Stand.
+- [x] Versionen vor einem Passwortwechsel: Abfrage des früheren Passworts, Gerät behält das aktuelle (`adoptEnvelope(…, { passwortBehalten: true })`).
+- [x] Karten-Pins nach Bereich (`pinFarbe`, `PIN_FARBEN`), Mischfarbe `--pin-misch` mit weißem Punkt, grau `--pin-leer`; Legende; Status im Tooltip.
+- [x] Wiedervorlage-Vorschläge auf Werktage (`werktagPlus`, Feiertage Niedersachsen). Samstag gilt als frei.
+- [x] Tempo: `kontaktIndex()`, Kundenliste in Stücken à 150 und Suche mit Tipp-Pause ab 300 Kunden, `structuredClone` in `mutate`.
+- [x] Enpal-Doku aus dem Gespräch fest „Vorname Nachname“; CSV ohne Hochkomma vor Telefonnummern; Service Worker installiert mit `cache: 'reload'`; Handy ohne seitliches Verschieben (320–390 px geprüft).
+- [ ] Mit Jan klären: Ist Samstag für Wiedervorlagen ein Arbeitstag? Passen die Pinfarben (Bereich statt Status) im Alltag?
+- [ ] Offen aus der Fehlerprüfung, nicht beauftragt: Kontaktseite mit echter E-Mail/USt-IdNr. (Platzhalter `kontakt@beispiel.de` ist live), offene Fenster beim Sperren schließen.
 
 ## Erledigt (Version 0.14.5)
 

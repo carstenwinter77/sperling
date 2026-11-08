@@ -1,5 +1,18 @@
 # Änderungsverlauf
 
+## 0.14.6 – 08.11.2026
+Korrekturen aus der Fehlerprüfung vom 08.11.2026 (Schema 11).
+- **Laufende Gespräche verschlüsselt mitsichern.** Neuer Teil des Bestands `entwuerfe` (Schema 11): alle 20 s bei Änderungen, beim Wechsel in eine andere App, vor dem Sperren und vor „Jetzt aktualisieren“. Nach dem Entsperren kommen sie zurück, mit kurzem Hinweis. Speichern oder Verwerfen entfernt den Entwurf.
+- **iCloud-Abgleich:** Ist die Datei älter, aber seit dem letzten Abgleich auf beiden Geräten geändert, fragt Sperling nach („Auf beiden Geräten geändert“) statt „schon aktueller“ zu melden (`abgleichUrteil`). Von Hand eingespielte Sicherungen werden als neuer Stand gespeichert, damit ein späterer Abgleich sie nicht ohne Rückfrage ersetzt.
+- **Karten-Pins nach Bereich** (`pinFarbe`/`PIN_FARBEN` in `src/core/kartenfilter.ts`): ein Bereich = Bereichsfarbe, mehrere = Mischfarbe (lila mit weißem Punkt), keiner = grau. Filter grenzt ein. Status im Tooltip und in der Infobox. Legende angepasst.
+- **Wiedervorlagen auf Werktage** (`werktagPlus`/`freierTag` in `src/core/vertrieb.ts`): Vorschläge nach dem Gespräch, Nachfassen, Pflege, Widerrufsfrist, Kaufinteresse, Haustür „Später“ überspringen Wochenende und Feiertage in Niedersachsen.
+- **Tempo:** letzter Kontakt über einen Index statt Suche je Kunde (`kontaktIndex`), Kundenliste zeichnet lange Listen in Stücken und sucht ab 300 Kunden nach kurzer Tipp-Pause, `mutate` sichert per `structuredClone`.
+- **Enpal-Doku** aus dem Gespräch schreibt den Gesprächspartner immer „Vorname Nachname“.
+- **Update:** Der Service Worker holt beim Installieren alle Dateien frisch vom Server (`cache: 'reload'`).
+- **Versionen** aus der Zeit vor einem Passwortwechsel: Sperling fragt nach dem früheren Passwort und verschlüsselt mit dem aktuellen neu.
+- **CSV:** Telefonnummern wie „+49 170 …“ ohne Hochkomma; Formeln bleiben geschützt.
+- **Handy:** kein seitliches Verschieben mehr (Auswertungen, Förderung, Kundenkarte, Gesprächsmodus auf schmalen Geräten).
+
 ## 0.14.5 – 08.11.2026
 - **Produkte direkt in den Bestand übernehmen.** Im Produktdetail der Produktübersicht steht bei Vorwerk-Produkten „➕ Zu meinem Bestand hinzufügen“. Der Knopf legt nichts sofort an, sondern öffnet das gewohnte Fenster „Neues Vorführgerät“ bzw. „Neues Verbrauchsmaterial“, vorbefüllt mit Bezeichnung, Produktbezug (dadurch Bild) und, wo der Katalog ihn kennt, dem Lieferumfang als Zubehör; bei Material Einheit (z. B. „Flasche“ bei 500 ml) und Anzahl 1. Der Cursor steht gleich in der Seriennummer bzw. Anzahl. Bei Sets und Zubehör fragt Sperling vorher, ob es als Vorführgerät oder Material geführt wird. Nach Speichern oder Abbrechen geht es zurück zum Produkt; nach dem Speichern mit kurzer Bestätigung, und das Detail zeigt „Schon in deinem Bestand: …“. Enpal und GALVANY haben keinen eigenen Bestand, dort gibt es den Knopf nicht.
 - **Neuer Artikel im Bestand: Bezeichnung mit Katalogsuche.** Statt der langen Auswahlliste sucht das Feld „Bezeichnung“ beim Tippen in der Produktübersicht (Vorwerk) und zeigt bis zu acht Treffer mit Bild. Antippen übernimmt Name, Produktbezug und passende Felder (Zubehör bzw. Einheit, nur wenn dort noch nichts steht); ohne Antippen bleibt es eine freie Eingabe. Die Verknüpfung lässt sich mit ✕ wieder lösen.

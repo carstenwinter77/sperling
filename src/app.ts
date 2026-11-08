@@ -37,6 +37,8 @@ import * as vProdukte from './ui/views/produkte.ts';
 import * as vFoerderung from './ui/views/foerderung.ts';
 import * as vRechner from './ui/views/rechner.ts';
 import * as ruecksprung from './ui/ruecksprung.ts';
+import * as ablauf from './ui/gespraechsablauf.ts';
+import { kundenTitel } from './core/model.ts';
 import type { ThemaId } from './core/hilfe.ts';
 
 interface Ansicht { render(el: HTMLElement, params: URLSearchParams, treffer: string[]): void | (() => void) }
@@ -235,6 +237,13 @@ async function nachEntsperren() {
     setTimeout(() => update.wasIstNeu(APP_VERSION), 1200);
     abgleich.beimStart().catch(() => {});
     setTimeout(() => fotos.aufraeumen().catch(() => 0), 5000); // verwaiste Fotodaten entfernen
+    // Gespräche, die vor dem Sperren oder Neuladen noch nicht gespeichert waren, sind wieder da
+    const offen = ablauf.wiederhergestellt();
+    if (offen.length) {
+      setTimeout(() => toast(offen.length === 1
+        ? `Das Gespräch mit ${kundenTitel(store.findKunde(offen[0]!.kundeId) || {})} ist noch nicht gespeichert. Beim Kunden „▶ Gespräch fortsetzen“.`
+        : `${offen.length} Gespräche sind noch nicht gespeichert. Beim jeweiligen Kunden „▶ Gespräch fortsetzen“.`, 'ok', 7000), 800);
+    }
     navigator.storage?.persist?.().catch(() => {});
   }
   route();
@@ -277,6 +286,7 @@ function shell() {
 async function sperren() {
   abgleich.leisteEntfernen();
   try {
+    ablauf.sichern(); // laufende Gespräche verschlüsselt mitnehmen (werden nach dem Entsperren wiederhergestellt)
     await store.lock();
     location.hash = '#/';
     zeigeSperre();
@@ -331,9 +341,16 @@ setInterval(() => {
 }, 30000);
 
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden' && store.isUnlocked()) store.flush().catch((e) => console.error(e));
+  if (document.visibilityState === 'hidden' && store.isUnlocked()) {
+    try { ablauf.sichern(); } catch (e) { console.error(e); }
+    store.flush().catch((e) => console.error(e));
+  }
 });
-window.addEventListener('pagehide', () => { if (store.isUnlocked()) store.flush().catch(() => {}); });
+window.addEventListener('pagehide', () => {
+  if (!store.isUnlocked()) return;
+  try { ablauf.sichern(); } catch { /* Speichern unten versucht es trotzdem */ }
+  store.flush().catch(() => {});
+});
 
 store.onSaved((ev) => { if (ev.fehler) toast(`Speichern fehlgeschlagen: ${ev.fehler.message}. Neuer Versuch bei der nächsten Änderung.`, 'error', 6000); });
 

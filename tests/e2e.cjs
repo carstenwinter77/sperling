@@ -723,6 +723,23 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('.gm-bausteine .gm-baustein >> nth=0');
   if ((await p.inputValue('textarea[data-gruppe] >> nth=0')) !== 'E2E-Gesprächsnotiz Speicherwunsch\n' + bsText) fail('Textbaustein nicht angehängt');
   if (!(await p.isVisible('.gm-diktat'))) fail('Diktat-Hinweis fehlt');
+  // 0.14.6: laufendes Gespräch übersteht Sperren und Neuladen (verschlüsselt im Bestand)
+  {
+    const gmHash = await p.evaluate(() => location.hash.split('?')[0]);
+    const notizVorher = await p.inputValue('textarea[data-gruppe] >> nth=0');
+    await p.click('#sperren');
+    await p.waitForSelector('#sperrForm');
+    await p.reload();
+    await p.fill('input[name=pw]', 'testpasswort');
+    await p.click('#sperrForm button');
+    await p.waitForSelector('.hauptnav');
+    await p.waitForFunction(() => /noch nicht gespeichert/.test(document.querySelector('#toast')?.textContent || ''), null, { timeout: 5000 }).catch(() => fail('Hinweis auf wiederhergestelltes Gespräch fehlt'));
+    await p.goto(BASE + gmHash);
+    await p.waitForSelector('.gm-seiten');
+    if ((await p.inputValue('[data-antwort=aerger]')) !== 'E2E-Antwort') fail('Klemmbrett-Antwort nach Sperren verloren');
+    await p.click('.gm-seiten [data-seite=notizen]');
+    if ((await p.inputValue('textarea[data-gruppe] >> nth=0')) !== notizVorher) fail('Gesprächsnotiz nach Sperren und Neuladen verloren');
+  }
   await p.click('.gm-seiten [data-seite=abschluss]');
   const bilanz = await p.textContent('#gmBilanz');
   if (!/erfasst/.test(bilanz) || !bilanz.includes('Widerrufsrecht erklärt') || !bilanz.includes('1 Einwand')) fail('Gesprächsbilanz unvollständig: ' + bilanz);

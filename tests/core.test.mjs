@@ -1242,6 +1242,9 @@ test('Abgleich über iCloud Drive: nur Neueres, Konflikt bei Änderungen auf bei
   assert.equal(a.abgleichUrteil(t(12), t(10), t(10)), 'neuer', 'hier seit Abgleich nichts geändert');
   assert.equal(a.abgleichUrteil(t(12), t(11), t(10)), 'konflikt', 'auch hier geändert');
   assert.equal(a.abgleichUrteil(t(12), t(11), null), 'konflikt', 'nie abgeglichen: lieber fragen');
+  assert.equal(a.abgleichUrteil(t(11), t(12), t(9)), 'konflikt', 'Datei älter, aber beide Seiten seit dem Abgleich geändert');
+  assert.equal(a.abgleichUrteil(t(9), t(12), t(9)), 'aelter', 'Datei seit dem Abgleich unverändert');
+  assert.equal(a.abgleichUrteil(t(11), t(12), null), 'aelter', 'ohne Abgleich-Stand bleibt ältere Datei älter');
   assert.equal(a.abgleichUrteil('kaputt', t(11), null), 'ungueltig');
   assert.equal(a.abgleichUrteil(undefined, t(11), null), 'ungueltig');
   assert.equal(a.beimStartFragen({ demo: false, abgeschaltet: false, schonGefragt: false }), true);
@@ -1953,6 +1956,10 @@ test('Export: CSV mit BOM, Semikolon, Schutz vor Formeln', () => {
   assert.ok(c.startsWith('﻿Nachname;Vorname;'));
   assert.equal(csvZelle('=SUMME(A1)'), "'=SUMME(A1)");
   assert.equal(csvZelle('@x'), "'@x");
+  assert.equal(csvZelle('+49 170 1234567'), '+49 170 1234567', 'Telefonnummer ohne Hochkomma');
+  assert.equal(csvZelle('+49 (5344) 12-34'), '+49 (5344) 12-34');
+  assert.equal(csvZelle('+1+HYPERLINK("x")'), '\'+1+HYPERLINK("x")'.replace(/^(.*)$/, (z) => (/[";]/.test(z) ? `"${z.replace(/"/g, '""')}"` : z)), 'Formel mit + bleibt geschützt');
+  assert.equal(csvZelle('-1'), "'-1");
   assert.equal(csvZelle('a;b'), '"a;b"');
   assert.equal(csvZelle('sag "hi"'), '"sag ""hi"""');
   assert.ok(c.includes(`"'=HYPERLINK(""x"")"`));
@@ -2004,4 +2011,52 @@ test('Karten-Hinweis „Tippe lange …“ verschwindet nach Eingewöhnung oder 
   assert.equal(h.kartenHinweisSichtbar(50, false), false);
   assert.equal(h.kartenHinweisSichtbar(0, true), false, '✕ blendet sofort aus');
   assert.ok(h.THEMEN.hinweise.kurz.includes('✕'), 'Hilfe erklärt das Zurückholen');
+});
+
+test('Gesprächsentwürfe im Bestand (Schema 11): sicher eingelesen, nur zu vorhandenen Kunden, einer je Kunde', async () => {
+  const m = await import('../src/core/model.ts');
+  assert.equal(m.SCHEMA_VERSION, 11);
+  assert.deepEqual(m.emptyData().entwuerfe, []);
+  assert.equal(m.normalizeEntwurf({}), null, 'ohne Kunde kein Entwurf');
+  const e = m.normalizeEntwurf({ kundeId: 'k1', kontaktart: 'quatsch', sparten: ['pv', 'zz', 'pv'], notiz: { pv: 'x'.repeat(30000), wp: 5 }, antworten: { pv: { a: 'Ja', b: 7 } }, verlauf: 'kaputt', terminId: 't1' });
+  assert.equal(e.kontaktart, 'telefon');
+  assert.deepEqual(e.sparten, ['pv']);
+  assert.equal(e.notiz.pv.length, 20000);
+  assert.equal(e.notiz.wp, '');
+  assert.deepEqual(e.antworten.pv, { a: 'Ja' });
+  assert.deepEqual(e.verlauf, { pv: {}, wp: {}, vorwerk: {} });
+  assert.equal(e.terminId, 't1');
+  assert.equal(e.erreicht, true);
+  const d = m.migrate({ schemaVersion: 10, kunden: [{ id: 'k1', nachname: 'A' }], entwuerfe: [{ kundeId: 'k1', notiz: { pv: 'eins' } }, { kundeId: 'k1', notiz: { pv: 'zwei' } }, { kundeId: 'weg' }] });
+  assert.equal(d.entwuerfe.length, 1);
+  assert.equal(d.entwuerfe[0].notiz.pv, 'eins');
+  assert.deepEqual(m.migrate({ schemaVersion: 10 }).entwuerfe, [], 'älterer Bestand bekommt eine leere Liste');
+});
+
+test('Enpal-Doku aus dem Gespräch: Gesprächspartner immer „Vorname Nachname“, auch bei „Nachname, Vorname“', async () => {
+  const m = await import('../src/core/model.ts');
+  const g = await import('../src/core/gespraech.ts');
+  const { leereAntworten } = await import('../src/core/klemmbrett.ts');
+  m.anzeigeSetzen({ namensFolge: 'nachname' });
+  try {
+    const d = m.migrate({ kunden: [{ id: 'k1', vorname: 'Hans', nachname: 'Muster' }] });
+    g.speichern(d, { kundeId: 'k1', start: new Date().toISOString(), kontaktart: 'telefon', erreicht: true, sparten: ['pv'], notiz: { pv: 'Notiz', wp: '', vorwerk: '' }, verlauf: g.leererVerlauf(), leitfadenSparte: 'pv', antworten: leereAntworten() }, [{ sparte: 'pv', ausgang: 'termin', status: '', schritt: '', wv: '' }]);
+    assert.equal(d.kunden[0].enpalKontakte[0].gespraechspartner, 'Hans Muster');
+  } finally { m.anzeigeSetzen({}); }
+});
+
+test('Karten-Pin nach Bereich: ein Bereich = seine Farbe, mehrere = Mischfarbe, keiner = grau; Filter grenzt ein', async () => {
+  const f = await import('../src/core/kartenfilter.ts');
+  const k = (pv, wp, vorwerk) => ({ status: { pv, wp, vorwerk } });
+  assert.equal(f.pinFarbe(k('angebot', 'unbekannt', 'unbekannt')), 'pv');
+  assert.equal(f.pinFarbe(k('unbekannt', 'potenzial', 'kein_interesse')), 'wp');
+  assert.equal(f.pinFarbe(k('unbekannt', 'unbekannt', 'abschluss')), 'vorwerk');
+  assert.equal(f.pinFarbe(k('interesse', 'termin', 'unbekannt')), 'misch');
+  assert.equal(f.pinFarbe(k('kein_interesse', 'unbekannt', 'kein_interesse')), 'leer');
+  const nurWp = { ...f.leererKartenFilter(), sparten: ['wp'] };
+  assert.equal(f.pinFarbe(k('interesse', 'termin', 'unbekannt'), nurWp), 'wp', 'Filter auf Wärmepumpe: blau');
+  const nurAngebot = { ...f.leererKartenFilter(), status: ['angebot'] };
+  assert.equal(f.pinFarbe(k('angebot', 'termin', 'angebot'), nurAngebot), 'misch');
+  assert.equal(f.pinFarbe(k('interesse', 'angebot', 'unbekannt'), nurAngebot), 'wp');
+  for (const key of ['pv', 'wp', 'vorwerk', 'misch', 'leer']) assert.ok(f.PIN_FARBEN[key].css.startsWith('var(--'), 'nur CSS-Variablen (Dunkelmodus)');
 });

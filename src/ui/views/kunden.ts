@@ -2,7 +2,7 @@
 import { esc, formatDate } from '../../core/util.ts';
 import { SPARTEN, STATUS, kundenTitel, kundenVergleich, adresseEinzeilig, neuerKunde, type Sparte, type StatusKey } from '../../core/model.ts';
 import { passt, leererKartenFilter, filterAktiv, type KartenFilter } from '../../core/kartenfilter.ts';
-import { letzterKontakt, tageSeit, seitText } from '../../core/verlauf.ts';
+import { letzterKontakt, kontaktIndex, tageSeit, seitText } from '../../core/verlauf.ts';
 import { filterPanelHtml, filterPanelZeigen, filterPanelVerdrahten } from '../filterpanel.ts';
 import { istBeispiel } from '../../demo.ts';
 import * as store from '../../storage/store.ts';
@@ -61,10 +61,30 @@ export function render(el: HTMLElement, params: URLSearchParams) {
   const liste = el.querySelector('#liste');
   const panel = el.querySelector('#kFilter');
   if (filterAktiv(filter)) { panel.hidden = false; el.querySelector('#fKnopf').setAttribute('aria-expanded', 'true'); }
+  // Letzter Kontakt je Kunde: nur neu berechnen, wenn sich die Daten geändert haben (nicht bei jedem Tastendruck)
+  let basis: { d: unknown; stand: string | null; liste: { k: any; kontakt: string | null; tage: number | null }[] } | null = null; // any: wie angezeigt
+  const basisHolen = () => {
+    const d = store.getData();
+    if (basis && basis.d === d && basis.stand === store.getStand() && !store.isDirty()) return basis.liste;
+    const jetzt = new Date().toISOString();
+    const idx = kontaktIndex(d);
+    const liste = d.kunden.map((k) => { const kontakt = letzterKontakt(d, k, jetzt, idx); return { k, kontakt, tage: tageSeit(kontakt) }; });
+    basis = { d, stand: store.getStand(), liste };
+    return liste;
+  };
+  /** Lange Listen in Stücken zeichnen, damit Tippen und Scrollen flüssig bleiben. */
+  let zeichenLauf = 0;
+  const zeilenHtml = (treffer: { k: any; kontakt: string | null; tage: number | null }[], buchstaben: (string | null)[], von: number, bis: number) => treffer.slice(von, bis).map(({ k, kontakt, tage: t }, j) => { const i = von + j; return `${buchstaben[i] ? `
+      <li class="buchstabe" data-buchstabe="${esc(buchstaben[i]!)}"><span>${esc(buchstaben[i]!)}</span></li>` : ''}
+      <li class="kz" data-kunde="${esc(k.id)}"><a class="zeile" href="#/kunde/${esc(k.id)}">
+        <span class="zeile-haupt"><strong>${esc(kundenTitel(k))}${istBeispiel(k.id) ? ' <span class="tag tag-beispiel">Beispiel</span>' : ''}</strong><small>${esc(kundenName(k) ? adresseEinzeilig(k) : (k.telefon || ''))}</small></span>
+        <span class="kontakt-alter ${kontaktKlasse(t)}" title="${kontakt ? `Letzter Kontakt ${esc(formatDate(kontakt))}` : 'Noch kein Kontakt'}">${esc(seitText(t))}</span>
+        ${statusChips(k)}
+      </a>${schnellKnoepfe(k)}</li>`; }).join('');
   const zeichnen = () => {
     const d = store.getData();
     const alle = d.kunden;
-    const mitKontakt = alle.map((k) => ({ k, kontakt: letzterKontakt(d, k) })).map((x) => ({ ...x, tage: tageSeit(x.kontakt) }));
+    const mitKontakt = basisHolen();
     const treffer = mitKontakt.filter((x) => sucheTrifft(x.k, suche) && passt(x.k, filter, x.tage, d.einstellungen.felder));
     const name = (a, b) => kundenVergleich(a.k, b.k);
     const tage = (x) => (x.tage === null ? Infinity : x.tage);
@@ -80,13 +100,16 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     if (!alle.length) { liste.innerHTML = `<li>${leer('kunde-neu', 'Noch keine Kunden. Lege den ersten an oder setze einen Pin auf der Karte.')}</li>`; return; }
     if (!treffer.length) { liste.innerHTML = '<li class="hinweis">Keine Treffer.</li>'; return; }
     const buchstaben = trenner(treffer, sortierung === 'name');
-    liste.innerHTML = treffer.map(({ k, kontakt, tage: t }, i) => `${buchstaben[i] ? `
-      <li class="buchstabe" data-buchstabe="${esc(buchstaben[i]!)}"><span>${esc(buchstaben[i]!)}</span></li>` : ''}
-      <li class="kz" data-kunde="${esc(k.id)}"><a class="zeile" href="#/kunde/${esc(k.id)}">
-        <span class="zeile-haupt"><strong>${esc(kundenTitel(k))}${istBeispiel(k.id) ? ' <span class="tag tag-beispiel">Beispiel</span>' : ''}</strong><small>${esc(kundenName(k) ? adresseEinzeilig(k) : (k.telefon || ''))}</small></span>
-        <span class="kontakt-alter ${kontaktKlasse(t)}" title="${kontakt ? `Letzter Kontakt ${esc(formatDate(kontakt))}` : 'Noch kein Kontakt'}">${esc(seitText(t))}</span>
-        ${statusChips(k)}
-      </a>${schnellKnoepfe(k)}</li>`).join('');
+    const STUECK = 150;
+    const lauf = ++zeichenLauf;
+    liste.innerHTML = zeilenHtml(treffer, buchstaben, 0, STUECK);
+    // Rest nachreichen, solange nicht neu gezeichnet wurde
+    const weiter = (von: number) => {
+      if (lauf !== zeichenLauf || von >= treffer.length || !liste.isConnected) return;
+      liste.insertAdjacentHTML('beforeend', zeilenHtml(treffer, buchstaben, von, von + STUECK));
+      requestAnimationFrame(() => weiter(von + STUECK));
+    };
+    requestAnimationFrame(() => weiter(STUECK));
   };
   const kundenName = (k) => [k.vorname, k.nachname, k.firma].some(Boolean);
   zeichnen();
@@ -102,7 +125,14 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     else if (a === 'notiz') { if (await schnellNotiz(k.id)) zeichnen(); }
     else if (a === 'termin') { if (await terminDialog({ kundeId: k.id })) zeichnen(); }
   });
-  el.querySelector('#suche').addEventListener('input', (e) => { suche = (e.target as HTMLInputElement).value; zeichnen(); });
+  // Suche: bei wenigen Kunden sofort, bei vielen nach einer kurzen Tipp-Pause
+  let sucheTimer: ReturnType<typeof setTimeout> | null = null;
+  el.querySelector('#suche').addEventListener('input', (e) => {
+    suche = (e.target as HTMLInputElement).value;
+    if (sucheTimer) clearTimeout(sucheTimer);
+    if (store.getData().kunden.length < 300) { zeichnen(); return; }
+    sucheTimer = setTimeout(() => { sucheTimer = null; zeichnen(); }, 180);
+  });
   el.querySelector('#sortierung').addEventListener('change', (e) => { sortierung = (e.target as HTMLSelectElement).value as Sortierung; zeichnen(); });
   el.querySelector('#fKnopf').addEventListener('click', (e) => {
     panel.hidden = !panel.hidden;

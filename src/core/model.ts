@@ -10,7 +10,7 @@ import { normalizeFotoListe } from './fotos.ts';
 import { normalizeRechnerVorlagen, zuletztGewaehlt } from './rechnervorlagen.ts';
 import { normalizeAngebot, normalizeAuftrag, normalizeNachfassTage, normalizeBereitlegen, normalizeAnsprechpartner, normalizeHaustuer, ANGEBOTE_MAX, ANSPRECHPARTNER_MAX, HAUSTUER_MAX, type HaustuerEintrag } from './vertrieb.ts';
 
-export const SCHEMA_VERSION = 10;
+export const SCHEMA_VERSION = 11;
 
 /** Die drei Geschäftszweige, jeder mit eigenem Anbieter und eigenem Textgenerator (R-TEXT). */
 export const SPARTEN = {
@@ -173,6 +173,8 @@ export function emptyData(): Daten {
     material: [],
     // Schlüssel für die Kundenfotos (ab 0.10.16): ID -> AES-Schlüssel (Base64), nur im verschlüsselten Bestand
     fotoSchluessel: {},
+    // Laufende, noch nicht gespeicherte Gespräche (ab Schema 11), damit Sperren oder Neuladen sie nicht verwirft
+    entwuerfe: [],
   };
 }
 
@@ -724,6 +726,44 @@ export function normalizeEinstellungen(e: unknown) {
 }
 
 /** Bringt geladene Daten auf die aktuelle Schema-Version und repariert Fehlerhaftes. */
+/** Gesprächsentwürfe je Kunde: höchstens so viele, Texte gekürzt (ab Schema 11). */
+export const ENTWUERFE_MAX = 30;
+const ENTWURF_TEXT_MAX = 20000;
+
+/**
+ * Laufendes Gespräch (Entwurf, ab Schema 11). Form wie `Entwurf` in src/core/gespraech.ts; hier nur sicher
+ * eingelesen: unbekannte Werte fallen auf leer zurück, Texte werden gekürzt. Ohne Kunden-ID → null.
+ */
+export function normalizeEntwurf(e: unknown) {
+  const src: Rec = e && typeof e === 'object' ? e : {};
+  if (typeof src.kundeId !== 'string' || !src.kundeId) return null;
+  const text = (v: unknown, max = ENTWURF_TEXT_MAX) => (typeof v === 'string' ? v.slice(0, max) : '');
+  const jeSparte = (v: unknown, max: number): Record<Sparte, Record<string, string>> => {
+    const o: Rec = v && typeof v === 'object' ? v : {};
+    const out = { pv: {}, wp: {}, vorwerk: {} } as Record<Sparte, Record<string, string>>;
+    for (const sp of SPARTEN_KEYS) {
+      const inner: Rec = o[sp] && typeof o[sp] === 'object' ? o[sp] : {};
+      for (const [k, w] of Object.entries(inner).slice(0, 200)) if (typeof w === 'string') out[sp][k.slice(0, 80)] = w.slice(0, max);
+    }
+    return out;
+  };
+  const notizSrc: Rec = src.notiz && typeof src.notiz === 'object' ? src.notiz : {};
+  const sparten = Array.isArray(src.sparten) ? [...new Set(src.sparten.filter((x: unknown): x is Sparte => typeof x === 'string' && x in SPARTEN))] : [];
+  return {
+    kundeId: src.kundeId.slice(0, 80),
+    start: isValidDate(src.start) ? new Date(src.start).toISOString() : nowIso(),
+    kontaktart: (typeof src.kontaktart === 'string' && src.kontaktart in KONTAKTART ? src.kontaktart : 'telefon') as keyof typeof KONTAKTART,
+    erreicht: src.erreicht !== false,
+    sparten,
+    notiz: { pv: text(notizSrc.pv), wp: text(notizSrc.wp), vorwerk: text(notizSrc.vorwerk) } as Record<Sparte, string>,
+    verlauf: jeSparte(src.verlauf, 40),
+    leitfadenSparte: (typeof src.leitfadenSparte === 'string' && src.leitfadenSparte in SPARTEN ? src.leitfadenSparte : sparten[0] || 'pv') as Sparte,
+    antworten: jeSparte(src.antworten, 2000),
+    ...(typeof src.terminId === 'string' && src.terminId ? { terminId: src.terminId.slice(0, 80) } : {}),
+  };
+}
+export type EntwurfDaten = NonNullable<ReturnType<typeof normalizeEntwurf>>;
+
 export function migrate(input: unknown): Daten {
   if (!input || typeof input !== 'object') return emptyData();
   const v = Number.isInteger((input as Rec).schemaVersion) ? (input as Rec).schemaVersion as number : 0;
@@ -743,7 +783,8 @@ export function migrate(input: unknown): Daten {
   // v8 → v9: kunde.angebote, kunde.auftrag, kunde.ansprechpartner, kunde.haustuer (Vertriebswerkzeuge), alles leer ergänzt.
   // v9 → v10: termin.bezug (Angebot, Leihgabe, Pflege). Vorhandene Wiedervorlagen werden über ihren Titel zugeordnet
   // (bezugNachtragen unten), damit auch ältere Nachfass- und Nachfrage-Erinnerungen die passenden Knöpfe bekommen.
-  // Künftige Migrationen hier schrittweise: if (v < 11) { ... }
+  // v10 → v11: entwuerfe (laufende Gespräche, verschlüsselt im Bestand), leer ergänzt.
+  // Künftige Migrationen hier schrittweise: if (v < 12) { ... }
   const kunden = Array.isArray(data.kunden) ? data.kunden.map(normalizeKunde) : [];
   for (const k of kunden) statusVerlaufAbgleichen(k, v < 8 || !k.statusVerlauf.length ? k.createdAt : k.updatedAt, true);
   // Doppelte IDs verhindern (z. B. nach manuellem Zusammenführen)
@@ -777,6 +818,11 @@ export function migrate(input: unknown): Daten {
     fotoSchluessel: normalizeFotoSchluessel(data.fotoSchluessel),
     material: Array.isArray(data.material)
       ? data.material.map(normalizeMaterial).map((m) => ({ ...m, buchungen: m.buchungen.map((b) => (b.kundeId === '' || kundenIds.has(b.kundeId) ? b : { ...b, kundeId: '' })) }))
+      : [],
+    // Entwürfe nur zu vorhandenen Kunden, je Kunde einer
+    entwuerfe: Array.isArray(data.entwuerfe)
+      ? data.entwuerfe.map(normalizeEntwurf).filter((e): e is EntwurfDaten => !!e && kundenIds.has(e.kundeId))
+        .filter((e, i, alle) => alle.findIndex((x) => x.kundeId === e.kundeId) === i).slice(0, ENTWUERFE_MAX)
       : [],
   };
 }
@@ -827,6 +873,7 @@ export interface Daten {
   papierkorb: PapierkorbEintrag[];
   material: Material[];
   fotoSchluessel: Record<string, string>;
+  entwuerfe: EntwurfDaten[];
 }
 /** Adressfelder, wie sie Kunde und Formulare gemeinsam haben. */
 export type MitAdresse = Partial<Pick<Kunde, 'vorname' | 'nachname' | 'firma' | 'strasse' | 'plz' | 'ort'>>;

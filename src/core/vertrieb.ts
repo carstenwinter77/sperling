@@ -4,6 +4,7 @@
 // Datenfelder am Kunden ab Schema 9: angebote, auftrag, ansprechpartner, haustuer (siehe docs/DATENMODELL.md).
 import { type Rec, uid, nowIso, isValidDate, parseNumber, distanceMeters } from './util.ts';
 import type { Sparte, Kunde, Termin, Daten, StatusKey } from './model.ts';
+import { feiertage } from './feiertage.ts';
 
 // model.ts importiert die Normalisierer von hier; deshalb keine Laufzeit-Importe aus model.ts (Kreis).
 const SPARTEN: Sparte[] = ['pv', 'wp', 'vorwerk'];
@@ -22,6 +23,23 @@ export function ortsTag(d: Date | string): string {
 export function tagPlus(tag: string, n: number, stunde = 10): string {
   const [j, m, t] = tag.split('-').map(Number);
   return new Date(j!, m! - 1, t! + n, stunde, 0, 0, 0).toISOString();
+}
+
+/** Samstag, Sonntag oder Feiertag in Niedersachsen? (`tag` = JJJJ-MM-TT) */
+export function freierTag(tag: string): boolean {
+  const [j, m, t] = tag.split('-').map(Number);
+  const wt = new Date(j!, m! - 1, t!).getDay();
+  return wt === 0 || wt === 6 || feiertage(j!).has(tag);
+}
+
+/**
+ * Wie `tagPlus`, landet aber nie auf Wochenende oder Feiertag: dann der nächste Werktag (ab 0.14.6).
+ * Für Vorschläge von Wiedervorlagen; Jan kann das Datum wie immer ändern.
+ */
+export function werktagPlus(tag: string, n: number, stunde = 10): string {
+  let iso = tagPlus(tag, n, stunde);
+  for (let i = 0; i < 10 && freierTag(ortsTag(iso)); i++) iso = tagPlus(ortsTag(iso), 1, stunde);
+  return iso;
 }
 
 export function euro(n: number | null | undefined): string {
@@ -123,7 +141,7 @@ export const nachfassTitel = (a: Pick<Angebot, 'titel' | 'sparte'>) => `Angebot 
 export function nachfassTermine(a: Angebot, kundeId: string, jetzt = nowIso(), tage: readonly number[] = NACHFASS_TAGE): Rec[] {
   const tag = ortsTag(a.datum);
   return tage.map((n) => ({
-    kundeId, sparte: a.sparte, art: 'wiedervorlage', titel: nachfassTitel(a), beginn: tagPlus(tag, n), dauerMin: 15, bezug: { art: 'angebot', id: a.id },
+    kundeId, sparte: a.sparte, art: 'wiedervorlage', titel: nachfassTitel(a), beginn: werktagPlus(tag, n), dauerMin: 15, bezug: { art: 'angebot', id: a.id },
     notiz: `${n} ${n === 1 ? 'Tag' : 'Tage'} nach dem Angebot vom ${tag.split('-').reverse().join('.')}${a.betrag !== null ? ` (${euro(a.betrag)})` : ''}. Fragen, ob alles verständlich ist und was noch offen ist.`,
   })).filter((t) => t.beginn > jetzt);
 }
@@ -230,7 +248,7 @@ export interface PflegeVorschlag { key: string; titel: string; beginn: string; s
 /** Wiedervorlagen zur Kundenpflege nach dem letzten Auftragsschritt (Zufriedenheit, Jahrestag/Wartung). */
 export function pflegeVorschlaege(sparte: Sparte, fertigAm: string, jetzt = nowIso()): PflegeVorschlag[] {
   const tag = fertigAm || ortsTag(jetzt);
-  const v = (key: string, n: number, titel: string, notiz: string): PflegeVorschlag => ({ key, titel, beginn: tagPlus(tag, n), sparte, notiz });
+  const v = (key: string, n: number, titel: string, notiz: string): PflegeVorschlag => ({ key, titel, beginn: werktagPlus(tag, n), sparte, notiz });
   const liste: Record<Sparte, PflegeVorschlag[]> = {
     pv: [
       v('zufrieden', 28, 'Nachfragen: Läuft die PV-Anlage wie erwartet?', 'Zufriedenheit, App/Monitoring verstanden? Bei Zufriedenheit nach einer Empfehlung fragen.'),

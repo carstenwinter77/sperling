@@ -10,7 +10,7 @@ import {
   neuesAngebot, normalizeAngebot, angebotAbgelaufen, angebotsSumme, nachfassTermine, offeneNachfass, euro,
   neuerAuftrag, auftragStand, auftragText, auftragKundentext, pflegeVorschlaege, pflegeVorhanden, anredeZeile,
   normalizeAnsprechpartner, neuerHaustuerEintrag, letzteHaustuer, werbeverbot, haustuerStatus,
-  terminBestaetigung, waNummer, waUrl, smsUrl, ortsTag, tagPlus, type Angebot, type HaustuerErgebnis, type AngebotStatus,
+  terminBestaetigung, waNummer, waUrl, smsUrl, ortsTag, tagPlus, werktagPlus, type Angebot, type HaustuerErgebnis, type AngebotStatus,
 } from '../core/vertrieb.ts';
 import * as pk from '../core/papierkorb.ts';
 import { widerrufWiedervorlage } from '../core/verzahnung.ts';
@@ -377,7 +377,7 @@ export async function kaufinteresseFolge(kundeId: string, geraet: string): Promi
   if (w === 'angebot') return angebotDialog(kundeId, null, 'vorwerk');
   if (w === 'nachfassen') {
     const k = store.findKunde(kundeId);
-    store.mutate((d) => { d.termine.push(neuerTermin({ kundeId, sparte: 'vorwerk', art: 'wiedervorlage', dauerMin: 15, beginn: tagPlus(heute(), 7), titel: `Nachfassen: ${geraet}${k ? ` – ${kundenTitel(k)}` : ''}`, notiz: 'Nach der Rückgabe Kaufinteresse gezeigt.' })); });
+    store.mutate((d) => { d.termine.push(neuerTermin({ kundeId, sparte: 'vorwerk', art: 'wiedervorlage', dauerMin: 15, beginn: werktagPlus(heute(), 7), titel: `Nachfassen: ${geraet}${k ? ` – ${kundenTitel(k)}` : ''}`, notiz: 'Nach der Rückgabe Kaufinteresse gezeigt.' })); });
     toast('Wiedervorlage in 1 Woche angelegt', 'ok');
     return true;
   }
@@ -491,7 +491,7 @@ export async function haustuerWeiter(kundeId: string, ergebnis: HaustuerErgebnis
     titel: 'Wann wiederkommen?',
     html: `<p class="hinweis">${esc(kundenTitel(k))}${adresseEinzeilig(k) ? ` · ${esc(adresseEinzeilig(k))}` : ''}</p>
       ${schnellwahl.html('wann')}
-      <label>Am<input type="datetime-local" name="wann" value="${esc(isoToLocalInput(tagPlus(ortsTag(new Date()), 1, 17)))}" required></label>`,
+      <label>Am<input type="datetime-local" name="wann" value="${esc(isoToLocalInput(werktagPlus(ortsTag(new Date()), 1, 17)))}" required></label>`,
     knoepfe: [{ label: 'Wiedervorlage anlegen', primaer: true, pruefen: (dlg) => (localInputToIso(dlg.querySelector<HTMLInputElement>('[name=wann]')!.value) ? null : 'Bitte ein Datum wählen.'), wert: (dlg) => localInputToIso(dlg.querySelector<HTMLInputElement>('[name=wann]')!.value) || '' }],
   });
   if (!wann) return false;

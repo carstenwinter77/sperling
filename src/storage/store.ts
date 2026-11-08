@@ -57,6 +57,7 @@ function schutzSicht(d: Daten, id: string): Daten {
     leihvorgaenge: d.leihvorgaenge.map(fremd),
     reservierungen: d.reservierungen.map(fremd),
     papierkorb: [],
+    entwuerfe: d.entwuerfe.filter((e) => e.kundeId === id),
   };
 }
 
@@ -156,7 +157,8 @@ export async function lock() {
 export function mutate(fn: (d: Daten) => void): void {
   if (!data) throw new Error('Daten sind gesperrt.');
   const d = data; // immer der vollständige Bestand, auch bei Beratungs-Schutz
-  const backup = clone(d);
+  // Sicherung für den Fehlerfall; structuredClone ist bei großen Beständen deutlich schneller als JSON hin und zurück
+  const backup = typeof structuredClone === 'function' ? structuredClone(d) : clone(d);
   try {
     fn(d);
   } catch (e) {
@@ -242,11 +244,25 @@ export async function verschluesseln(inhalt: unknown) {
  * Entschlüsselt mit dem aktuellen Passwort, wenn keines übergeben wird.
  * Der bisherige Stand wandert automatisch in die lokale Historie.
  */
-export async function adoptEnvelope(env: unknown, password: string | null = null) {
+export async function adoptEnvelope(env: unknown, password: string | null = null, { passwortBehalten = false } = {}) {
   if (!validateEnvelope(env)) throw new Error('Keine gültige Sperling-Datei.');
   const kr = password ? new KeyRing(password) : keyring;
   if (!kr) throw new Error('Gesperrt.');
   const raw = await kr.decrypt(env);
+  if (passwortBehalten && kr !== keyring) {
+    // Ältere Version mit früherem Passwort: Inhalt übernehmen, aber mit dem aktuellen Passwort neu verschlüsseln
+    // (sonst würde das Gerät stillschweigend wieder das alte Passwort verlangen).
+    kr.wipe();
+    if (istEinstellungsPaket(raw)) throw new Error('Das ist eine Einstellungsdatei. Bitte unter „Einstellungen übertragen“ einlesen.');
+    const migriert = migrate(raw);
+    for (const [k, v] of Object.entries(data?.fotoSchluessel || {})) if (!(k in migriert.fotoSchluessel)) migriert.fotoSchluessel[k] = v;
+    await flush();
+    data = migriert;
+    dirty = true;
+    await persist();
+    notify();
+    return;
+  }
   // Eine Einstellungsdatei ist keine Sicherung: sie würde sonst alle Kunden ersetzen.
   if (istEinstellungsPaket(raw)) throw new Error('Das ist eine Einstellungsdatei. Bitte unter „Einstellungen übertragen“ einlesen.');
   const migrated = migrate(raw);

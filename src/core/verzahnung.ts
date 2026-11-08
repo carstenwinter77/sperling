@@ -2,7 +2,7 @@
 // Rein, ohne DOM, in Node testbar. Oberfläche: src/ui/folgeschritte.ts, src/ui/views/gespraechsmodus.ts.
 import { AUSGANG, SPARTEN, type Sparte, type StatusKey, type Termin, type Kunde, type Daten } from './model.ts';
 import type { Antworten } from './klemmbrett.ts';
-import { ortsTag, tagPlus } from './vertrieb.ts';
+import { ortsTag, werktagPlus } from './vertrieb.ts';
 
 export type Ausgang = keyof typeof AUSGANG;
 
@@ -57,9 +57,9 @@ export function statusFuerAusgang(ausgang: Ausgang | '', aktuell: StatusKey): St
   }
 }
 
-/** Datum der Wiedervorlage `tage` Tage nach `jetzt`, 10 Uhr Ortszeit (ISO). */
+/** Datum der Wiedervorlage `tage` Tage nach `jetzt`, 10 Uhr Ortszeit (ISO); fällt es auf Wochenende/Feiertag, der nächste Werktag. */
 export function wvDatum(tage: number, jetzt = new Date()): string {
-  return tagPlus(ortsTag(jetzt), tage);
+  return werktagPlus(ortsTag(jetzt), tage);
 }
 
 /** Chancen in einem anderen Bereich aus den Klemmbrett-Antworten (nur, wenn dort noch nichts läuft). */
@@ -99,7 +99,7 @@ export const spartenFuerTermin = (t: Pick<Termin, 'sparte'>): Sparte[] | null =>
 /** Wiedervorlage zum Ende der Widerrufsfrist (14 Tage) nach einem angenommenen Angebot. */
 export function widerrufWiedervorlage(kundeId: string, s: Sparte, angenommenAm: string) {
   return {
-    kundeId, sparte: s, art: 'wiedervorlage' as const, dauerMin: 15, beginn: tagPlus(ortsTag(angenommenAm), 15),
+    kundeId, sparte: s, art: 'wiedervorlage' as const, dauerMin: 15, beginn: werktagPlus(ortsTag(angenommenAm), 15),
     titel: `${SPARTEN[s].label}: Widerrufsfrist vorbei – nachfragen, ob alles klar ist`,
     notiz: 'Die 14 Tage Widerrufsfrist sind um. Kurz melden: Gibt es noch Fragen? Wie geht es weiter (nächster Auftragsschritt)?',
   };

@@ -1,9 +1,9 @@
 // Sperling – laufendes Gespräch: Entwurf im Arbeitsspeicher und gemeinsames Speichern.
-// Der Entwurf (Notizen, angetippte Einwände) lebt nur im Arbeitsspeicher, nie im Browser-Speicher
-// (R-KRYPTO), und wird beim Sperren verworfen. So bleibt er erhalten, wenn man zwischen Notizen,
-// Leitfaden und anderen Seiten wechselt.
+// Der Entwurf (Notizen, angetippte Einwände, Klemmbrett-Antworten) lebt im Arbeitsspeicher und wird
+// regelmäßig, beim Wechsel in eine andere App und vor dem Sperren verschlüsselt im Bestand gesichert
+// (`entwuerfe`, ab Schema 11, R-KRYPTO). So übersteht er Sperren, Updates und ein Neuladen durch das iPad.
 // Gespeichert wird je Bereich (PV, WP, Vorwerk) eine eigene Notiz (R-TEXT).
-import { nowIso } from '../core/util.ts';
+import { nowIso, clone } from '../core/util.ts';
 import { SPARTEN, type Sparte } from '../core/model.ts';
 import { speichern, leererVerlauf, leereNotizen, hatEinwaende, hatInhalt, gruppeVon, type Entwurf, type Abschluss, type Gruppe, type Verlauf } from '../core/gespraech.ts';
 import * as store from '../storage/store.ts';
@@ -12,7 +12,33 @@ import { leereAntworten } from '../core/klemmbrett.ts';
 export { speichern, leererVerlauf, hatEinwaende, hatInhalt, gruppeVon, type Entwurf, type Abschluss, type Gruppe, type Verlauf };
 
 const entwuerfe = new Map<string, Entwurf>();
-store.subscribe((d) => { if (!d) entwuerfe.clear(); });
+let geladen = false;
+let gesichert = '[]';
+store.subscribe((d) => {
+  if (!d) { entwuerfe.clear(); geladen = false; gesichert = '[]'; return; }
+  if (geladen) return;
+  // Nach dem Entsperren: gesicherte Entwürfe zurückholen
+  geladen = true;
+  for (const e of d.entwuerfe || []) if (!entwuerfe.has(e.kundeId)) entwuerfe.set(e.kundeId, clone(e));
+  gesichert = JSON.stringify(d.entwuerfe || []);
+});
+
+/** Wie viele Gespräche wurden nach dem Entsperren wiederhergestellt? (für einen kurzen Hinweis) */
+export function wiederhergestellt(): Entwurf[] { return alleEntwuerfe(); }
+
+/** Entwürfe verschlüsselt im Bestand sichern, wenn sie sich geändert haben. Danach store.flush() für sofortiges Speichern. */
+export function sichern(): boolean {
+  if (!store.isUnlocked() || store.isDemo()) return false;
+  const liste = [...entwuerfe.values()].map((e) => clone({ ...e, antworten: e.antworten || leereAntworten() }));
+  const json = JSON.stringify(liste);
+  if (json === gesichert) return false;
+  // am vollständigen Bestand (auch im Beratungs-Schutz): nur Entwürfe zu vorhandenen Kunden
+  store.mutate((d) => { const ids = new Set(d.kunden.map((k) => k.id)); d.entwuerfe = liste.filter((e) => ids.has(e.kundeId)); });
+  gesichert = json;
+  return true;
+}
+// Alle 20 Sekunden still mitsichern (nur bei Änderungen), damit auch ein plötzliches Beenden wenig kostet
+setInterval(() => { try { sichern(); } catch (e) { console.error(e); } }, 20000);
 
 /** Sparten, über die vermutlich gesprochen wird: alle mit Interesse, sonst alle. */
 function vermuteteSparten(kundeId: string): Sparte[] {
@@ -44,12 +70,19 @@ export function beginnen(kundeId: string, vorgabe: Partial<Entwurf> = {}): Entwu
   return e;
 }
 
-export function verwerfen(kundeId: string) { entwuerfe.delete(kundeId); }
+export function verwerfen(kundeId: string) {
+  entwuerfe.delete(kundeId);
+  if (store.isUnlocked() && store.getData().entwuerfe?.some((e) => e.kundeId === kundeId)) {
+    store.mutate((d) => { d.entwuerfe = d.entwuerfe.filter((e) => e.kundeId !== kundeId); });
+    gesichert = JSON.stringify(store.getData().entwuerfe);
+  }
+}
 
 /** Bequem: speichern über den Store und Entwurf verwerfen. */
 export function abschliessen(e: Entwurf, abschluesse: Abschluss[]): Sparte[] {
   let sparten: Sparte[] = [];
-  store.mutate((d) => { sparten = speichern(d, e, abschluesse); });
-  verwerfen(e.kundeId);
+  store.mutate((d) => { sparten = speichern(d, e, abschluesse); d.entwuerfe = (d.entwuerfe || []).filter((x) => x.kundeId !== e.kundeId); });
+  entwuerfe.delete(e.kundeId);
+  gesichert = JSON.stringify(store.getData().entwuerfe);
   return sparten;
 }

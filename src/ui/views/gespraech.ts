@@ -421,7 +421,7 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
         if (enpalTeile.length) {
           const fristen = enpalTeile.map((e) => e.wv).filter(Boolean).sort();
           kk.enpalKontakte.push(normalizeEnpalKontakt({
-            zeitpunkt: jetzt, art: kontaktart, erreicht: true, gespraechspartner: kundenName(kk),
+            zeitpunkt: jetzt, art: kontaktart, erreicht: true, gespraechspartner: kundenName(kk, 'vorname'),
             themen: enpalTeile.map((e) => e.s),
             ergebnis: enpalTeile[0].ausgang,
             naechsterSchritt: enpalTeile.map((e) => e.schritt).filter(Boolean).join(' / '),
