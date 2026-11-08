@@ -25,6 +25,7 @@ const S: Record<string, string> = {
   bestand: '<path class="fs" d="M3.5 8 12 4l8.5 4v9L12 21l-8.5-4z"/><path d="M3.5 8 12 12l8.5-4M12 12v9M7.8 6l8.5 4.1"/>',
   produkte: '<path class="fs" d="M3.5 3.5H11l9 9-7.5 7.5-9-9z"/><circle cx="7.8" cy="7.8" r="1.5"/>',
   foerderung: '<circle class="fs" cx="12" cy="12" r="8.5"/><path d="M15.2 8.4a4.2 4.2 0 1 0 0 7.2"/><path d="M7.5 10.9h5.5M7.5 13.4h5"/>',
+  rechner: '<rect class="fs" x="5" y="2.5" width="14" height="19" rx="2.5"/><rect x="8" y="5.5" width="8" height="4" rx="1"/><path stroke-width="2.6" d="M8.6 13.3h.01M12 13.3h.01M15.4 13.3h.01M8.6 17h.01M12 17h.01M15.4 17h.01"/>',
   auswertung: '<path d="M3.5 20.5h17"/><rect class="fs" x="5" y="12" width="3.4" height="6" rx=".8"/><rect class="fs" x="10.3" y="6" width="3.4" height="12" rx=".8"/><rect class="fs" x="15.6" y="9" width="3.4" height="9" rx=".8"/>',
   einstellungen: `<path class="fs" d="${zahnrad()}"/><circle cx="12" cy="12" r="3"/>`,
   suche: '<circle class="fs" cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/>',

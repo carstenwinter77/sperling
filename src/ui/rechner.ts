@@ -1,15 +1,18 @@
-// „Wann rechnet sich das?“ – grober Amortisationsrechner im Reiter Förderung (PV und Wärmepumpe).
-// Werte bleiben nur im Arbeitsspeicher (keine Kundendaten, nichts wird gespeichert).
+// „Wann rechnet sich das?“ – grober Amortisationsrechner (PV und Wärmepumpe), eigener Menüpunkt #/rechner.
+// Werte bleiben nur im Arbeitsspeicher; aus der Kundenkartei übernommene Angaben werden nirgends gespeichert.
 import { esc } from '../core/util.ts';
 import {
   PV_STANDARD, WP_STANDARD, PV_FELDER, WP_FELDER, RECHNER_HINWEIS, rechnePv, rechneWp, staffel, hoechstpreis, wpZuschuss,
-  zahlLesen, euro, jahreText, rechnerText, type Rechner, type PvAnnahmen, type WpAnnahmen, type Ergebnis, type Feld,
+  pvAusKunde, wpAusKunde, zahlLesen, euro, jahreText, rechnerText, type Rechner, type PvAnnahmen, type WpAnnahmen, type Ergebnis, type Feld,
 } from '../core/amortisation.ts';
 import { kopieren, toast } from './dom.ts';
 
 let art: Rechner = 'pv';
 let pv: PvAnnahmen = { ...PV_STANDARD };
 let wp: WpAnnahmen = { ...WP_STANDARD };
+/** Kunde und übernommene Werte, zuletzt geladen (damit Änderungen beim Zurückkommen bleiben). */
+let kundeGeladen = '';
+let uebernommen: Record<Rechner, string[]> = { pv: [], wp: [] };
 
 const zahl = (n: number) => n.toLocaleString('de-DE', { maximumFractionDigits: 2 });
 
@@ -69,13 +72,14 @@ function ergebnisHtml(): string {
 export function html(): string {
   const felder = art === 'pv' ? PV_FELDER : WP_FELDER;
   const werte = (art === 'pv' ? pv : wp) as Record<string, number>;
-  return `<details class="karte-box rz" id="rechner">
-    <summary><h2><span aria-hidden="true">🧮</span> Wann rechnet sich das?</h2></summary>
+  const aus = uebernommen[art];
+  return `<section class="karte-box rz" id="rechner" aria-label="Rechner">
     <p class="hinweis">Grober Rechner mit Annahmen, die du anpassen kannst. ${art === 'pv' ? 'Photovoltaik: Ersparnis durch selbst genutzten Strom plus Einspeisevergütung, abzüglich laufender Kosten.' : 'Wärmepumpe: Vergleich mit dem Weiterheizen mit Gas oder Öl.'}</p>
     <div class="segment rz-art" role="tablist" aria-label="Rechner">
-      <button type="button" role="tab" data-rz-art="pv" class="${art === 'pv' ? 'aktiv' : ''}" aria-selected="${art === 'pv'}">Photovoltaik</button>
-      <button type="button" role="tab" data-rz-art="wp" class="${art === 'wp' ? 'aktiv' : ''}" aria-selected="${art === 'wp'}">Wärmepumpe</button>
+      <button type="button" role="tab" data-rz-art="pv" class="bereich-pv${art === 'pv' ? ' aktiv' : ''}" aria-selected="${art === 'pv'}">Photovoltaik</button>
+      <button type="button" role="tab" data-rz-art="wp" class="bereich-wp${art === 'wp' ? ' aktiv' : ''}" aria-selected="${art === 'wp'}">Wärmepumpe</button>
     </div>
+    ${aus.length ? `<p class="rz-uebernommen" role="note"><span aria-hidden="true">📋</span> <span><b>Vom Kunden übernommen:</b> ${aus.map(esc).join(', ')}. Alles andere sind Beispielwerte.</span></p>` : ''}
     <div class="rz-raster">
       <fieldset class="rz-annahmen"><legend>Annahmen</legend>${felder.map((f) => feldHtml(f, werte[f.key])).join('')}
         <button type="button" class="btn klein ghost" data-rz-zurueck>Auf Beispielwerte zurücksetzen</button>
@@ -84,16 +88,12 @@ export function html(): string {
     </div>
     <p class="foe-hinweis" role="note"><span aria-hidden="true">⚠️</span> <span>${esc(RECHNER_HINWEIS)}</span></p>
     <div class="foe-fuss"><span class="hinweis">Werte werden nicht gespeichert.</span><button type="button" class="btn klein" data-rz-kopieren aria-label="Rechnung mit Annahmen kopieren">📋 Kopieren</button></div>
-  </details>`;
+  </section>`;
 }
 
 /** Ereignisse am Container binden; `neu` zeichnet den ganzen Rechner neu (beim Wechsel PV/WP). */
 export function binden(box: HTMLElement) {
-  const neuZeichnen = () => {
-    const offen = (box.querySelector('#rechner') as HTMLDetailsElement | null)?.open ?? true;
-    box.innerHTML = html();
-    (box.querySelector('#rechner') as HTMLDetailsElement).open = offen;
-  };
+  const neuZeichnen = () => { box.innerHTML = html(); };
   box.addEventListener('input', (ev) => {
     const inp = (ev.target as Element).closest<HTMLInputElement>('[data-rz]');
     if (!inp) return;
@@ -116,7 +116,7 @@ export function binden(box: HTMLElement) {
     const t = ev.target as Element;
     const wahl = t.closest<HTMLElement>('[data-rz-art]');
     if (wahl) { art = wahl.dataset.rzArt as Rechner; neuZeichnen(); box.querySelector<HTMLElement>(`[data-rz-art=${art}]`)?.focus(); return; }
-    if (t.closest('[data-rz-zurueck]')) { if (art === 'pv') pv = { ...PV_STANDARD }; else wp = { ...WP_STANDARD }; neuZeichnen(); return; }
+    if (t.closest('[data-rz-zurueck]')) { if (art === 'pv') pv = { ...PV_STANDARD }; else wp = { ...WP_STANDARD }; uebernommen[art] = []; neuZeichnen(); return; }
     if (t.closest('[data-rz-kopieren]')) {
       const { a, e } = rechnen();
       const ok = await kopieren(rechnerText(art, a, e));
@@ -125,5 +125,28 @@ export function binden(box: HTMLElement) {
   });
 }
 
-/** Für Bereichs-Reiter: PV- oder WP-Rechner vorwählen. */
-export function artSetzen(b: 'alle' | 'pv' | 'wp') { if (b !== 'alle') art = b; }
+/** PV- oder WP-Rechner vorwählen. */
+export function artSetzen(b: string | null) { if (b === 'pv' || b === 'wp') art = b; }
+export const aktuelleArt = () => art;
+
+/**
+ * Angaben eines Kunden übernehmen (Strompreis, Speicher; Gas/Öl-Verbrauch und Heizkosten).
+ * Kommt Jan zum selben Kunden zurück und hat sich in der Kartei nichts geändert, bleiben seine Änderungen stehen.
+ */
+export function kundeLaden(id: string, angaben: { pv?: Record<string, unknown>; wp?: Record<string, unknown> }) {
+  const p = pvAusKunde(angaben.pv); const w = wpAusKunde(angaben.wp);
+  const schluessel = `${id}|${JSON.stringify(p.werte)}|${JSON.stringify(w.werte)}`;
+  if (schluessel === kundeGeladen) return;
+  kundeGeladen = schluessel;
+  pv = { ...PV_STANDARD, ...p.werte };
+  wp = { ...WP_STANDARD, ...w.werte };
+  uebernommen = { pv: p.liste, wp: w.liste };
+}
+
+/** Ohne Kunden geöffnet: Werte eines vorher geladenen Kunden verwerfen (kein Rest im Beratungs-Schutz). */
+export function kundeVergessen() {
+  if (!kundeGeladen) return;
+  kundeGeladen = '';
+  pv = { ...PV_STANDARD }; wp = { ...WP_STANDARD };
+  uebernommen = { pv: [], wp: [] };
+}

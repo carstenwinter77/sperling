@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.3
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.4
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,11 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.13.3)
+## Erledigt (Version 0.13.4)
+
+### Neu in 0.13.4
+- [x] Rechner „Wann rechnet sich das?“ ist ein eigener Menüpunkt „Rechner“ (#/rechner, `src/ui/views/rechner.ts`) mit eigenem Leisten-Symbol (Taschenrechner, `rechner` in `src/ui/symbole.ts`); Handy und iPad hochkant unter „Mehr“. Unter Förderung steht nur noch ein Verweis dorthin (alte Links `#/foerderung?rechner` leiten um). Auch im Beratungs-Schutz erreichbar.
+- [x] Verzahnt mit der Kundenkartei: Reiter Photovoltaik und Wärmepumpe haben „🧮 Wann rechnet sich das?“. Der Rechner übernimmt Strompreis und Speicherwunsch bzw. Gas-/Ölverbrauch und Heizkosten (`pvAusKunde`/`wpAusKunde` in `src/core/amortisation.ts`, nur plausible Werte, nichts wird gespeichert) und zeigt, was übernommen wurde. „‹ Zurück zum Kunden“ führt an dieselbe Stelle der Kartei (`src/ui/ruecksprung.ts`, vom Router nach dem Zeichnen aufgerufen). Unit-Test und Browser-Test erweitert.
 
 ### Neu in 0.13.3
 - [x] Produktübersicht: Jede Produktkachel zeigt ihre Sparte farbig, auch mit Herstellerbild: Rahmen rundum (oben breiter) und leicht getönte Karte in der Bereichsfarbe, dazu ein Etikett „Photovoltaik“/„Wärmepumpe“/„Vorwerk“ oben links auf dem Bild (`kachelHtml` in `src/ui/produkte.ts`, `.sparte-etikett` in `src/css/app.css`, Schriftfarbe über `--a-auf`). Hell und dunkel geprüft, Browser-Test prüft das Etikett.
@@ -117,7 +121,7 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 - [x] Förderung: Zeitleiste „Was kommt wann“ standardmäßig eingeklappt (Zustand bleibt beim Neuzeichnen erhalten).
 
 ### Neu in 0.10.18
-- [x] Rechner „Wann rechnet sich das?“ (PV und Wärmepumpe) im Reiter Förderung (`src/core/amortisation.ts`, `src/ui/rechner.ts`), Annahmen änderbar, Staffel nach Anschaffungssumme, Kopieren mit Annahmen, ohne Gewähr. 3 Unit-Tests, Browser-Test erweitert.
+- [x] Rechner „Wann rechnet sich das?“ (PV und Wärmepumpe), seit 0.13.4 eigener Menüpunkt (`src/core/amortisation.ts`, `src/ui/rechner.ts`), Annahmen änderbar, Staffel nach Anschaffungssumme, Kopieren mit Annahmen, ohne Gewähr. 3 Unit-Tests, Browser-Test erweitert.
 - [ ] Beispielwerte (Strompreis 35 ct, WP-Tarif 28 ct, Gas 11 ct, 900 kWh/kWp) mit dem Nutzer abstimmen.
 
 ### Neu in 0.10.17

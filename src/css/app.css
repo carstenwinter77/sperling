@@ -1224,12 +1224,7 @@ tr.li-gleich { opacity: .7; }
 @media (max-width: 639px) { .foe-zeitleiste button { grid-template-columns: 1fr; gap: .1rem; } .foe-abschnitt > summary { grid-template-columns: 1fr; } .foe-marken { justify-content: flex-start; } }
 @media (prefers-reduced-motion: reduce) { .foe-titel::after, .foe-zeit > summary h2::after { transition: none; } }
 
-/* Rechner „Wann rechnet sich das?“ im Reiter Förderung */
-.rz > summary { cursor: pointer; list-style: none; min-height: 44px; display: flex; align-items: center; }
-.rz > summary::-webkit-details-marker { display: none; }
-.rz > summary h2 { margin: 0; font-size: 1.05rem; }
-.rz > summary h2::after { content: ' ›'; color: var(--text-2); display: inline-block; transition: transform .15s; }
-.rz[open] > summary h2::after { transform: rotate(90deg); }
+/* Rechner „Wann rechnet sich das?“ (#/rechner) */
 .rz-art { margin: .25rem 0 .75rem; max-width: 100%; }
 .rz-art button { flex-shrink: 1; min-width: 0; white-space: normal; padding-inline: .7rem; }
 .rz-raster { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); }
@@ -1258,7 +1253,6 @@ tr.li-gleich { opacity: .7; }
 .rz-staffel tr.rz-aktuell { background: var(--aktiv-bg); }
 .rz .foe-hinweis { margin: .75rem 0; }
 @media (max-width: 639px) { .rz-annahmen { grid-template-columns: 1fr; } }
-@media (prefers-reduced-motion: reduce) { .rz > summary h2::after { transition: none; } }
 
 /* Kundenliste und Kundenkopf am Handy: Name bekommt die ganze Breite, Zeit und Sparten darunter */
 @media (max-width: 639px) {
@@ -1589,3 +1583,17 @@ input.schalter:disabled { opacity: .5; cursor: not-allowed; }
 .nf-weg { border: 0; background: none; font: inherit; font-size: 1.1rem; line-height: 1; min-width: 36px; min-height: 36px; border-radius: 50%; cursor: pointer; color: var(--text-2); }
 .nf-weg:hover, .nf-weg:focus-visible { background: color-mix(in srgb, var(--text-2) 12%, transparent); }
 #nfNeu { width: 7rem; }
+
+/* Rechner „Wann rechnet sich das?“ als eigene Seite (#/rechner) */
+.titel-sym { width: 34px; height: 34px; }
+.rz-art button.aktiv { background: var(--a, var(--braun)); color: var(--a-auf, var(--auf-akzent)); }
+.rz-kunde { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; padding: .6rem .9rem; }
+.rz-kunde .btn { min-height: 44px; }
+.rz-uebernommen { display: flex; gap: .45rem; align-items: flex-start; margin: 0 0 .75rem; padding: .5rem .7rem; border-radius: 10px; background: var(--aktiv-bg); font-size: .92rem; }
+.rz-foe-link { margin-top: .5rem; }
+.rz-knopf { margin: -.25rem 0 .6rem; min-height: 44px; display: inline-flex; align-items: center; }
+.foe-rechner-link { display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit; min-height: 56px; }
+.foe-rechner-link > span:nth-child(2) { display: flex; flex-direction: column; flex: 1; }
+.foe-rechner-link small { color: var(--text-2); }
+.foe-rechner-link > span:last-child { font-size: 1.4rem; color: var(--text-2); }
+.foe-rechner-link .sym { width: 30px; height: 30px; }

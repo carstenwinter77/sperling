@@ -2,6 +2,13 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.13.4',
+    punkte: [
+      '„Wann rechnet sich das?“ hat jetzt einen eigenen Knopf „Rechner“ in der Leiste links, nicht mehr unter Förderung.',
+      'Beim Kunden (Photovoltaik oder Wärmepumpe) führt „🧮 Wann rechnet sich das?“ direkt in den Rechner, mit Strompreis, Verbrauch und Heizkosten des Kunden schon eingetragen. „Zurück zum Kunden“ bringt dich an dieselbe Stelle.',
+    ],
+  },
+  {
     version: '0.13.3',
     punkte: [
       'Produkte: Jede Kachel zeigt ihre Sparte jetzt farbig, mit Rahmen in Gelb, Blau oder Grün und einem Etikett oben auf dem Bild. So erkennst du auch bei Produktfotos sofort, ob es Photovoltaik, Wärmepumpe oder Vorwerk ist.',

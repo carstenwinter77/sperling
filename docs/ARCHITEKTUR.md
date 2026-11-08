@@ -87,7 +87,9 @@ Browser (Tablet / Handy / Laptop)
  ├─ tests/testliste-pdf.cjs  erzeugt eine Beispiel-PDF mit erfundenen Daten für die Tests
  ├─ src/ui/produkte.ts ... Kacheln, Produktdetail, Markieren-Block (Kartei, Gesprächsmodus)
  ├─ src/ui/views/produkte.ts  Produktübersicht #/produkte (auch im Beratungs-Schutz)
- ├─ src/ui/rechner.ts .... Rechner „Wann rechnet sich das?“ im Reiter Förderung (nur Arbeitsspeicher)
+ ├─ src/ui/rechner.ts .... Rechner „Wann rechnet sich das?“ (Baustein, nur Arbeitsspeicher, übernimmt Kundenangaben)
+ ├─ src/ui/views/rechner.ts  Rechner #/rechner?kunde=ID&art=pv|wp (eigener Menüpunkt, auch im Beratungs-Schutz)
+ ├─ src/ui/ruecksprung.ts  merkt Adresse + Scrollstelle vor einem verzahnten Schritt, Router stellt sie beim Zurückkommen wieder her
  ├─ src/ui/views/foerderung.ts  Förderung #/foerderung (auch im Beratungs-Schutz, iPhone und iPad hochkant unter „Mehr“)
  ├─ src/data/produkte.json  Produktkatalog (statisch, im Paket)
  ├─ src/ui/felder.ts ..... Formularfelder der Kartei aus der Feldverwaltung (Kartei, Gesprächsmodus)

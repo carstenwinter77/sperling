@@ -178,9 +178,21 @@ export const THEMEN = {
       'Oben Photovoltaik oder Wärmepumpe wählen, darunter ein Thema (Gesetze, Zuschuss, Steuern, Netz, Region) oder suchen.',
       'Abschnitt antippen: wichtigste Punkte, Tabelle, „Gut zu wissen“ und die Quellen (amtliche sind markiert).',
       '„📋 Kopieren“ legt den Abschnitt mit Quellen, Stand und Hinweis in die Zwischenablage, zum Weiterleiten per Mail oder Nachricht.',
-      '„🧮 Wann rechnet sich das?“: grober Rechner für PV und Wärmepumpe. Annahmen anpassen, Ergebnis mit Säulen je Jahr und Tabelle für andere Anschaffungspreise. Ohne Gewähr, wird nicht gespeichert.',
+      'Der Rechner „Wann rechnet sich das?“ hat einen eigenen Menüpunkt „Rechner“. Der Link oben auf der Seite führt hin, passend zu Photovoltaik oder Wärmepumpe.',
       '„Was kommt wann“ zeigt Stichtage; ein Tipp springt zum passenden Abschnitt. „Wusstest du?“ zeigt zufällige Fakten.',
       'Förderung ändert sich oft. Vor dem Nennen beim Kunden die Quelle öffnen und den aktuellen Stand prüfen.',
+    ],
+  },
+  rechner: {
+    titel: 'Rechner „Wann rechnet sich das?“',
+    kurz: 'Grobe Schätzung, nach wie vielen Jahren sich eine Photovoltaikanlage oder Wärmepumpe bezahlt macht. Alle Annahmen sind sichtbar und änderbar, ohne Gewähr.',
+    schritte: [
+      'Oben Photovoltaik oder Wärmepumpe wählen und die Annahmen anpassen, z. B. Anschaffung, Strompreis oder Gasverbrauch. Das Ergebnis rechnet sofort neu.',
+      'Säulen je Jahr zeigen, wann das Minus zum Plus wird. Die Tabelle darunter zeigt dasselbe für andere Anschaffungspreise.',
+      'Beim Kunden (Reiter Photovoltaik oder Wärmepumpe) führt „🧮 Wann rechnet sich das?“ direkt hierher. Strompreis, Speicherwunsch, Gas- oder Ölverbrauch und Heizkosten aus der Kartei sind dann schon eingetragen.',
+      '„‹ Zurück zum Kunden“ bringt dich an dieselbe Stelle in der Kartei zurück.',
+      '„📋 Kopieren“ legt die Rechnung mit allen Annahmen und dem Hinweis in die Zwischenablage.',
+      'Werte werden nicht gespeichert. Kein Angebot und keine Zusage, für eine belastbare Rechnung braucht es ein Angebot.',
     ],
   },
   felder: {

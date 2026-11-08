@@ -21,6 +21,7 @@ import * as ablauf from '../gespraechsablauf.ts';
 import * as suche from '../suche.ts';
 import * as kundenfotos from '../kundenfotos.ts';
 import * as vertrieb from '../vertrieb.ts';
+import * as ruecksprung from '../ruecksprung.ts';
 import { statusOptions, terminDialog, terminZeile, terminListeVerdrahten, icsExport, spartenIcon, statusChips } from '../parts.ts';
 
 const TABS = [
@@ -387,12 +388,15 @@ function bogen(el, k, sparten, kopf) {
   el.innerHTML = sparten.map((s) => `
     <section class="karte-box bereich-rand bereich-${s}">
       <h2>${maskottchen(spartenIcon(s), 'titel-bild')} ${esc(SPARTEN[s].label)}</h2>
+      ${s === 'pv' || s === 'wp' ? `<a class="btn klein rz-knopf" href="#/rechner?kunde=${esc(k.id)}&amp;art=${s}" data-zum-rechner>🧮 Wann rechnet sich das?</a>` : ''}
       <label class="status-zeile">Status <select data-feld="status.${s}">${statusOptions(k.status[s])}</select></label>
       <div class="formgrid">${felderHtml(s, k, store.getData().einstellungen.felder)}</div>
       ${markierenHtml(k, s)}
     </section>`).join('');
   bindeFelder(el, k.id, kopf);
   markierenVerdrahten(el, k.id, (b) => markierenNeuZeichnen(el, k.id, b));
+  // Verzahnt: mit den Angaben dieses Kunden in den Rechner, „Zurück“ führt an dieselbe Stelle
+  el.querySelectorAll('[data-zum-rechner]').forEach((a) => a.addEventListener('click', () => ruecksprung.merken()));
 }
 
 const pv = (el, k, kopf) => bogen(el, k, ['pv'], kopf);

@@ -35,6 +35,8 @@ import { symbol } from './ui/symbole.ts';
 import * as vHilfe from './ui/views/hilfe.ts';
 import * as vProdukte from './ui/views/produkte.ts';
 import * as vFoerderung from './ui/views/foerderung.ts';
+import * as vRechner from './ui/views/rechner.ts';
+import * as ruecksprung from './ui/ruecksprung.ts';
 import type { ThemaId } from './core/hilfe.ts';
 
 interface Ansicht { render(el: HTMLElement, params: URLSearchParams, treffer: string[]): void | (() => void) }
@@ -55,6 +57,7 @@ const ROUTEN: Route[] = [
   { muster: /^\/hilfe$/, view: vHilfe, nav: 'einstellungen' },
   { muster: /^\/produkte$/, view: vProdukte, nav: 'produkte', hilfe: 'produkte' },
   { muster: /^\/foerderung$/, view: vFoerderung, nav: 'foerderung', hilfe: 'foerderung' },
+  { muster: /^\/rechner$/, view: vRechner, nav: 'rechner', hilfe: 'rechner' },
 ];
 
 const NAV = [
@@ -66,12 +69,13 @@ const NAV = [
   { key: 'bestand', href: '#/bestand', label: 'Bestand', bild: 'vorwerk' },
   { key: 'produkte', href: '#/produkte', label: 'Produkte', bild: 'produkte' },
   { key: 'foerderung', href: '#/foerderung', label: 'Förderung', bild: 'foerderung' },
+  { key: 'rechner', href: '#/rechner', label: 'Rechner', bild: 'rechner' },
   { key: 'auswertung', href: '#/auswertung', label: 'Auswertungen', bild: 'statistik' },
   { key: 'einstellungen', href: '#/einstellungen', label: 'Einstellungen', bild: 'einstellungen' },
 ];
 
 /** Auf dem Handy und dem iPad hochkant stehen diese Bereiche unter „Mehr“, damit die Leiste unten große Tippflächen behält. */
-const NEBEN = ['gespraech', 'bestand', 'foerderung', 'auswertung', 'einstellungen'];
+const NEBEN = ['gespraech', 'bestand', 'foerderung', 'rechner', 'auswertung', 'einstellungen'];
 
 /** „Mehr“-Menü (Handy): übrige Bereiche, Suchen, Sperren. */
 function mehrMenue() {
@@ -312,6 +316,7 @@ function route() {
   try { plusknopf.aktualisieren(); } catch (e) { console.error(e); }
   el.scrollTop = 0;
   window.scrollTo(0, 0);
+  ruecksprung.wiederherstellen(); // nach einem verzahnten Schritt an die alte Stelle
 }
 window.addEventListener('hashchange', route);
 

@@ -184,3 +184,57 @@ export function rechnerText(rechner: Rechner, a: PvAnnahmen | WpAnnahmen, e: Erg
   ];
   return zeilen.join('\n');
 }
+
+/** Was aus der Kundenkartei in den Rechner übernommen wurde (Werte + lesbare Liste). */
+export interface Uebernahme<T> { werte: Partial<T>; liste: string[] }
+
+const zahlOk = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && v > 0;
+const feldVon = (felder: Feld[], key: string) => felder.find((f) => f.key === key)!;
+const imRahmen = (f: Feld, n: number) => n >= f.min && n <= f.max;
+
+/**
+ * Annahmen aus den Angaben beim Kunden (Photovoltaik-Bogen: Strompreis, Speicher).
+ * Nur Werte, die sicher passen; der Rest bleibt bei den Beispielwerten. Wird nirgends gespeichert.
+ */
+export function pvAusKunde(angaben: Record<string, unknown> | null | undefined): Uebernahme<PvAnnahmen> {
+  const a = angaben || {};
+  const werte: Partial<PvAnnahmen> = {}; const liste: string[] = [];
+  if (zahlOk(a.strompreis) && imRahmen(feldVon(PV_FELDER, 'strompreis'), a.strompreis)) {
+    werte.strompreis = a.strompreis; liste.push(`Strompreis ${a.strompreis.toLocaleString('de-DE')} ct/kWh`);
+  }
+  if (a.speicher === true) { werte.eigenverbrauch = 60; liste.push('Speicher gewünscht: Eigenverbrauch 60 %'); }
+  return { werte, liste };
+}
+
+/** kWh Brennstoff aus Menge und Einheit (Gas: 1 m³ ≈ 10 kWh, Heizöl: 1 Liter ≈ 10 kWh). */
+function brennstoffKwh(menge: number, einheit: unknown, art: string): number | null {
+  if (einheit === 'kWh') return menge;
+  if (einheit === 'Liter' && art === 'Öl') return menge * 10;
+  if (einheit === 'm³' && art === 'Gas') return menge * 10;
+  return null;
+}
+
+/**
+ * Annahmen aus dem Wärmepumpen-Bogen: Wärmebedarf aus dem bisherigen Gas- oder Ölverbrauch,
+ * Brennstoffpreis aus den Heizkosten. Nur für Gas- und Ölheizungen, sonst passt der Vergleich nicht.
+ */
+export function wpAusKunde(angaben: Record<string, unknown> | null | undefined): Uebernahme<WpAnnahmen> {
+  const a = angaben || {};
+  const werte: Partial<WpAnnahmen> = {}; const liste: string[] = [];
+  const art = a.heizungsart === 'Gas' || a.heizungsart === 'Öl' ? a.heizungsart : '';
+  if (!art || !zahlOk(a.verbrauchMenge)) return { werte, liste };
+  const kwh = brennstoffKwh(a.verbrauchMenge, a.verbrauchEinheit, art);
+  if (kwh === null) return { werte, liste };
+  const bedarf = Math.round((kwh * (WP_STANDARD.wirkungsgrad / 100)) / 500) * 500;
+  if (imRahmen(feldVon(WP_FELDER, 'waermebedarf'), bedarf)) {
+    werte.waermebedarf = bedarf;
+    liste.push(`Wärmebedarf aus ${a.verbrauchMenge.toLocaleString('de-DE')} ${String(a.verbrauchEinheit)} ${art} im Jahr`);
+  }
+  if (zahlOk(a.heizkosten)) {
+    const ct = Math.round((a.heizkosten / kwh) * 1000) / 10;
+    if (imRahmen(feldVon(WP_FELDER, 'brennstoffpreis'), ct)) {
+      werte.brennstoffpreis = ct; liste.push(`${art}preis ${ct.toLocaleString('de-DE')} ct/kWh aus ${euro(a.heizkosten)} Heizkosten`);
+    }
+  }
+  return { werte, liste };
+}

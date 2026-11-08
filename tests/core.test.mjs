@@ -1460,6 +1460,23 @@ test('Rechner: Eingaben in deutscher Schreibweise, Grenzen, Kopiertext', () => {
   assert.ok(t.includes('ohne Gewähr') && t.includes('Annahmen:') && t.includes('Eigenverbrauch'));
 });
 
+test('Rechner: Angaben aus der Kundenkartei übernehmen (nur passende Werte)', async () => {
+  const { pvAusKunde, wpAusKunde } = await import('../src/core/amortisation.ts');
+  const p = pvAusKunde({ strompreis: 38, speicher: true, stromverbrauch: 4500 });
+  assert.deepEqual(p.werte, { strompreis: 38, eigenverbrauch: 60 });
+  assert.equal(p.liste.length, 2);
+  assert.deepEqual(pvAusKunde({ strompreis: 500 }).werte, {}, 'unplausibler Strompreis bleibt draußen');
+  assert.deepEqual(pvAusKunde(null).werte, {});
+  const gas = wpAusKunde({ heizungsart: 'Gas', verbrauchMenge: 18000, verbrauchEinheit: 'kWh', heizkosten: 2160 });
+  assert.equal(gas.werte.waermebedarf, 16000, '18.000 kWh × 90 % auf 500 gerundet');
+  assert.equal(gas.werte.brennstoffpreis, 12);
+  const oel = wpAusKunde({ heizungsart: 'Öl', verbrauchMenge: 2500, verbrauchEinheit: 'Liter' });
+  assert.equal(oel.werte.waermebedarf, 22500, '1 Liter Heizöl ≈ 10 kWh');
+  assert.equal(oel.werte.brennstoffpreis, undefined);
+  assert.deepEqual(wpAusKunde({ heizungsart: 'Pellets', verbrauchMenge: 5000, verbrauchEinheit: 'kg' }).werte, {}, 'nur Gas und Öl');
+  assert.deepEqual(wpAusKunde({ heizungsart: 'Gas', verbrauchMenge: 2000, verbrauchEinheit: 'Liter' }).werte, {}, 'Einheit passt nicht zur Heizung');
+});
+
 test('Abhaken mit Folgeschritt: erledigt, Notiz im Bereich des Termins, nächste Wiedervorlage', async () => {
   const { abhakenAnwenden, notizText } = await import('../src/core/abhaken.ts');
   const { neuerTermin } = await import('../src/core/model.ts');

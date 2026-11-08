@@ -7,7 +7,7 @@ import {
   type Abschnitt, type FoeKategorie,
 } from '../../core/foerderung.ts';
 import { kopieren, maskottchen, toast } from '../dom.ts';
-import * as rechner from '../rechner.ts';
+import { symbol } from '../symbole.ts';
 
 let bereich: 'alle' | 'pv' | 'wp' = 'alle';
 let kategorie: FoeKategorie | '' = '';
@@ -105,14 +105,13 @@ export function render(el: HTMLElement, params: URLSearchParams) {
   const liste = el.querySelector<HTMLElement>('#foeListe')!;
   const oben = el.querySelector<HTMLElement>('#foeOben')!;
   const rechnerBox = el.querySelector<HTMLElement>('#foeRechner')!;
+  // Der Rechner hat einen eigenen Menüpunkt; hier nur der Weg dorthin, passend zum gewählten Bereich
   const rechnerZeichnen = () => {
-    const offen = (rechnerBox.querySelector('#rechner') as HTMLDetailsElement | null)?.open ?? params.has('rechner');
-    rechner.artSetzen(bereich);
-    rechnerBox.innerHTML = rechner.html();
-    (rechnerBox.querySelector('#rechner') as HTMLDetailsElement).open = offen;
+    rechnerBox.innerHTML = `<a class="karte-box foe-rechner-link" href="#/rechner${bereich === 'alle' ? '' : `?art=${bereich}`}">
+      ${symbol('rechner')}<span><b>Wann rechnet sich das?</b><small>Zum Rechner für ${bereich === 'wp' ? 'Wärmepumpe' : bereich === 'pv' ? 'Photovoltaik' : 'Photovoltaik und Wärmepumpe'}</small></span><span aria-hidden="true">›</span></a>`;
   };
+  if (params.has('rechner')) { location.replace(`#/rechner${bereich === 'alle' ? '' : `?art=${bereich}`}`); return; } // alte Links
   rechnerZeichnen();
-  rechner.binden(rechnerBox);
 
   const obenZeichnen = () => {
     if (suche.trim() || kategorie) { oben.innerHTML = ''; return; }
