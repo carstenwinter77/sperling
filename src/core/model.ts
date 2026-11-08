@@ -10,7 +10,7 @@ import { normalizeFotoListe } from './fotos.ts';
 import { normalizeRechnerVorlagen, zuletztGewaehlt } from './rechnervorlagen.ts';
 import { normalizeAngebot, normalizeAuftrag, normalizeNachfassTage, normalizeBereitlegen, normalizeAnsprechpartner, normalizeHaustuer, ANGEBOTE_MAX, ANSPRECHPARTNER_MAX, HAUSTUER_MAX, type HaustuerEintrag } from './vertrieb.ts';
 
-export const SCHEMA_VERSION = 9;
+export const SCHEMA_VERSION = 10;
 
 /** Die drei Geschäftszweige, jeder mit eigenem Anbieter und eigenem Textgenerator (R-TEXT). */
 export const SPARTEN = {
@@ -628,9 +628,23 @@ export function normalizeTermin(tm: unknown) {
     ort: str(src.ort, 500),
     notiz: str(src.notiz, 5000),
     erledigt: src.erledigt === true,
+    bezug: normalizeTerminBezug(src.bezug),
     createdAt: (isValidDate(src.createdAt) ? src.createdAt : t) as string,
     updatedAt: (isValidDate(src.updatedAt) ? src.updatedAt : t) as string,
   };
+}
+
+/**
+ * Wozu eine Wiedervorlage gehört (ab Schema 10): Nachfassen eines Angebots, Nachfrage zu einer Leihgabe
+ * oder Kundenpflege nach dem Auftrag. Beim Abhaken bietet Sperling dann die passenden Knöpfe an.
+ */
+export const BEZUG_ARTEN = ['angebot', 'leihe', 'pflege'] as const;
+export type BezugArt = typeof BEZUG_ARTEN[number];
+export function normalizeTerminBezug(v: unknown): { art: BezugArt | ''; id: string } {
+  const src: Rec = v && typeof v === 'object' ? v : {};
+  const art = (BEZUG_ARTEN as readonly string[]).includes(src.art) ? src.art as BezugArt : '';
+  const id = art && typeof src.id === 'string' ? src.id.slice(0, 100) : '';
+  return art && id ? { art, id } : { art: '', id: '' };
 }
 
 /** „Zuletzt geöffnet“ in der Kommandozeile: nur Art und ID, verschlüsselt im Store (R-KRYPTO). */
@@ -727,7 +741,9 @@ export function migrate(input: unknown): Daten {
   // v7 → v8: kunde.statusVerlauf. Vorhandene Status werden als geschätzter Wechsel zum Anlagedatum nachgetragen
   // (später abweichende Status zum letzten Änderungsdatum), damit Trichter und Abschlüsse sofort etwas zeigen.
   // v8 → v9: kunde.angebote, kunde.auftrag, kunde.ansprechpartner, kunde.haustuer (Vertriebswerkzeuge), alles leer ergänzt.
-  // Künftige Migrationen hier schrittweise: if (v < 10) { ... }
+  // v9 → v10: termin.bezug (Angebot, Leihgabe, Pflege). Vorhandene Wiedervorlagen werden über ihren Titel zugeordnet
+  // (bezugNachtragen unten), damit auch ältere Nachfass- und Nachfrage-Erinnerungen die passenden Knöpfe bekommen.
+  // Künftige Migrationen hier schrittweise: if (v < 11) { ... }
   const kunden = Array.isArray(data.kunden) ? data.kunden.map(normalizeKunde) : [];
   for (const k of kunden) statusVerlaufAbgleichen(k, v < 8 || !k.statusVerlauf.length ? k.createdAt : k.updatedAt, true);
   // Doppelte IDs verhindern (z. B. nach manuellem Zusammenführen)
@@ -738,16 +754,19 @@ export function migrate(input: unknown): Daten {
     ? data.termine.map(normalizeTermin).map((t) => (t.kundeId === '' || kundenIds.has(t.kundeId) ? t : { ...t, kundeId: '' }))
     : [];
   // Regel: Nie stillschweigend Daten verwerfen. Verwaiste Termine bleiben erhalten (ohne Kundenbezug).
+  const leihvorgaenge = Array.isArray(data.leihvorgaenge)
+    ? data.leihvorgaenge.map(normalizeLeihvorgang).map((l) => (l.kundeId === '' || kundenIds.has(l.kundeId) ? l : { ...l, kundeId: '' }))
+    : [];
+  const geraete = Array.isArray(data.geraete) ? data.geraete.map(normalizeGeraet) : [];
+  if (v < 10) bezugNachtragen(termine, kundenUnique, leihvorgaenge, geraete);
   return {
     schemaVersion: SCHEMA_VERSION,
     kunden: kundenUnique,
     termine,
     einstellungen: normalizeEinstellungen(data.einstellungen),
-    geraete: Array.isArray(data.geraete) ? data.geraete.map(normalizeGeraet) : [],
+    geraete,
     // Verleih an gelöschte Kunden bleibt erhalten (ohne Kundenbezug), siehe R-LOESCH
-    leihvorgaenge: Array.isArray(data.leihvorgaenge)
-      ? data.leihvorgaenge.map(normalizeLeihvorgang).map((l) => (l.kundeId === '' || kundenIds.has(l.kundeId) ? l : { ...l, kundeId: '' }))
-      : [],
+    leihvorgaenge,
     reservierungen: Array.isArray(data.reservierungen)
       ? data.reservierungen.map(normalizeReservierung).map((r) => (r.kundeId === '' || kundenIds.has(r.kundeId) ? r : { ...r, kundeId: '' }))
       : [],
@@ -760,6 +779,27 @@ export function migrate(input: unknown): Daten {
       ? data.material.map(normalizeMaterial).map((m) => ({ ...m, buchungen: m.buchungen.map((b) => (b.kundeId === '' || kundenIds.has(b.kundeId) ? b : { ...b, kundeId: '' })) }))
       : [],
   };
+}
+
+/**
+ * Migration auf Schema 10: Wiedervorlagen ohne Bezug über den Titel zuordnen.
+ * „Angebot nachfassen: …“ → Angebot desselben Kunden und Bereichs mit diesem Titel;
+ * „Nachfragen: Gerät bei …“ → Leihgabe dieses Geräts an den Kunden (die offene, sonst die jüngste).
+ * Pflege-Wiedervorlagen werden nicht geraten (ihr Titel ist frei änderbar); sie bekommen den Bezug erst beim Anlegen.
+ */
+export function bezugNachtragen(termine: Termin[], kunden: Kunde[], leih: Leihvorgang[], geraete: Geraet[]): void {
+  for (const t of termine) {
+    if (t.bezug.art || t.art !== 'wiedervorlage' || !t.kundeId) continue;
+    const k = kunden.find((x) => x.id === t.kundeId);
+    if (t.titel.startsWith('Angebot nachfassen: ') && k) {
+      const a = k.angebote.find((x) => x.sparte === t.sparte && `Angebot nachfassen: ${x.titel || SPARTEN[x.sparte].label}` === t.titel);
+      if (a) t.bezug = { art: 'angebot', id: a.id };
+    } else if (t.titel.startsWith('Nachfragen: ')) {
+      const kandidaten = leih.filter((l) => l.kundeId === t.kundeId && t.titel.startsWith(`Nachfragen: ${geraete.find((g) => g.id === l.geraetId)?.name ?? '\u0000'} bei`))
+        .sort((a, b) => (a.rueckgabe ? 1 : 0) - (b.rueckgabe ? 1 : 0) || (a.ausgabe < b.ausgabe ? 1 : -1));
+      if (kandidaten[0]) t.bezug = { art: 'leihe', id: kandidaten[0].id };
+    }
+  }
 }
 
 // ---------- Typen (aus den Normalisierern abgeleitet, damit Code und Typ nie auseinanderlaufen) ----------

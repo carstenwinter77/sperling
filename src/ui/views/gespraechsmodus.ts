@@ -2,7 +2,7 @@
 // links die Kundendaten (weiter bearbeitbar), rechts Notizen, Leitfaden und Abschluss.
 // Am Handy werden daraus Reiter. Der Entwurf bleibt im Arbeitsspeicher, bis gespeichert oder verworfen wird.
 import * as schnellwahl from '../schnellwahl.ts';
-import { esc, formatDate, formatDateTime, localInputToIso } from '../../core/util.ts';
+import { esc, formatDate, formatDateTime, localInputToIso, isoToLocalInput } from '../../core/util.ts';
 import { SPARTEN, SPARTEN_KEYS, STATUS, AUSGANG, KONTAKTART, kundenTitel, adresseEinzeilig, type Sparte } from '../../core/model.ts';
 import { kundenVerlauf } from '../../core/verlauf.ts';
 import * as store from '../../storage/store.ts';
@@ -15,7 +15,10 @@ import { bindeFelder } from './kunde.ts';
 import { felderHtml } from '../felder.ts';
 import { markierenHtml, markierenVerdrahten, markierenNeuZeichnen } from '../produkte.ts';
 import { bausteinAnhaengen } from '../../core/bausteine.ts';
-import { stand, schrittVorschlag } from '../../core/klemmbrett.ts';
+import { stand } from '../../core/klemmbrett.ts';
+import { abschlussVorschlag, statusFuerAusgang, wvDatum, kontaktartFuerTermin, spartenFuerTermin } from '../../core/verzahnung.ts';
+import * as ruecksprung from '../ruecksprung.ts';
+import { folgenNachGespraech, folgenZeigen } from '../folgeschritte.ts';
 
 type Seite = 'notizen' | 'leitfaden' | 'abschluss';
 const SEITEN: [Seite, string][] = [['leitfaden', '📋 Klemmbrett'], ['notizen', '📝 Notizen'], ['abschluss', '✓ Abschließen']];
@@ -23,7 +26,16 @@ const SEITEN: [Seite, string][] = [['leitfaden', '📋 Klemmbrett'], ['notizen',
 export function render(el: HTMLElement, params: URLSearchParams, [id = '']: string[]) {
   const k0 = store.findKunde(id);
   if (!k0) { location.hash = '#/kunden'; return; }
-  const e = ablauf.beginnen(id);
+  // Aus einem Termin gestartet (?termin=…): Bereich und Kontaktart übernehmen, Termin wird beim Speichern erledigt.
+  // Von der Haustür (?art=hausbesuch): Kontaktart Hausbesuch.
+  const t0 = store.getData().termine.find((t) => t.id === params.get('termin') && t.kundeId === id && !t.erledigt) || null;
+  const vorgabe: Partial<ablauf.Entwurf> = {};
+  if (t0) { vorgabe.terminId = t0.id; vorgabe.kontaktart = kontaktartFuerTermin(t0); const sp = spartenFuerTermin(t0); if (sp) { vorgabe.sparten = sp; vorgabe.leitfadenSparte = sp[0]!; } }
+  else if (params.get('art') === 'hausbesuch') vorgabe.kontaktart = 'hausbesuch';
+  const neu = !ablauf.entwurf(id);
+  const e = ablauf.beginnen(id, vorgabe);
+  if (!neu && t0 && !e.terminId) e.terminId = t0.id;
+  const termin = () => (e.terminId ? store.getData().termine.find((t) => t.id === e.terminId) || null : null);
   let seite: Seite = SEITEN.some(([s]) => s === params.get('seite')) ? params.get('seite') as Seite : 'leitfaden';
   // Am Handy: Kunde oder Gespräch zeigen
   let handyKunde = false;
@@ -35,6 +47,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
       <h1><span class="gm-live" aria-hidden="true"></span> Gespräch mit <span id="gmName">${esc(kundenTitel(k0))}</span></h1>
       <span class="gm-uhr" id="gmUhr" title="Dauer seit Beginn"></span>
     </header>
+    ${termin() ? `<p class="gm-termin hinweis" role="note">📅 Zum Termin <b>${esc(termin()!.titel || 'Termin')}</b> · ${esc(formatDateTime(termin()!.beginn))}${termin()!.notiz ? ` · ${esc(termin()!.notiz.slice(0, 200))}` : ''}<br><small>Wird beim Speichern des Gesprächs abgehakt.</small></p>` : ''}
     <nav class="tabs gm-handy" aria-label="Kunde oder Gespräch"><button data-handy="kunde">👤 Kunde</button><button data-handy="gespraech" class="aktiv">💬 Gespräch</button></nav>
     <div class="gm-teilung">
       <section class="gm-links" id="gmLinks" aria-label="Kundendaten"></section>
@@ -186,22 +199,32 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
         <h2>Gespräch abschließen</h2>
         ${bilanzHtml(sparten)}
         <p class="hinweis">${esc(KONTAKTART[e.kontaktart])}${e.erreicht ? '' : ' · nicht erreicht'} · ${sparten.length ? sparten.map((s) => esc(SPARTEN[s].label)).join(', ') : 'ohne Thema'}${ablauf.hatInhalt(e) ? '' : ' · noch keine Notizen'}</p>
-        ${sparten.map((s) => `
+        ${sparten.map((s) => { const v = abschlussVorschlag(s, e.antworten, e.erreicht); const st = statusFuerAusgang(v.ausgang, k.status[s]); return `
         <fieldset class="abschluss-sparte bereich-rand bereich-${s}" data-abschluss="${s}">
           <legend>${maskottchen(spartenIcon(s), 'mini')} ${esc(SPARTEN[s].label)}${ablauf.hatEinwaende(e.verlauf, s) ? ` <small>${Object.keys(e.verlauf[s]).length} Einwand/Einwände</small>` : ''}</legend>
           <div class="formgrid">
-            <label>Ergebnis<select name="ausgang"><option value="">${e.erreicht ? '– bitte wählen –' : '– keins –'}</option>${Object.entries(AUSGANG).map(([key, v]) => `<option value="${key}">${esc(v)}</option>`).join('')}</select></label>
-            <label>Status<select name="status">${statusOptions(k.status[s])}</select></label>
-            <label>Nächster Schritt<input name="schritt" maxlength="1000" placeholder="z. B. Angebot rechnen lassen" value="${esc(schrittVorschlag(s, e.antworten))}"></label>
-            <div class="wv-feld"><label>Wiedervorlage / Termin am<input type="datetime-local" name="wv"></label>${schnellwahl.html('wv')}</div>
+            <label>Ergebnis<select name="ausgang"><option value="">${e.erreicht ? '– bitte wählen –' : '– keins –'}</option>${Object.entries(AUSGANG).map(([key, txt]) => `<option value="${key}" ${key === v.ausgang ? 'selected' : ''}>${esc(txt)}</option>`).join('')}</select></label>
+            <label>Status<select name="status">${statusOptions(st)}</select></label>
+            <label>Nächster Schritt<input name="schritt" maxlength="1000" placeholder="z. B. Angebot rechnen lassen" value="${esc(v.schritt)}"></label>
+            <div class="wv-feld"><label>${v.ausgang === 'termin' ? 'Termin am' : 'Wiedervorlage / Termin am'}<input type="datetime-local" name="wv" value="${v.tage !== null ? esc(isoToLocalInput(wvDatum(v.tage))) : ''}"></label>${schnellwahl.html('wv')}</div>
           </div>
-        </fieldset>`).join('')}
+          ${v.ausgang || v.tage !== null ? '<p class="hinweis gm-vorschlag">Vorgeschlagen aus dem Gespräch, alles änderbar.</p>' : ''}
+        </fieldset>`; }).join('')}
         <div class="knopfreihe">
           <button type="button" class="btn primary" id="gmSpeichern">Gespräch beim Kunden speichern</button>
           <button type="button" class="btn ghost" data-geh="notizen">‹ Zurück</button>
           <button type="button" class="btn ghost danger-text" id="gmVerwerfen">Verwerfen</button>
         </div>
       </div>`;
+    // Status folgt dem Ergebnis, solange er nicht von Hand geändert wurde
+    rechts.querySelectorAll<HTMLSelectElement>('[data-abschluss] [name=status]').forEach((sel) => sel.addEventListener('change', () => { sel.dataset.vonHand = '1'; }));
+    rechts.querySelectorAll<HTMLSelectElement>('[data-abschluss] [name=ausgang]').forEach((sel) => sel.addEventListener('change', () => {
+      const fs = sel.closest<HTMLElement>('[data-abschluss]')!;
+      const s = fs.dataset.abschluss as Sparte;
+      const stSel = fs.querySelector<HTMLSelectElement>('[name=status]')!;
+      const akt = store.findKunde(id);
+      if (akt && !stSel.dataset.vonHand) stSel.value = statusFuerAusgang(sel.value as ablauf.Abschluss['ausgang'], akt.status[s]);
+    }));
     rechts.querySelectorAll<HTMLSelectElement>('[data-abschluss] [name=ausgang]').forEach((sel) => sel.addEventListener('change', () => {
       const gut = [...rechts.querySelectorAll<HTMLSelectElement>('[data-abschluss] [name=ausgang]')].some((x) => ['termin', 'abschluss', 'test', 'angebot'].includes(x.value));
       const bilanz = rechts.querySelector('#gmBilanz');
@@ -223,16 +246,28 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
       }
       const etwas = ablauf.hatInhalt(e) || abschluesse.some((a) => a.ausgang || a.schritt || a.wv) || !e.erreicht;
       if (!etwas) { toast('Noch nichts zu speichern: Notiz schreiben oder Ergebnis wählen.', 'error'); return; }
+      const vorher = new Set(store.getData().termine.map((t) => t.id));
+      const enpalVorher = new Set(store.findKunde(id)?.enpalKontakte.map((x) => x.id) || []);
+      const kopie = { ...e, sparten: [...e.sparten] };
       try {
         ablauf.abschliessen(e, abschluesse);
       } catch (err) { toast((err as Error).message, 'error'); return; }
-      toast('Gespräch gespeichert', 'ok');
-      location.hash = `#/kunde/${id}?tab=verlauf`;
+      const neueTermine = store.getData().termine.filter((t) => !vorher.has(t.id));
+      const enpalId = store.findKunde(id)?.enpalKontakte.find((x) => !enpalVorher.has(x.id))?.id || '';
+      const folgen = folgenNachGespraech(kopie, abschluesse, neueTermine, enpalId);
+      // Zurück an die Stelle, von der das Gespräch gestartet wurde; „Als Nächstes“ öffnet sich darüber
+      ruecksprung.zurueck(`#/kunde/${id}?tab=verlauf`, kopie.terminId ? 'Gespräch gespeichert, Termin abgehakt' : 'Gespräch gespeichert');
+      if (folgen.length) {
+        void (async () => {
+          await new Promise((r) => setTimeout(r, 120));
+          if (await folgenZeigen('Gespeichert. Als Nächstes?', folgen)) ruecksprung.neuZeichnen();
+        })();
+      }
     });
     rechts.querySelector('#gmVerwerfen').addEventListener('click', async () => {
       if (ablauf.hatInhalt(e) && !(await bestaetigen('Gespräch verwerfen?', 'Die Notizen und angetippten Einwände dieses Gesprächs gehen verloren.', 'Verwerfen'))) return;
       ablauf.verwerfen(id);
-      location.hash = `#/kunde/${id}`;
+      ruecksprung.zurueck(`#/kunde/${id}`, 'Gespräch verworfen');
     });
   };
 

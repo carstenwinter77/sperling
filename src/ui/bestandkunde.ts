@@ -8,6 +8,7 @@ import { dialog, toast } from './dom.ts';
 import * as kundenwahl from './kundenwahl.ts';
 import { verleihDialog } from './views/bestand.ts';
 import { buchenDialog } from './material.ts';
+import { vorwerkKaufFolge } from './vertrieb.ts';
 
 type Art = 'verleihen' | 'verkaufen';
 
@@ -137,5 +138,6 @@ export async function verkaufDialog(g: Geraet, kundeId = ''): Promise<boolean> {
     store.mutate((data) => { weg = verkaufBuchen(data, g.id, res, nowIso()).length; });
   } catch (e) { toast((e as Error).message, 'error'); return false; }
   toast(`Verkauf gebucht${weg ? `, ${weg} Reservierung${weg > 1 ? 'en' : ''} entfernt` : ''}`, 'ok', 4500);
+  await vorwerkKaufFolge(res.kundeId, g.name);
   return true;
 }

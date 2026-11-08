@@ -1675,7 +1675,7 @@ test('Demo: Statusverlauf passt zum Status, Kunden haben ein Anlagedatum', async
 test('Vertrieb (Schema 9): Angebote normalisieren, Frist, Summe, Nachfassen', async () => {
   const v = await import('../src/core/vertrieb.ts');
   const { SCHEMA_VERSION } = await import('../src/core/model.ts');
-  assert.equal(SCHEMA_VERSION, 9);
+  assert.ok(SCHEMA_VERSION >= 9);
   // Alte Daten ohne die neuen Felder bleiben lesbar
   const alt = migrate({ schemaVersion: 8, kunden: [{ id: 'k1', nachname: 'A' }] });
   assert.deepEqual(alt.kunden[0].angebote, []);

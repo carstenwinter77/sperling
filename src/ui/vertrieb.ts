@@ -1,16 +1,19 @@
 // Sperling – Vertriebswerkzeuge in der Oberfläche: Reiter „Angebot & Auftrag“, Ansprechpartner und
 // Haustür-Ergebnis in der Kundenübersicht, Terminbestätigung an den Kunden (SMS, WhatsApp, E-Mail).
 // Logik in src/core/vertrieb.ts.
-import { esc, nowIso, formatDate, formatDateTime } from '../core/util.ts';
+import { esc, nowIso, formatDate, formatDateTime, isoToLocalInput, localInputToIso } from '../core/util.ts';
+import * as schnellwahl from './schnellwahl.ts';
+import * as ruecksprung from './ruecksprung.ts';
 import { SPARTEN, SPARTEN_KEYS, STATUS, kundenTitel, adresseEinzeilig, neuerTermin, type Kunde, type Termin, type Sparte } from '../core/model.ts';
 import {
   ANGEBOT_STATUS, AUFTRAG_SCHRITTE, HAUSTUER, HAUSTUER_KEYS, ROLLEN, ANSPRECHPARTNER_MAX, tageListeText,
   neuesAngebot, normalizeAngebot, angebotAbgelaufen, angebotsSumme, nachfassTermine, offeneNachfass, euro,
   neuerAuftrag, auftragStand, auftragText, auftragKundentext, pflegeVorschlaege, pflegeVorhanden, anredeZeile,
   normalizeAnsprechpartner, neuerHaustuerEintrag, letzteHaustuer, werbeverbot, haustuerStatus,
-  terminBestaetigung, waNummer, waUrl, smsUrl, ortsTag, type Angebot, type HaustuerErgebnis, type AngebotStatus,
+  terminBestaetigung, waNummer, waUrl, smsUrl, ortsTag, tagPlus, type Angebot, type HaustuerErgebnis, type AngebotStatus,
 } from '../core/vertrieb.ts';
 import * as pk from '../core/papierkorb.ts';
+import { widerrufWiedervorlage } from '../core/verzahnung.ts';
 import * as store from '../storage/store.ts';
 import { dialog, toast, kopieren, bestaetigen, maskottchen } from './dom.ts';
 import { anrufen, emailSchreiben } from './kontakt.ts';
@@ -164,21 +167,24 @@ export function betragLesen(roh: string): number | null {
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
-async function angebotEntscheiden(kundeId: string, a: Angebot, status: AngebotStatus): Promise<boolean> {
+export async function angebotEntscheiden(kundeId: string, a: Angebot, status: AngebotStatus): Promise<boolean> {
   const k = store.findKunde(kundeId);
   if (!k) return false;
   const nachfass = offeneNachfass(store.getData().termine, kundeId, a);
   let abschluss = false;
+  let widerruf = false;
   if (status === 'angenommen') {
     const w = await dialog<string>({
       titel: 'Angebot angenommen',
       html: `<p>Glückwunsch! „${esc(a.titel || SPARTEN[a.sparte].label)}“ ist angenommen.</p>
         <label class="check"><input type="checkbox" name="abschluss" checked> Status ${esc(SPARTEN[a.sparte].label)} auf „${esc(STATUS.abschluss.label)}“ setzen und den Auftragsstand beginnen</label>
+        <label class="check"><input type="checkbox" name="widerruf" checked> Wiedervorlage nach der Widerrufsfrist (14 Tage): kurz nachfragen, ob alles klar ist</label>
         ${nachfass.length ? `<p class="hinweis">${nachfass.length} offene Nachfass-Wiedervorlage${nachfass.length === 1 ? '' : 'n'} werden als erledigt markiert.</p>` : ''}`,
-      knoepfe: [{ label: 'Übernehmen', primaer: true, wert: (dlg) => (dlg.querySelector<HTMLInputElement>('[name=abschluss]')!.checked ? 'ja' : 'nein') }],
+      knoepfe: [{ label: 'Übernehmen', primaer: true, wert: (dlg) => `${dlg.querySelector<HTMLInputElement>('[name=abschluss]')!.checked ? 'ja' : 'nein'}:${dlg.querySelector<HTMLInputElement>('[name=widerruf]')!.checked ? 'ja' : 'nein'}` }],
     });
     if (!w) return false;
-    abschluss = w === 'ja';
+    abschluss = w.startsWith('ja');
+    widerruf = w.endsWith(':ja');
   }
   store.mutate((d) => {
     const x = d.kunden.find((y) => y.id === kundeId);
@@ -190,9 +196,10 @@ async function angebotEntscheiden(kundeId: string, a: Angebot, status: AngebotSt
       x.status[a.sparte] = 'abschluss';
       if (!x.auftrag[a.sparte]) x.auftrag[a.sparte] = neuerAuftrag(a.sparte, heute());
     }
+    if (widerruf) d.termine.push(neuerTermin(widerrufWiedervorlage(kundeId, a.sparte, nowIso())));
     x.updatedAt = nowIso();
   });
-  toast(status === 'offen' ? 'Angebot wieder offen' : `Angebot: ${ANGEBOT_STATUS[status]}`, 'ok');
+  toast(status === 'offen' ? 'Angebot wieder offen' : `Angebot: ${ANGEBOT_STATUS[status]}${widerruf ? ', Wiedervorlage nach der Widerrufsfrist angelegt' : ''}`, 'ok');
   return true;
 }
 
@@ -255,7 +262,7 @@ function auftragVerdrahten(el: HTMLElement, kundeId: string, neuZeichnen: () => 
 }
 
 /** Vorschläge zur Kundenpflege auswählen und als Wiedervorlagen anlegen. */
-async function pflegeAnlegen(kundeId: string, s: Sparte): Promise<boolean> {
+export async function pflegeAnlegen(kundeId: string, s: Sparte): Promise<boolean> {
   const k = store.findKunde(kundeId);
   const a = k?.auftrag[s];
   if (!k || !a) return false;
@@ -269,9 +276,112 @@ async function pflegeAnlegen(kundeId: string, s: Sparte): Promise<boolean> {
     knoepfe: [{ label: 'Anlegen', primaer: true, wert: (dlg) => Array.from(dlg.querySelectorAll<HTMLInputElement>('[name=p]:checked'), (c) => Number(c.value)) }],
   });
   if (!wahl?.length) return false;
-  store.mutate((d) => { for (const i of wahl) { const p = vorschlaege[i]; if (p) d.termine.push(neuerTermin({ kundeId, sparte: p.sparte, art: 'wiedervorlage', titel: p.titel, beginn: p.beginn, dauerMin: 15, notiz: p.notiz })); } });
+  store.mutate((d) => { for (const i of wahl) { const p = vorschlaege[i]; if (p) d.termine.push(neuerTermin({ kundeId, sparte: p.sparte, art: 'wiedervorlage', titel: p.titel, beginn: p.beginn, dauerMin: 15, notiz: p.notiz, bezug: { art: 'pflege', id: p.sparte } })); } });
   toast(`${wahl.length} Wiedervorlage${wahl.length === 1 ? '' : 'n'} angelegt`, 'ok');
   return true;
+}
+
+/** „Abbrechen“ heißt in Angeboten zum nächsten Schritt „Nein, danke“. */
+const neinKnopf = (dlg: HTMLDialogElement) => { const b = dlg.querySelector<HTMLElement>('.dlg-actions button.ghost'); if (b) b.textContent = 'Nein, danke'; };
+
+/**
+ * Status von Hand auf „Abschluss“ oder „Kein Interesse“ gesetzt (ab 0.14.0): offene Angebote des Bereichs
+ * gleich mit entscheiden (erledigt auch das Nachfassen); bei Abschluss ohne Angebot den Auftragsstand anbieten.
+ * Gibt true zurück, wenn sich etwas geändert hat.
+ */
+export async function statusFolge(kundeId: string, s: Sparte, status: string): Promise<boolean> {
+  if (status !== 'abschluss' && status !== 'kein_interesse') return false;
+  const k = store.findKunde(kundeId);
+  if (!k) return false;
+  const offen = k.angebote.filter((a) => a.sparte === s && a.status === 'offen');
+  const neu = status === 'abschluss' ? 'angenommen' : 'abgelehnt';
+  if (offen.length) {
+    const ok = await dialog<boolean>({
+      titel: `${SPARTEN[s].label}: ${status === 'abschluss' ? 'Abschluss' : 'Kein Interesse'}`,
+      html: `<p>${offen.length === 1 ? `Das offene Angebot „${esc(offen[0]!.titel || SPARTEN[s].label)}“` : `${offen.length} offene Angebote`} gleich als <b>${neu}</b> markieren? Die Nachfass-Wiedervorlagen werden dann erledigt.</p>`,
+      knoepfe: [{ label: `Als ${neu} markieren`, primaer: true, wert: true }],
+      onOpen: neinKnopf,
+    });
+    if (!ok) return false;
+    store.mutate((d) => {
+      const x = d.kunden.find((y) => y.id === kundeId);
+      if (!x) return;
+      for (const a of offen) {
+        const i = x.angebote.findIndex((y) => y.id === a.id);
+        if (i >= 0) x.angebote[i] = normalizeAngebot({ ...x.angebote[i], status: neu, entschieden: nowIso(), updatedAt: nowIso() });
+        const nf = offeneNachfass(d.termine, kundeId, a).map((t) => t.id);
+        for (const t of d.termine) if (nf.includes(t.id)) { t.erledigt = true; t.updatedAt = nowIso(); }
+      }
+      if (status === 'abschluss' && !x.auftrag[s]) x.auftrag[s] = neuerAuftrag(s, heute());
+      x.updatedAt = nowIso();
+    });
+    toast(status === 'abschluss' ? 'Angebot angenommen, Auftragsstand begonnen' : 'Angebot abgelehnt, Nachfassen erledigt', 'ok');
+    return true;
+  }
+  if (status === 'abschluss' && !k.auftrag[s]) {
+    const ok = await dialog<boolean>({
+      titel: `${SPARTEN[s].label}: Abschluss`,
+      html: '<p>Glückwunsch! Gleich den Auftragsstand beginnen? Dort hakst du die Schritte bis zur Montage ab und hast die Antwort auf „Wann geht es los?“ parat.</p>',
+      knoepfe: [{ label: 'Auftragsstand beginnen', primaer: true, wert: true }],
+      onOpen: neinKnopf,
+    });
+    if (!ok) return false;
+    store.mutate((d) => { const x = d.kunden.find((y) => y.id === kundeId); if (x && !x.auftrag[s]) { x.auftrag[s] = neuerAuftrag(s, heute()); x.updatedAt = nowIso(); } });
+    toast('Auftragsstand begonnen (Reiter „Angebot & Auftrag“)', 'ok');
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Vorführgerät gekauft (ab 0.14.0): Vorwerk-Auftragsstand mit „Gekauft“ und „Übergeben“ anlegen und die
+ * Pflege-Wiedervorlagen (Zufriedenheit, Service) anbieten.
+ */
+export async function vorwerkKaufFolge(kundeId: string, geraet: string): Promise<boolean> {
+  const k = store.findKunde(kundeId);
+  if (!k) return false;
+  const tag = heute();
+  const termine = store.getData().termine;
+  const vorschlaege = pflegeVorschlaege('vorwerk', tag).filter((p) => !pflegeVorhanden(termine, kundeId, p));
+  const wahl = await dialog<{ auftrag: boolean; pflege: number[] }>({
+    titel: `${geraet} verkauft`,
+    html: `<p>Glückwunsch! Was soll Sperling gleich festhalten?</p>
+      ${k.auftrag.vorwerk ? '' : '<label class="check"><input type="checkbox" name="auftrag" checked> Auftragsstand Vorwerk: gekauft und übergeben (Einweisung bleibt offen)</label>'}
+      ${vorschlaege.map((p, i) => `<label class="check"><input type="checkbox" name="p" value="${i}" checked> <b>${esc(formatDate(p.beginn))}</b> · ${esc(p.titel)}</label>`).join('')}`,
+    knoepfe: [{ label: 'Übernehmen', primaer: true, wert: (dlg) => ({ auftrag: !!dlg.querySelector<HTMLInputElement>('[name=auftrag]')?.checked, pflege: Array.from(dlg.querySelectorAll<HTMLInputElement>('[name=p]:checked'), (c) => Number(c.value)) }) }],
+  });
+  if (!wahl || (!wahl.auftrag && !wahl.pflege.length)) return false;
+  store.mutate((d) => {
+    const x = d.kunden.find((y) => y.id === kundeId);
+    if (!x) return;
+    if (wahl.auftrag && !x.auftrag.vorwerk) {
+      const a = neuerAuftrag('vorwerk', tag);
+      if (a.schritte.lieferung) a.schritte.lieferung = { datum: tag, erledigt: true };
+      x.auftrag.vorwerk = a;
+    }
+    for (const i of wahl.pflege) { const p = vorschlaege[i]; if (p) d.termine.push(neuerTermin({ kundeId, sparte: 'vorwerk', art: 'wiedervorlage', titel: p.titel, beginn: p.beginn, dauerMin: 15, notiz: p.notiz, bezug: { art: 'pflege', id: 'vorwerk' } })); }
+    x.updatedAt = nowIso();
+  });
+  toast(wahl.pflege.length ? `Übernommen, ${wahl.pflege.length} Wiedervorlage${wahl.pflege.length === 1 ? '' : 'n'} angelegt` : 'Auftragsstand angelegt', 'ok');
+  return true;
+}
+
+/** Leihgerät zurück mit Kaufinteresse (ab 0.14.0): Angebot erfassen oder Nachfassen in einer Woche. */
+export async function kaufinteresseFolge(kundeId: string, geraet: string): Promise<boolean> {
+  const w = await dialog<string>({
+    titel: 'Kaufinteresse – wie weiter?',
+    html: `<p>Der Kunde hat Interesse an ${esc(geraet)}. Gleich den nächsten Schritt festhalten?</p>`,
+    knoepfe: [{ label: '⏰ Nachfassen in 1 Woche', wert: 'nachfassen' }, { label: '📄 Angebot erfassen', primaer: true, wert: 'angebot' }],
+    onOpen: neinKnopf,
+  });
+  if (w === 'angebot') return angebotDialog(kundeId, null, 'vorwerk');
+  if (w === 'nachfassen') {
+    const k = store.findKunde(kundeId);
+    store.mutate((d) => { d.termine.push(neuerTermin({ kundeId, sparte: 'vorwerk', art: 'wiedervorlage', dauerMin: 15, beginn: tagPlus(heute(), 7), titel: `Nachfassen: ${geraet}${k ? ` – ${kundenTitel(k)}` : ''}`, notiz: 'Nach der Rückgabe Kaufinteresse gezeigt.' })); });
+    toast('Wiedervorlage in 1 Woche angelegt', 'ok');
+    return true;
+  }
+  return false;
 }
 
 // ---------- Ansprechpartner (Übersicht) ----------
@@ -317,7 +427,7 @@ export function ansprechpartnerVerdrahten(el: HTMLElement, kundeId: string, neuZ
   });
 }
 
-async function apDialog(kundeId: string, a: Kunde['ansprechpartner'][number] | null): Promise<boolean> {
+export async function apDialog(kundeId: string, a: Kunde['ansprechpartner'][number] | null): Promise<boolean> {
   const res = await dialog<Record<string, string>>({
     titel: a ? 'Ansprechpartner bearbeiten' : 'Ansprechpartner hinzufügen',
     html: `
@@ -363,6 +473,33 @@ export function haustuerSpeichern(kundeId: string, ergebnis: HaustuerErgebnis, n
   toast(`Haustür: ${HAUSTUER[ergebnis].label}${ergebnis === 'werbeverbot' ? ' – Sperling schlägt diese Adresse nicht mehr vor' : ''}`, 'ok');
 }
 
+/**
+ * Nach dem Haustür-Ergebnis gleich weiter (ab 0.14.0): „Gespräch“ öffnet das Klemmbrett mit Kontaktart Hausbesuch
+ * (zurück geht es danach an diese Stelle), „Später“ fragt nach einer Wiedervorlage. Gibt true zurück, wenn die Seite wechselt.
+ */
+export async function haustuerWeiter(kundeId: string, ergebnis: HaustuerErgebnis): Promise<boolean> {
+  if (ergebnis === 'gespraech') {
+    const ziel = `#/kunde/${kundeId}/gespraech`;
+    ruecksprung.merken(location.hash, ziel);
+    location.hash = `${ziel}?art=hausbesuch`;
+    return true;
+  }
+  if (ergebnis !== 'spaeter') return false;
+  const k = store.findKunde(kundeId);
+  if (!k) return false;
+  const wann = await dialog<string>({
+    titel: 'Wann wiederkommen?',
+    html: `<p class="hinweis">${esc(kundenTitel(k))}${adresseEinzeilig(k) ? ` · ${esc(adresseEinzeilig(k))}` : ''}</p>
+      ${schnellwahl.html('wann')}
+      <label>Am<input type="datetime-local" name="wann" value="${esc(isoToLocalInput(tagPlus(ortsTag(new Date()), 1, 17)))}" required></label>`,
+    knoepfe: [{ label: 'Wiedervorlage anlegen', primaer: true, pruefen: (dlg) => (localInputToIso(dlg.querySelector<HTMLInputElement>('[name=wann]')!.value) ? null : 'Bitte ein Datum wählen.'), wert: (dlg) => localInputToIso(dlg.querySelector<HTMLInputElement>('[name=wann]')!.value) || '' }],
+  });
+  if (!wann) return false;
+  store.mutate((d) => { d.termine.push(neuerTermin({ kundeId, art: 'wiedervorlage', dauerMin: 15, beginn: wann, titel: `Haustür: noch einmal vorbeischauen – ${kundenTitel(k)}`, ort: adresseEinzeilig(k) })); });
+  toast(`Wiedervorlage ${formatDateTime(wann)} angelegt`, 'ok');
+  return false;
+}
+
 export function haustuerKnoepfe(kundeId: string, klasse = 'btn klein') {
   return `<div class="haustuer-knoepfe" role="group" aria-label="Ergebnis an der Haustür">${HAUSTUER_KEYS.map((h) => `<button type="button" class="${klasse}" data-haustuer="${h}" data-kunde="${esc(kundeId)}">${HAUSTUER[h].symbol} ${esc(HAUSTUER[h].kurz)}</button>`).join('')}</div>`;
 }
@@ -380,8 +517,11 @@ export function haustuerVerdrahten(el: HTMLElement, neuZeichnen: () => void) {
   el.querySelector('.haustuer-box')?.addEventListener('click', (e) => {
     const b = (e.target as Element).closest<HTMLElement>('[data-haustuer]');
     if (!b) return;
-    haustuerSpeichern(b.dataset.kunde || '', b.dataset.haustuer as HaustuerErgebnis);
+    const kundeId = b.dataset.kunde || '';
+    const ergebnis = b.dataset.haustuer as HaustuerErgebnis;
+    haustuerSpeichern(kundeId, ergebnis);
     neuZeichnen();
+    void haustuerWeiter(kundeId, ergebnis);
   });
 }
 

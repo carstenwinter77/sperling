@@ -27,6 +27,8 @@ export interface Entwurf {
   leitfadenSparte: Sparte;
   /** Antworten vom Klemmbrett (Bereich -> Punkt -> Text); nur im Arbeitsspeicher */
   antworten?: Antworten;
+  /** Gespräch aus einem Termin gestartet (ab 0.14.0): dieser Termin wird beim Speichern erledigt. */
+  terminId?: string;
 }
 
 export interface Abschluss {
@@ -106,6 +108,11 @@ export function speichern(data: Daten, e: Entwurf, abschluesse: Abschluss[], jet
       frist: fristen[0] || null,
       notiz: [notiz('pv'), ...enpal.map((a) => [a.ausgang ? `${SPARTEN[a.sparte].label}: ${AUSGANG[a.ausgang]}` : '', gespraechsNotiz(a.sparte, e.verlauf[a.sparte])].filter(Boolean).join('\n'))].filter(Boolean).join('\n\n'),
     }));
+  }
+  // Aus einem Termin gestartet: der Termin ist mit dem Gespräch erledigt (kein zweites Abhaken)
+  if (e.terminId) {
+    const t = data.termine.find((x) => x.id === e.terminId && x.kundeId === k.id);
+    if (t && !t.erledigt) { t.erledigt = true; t.updatedAt = jetzt; }
   }
   k.updatedAt = jetzt;
   return gespeichert;

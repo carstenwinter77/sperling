@@ -9,6 +9,7 @@ import {
 } from '../../core/auswertung.ts';
 import * as store from '../../storage/store.ts';
 import { maskottchen, toast, dialog } from '../dom.ts';
+import { anrufen } from '../kontakt.ts';
 import { jsPdfLaden, logo, pdfAnbieten } from '../leihschein.ts';
 
 interface Zahl { titel: string; wert: (k: Kennzahlen) => number | null; quote?: boolean; sub?: (k: Kennzahlen) => string; nurVorwerk?: boolean; ohneVorwerk?: boolean }
@@ -141,7 +142,10 @@ function nachfassHtml(liste: ReturnType<typeof nachfassListe>, kundeVon: (id: st
   const zeile = (e: ReturnType<typeof nachfassListe>[NachfassArt][number]) => {
     const name = e.kundeId ? kundeVon(e.kundeId) : null;
     const inhalt = `${SPARTE_PUNKT(e.sparte)}<span class="aw-nf-text"><b>${esc(name || 'ohne Kunde')}</b><small>${esc(e.text)}</small></span><span class="aw-nf-wann${e.dringend ? ' dringend' : ''}">${esc(e.wann)}</span>`;
-    return `<li>${name ? `<a href="#/kunde/${esc(e.kundeId)}">${inhalt}</a>` : `<span class="aw-nf-ohne">${inhalt}</span>`}</li>`;
+    // Direkt handeln (ab 0.14.0): anrufen oder Gespräch starten, danach zurück in die Auswertung
+    const k = e.kundeId ? store.findKunde(e.kundeId) : null;
+    const knoepfe = k ? `<span class="aw-nf-aktion">${k.telefon ? `<button type="button" class="btn klein ghost" data-aw-anrufen="${esc(k.id)}" aria-label="${esc(kundenTitel(k))} anrufen">📞</button>` : ''}<a class="btn klein ghost" href="#/kunde/${esc(k.id)}/gespraech${e.terminId ? `?termin=${esc(e.terminId)}` : ''}" aria-label="Gespräch mit ${esc(kundenTitel(k))} starten">💬</a></span>` : '';
+    return `<li class="${knoepfe ? 'mit-aktion' : ''}">${name ? `<a href="#/kunde/${esc(e.kundeId)}">${inhalt}</a>` : `<span class="aw-nf-ohne">${inhalt}</span>`}${knoepfe}</li>`;
   };
   return gruppen.map((a) => {
     const alle = liste[a];
@@ -238,7 +242,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       </section>
       <section class="karte-box aw-nf-box" id="awNachfassen">
         <h2>Jetzt nachfassen</h2>
-        <p class="hinweis klein">Stand heute, sortiert nach Dringlichkeit. Tippen öffnet den Kunden.</p>
+        <p class="hinweis klein">Stand heute, sortiert nach Dringlichkeit. Tippen öffnet den Kunden, 📞 ruft an, 💬 startet das Gespräch.</p>
         ${nachfassHtml(nachfassen, kundeVon)}
       </section>
     </div>
@@ -281,6 +285,11 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     if (!b) return;
     const n = Number(b.dataset.schritt);
     neu(bereich, periode, n === 0 ? heute : verschieben(periode, anker, n));
+  });
+  el.querySelector('#awNachfassen')?.addEventListener('click', (e) => {
+    const b = (e.target as Element).closest<HTMLElement>('[data-aw-anrufen]');
+    const k = b ? store.findKunde(b.dataset.awAnrufen || '') : null;
+    if (k) anrufen(kundenTitel(k), k.telefon);
   });
   el.querySelector('#awDetails')!.addEventListener('toggle', (e) => { detailsOffen = (e.target as HTMLDetailsElement).open; });
   el.querySelector('#awPdf')!.addEventListener('click', async () => {

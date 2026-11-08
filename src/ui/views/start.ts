@@ -116,7 +116,7 @@ function naechstesHtml(d, jetzt: Date): string {
     <div class="knopfreihe an-knoepfe">
       ${k?.telefon ? '<button type="button" class="btn" data-an="anrufen">📞 Anrufen</button>' : ''}
       ${k ? hinfahrenKnopf(t.ort ? { ort: t.ort } : k, 'btn') : t.ort ? hinfahrenKnopf({ ort: t.ort }, 'btn') : ''}
-      ${k ? `<a class="btn" href="#/kunde/${esc(k.id)}/gespraech">💬 Gespräch starten</a>` : ''}
+      ${k ? `<a class="btn" href="#/kunde/${esc(k.id)}/gespraech?termin=${esc(t.id)}">💬 Gespräch starten</a>` : ''}
       <button type="button" class="btn primary" data-an="erledigt">✓ Erledigt</button>
     </div>
   </section>`;

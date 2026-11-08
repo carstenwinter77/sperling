@@ -35,6 +35,7 @@ export async function terminKarte(t0: Termin): Promise<boolean> {
       ${k ? `<p>👤 <a href="#/kunde/${esc(k.id)}" data-tk-link>${esc(kundenTitel(k))}</a>${k.telefon ? ` · ${esc(k.telefon)}` : ''}${k.email ? ` · ${esc(k.email)}` : ''}</p>` : ''}
       ${t.notiz ? `<p class="tk-notiz">${esc(t.notiz).replace(/\n/g, '<br>')}</p>` : ''}
       <div class="knopfreihe tk-aktionen">
+        ${k && !t.erledigt ? `<a class="btn primary" href="#/kunde/${esc(k.id)}/gespraech?termin=${esc(t.id)}" data-tk-link>💬 Gespräch starten</a>` : ''}
         ${route ? `<a class="btn" href="${esc(route)}" target="_blank" rel="noopener">🚗 Route</a>` : ''}
         ${k?.telefon ? '<button type="button" class="btn" data-tk="anrufen">📞 Anrufen</button>' : ''}
         ${k?.email ? '<button type="button" class="btn" data-tk="mail">✉️ E-Mail</button>' : ''}

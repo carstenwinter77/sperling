@@ -1,5 +1,18 @@
 # Änderungsverlauf
 
+## 0.14.0 – 08.11.2026 (Schema 10)
+Abläufe verzahnt: Nach einer Auswahl bietet Sperling gleich den passenden nächsten Schritt an, und nach dem Abstecher geht es an genau die Stelle zurück, von der man kam (Seite, Reiter, Scrollstelle; Regel R-FLOW).
+- **Termin und Gespräch gehören zusammen.** „💬 Gespräch starten“ jetzt auch in der Termin-Karte (Kalender, Terminlisten) und in „Jetzt nachfassen“ der Auswertung. Aus einem Termin übernimmt das Gespräch Bereich und Kontaktart (Termin = Hausbesuch, Wiedervorlage = Telefon) und zeigt die Termin-Notiz oben; beim Speichern wird der Termin automatisch abgehakt.
+- **„Vereinbart“ stellt den Abschluss vor.** Die Antwort auf dem Klemmbrett (Vor-Ort-Termin, Angebot rechnen, Unterlagen schicken, Später melden, Bestellung …) setzt Ergebnis, Status und ein passendes Datum vor. Ein anderes Ergebnis zieht den Status mit, solange er nicht von Hand geändert wurde. Nicht erreicht: Wiedervorlage morgen. „Partner fehlt“: Termin mit beiden.
+- **„Als Nächstes“ nach dem Gespräch.** Statt in den Verlauf zu springen, geht es zurück dorthin, wo das Gespräch gestartet wurde, mit einem Fenster der passenden Schritte: Termin bestätigen, Angebot erfassen, Angebot als angenommen/abgelehnt markieren, Auftragsstand beginnen, Unterlagen mailen, Partner als Ansprechpartner eintragen, Enpal-Doku kopieren, Chance im anderen Bereich (z. B. Solaranlage geplant) und „Weiter zum nächsten Termin“ mit Navi.
+- **Wiedervorlagen wissen, wozu sie da sind** (neues Feld `termin.bezug`). Nachfassen eines Angebots fragt beim Abhaken „Angenommen / Abgelehnt / Noch offen“; die Nachfrage zu einem Leihgerät bietet „Kauft / Zurückgenommen / Verlängern / Nur notieren“; Pflege-Wiedervorlagen haben eigene Schnelltexte. Ältere Wiedervorlagen werden über ihren Titel zugeordnet.
+- **Haustür führt weiter.** „Gespräch“ öffnet das Klemmbrett mit Kontaktart Hausbesuch (auch für ein neu markiertes Haus), „Später“ fragt gleich nach dem Termin für die Wiedervorlage.
+- **Status räumt mit auf.** Wird ein Bereich von Hand auf „Abschluss“ oder „Kein Interesse“ gesetzt, bietet Sperling an, offene Angebote gleich als angenommen/abgelehnt zu markieren (Nachfassen erledigt) bzw. den Auftragsstand zu beginnen.
+- **Vorführgerät gekauft:** Auftragsstand Vorwerk (gekauft, übergeben) und Pflege-Wiedervorlagen werden gleich angeboten. Rückgabe mit Kaufinteresse: „Angebot erfassen“ oder „Nachfassen in 1 Woche“.
+- **Neuer Termin mit Kunde:** gleich „Jetzt bestätigen“ (SMS, WhatsApp, E-Mail) oder „Später“.
+- **Angebot angenommen:** auf Wunsch Wiedervorlage nach der Widerrufsfrist (14 Tage).
+- **Auswertung „Jetzt nachfassen“:** je Zeile 📞 Anrufen und 💬 Gespräch starten.
+
 ## 0.13.10 – 08.11.2026
 - **Rechner: Vorlagen für Privat und Gewerbe.** Oben im Rechner wählst du die Vorlage: „Privat (Einfamilienhaus)“ mit den bisherigen Werten oder „Gewerbe (netto)“ mit typischen Firmenzahlen (30 kWp, 25 ct Strom, mehr Eigenverbrauch, größere Wärmepumpe). Beim ersten Mal startet der Rechner mit „Privat“, danach merkt er sich die zuletzt gewählte Vorlage und startet wieder damit, auch aus der Kundenkartei. Strompreis, Verbrauch und Heizkosten des Kunden kommen wie bisher obendrauf.
 - **Eigene Startwerte.** Unter Einstellungen → Vertrieb → „Rechner: Vorlagen“ lassen sich die Werte beider Vorlagen ändern und eigene Vorlagen anlegen, umbenennen und löschen. Im Rechner speichert „⭐ Als Vorlage merken“ die aktuellen Werte in eine Vorlage oder als neue Vorlage.

@@ -12,6 +12,7 @@ import { dialog, download, toast, maskottchen } from './dom.ts';
 import { terminKarte } from './terminkarte.ts';
 import { abhaken } from './abhaken.ts';
 import { anrufen } from './kontakt.ts';
+import { bestaetigungSenden } from './vertrieb.ts';
 
 export function statusChips(kunde) {
   return `<span class="chips">${SPARTEN_KEYS.map((s) => {
@@ -91,6 +92,17 @@ export async function terminDialog({ termin = null as Termin | null, kundeId = '
     if (i >= 0) data.termine[i] = gespeichert; else data.termine.push(gespeichert);
   });
   toast('Gespeichert', 'ok');
+  // Neuer Termin mit Kunde: gleich die Bestätigung an den Kunden anbieten (ab 0.14.0)
+  const kk = store.getData().kunden.find((x) => x.id === gespeichert.kundeId);
+  if (!termin && kk && gespeichert.art === 'termin' && (kk.telefon || kk.email) && gespeichert.beginn > new Date().toISOString()) {
+    const jetzt = await dialog<boolean>({
+      titel: 'Termin gespeichert',
+      html: `<p>${esc(formatDateTime(gespeichert.beginn))} mit ${esc(kundenTitel(kk))}. Gleich eine Bestätigung schicken (SMS, WhatsApp oder E-Mail, mit „Bitte bereitlegen“)?</p>`,
+      knoepfe: [{ label: '✅ Jetzt bestätigen', primaer: true, wert: true }],
+      onOpen: (dlg) => { const b = dlg.querySelector<HTMLElement>('.dlg-actions button.ghost'); if (b) b.textContent = 'Später'; },
+    });
+    if (jetzt) await bestaetigungSenden(gespeichert);
+  }
   return gespeichert;
 }
 

@@ -93,7 +93,9 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/rechner.ts .... Rechner „Wann rechnet sich das?“ (Baustein, nur Arbeitsspeicher, übernimmt Kundenangaben)
  ├─ src/ui/views/rechner.ts  Rechner #/rechner?kunde=ID&art=pv|wp (eigener Menüpunkt, auch im Beratungs-Schutz)
  ├─ src/ui/rechnervorlagen.ts  Einstellungen → Vertrieb → Rechner-Vorlagen (Privat, Gewerbe, eigene)
- ├─ src/ui/ruecksprung.ts  merkt Adresse + Scrollstelle vor einem verzahnten Schritt, Router stellt sie beim Zurückkommen wieder her
+ ├─ src/ui/ruecksprung.ts  merkt Adresse + Scrollstelle vor einem verzahnten Schritt (Links ins Gespräch automatisch), `zurueck()` führt nach dem Abstecher dorthin, Router stellt die Scrollstelle wieder her
+ ├─ src/core/verzahnung.ts  was eine Auswahl für den nächsten Schritt bedeutet: „Vereinbart“ → Ergebnis/Status/Wiedervorlage, Status zum Ergebnis, Querverkauf, nächster Stopp (rein)
+ ├─ src/ui/folgeschritte.ts  Fenster „Als Nächstes“ nach dem Gespräch (Termin bestätigen, Angebot erfassen, Auftrag, Enpal-Doku, Partner, Querverkauf, nächster Termin)
  ├─ src/ui/views/foerderung.ts  Förderung #/foerderung (auch im Beratungs-Schutz, iPhone und iPad hochkant unter „Mehr“)
  ├─ src/data/produkte.json  Produktkatalog (statisch, im Paket)
  ├─ src/ui/felder.ts ..... Formularfelder der Kartei aus der Feldverwaltung (Kartei, Gesprächsmodus)

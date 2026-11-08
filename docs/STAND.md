@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.10
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.14.0
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,25 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.13.10)
+## Erledigt (Version 0.14.0)
+
+### Neu in 0.14.0 (Abläufe verzahnt, Schema 10)
+Alle 14 Punkte aus dem Vorschlag „Abläufe verzahnen“ vom 08.11. und die Grundregel „danach zurück, wo man war“ (R-FLOW).
+- [x] Rücksprung allgemein (`src/ui/ruecksprung.ts`): `merken()` vor dem Abstecher (Links ins Gespräch automatisch), `zurueck()` danach, Scrollstelle wird wiederhergestellt; `neuZeichnen()` nach Fenstern.
+- [x] 1 Termin ↔ Gespräch: `#/kunde/ID/gespraech?termin=…` aus Termin-Karte, „Als Nächstes“ und Nachfassliste; Bereich + Kontaktart vom Termin (`kontaktartFuerTermin`, `spartenFuerTermin`), Hinweis oben, Termin wird beim Speichern erledigt (`Entwurf.terminId`, `speichern()` in `src/core/gespraech.ts`).
+- [x] 2 „Vereinbart“ → Ergebnis, Status, Wiedervorlage vorbelegt (`abschlussVorschlag`, `statusFuerAusgang` in `src/core/verzahnung.ts`); Ergebnis zieht Status mit, solange nicht von Hand geändert.
+- [x] 3 „Als Nächstes“ nach dem Gespräch (`src/ui/folgeschritte.ts`) über der Ausgangsseite: Termin bestätigen, Angebot erfassen, Angebot angenommen/abgelehnt, Auftrag beginnen, Unterlagen-Mail, Enpal-Doku kopieren.
+- [x] 4 `termin.bezug` (Angebot/Leihe/Pflege), Migration über den Titel (`bezugNachtragen`); Abhaken mit passenden Knöpfen (`src/ui/abhaken.ts`).
+- [x] 5 Haustür „Gespräch“ → Klemmbrett (Hausbesuch), „Später“ → Wiedervorlage (`haustuerWeiter` in `src/ui/vertrieb.ts`), auch für neu markierte Häuser.
+- [x] 6 Status von Hand auf Abschluss/Kein Interesse → offene Angebote mit entscheiden, Auftragsstand anbieten (`statusFolge`).
+- [x] 7 Vorführgerät gekauft → Auftragsstand Vorwerk + Pflege (`vorwerkKaufFolge`); Rückgabe mit Kaufinteresse → Angebot/Nachfassen (`kaufinteresseFolge`).
+- [x] 8 Neuer Termin mit Kunde → „Jetzt bestätigen“ / „Später“ (`terminDialog`).
+- [x] 9 Querverkauf aus Klemmbrett-Antworten (WP: Solaranlage „Geplant“ → PV; PV-Anlass „Neue Heizung“ → WP) im Fenster „Als Nächstes“, setzt Potenzial + Wiedervorlage in 2 Wochen.
+- [x] 10 „Weiter zum nächsten Termin“ mit Navi-Link (`naechsterStopp`).
+- [x] 11 Nicht erreicht → Wiedervorlage morgen vorbelegt. 12 „Partner fehlt“ → Termin mit beiden, „Partner als Ansprechpartner eintragen“. 13 Angebot angenommen → Wiedervorlage nach der Widerrufsfrist. 14 Nachfassliste der Auswertung mit 📞 und 💬.
+- [x] Unit-Tests `tests/verzahnung.test.mjs`, Browser-Test: Gespräch aus der Termin-Karte bis „Als Nächstes“ und zurück, Nachfass-Abhaken mit „Abgelehnt“, Verkauf mit Auftragsstand, Bestätigungs-Angebot, Haustür „Später“.
+- [ ] Mit Jan im Alltag ausprobieren: Sind die Vorschläge zu „Vereinbart“ (Abstände 3/7/14 Tage) und die Auswahl im Fenster „Als Nächstes“ richtig? Zu viele Fenster?
+- [ ] „Stand an den Kunden schicken“ direkt nach „Angebot angenommen“ ist nicht drin (steht weiter im Auftragsstand), weil das Kopieren nach einem zweiten Fenster auf dem iPad nicht zuverlässig klappt.
 
 ### Neu in 0.13.10
 - [x] Rechner-Vorlagen je Kundentyp (`src/core/rechnervorlagen.ts`, `einstellungen.rechnerVorlagen`): „Privat (Einfamilienhaus)“ und „Gewerbe (netto)“ sind immer da (änderbar, „Auf Werkseinstellung“), dazu bis zu 10 eigene. Im Rechner Auswahl „Vorlage“ oben, Hinweis bei Gewerbe (netto, Förderung selbst eintragen, keine Abschreibung), „⭐ Als Vorlage merken“ speichert die Werte der gewählten Sparte in eine bestehende oder neue Vorlage, Zurücksetzen geht auf die gewählte Vorlage. Start mit „Privat“, danach bleibt die zuletzt gewählte Vorlage (`einstellungen.rechnerVorlageZuletzt`, auch aus der Kundenkartei); Kundenwerte kommen obendrauf. Verwaltung unter Einstellungen → Vertrieb → „Rechner: Vorlagen“ (`src/ui/rechnervorlagen.ts`). Unit- und Browser-Test (auch XSS im Vorlagennamen).
