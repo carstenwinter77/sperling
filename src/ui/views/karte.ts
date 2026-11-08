@@ -11,7 +11,7 @@ import { passt, pinStatus, leererKartenFilter, filterAktiv, type KartenFilter } 
 import { letzterKontakt, tageSeit, seitText } from '../../core/verlauf.ts';
 import { filterPanelHtml, filterPanelZeigen, filterPanelVerdrahten } from '../filterpanel.ts';
 import { hinfahrenKnopf, naviLink } from '../navi.ts';
-import { HAUSTUER, letzteHaustuer, werbeverbot, tagesStopps, streckeKm, unterwegs, googleRoute, ortsTag, euro, angebotsSumme, haustuerStatus, neuerHaustuerEintrag, type HaustuerErgebnis } from '../../core/vertrieb.ts';
+import { HAUSTUER, letzteHaustuer, pinTuer, PIN_TUER, tagesStopps, streckeKm, unterwegs, googleRoute, ortsTag, euro, angebotsSumme, haustuerStatus, neuerHaustuerEintrag, type HaustuerErgebnis } from '../../core/vertrieb.ts';
 import { haustuerKnoepfe, haustuerSpeichern, haustuerWeiter } from '../vertrieb.ts';
 
 const LAYER = {
@@ -27,10 +27,10 @@ const LAYER = {
 // Straßennamen als Overlay über dem Satellitenbild
 const LABELS = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}';
 
-function pinIcon(L, farbe, extra = '') {
+function pinIcon(L, farbe, tuer: HaustuerErgebnis | null = null) {
   return L.divIcon({
-    className: `pin${extra ? ` ${extra}` : ''}`,
-    html: `<span style="--c:${farbe}"></span>`,
+    className: `pin${tuer ? ` tuer-${tuer}` : ''}`,
+    html: `<span style="--c:${farbe}"></span>${tuer ? `<i class="pin-tuer" aria-hidden="true">${HAUSTUER[tuer].symbol}</i>` : ''}`,
     iconSize: [26, 26],
     iconAnchor: [13, 26],
     popupAnchor: [0, -24],
@@ -76,7 +76,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       ${filterPanelHtml('fPanel', store.getData().einstellungen.felder)}
       <div id="map" class="map"></div>
       ${hilfe.kartenHinweisZeigen() ? `<div class="karte-hinweis" id="kHinweis">${maskottchen('karte', 'mini')} <span id="kHinweisText">Tippe lange (oder Rechtsklick) auf ein Haus, um es zu markieren.</span> <button type="button" class="karte-hinweis-weg" id="kHinweisWeg" aria-label="Hinweis ausblenden">✕</button></div>` : ''}
-      <div class="legende">${Object.entries(STATUS).map(([, v]) => `<span><i style="background:${v.farbe}"></i>${esc(v.label)}</span>`).join('')}</div>
+      <div class="legende">${Object.entries(STATUS).map(([, v]) => `<span><i style="background:${v.farbe}"></i>${esc(v.label)}</span>`).join('')}<span class="legende-tuer" title="Letztes Ergebnis an der Haustür">${PIN_TUER.map((h) => `<span>${HAUSTUER[h].symbol} ${esc(HAUSTUER[h].kurz)}</span>`).join('')}</span></div>
     </div>`;
 
   const map = L.map(el.querySelector('#map'), { zoomControl: true }).setView([einst.lat, einst.lng], einst.zoom);
@@ -133,7 +133,8 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       sichtbar++;
       if (routeFilter && !routeFilter.has(k.id)) continue;
       const st = pinStatus(k, filter);
-      const m = L.marker([k.lat, k.lng], { icon: pinIcon(L, STATUS[st].farbe, werbeverbot(k) ? 'werbeverbot' : ''), title: `${kundenTitel(k)}${werbeverbot(k) ? ' (keine Werbung)' : ''}` });
+      const tuer = pinTuer(k);
+      const m = L.marker([k.lat, k.lng], { icon: pinIcon(L, STATUS[st].farbe, tuer), title: `${kundenTitel(k)}${tuer ? ` (Haustür: ${HAUSTUER[tuer].kurz})` : ''}` });
       m.bindPopup(() => {
         const akt = store.findKunde(k.id) || k;
         const tuer = letzteHaustuer(akt);

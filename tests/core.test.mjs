@@ -1773,6 +1773,10 @@ test('Vertrieb: Ansprechpartner, Haustür, Werbeverbot, letzter Kontakt', async 
   k.haustuer.push(v.neuerHaustuerEintrag('werbeverbot', '', '2026-11-05T10:00:00.000Z'));
   assert.equal(v.werbeverbot(k), true);
   assert.equal(v.letzteHaustuer(k).ergebnis, 'werbeverbot');
+  assert.equal(v.pinTuer(k), 'werbeverbot', 'Pin-Symbol folgt dem jüngsten Ergebnis');
+  assert.equal(v.pinTuer({ haustuer: [] }), null);
+  assert.equal(v.pinTuer({ haustuer: [v.neuerHaustuerEintrag('gespraech')] }), null, '„Gespräch“ bekommt kein Pin-Symbol');
+  for (const e of ['nicht_da', 'spaeter', 'kein_interesse']) assert.equal(v.pinTuer({ haustuer: [v.neuerHaustuerEintrag(e)] }), e);
   assert.ok(kundenVerlauf({ termine: [], leihvorgaenge: [], geraete: [] }, k).some((e) => e.art === 'haustuer' && /Keine Werbung/.test(e.titel)));
   // „Kein Interesse“ an der Tür betrifft nur vermutete Bereiche
   assert.deepEqual(v.haustuerStatus({ pv: 'potenzial', wp: 'interesse', vorwerk: 'unbekannt' }, 'kein_interesse'), { pv: 'kein_interesse', wp: 'interesse', vorwerk: 'unbekannt' });

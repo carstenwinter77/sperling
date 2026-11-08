@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.14.3
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.14.4
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,11 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.14.3)
+## Erledigt (Version 0.14.4)
+
+### Neu in 0.14.4
+- [x] Karte: jüngstes Haustür-Ergebnis „Nicht da“ 🚪, „Später“ ⏰, „Kein Interesse“ ✋ oder „Keine Werbung“ ⛔ als Abzeichen am Pin (`pinTuer()`/`PIN_TUER` in `src/core/vertrieb.ts`, `pinIcon()` in `src/ui/views/karte.ts`, CSS `.pin-tuer`). Weißer Kreis oben rechts, Pinfarbe bleibt der Status; bei „Keine Werbung“ ist der Pin wie bisher blasser. „Gespräch“ ohne Symbol. Legende ergänzt, Tooltip nennt das Ergebnis. Unit-Test, Browser-Test.
+- [ ] Auf dem iPad (Satellit und Straße) ansehen.
 
 ### Neu in 0.14.3
 - [x] Auswertung: Zahlen und Prozente an den Balken (`trichterHtml`, `verlaufHtml`, `fokusHtml` in `src/ui/views/auswertung.ts`, CSS `.aw-n`, `.aw-wert`, `.aw-tr-zahl`). Trichter: Anzahl + Anteil am Start rechts, Zahl je Sparte im Balkenteil (ab 10 % Breite), Quote zur Vorstufe dazwischen, Erklärzeile. Verlauf: Anzahl über jeder Säule. Entwicklung: Prozent je Sparte im Balken (ab 16 %).

@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.14.4',
+    punkte: [
+      'Karte: Am Pin siehst du jetzt auch, wie es zuletzt an der Haustür lief: 🚪 Nicht da, ⏰ Später, ✋ Kein Interesse (wie bisher ⛔ Keine Werbung). Die Legende unter der Karte erklärt die Symbole.',
+    ],
+  },
+  {
     version: '0.14.3',
     punkte: [
       'Auswertung: Am Verkaufstrichter stehen jetzt an jeder Stufe Anzahl und Prozent, im Balken die Zahl je Sparte. Auch im PDF-Bericht.',
