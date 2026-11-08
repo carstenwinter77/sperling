@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.14.4
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.14.5
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -13,6 +13,16 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 - [ ] Auf dem Tablet „Zum Home-Bildschirm“ hinzufügen und Master-Passwort festlegen
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
+
+## Erledigt (Version 0.14.5)
+
+### Neu in 0.14.5
+- [x] Produktübersicht → Bestand (R-FLOW): Im Produktdetail „➕ Zu meinem Bestand hinzufügen“ für Vorwerk-Produkte, die in den Bestand passen (`bestandArtFuer()` in `src/core/bestandvorlage.ts`: Geräte-Kategorien → Vorführgerät, Reinigungsmittel → Material, Sets/Zubehör → Auswahl, Service/Enpal/GALVANY → kein Knopf). Öffnet das normale Anlege-Fenster vorbefüllt (`geraetVorlage`/`materialVorlage`: Name, `produktId`, Lieferumfang → Zubehör, Einheit aus dem Namen, Anzahl 1), Fokus auf Seriennummer bzw. Anzahl; Jan speichert selbst. Danach und bei Abbruch zurück zum Produktdetail, nach dem Speichern Bestätigung und „Schon in deinem Bestand: …“ (`imBestand`). Logik in `zumBestand()` in `src/ui/produkte.ts`.
+- [x] Neuer Artikel im Bestand: Bezeichnung mit Katalogsuche statt Auswahlliste (`src/ui/katalogfeld.ts`), bis zu 8 Treffer mit Bild, Pfeiltasten, ✕ löst die Verknüpfung, freie Eingabe ohne Antippen. Gilt für Vorführgeräte und Verbrauchsmaterial.
+- [x] Kleines Produktbild an Geräten und Material mit `produktId` (`bestandBild()` in `src/ui/views/bestand.ts`).
+- [x] Kein Schemawechsel (nutzt das vorhandene `produktId`). Unit-Test `tests/bestandvorlage.test.mjs`, Browser-Test: Suche, freie Eingabe, Produkt → Gerät mit Seriennummer, Material mit Einheit, Rücksprung.
+- [ ] Auf dem iPad ausprobieren (Trefferliste über der Bildschirmtastatur).
+- [ ] Mit Jan klären, ob Enpal/GALVANY-Anschauungsstücke (z. B. Solarmodul-Muster) einen eigenen Bestand brauchen.
 
 ## Erledigt (Version 0.14.4)
 

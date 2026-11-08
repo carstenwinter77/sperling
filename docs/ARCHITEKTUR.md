@@ -72,8 +72,10 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/storage/fotodatei.ts  Fotos aus der Sicherungsdatei lesen
  ├─ src/ui/kundenfotos.ts  Reiter „Fotos“ und Vollansicht mit Zoom
  ├─ src/ui/tour.ts  Willkommen und Rund-Tour (Hervorhebung der Navigation, Merker tourGesehen)
+ ├─ src/core/bestandvorlage.ts  Produkt → Bestand: passt als Gerät/Material, Vorbelegung, „schon im Bestand“ (rein)
+ ├─ src/ui/katalogfeld.ts  Bezeichnung mit Katalogsuche für neue Geräte und neues Material
  ├─ src/core/material.ts  Verbrauchsmaterial: buchen, Mindestbestand, Nachbestellliste (rein)
- ├─ src/ui/material.ts  Abschnitt im Bestand, Katalogauswahl, Buchungsdialog, „Muster mitgeben“
+ ├─ src/ui/material.ts  Abschnitt im Bestand, Buchungsdialog, „Muster mitgeben“
  ├─ src/core/abgleich.ts  Abgleich-Urteil (neuer/älter/gleich/Konflikt) für iCloud-Drive-Dateien (rein)
  ├─ src/ui/abgleich.ts  Leiste beim Start, Datei holen, in iCloud sichern, Ersteinrichtung aus Sicherung
  ├─ src/core/schnellwahl.ts  Wiedervorlage-Schnellwahl: Zieldatum je Schritt (rein)
@@ -88,7 +90,7 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/plusknopf.ts  schwebender „+“-Knopf: Notiz, Termin, neuer Kunde
  ├─ src/ui/kundenwahl.ts  Suchfeld mit Treffern; verstecktes Feld behält den alten Namen
  ├─ tests/testliste-pdf.cjs  erzeugt eine Beispiel-PDF mit erfundenen Daten für die Tests
- ├─ src/ui/produkte.ts ... Kacheln, Produktdetail, Markieren-Block (Kartei, Gesprächsmodus)
+ ├─ src/ui/produkte.ts ... Kacheln, Produktdetail (mit „Zu meinem Bestand hinzufügen“), Markieren-Block (Kartei, Gesprächsmodus)
  ├─ src/ui/views/produkte.ts  Produktübersicht #/produkte (auch im Beratungs-Schutz)
  ├─ src/ui/rechner.ts .... Rechner „Wann rechnet sich das?“ (Baustein, nur Arbeitsspeicher, übernimmt Kundenangaben)
  ├─ src/ui/views/rechner.ts  Rechner #/rechner?kunde=ID&art=pv|wp (eigener Menüpunkt, auch im Beratungs-Schutz)

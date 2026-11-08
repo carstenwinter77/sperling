@@ -7,6 +7,9 @@ import { SPARTEN, type Sparte } from '../core/model.ts';
 import { katalogPruefen, produkteFuer, kategorienIn, preisText, standText, aktuelleMarkierungen, markierungSetzen, markierungenText, KATEGORIEN, MARKIERUNGEN, MARKIERUNG_KEYS, type Katalog, type Produkt, type Markierung } from '../core/produkte.ts';
 import * as store from '../storage/store.ts';
 import { dialog, kopieren, maskottchen, toast } from './dom.ts';
+import { bestandArtFuer, bestandArtVorschlag, geraetVorlage, materialVorlage, imBestand, type BestandArt } from '../core/bestandvorlage.ts';
+import { geraetDialog } from './views/bestand.ts';
+import { materialDialog } from './material.ts';
 
 let kat: Katalog | null = null;
 export function katalog(): Katalog {
@@ -68,13 +71,57 @@ export function detailHtml(p: Produkt): string {
     </div>`;
 }
 
+/** Block „Zu meinem Bestand hinzufügen“ im Detail (nur Vorwerk-Produkte, die in den Bestand passen). */
+function bestandHtml(p: Produkt): string {
+  const art = bestandArtFuer(p);
+  if (!art) return '';
+  const d = store.getData();
+  const n = d ? imBestand(d, p.id) : { geraete: 0, material: 0, stueck: 0 };
+  const schon = [n.geraete ? `${n.geraete} × als Vorführgerät` : '', n.material ? `als Material (Bestand ${n.stueck})` : ''].filter(Boolean).join(', ');
+  return `<div class="produkt-bestand">
+      <button type="button" class="btn primary" data-zum-bestand>➕ Zu meinem Bestand hinzufügen</button>
+      <small class="hinweis" data-im-bestand>${schon ? `✓ Schon in deinem Bestand: ${esc(schon)}` : 'Öffnet das Fenster „Neu im Bestand“ mit Name, Bild und Zubehör schon ausgefüllt.'}</small>
+    </div>`;
+}
+
+/** Fragt bei Sets und Zubehör, wie Jan es führen möchte. */
+async function bestandArtWaehlen(p: Produkt): Promise<BestandArt | null> {
+  const art = bestandArtFuer(p);
+  if (art !== 'beides') return art;
+  const vorschlag = bestandArtVorschlag(p);
+  return dialog<BestandArt>({
+    titel: 'Wie möchtest du es führen?',
+    html: `<p><b>${esc(p.name)}</b></p>
+      <p class="hinweis">Als <b>Vorführgerät</b> mit Seriennummer, zum Verleihen und Verkaufen. Als <b>Material</b> mit Stückzahl, zum Mitgeben und Nachbestellen.</p>`,
+    knoepfe: [
+      { label: '🧴 Als Material', primaer: vorschlag === 'material', wert: 'material' },
+      { label: '🧹 Als Vorführgerät', primaer: vorschlag === 'geraet', wert: 'geraet' },
+    ],
+  });
+}
+
+/**
+ * Verzahnung Produktübersicht → Bestand (R-FLOW): Detail schließen, Fenster „Neues Vorführgerät“ bzw.
+ * „Neues Verbrauchsmaterial“ vorbefüllt öffnen, Jan ergänzt und speichert selbst. Danach (auch bei Abbruch)
+ * geht es zurück zum Produkt; nach dem Speichern mit kurzer Bestätigung.
+ */
+async function zumBestand(p: Produkt) {
+  const art = await bestandArtWaehlen(p);
+  if (!art) { detailZeigen(p.id); return; }
+  const ok = art === 'geraet'
+    ? await geraetDialog(null, geraetVorlage(p))
+    : await materialDialog(null, materialVorlage(p));
+  detailZeigen(p.id);
+  if (ok) toast(`„${p.name}“ ist jetzt in deinem ${art === 'geraet' ? 'Vorführbestand' : 'Verbrauchsmaterial'}.`, 'ok', 4000);
+}
+
 /** Detail als Blatt; „Passt dazu“ wechselt zum anderen Produkt. */
 export function detailZeigen(id: string) {
   const p = produkt(id);
   if (!p) { toast('Dieses Produkt steht nicht mehr im Katalog.', 'info'); return; }
   dialog({
     titel: p.name,
-    html: detailHtml(p),
+    html: detailHtml(p) + bestandHtml(p),
     knoepfe: [{ label: 'Schließen', primaer: true, wert: true }],
     onOpen: (dlg) => {
       dlg.classList.add('dlg-produkt');
@@ -83,6 +130,10 @@ export function detailZeigen(id: string) {
       dlg.querySelector('[data-link-kopieren]')?.addEventListener('click', async () => {
         const ok = p.quelleUrl ? await kopieren(p.quelleUrl) : false;
         toast(ok ? 'Link kopiert' : 'Kopieren nicht möglich', ok ? 'ok' : 'error');
+      });
+      dlg.querySelector('[data-zum-bestand]')?.addEventListener('click', () => {
+        dlg.close();
+        setTimeout(() => { void zumBestand(p); }, 0);
       });
       dlg.querySelector('.produkt-passt')?.addEventListener('click', (ev) => {
         const b = (ev.target as Element).closest<HTMLElement>('[data-produkt]');

@@ -17,6 +17,17 @@ import { kundenName } from '../../core/model.ts';
 import * as suche from '../suche.ts';
 import * as material from '../material.ts';
 import { nachbestellListe } from '../../core/material.ts';
+import { katalogFeldHtml, katalogFeldVerdrahten } from '../katalogfeld.ts';
+import { lieferumfang } from '../../core/bestandvorlage.ts';
+import { produkt, bildHtml, bildFehlerAbfangen } from '../produkte.ts';
+
+/** Kleines Produktbild, wenn das Gerät aus der Produktübersicht stammt (Bild nur verlinkt, R-EXTERN). */
+export function bestandBild(produktId: string): string {
+  if (!produktId) return '';
+  let p: ReturnType<typeof produkt> = null;
+  try { p = produkt(produktId); } catch { p = null; }
+  return p ? bildHtml(p, 'produkt-bild mini bestand-bild') : '';
+}
 
 const TAG_MS = 86400000;
 
@@ -88,7 +99,7 @@ export function render(el: HTMLElement, params: URLSearchParams = new URLSearchP
     return `
       <article class="karte-box geraet geraet-${st}" data-id="${esc(g.id)}">
         <div class="geraet-kopf">
-          <div><strong>${esc(g.name)}</strong>${istBeispielGeraet(g.id) ? ' <span class="tag tag-beispiel">Beispiel</span>' : ''}${g.seriennummer ? `<br><small>SN ${esc(g.seriennummer)}</small>` : ''}</div>
+          ${bestandBild(g.produktId)}<div class="geraet-titel"><strong>${esc(g.name)}</strong>${istBeispielGeraet(g.id) ? ' <span class="tag tag-beispiel">Beispiel</span>' : ''}${g.seriennummer ? `<br><small>SN ${esc(g.seriennummer)}</small>` : ''}</div>
           <span class="pill pill-${st}">${st === 'frei' ? 'Im Auto' : st === 'ueberfaellig' ? 'Überfällig' : 'Verliehen'}</span>
         </div>
         ${resvHtml}
@@ -130,6 +141,7 @@ export function render(el: HTMLElement, params: URLSearchParams = new URLSearchP
       <ul class="liste">${verkauft.map((g) => { const k = kunde(g.verkauf!.kundeId); return `<li class="zeile"><span class="zeile-haupt"><strong>${esc(g.name)}</strong><small>${k ? `<a href="#/kunde/${esc(k.id)}">${esc(kundenTitel(k))}</a>` : '–'} · ${esc(formatDate(g.verkauf!.datum))}${g.verkauf!.preis !== null ? ` · ${esc(euro(g.verkauf!.preis))}` : ''}</small></span><span class="pill pill-kauf-gekauft">Verkauft</span></li>`; }).join('')}</ul>
     </section>` : ''}`;
 
+  bildFehlerAbfangen(el);
   const ziel = params.get('geraet');
   const karte = ziel ? [...el.querySelectorAll<HTMLElement>('.geraet')].find((x) => x.dataset.id === ziel) : null;
   if (karte) {
@@ -185,22 +197,32 @@ export function render(el: HTMLElement, params: URLSearchParams = new URLSearchP
   }));
 }
 
-async function geraetDialog(g: Geraet | null = null): Promise<boolean> {
+/** Vorbelegung für ein neues Gerät (z. B. aus der Produktübersicht). */
+export interface GeraetVorgabe { name?: string; produktId?: string; zubehoer?: string }
+
+/** Gerät anlegen oder bearbeiten. `vorgabe` füllt ein neues Gerät vor (Jan ergänzt und speichert selbst). */
+export async function geraetDialog(g: Geraet | null = null, vorgabe: GeraetVorgabe = {}): Promise<boolean> {
   type Ergebnis = 'entfernen' | { name: string; produktId: string; seriennummer: string; zubehoer: string; notiz: string };
   const res = await dialog<Ergebnis>({
     titel: g ? 'Gerät bearbeiten' : 'Neues Vorführgerät',
     html: `
-      ${material.katalogAuswahl('geraet', g?.produktId || '')}
-      <label>Bezeichnung<input name="name" value="${esc(g?.name || '')}" placeholder="z. B. Kobold VK7 Akku-Staubsauger" required maxlength="200"></label>
-      <label>Seriennummer<input name="sn" value="${esc(g?.seriennummer || '')}" maxlength="100"></label>
-      <label>Zubehör<input name="zub" value="${esc(g?.zubehoer || '')}" placeholder="z. B. Polsterdüse, Ladegerät" maxlength="1000"></label>
+      ${katalogFeldHtml('geraet', g?.name || vorgabe.name || '', g?.produktId || vorgabe.produktId || '', 'z. B. Kobold VK7 Akku-Staubsauger')}
+      <label>Seriennummer<input name="sn" value="${esc(g?.seriennummer || '')}" maxlength="100" autocomplete="off"></label>
+      <label>Zubehör<input name="zub" value="${esc(g?.zubehoer || vorgabe.zubehoer || '')}" placeholder="z. B. Polsterdüse, Ladegerät" maxlength="1000"></label>
       <label>Notiz<textarea name="notiz" rows="2">${esc(g?.notiz || '')}</textarea></label>`,
     knoepfe: [
       ...(g ? [{ label: 'Aus Bestand nehmen', gefahr: true, wert: 'entfernen' as const }] : []),
       { label: 'Speichern', primaer: true, pruefen: (dlg) => (dlg.querySelector('[name=name]').value.trim() ? null : 'Bitte eine Bezeichnung eingeben.'),
-        wert: (dlg) => ({ name: dlg.querySelector('[name=name]').value.trim(), produktId: dlg.querySelector<HTMLSelectElement>('[name=katalog]')?.value || '', seriennummer: dlg.querySelector('[name=sn]').value.trim(), zubehoer: dlg.querySelector('[name=zub]').value, notiz: dlg.querySelector('[name=notiz]').value }) },
+        wert: (dlg) => ({ name: dlg.querySelector('[name=name]').value.trim(), produktId: dlg.querySelector<HTMLInputElement>('[name=katalog]')?.value || '', seriennummer: dlg.querySelector('[name=sn]').value.trim(), zubehoer: dlg.querySelector('[name=zub]').value, notiz: dlg.querySelector('[name=notiz]').value }) },
     ],
-    onOpen: (dlg) => material.katalogVerdrahten(dlg),
+    onOpen: (dlg) => {
+      katalogFeldVerdrahten(dlg, (p) => {
+        const zub = dlg.querySelector<HTMLInputElement>('[name=zub]')!;
+        if (!zub.value.trim()) zub.value = lieferumfang(p);
+      });
+      // Aus der Produktübersicht: Bezeichnung steht schon, weiter mit der Seriennummer
+      if (!g && vorgabe.produktId) setTimeout(() => dlg.querySelector<HTMLInputElement>('[name=sn]')?.focus(), 0);
+    },
   });
   if (!res) return false;
   if (res === 'entfernen' && g) {

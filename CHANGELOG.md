@@ -1,5 +1,10 @@
 # Änderungsverlauf
 
+## 0.14.5 – 08.11.2026
+- **Produkte direkt in den Bestand übernehmen.** Im Produktdetail der Produktübersicht steht bei Vorwerk-Produkten „➕ Zu meinem Bestand hinzufügen“. Der Knopf legt nichts sofort an, sondern öffnet das gewohnte Fenster „Neues Vorführgerät“ bzw. „Neues Verbrauchsmaterial“, vorbefüllt mit Bezeichnung, Produktbezug (dadurch Bild) und, wo der Katalog ihn kennt, dem Lieferumfang als Zubehör; bei Material Einheit (z. B. „Flasche“ bei 500 ml) und Anzahl 1. Der Cursor steht gleich in der Seriennummer bzw. Anzahl. Bei Sets und Zubehör fragt Sperling vorher, ob es als Vorführgerät oder Material geführt wird. Nach Speichern oder Abbrechen geht es zurück zum Produkt; nach dem Speichern mit kurzer Bestätigung, und das Detail zeigt „Schon in deinem Bestand: …“. Enpal und GALVANY haben keinen eigenen Bestand, dort gibt es den Knopf nicht.
+- **Neuer Artikel im Bestand: Bezeichnung mit Katalogsuche.** Statt der langen Auswahlliste sucht das Feld „Bezeichnung“ beim Tippen in der Produktübersicht (Vorwerk) und zeigt bis zu acht Treffer mit Bild. Antippen übernimmt Name, Produktbezug und passende Felder (Zubehör bzw. Einheit, nur wenn dort noch nichts steht); ohne Antippen bleibt es eine freie Eingabe. Die Verknüpfung lässt sich mit ✕ wieder lösen.
+- **Produktbild im Bestand:** Geräte und Material aus der Produktübersicht zeigen ein kleines Produktbild (nur verlinkt wie in der Produktübersicht, R-EXTERN).
+
 ## 0.14.4 – 08.11.2026
 - **Karte: Haustür-Ergebnis als Symbol am Pin.** Neben „Keine Werbung“ (⛔) zeigt der Pin jetzt auch 🚪 „Nicht da“, ⏰ „Später“ und ✋ „Kein Interesse“, sobald das das jüngste Ergebnis an der Tür ist. Das Symbol sitzt in einem kleinen weißen Kreis oben rechts am Pin, damit es auf Satellit und Straße gut erkennbar ist; die Pinfarbe (Status) bleibt. „Gespräch geführt“ bekommt kein Symbol, das zeigt der Status. Die Legende unter der Karte erklärt die vier Symbole, der Tooltip am Pin nennt das Ergebnis.
 

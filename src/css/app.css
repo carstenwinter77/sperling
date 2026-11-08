@@ -1677,3 +1677,26 @@ input.schalter:disabled { opacity: .5; cursor: not-allowed; }
 .rz-erklaerung { display: block; font-weight: 500; font-size: .85rem; line-height: 1.4; padding: .45rem .6rem; border-radius: 8px; background: var(--aktiv-bg); color: var(--text); }
 .rz-erklaerung[hidden] { display: none; }
 body.hilfe-aus .rz-frage { display: none; }
+
+/* Produkte → Bestand (0.14.5): Katalogsuche in der Bezeichnung, kleines Produktbild, Knopf im Produktdetail */
+.produkt-bild.mini { width: 48px; height: 48px; flex: none; aspect-ratio: 1; padding: 2px; border-radius: 8px; border: 1px solid var(--linie); }
+.produkt-bild.mini.produkt-ersatz { padding: 6px; }
+.produkt-bild.mini .maskottchen, .produkt-bild.mini.produkt-ersatz img { width: 32px; height: 32px; }
+.katalog-feld { position: relative; display: flex; flex-direction: column; gap: .4rem; }
+.katalog-feld label small.hinweis { display: block; font-weight: 400; margin: 0; }
+.katalog-treffer { list-style: none; margin: 0; padding: .3rem; display: flex; flex-direction: column; gap: .2rem; border: 1px solid var(--linie); border-radius: 12px; background: var(--karte); box-shadow: 0 6px 20px rgba(0,0,0,.12); max-height: 50vh; overflow-y: auto; }
+.katalog-treffer[hidden] { display: none; }
+.katalog-treffer-knopf { display: flex; align-items: center; gap: .6rem; width: 100%; min-height: 52px; padding: .3rem .4rem; border: 0; border-radius: 8px; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.katalog-treffer-knopf:hover, .katalog-treffer-knopf:focus-visible { background: var(--aktiv-bg); }
+.katalog-treffer-knopf span { display: flex; flex-direction: column; min-width: 0; }
+.katalog-treffer-knopf small { color: var(--text-2); }
+.katalog-frei { padding: .2rem .5rem; color: var(--text-2); }
+.katalog-gewaehlt { display: flex; align-items: center; gap: .6rem; padding: .35rem .5rem; border-radius: 10px; background: var(--flaeche-2); }
+.katalog-gewaehlt[hidden] { display: none; }
+.katalog-gewaehlt > span { flex: 1; min-width: 0; }
+.produkt-bestand { display: flex; flex-direction: column; gap: .35rem; margin-top: .75rem; padding-top: .75rem; border-top: 1px solid var(--linie); }
+.produkt-bestand .btn { align-self: flex-start; min-height: 44px; }
+.geraet-kopf .bestand-bild { margin-right: .1rem; }
+.geraet-titel { flex: 1; min-width: 0; }
+.material-kopf .bestand-bild { align-self: center; }
+.material-kopf .material-name { flex: 1; }

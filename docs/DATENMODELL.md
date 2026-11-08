@@ -108,7 +108,7 @@ Typen: Zahlen sind `null`, wenn leer. Ja/Nein-Felder sind `true`/`false`/`null` 
 | Feld | Typ | Hinweis |
 |---|---|---|
 | `id`, `name`, `seriennummer`, `zubehoer`, `notiz` | String | |
-| `produktId` | String | ab 0.10.14: Bezug zur Produktübersicht (Vorwerk-Katalog), leer bei freier Eingabe |
+| `produktId` | String | ab 0.10.14: Bezug zur Produktübersicht (Vorwerk-Katalog), leer bei freier Eingabe. Gesetzt über die Katalogsuche in der Bezeichnung oder „Zu meinem Bestand hinzufügen“ im Produktdetail (0.14.5); Bild und Sparte kommen daraus, nicht als eigenes Feld. |
 | `aktiv` | Boolean | `false` = verkauft/ausgemustert, bleibt für den Verlauf erhalten |
 | `verkauf` | Objekt oder `null` | ab 0.10.10 (ohne Schemawechsel, fehlt = `null`): `{kundeId, datum, preis, notiz}`; `preis` in Euro oder `null`. `kundeId` wird beim Löschen des Kunden geleert und beim Wiederherstellen zurückgesetzt (Papierkorb-`bezug.geraete`). |
 

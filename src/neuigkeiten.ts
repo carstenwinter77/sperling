@@ -2,6 +2,13 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.14.5',
+    punkte: [
+      'Produkte → Bestand: Im Produktdetail (Vorwerk) gibt es „➕ Zu meinem Bestand hinzufügen“. Es öffnet sich das normale Fenster für ein neues Vorführgerät bzw. Material, mit Name, Bild und Zubehör schon ausgefüllt. Du ergänzt z. B. die Seriennummer und speicherst; danach bist du wieder beim Produkt.',
+      'Bestand: Beim Anlegen sucht die Bezeichnung jetzt in der Produktübersicht. Tippen, Produkt antippen, fertig. Oder einfach frei weiterschreiben.',
+    ],
+  },
+  {
     version: '0.14.4',
     punkte: [
       'Karte: Am Pin siehst du jetzt auch, wie es zuletzt an der Haustür lief: 🚪 Nicht da, ⏰ Später, ✋ Kein Interesse (wie bisher ⛔ Keine Werbung). Die Legende unter der Karte erklärt die Symbole.',

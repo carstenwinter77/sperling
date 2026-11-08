@@ -2,43 +2,13 @@
 // buchen, Mindestbestand mit Hinweis „nachbestellen“. Auch aus der Kundenansicht (Muster mitgeben).
 import { esc, formatDate, nowIso } from '../core/util.ts';
 import { MATERIAL_GRUND, kundenTitel, neuesMaterial, type Material, type MaterialGrund } from '../core/model.ts';
+import { einheitFuer } from '../core/bestandvorlage.ts';
 import { materialBuchen, nachbestellListe, istKnapp, mengeText, ABGANG } from '../core/material.ts';
-import { KATEGORIEN, produkteFuer } from '../core/produkte.ts';
 import * as store from '../storage/store.ts';
 import { dialog, toast, bestaetigen } from './dom.ts';
 import * as kundenwahl from './kundenwahl.ts';
-import { katalog } from './produkte.ts';
-
-/** Reihenfolge der Katalog-Gruppen: für Geräte die Geräte zuerst, für Material das Verbrauchsmaterial. */
-const GERAETE_KAT = ['akkusauger', 'bodenstaubsauger', 'saugroboter', 'saugwischer', 'fenstersauger', 'set', 'aufsatz-zubehoer'];
-const MATERIAL_KAT = ['reinigungsmittel', 'aufsatz-zubehoer', 'set'];
-
-/** Auswahlliste aus dem Vorwerk-Katalog (Produktübersicht), gruppiert nach Kategorie. */
-export function katalogAuswahl(art: 'geraet' | 'material', gewaehlt = ''): string {
-  let produkte: ReturnType<typeof produkteFuer> = [];
-  try { produkte = produkteFuer(katalog(), 'vorwerk'); } catch { /* ohne Katalog: nur freie Eingabe */ }
-  const reihe = art === 'geraet' ? GERAETE_KAT : MATERIAL_KAT;
-  const gruppen = reihe.map((k) => [k, produkte.filter((p) => p.kategorie === k)] as const).filter(([, l]) => l.length);
-  if (!gruppen.length) return '';
-  return `<label>Aus dem Vorwerk-Katalog
-    <select name="katalog" data-katalog>
-      <option value="">– frei eingeben –</option>
-      ${gruppen.map(([k, l]) => `<optgroup label="${esc(KATEGORIEN[k] || k)}">${l.map((p) => `<option value="${esc(p.id)}" data-name="${esc(p.name)}"${p.id === gewaehlt ? ' selected' : ''}>${esc(p.name)}</option>`).join('')}</optgroup>`).join('')}
-    </select></label>`;
-}
-
-/** Katalogwahl füllt die Bezeichnung (überschreibt nur, solange sie leer ist oder aus dem Katalog stammt). */
-export function katalogVerdrahten(dlg: Element) {
-  const sel = dlg.querySelector<HTMLSelectElement>('[data-katalog]');
-  const name = dlg.querySelector<HTMLInputElement>('[name=name]');
-  if (!sel || !name) return;
-  let ausKatalog = !name.value || sel.value !== '';
-  name.addEventListener('input', () => { ausKatalog = false; });
-  sel.addEventListener('change', () => {
-    const opt = sel.selectedOptions[0];
-    if (opt?.dataset.name && (ausKatalog || !name.value.trim())) { name.value = opt.dataset.name; ausKatalog = true; name.dispatchEvent(new Event('input')); ausKatalog = true; }
-  });
-}
+import { katalogFeldHtml, katalogFeldVerdrahten } from './katalogfeld.ts';
+import { bestandBild } from './views/bestand.ts';
 
 const menge = (m: Pick<Material, 'bestand' | 'einheit'>, n = m.bestand) => mengeText(n, m.einheit);
 
@@ -63,7 +33,7 @@ export function abschnittHtml(): string {
     const letzte = m.buchungen.slice(0, 3);
     return `<li class="material-zeile${istKnapp(m) ? ' knapp' : ''}" data-material="${esc(m.id)}">
         <div class="material-kopf">
-          <span class="material-name"><strong>${esc(m.name)}</strong>${m.mindestbestand !== null ? `<small>Mindestbestand ${m.mindestbestand}</small>` : ''}</span>
+          ${bestandBild(m.produktId)}<span class="material-name"><strong>${esc(m.name)}</strong>${m.mindestbestand !== null ? `<small>Mindestbestand ${m.mindestbestand}</small>` : ''}</span>
           <span class="material-bestand" aria-label="Bestand"><b>${m.bestand}</b> ${esc(mengeText(m.bestand, m.einheit).replace(/^\d+ /, ""))}${istKnapp(m) ? ' <span class="pill pill-ueberfaellig">nachbestellen</span>' : ''}</span>
         </div>
         ${letzte.length ? `<ul class="material-verlauf">${letzte.map((b) => { const k = b.kundeId ? kunde(b.kundeId) : null; return `<li>${esc(formatDate(b.zeitpunkt))} · <b>${b.menge > 0 ? '+' : '−'}${Math.abs(b.menge)}</b> ${esc(MATERIAL_GRUND[b.grund])}${k ? ` · ${esc(kundenTitel(k))}` : ''}${b.notiz ? ` · ${esc(b.notiz)}` : ''}</li>`; }).join('')}</ul>` : ''}
@@ -91,18 +61,20 @@ export function verdrahten(root: Element, fertig: () => void) {
   });
 }
 
-/** Neues Material anlegen oder bearbeiten (Bestand gezählt = Korrekturbuchung). */
-export async function materialDialog(m: Material | null = null): Promise<boolean> {
+/** Vorbelegung für neues Material (z. B. aus der Produktübersicht). */
+export interface MaterialVorgabe { name?: string; produktId?: string; einheit?: string; bestand?: number }
+
+/** Neues Material anlegen oder bearbeiten (Bestand gezählt = Korrekturbuchung). `vorgabe` füllt ein neues vor. */
+export async function materialDialog(m: Material | null = null, vorgabe: MaterialVorgabe = {}): Promise<boolean> {
   type Erg = 'entfernen' | { name: string; produktId: string; einheit: string; bestand: number; mindestbestand: number | null; notiz: string };
   const zahl = (dlg: Element, n: string) => { const v = dlg.querySelector<HTMLInputElement>(`[name=${n}]`)!.value.trim(); return v === '' ? null : Math.round(Number(v)); };
   const res = await dialog<Erg>({
     titel: m ? 'Material bearbeiten' : 'Neues Verbrauchsmaterial',
     html: `
-      ${katalogAuswahl('material', m?.produktId || '')}
-      <label>Bezeichnung<input name="name" value="${esc(m?.name || '')}" placeholder="z. B. Koboclean Universal (500 ml)" required maxlength="200"></label>
+      ${katalogFeldHtml('material', m?.name || vorgabe.name || '', m?.produktId || vorgabe.produktId || '', 'z. B. Koboclean Universal (500 ml)')}
       <div class="zwei-spalten">
-        <label>${m ? 'Bestand (gezählt)' : 'Anzahl jetzt'}<input name="bestand" type="number" inputmode="numeric" min="0" step="1" value="${m ? m.bestand : 0}"></label>
-        <label>Einheit<input name="einheit" value="${esc(m?.einheit || 'Stück')}" list="einheiten" maxlength="30"></label>
+        <label>${m ? 'Bestand (gezählt)' : 'Anzahl jetzt'}<input name="bestand" type="number" inputmode="numeric" min="0" step="1" value="${m ? m.bestand : (vorgabe.bestand ?? 0)}"></label>
+        <label>Einheit<input name="einheit" value="${esc(m?.einheit || vorgabe.einheit || 'Stück')}" list="einheiten" maxlength="30"></label>
       </div>
       <datalist id="einheiten"><option value="Stück"><option value="Packung"><option value="Flasche"><option value="Dose"><option value="Beutel"></datalist>
       <label>Mindestbestand<input name="mindest" type="number" inputmode="numeric" min="0" step="1" value="${m?.mindestbestand ?? ''}" placeholder="leer = keine Erinnerung"></label>
@@ -121,7 +93,7 @@ export async function materialDialog(m: Material | null = null): Promise<boolean
         },
         wert: (dlg) => ({
           name: dlg.querySelector<HTMLInputElement>('[name=name]')!.value.trim(),
-          produktId: dlg.querySelector<HTMLSelectElement>('[name=katalog]')?.value || '',
+          produktId: dlg.querySelector<HTMLInputElement>('[name=katalog]')?.value || '',
           einheit: dlg.querySelector<HTMLInputElement>('[name=einheit]')!.value.trim() || 'Stück',
           bestand: zahl(dlg, 'bestand') ?? 0,
           mindestbestand: zahl(dlg, 'mindest'),
@@ -129,7 +101,14 @@ export async function materialDialog(m: Material | null = null): Promise<boolean
         }),
       },
     ],
-    onOpen: (dlg) => katalogVerdrahten(dlg),
+    onOpen: (dlg) => {
+      katalogFeldVerdrahten(dlg, (p) => {
+        const einheit = dlg.querySelector<HTMLInputElement>('[name=einheit]')!;
+        if (!einheit.value.trim() || einheit.value === 'Stück') einheit.value = einheitFuer(p);
+      });
+      // Aus der Produktübersicht: Bezeichnung steht schon, weiter mit der Anzahl
+      if (!m && vorgabe.produktId) setTimeout(() => dlg.querySelector<HTMLInputElement>('[name=bestand]')?.select(), 0);
+    },
   });
   if (!res) return false;
   if (res === 'entfernen') {

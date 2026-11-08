@@ -388,8 +388,11 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   if (!(await p.textContent('main')).includes('Verkauft')) fail('Verkauf fehlt im Bestand');
   // Verbrauchsmaterial: aus dem Katalog anlegen, Muster an Kunde buchen, Mindestbestand -> nachbestellen
   await p.click('[data-material-neu]');
-  await p.selectOption('dialog [data-katalog]', 'vorwerk-koboclean-universal-500ml');
-  if (!(await p.inputValue('dialog [name=name]')).startsWith('Koboclean Universal')) fail('Katalogwahl füllt die Bezeichnung nicht');
+  await p.fill('dialog [name=name]', 'koboclean univ');
+  await p.click('dialog .katalog-treffer [data-katalog-id="vorwerk-koboclean-universal-500ml"]');
+  if (!(await p.inputValue('dialog [name=name]')).startsWith('Koboclean Universal')) fail('Katalogsuche füllt die Bezeichnung nicht');
+  if ((await p.inputValue('dialog [name=katalog]')) !== 'vorwerk-koboclean-universal-500ml') fail('Katalogsuche verknüpft das Produkt nicht');
+  if (!(await p.isVisible('dialog .katalog-gewaehlt'))) fail('Verknüpftes Produkt wird nicht angezeigt');
   await p.fill('dialog [name=bestand]', '3');
   await p.fill('dialog [name=einheit]', 'Flasche');
   await p.fill('dialog [name=mindest]', '2');
@@ -418,10 +421,43 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   // Neues Gerät aus dem Katalog
   await p.goto(BASE + '#/bestand');
   await p.click('#neu');
-  await p.selectOption('dialog [data-katalog]', 'vorwerk-vm7');
+  // freie Eingabe: Trefferliste erscheint, Weiterschreiben ohne Antippen bleibt frei
+  await p.fill('dialog [name=name]', 'VM7');
+  await p.waitForSelector('dialog .katalog-treffer [data-katalog-id="vorwerk-vm7"]');
+  await p.fill('dialog [name=name]', 'Mein altes Testgerät');
+  if (await p.isVisible('dialog .katalog-treffer')) fail('Trefferliste bleibt bei freier Eingabe offen');
+  await p.fill('dialog [name=name]', 'VM7');
+  await p.click('dialog .katalog-treffer [data-katalog-id="vorwerk-vm7"]');
   if ((await p.inputValue('dialog [name=name]')) !== 'Kobold VM7 Akku-Handstaubsauger') fail('Gerät aus Katalog: Bezeichnung fehlt');
   await p.click('dialog button.primary');
   await p.waitForFunction(() => document.querySelector('.geraete')?.textContent.includes('Kobold VM7 Akku-Handstaubsauger'));
+  if (!(await p.$('.geraet:has-text("Kobold VM7 Akku-Handstaubsauger") .bestand-bild'))) fail('Produktbild fehlt am Gerät aus dem Katalog');
+  // Produktübersicht → Bestand: Fenster vorbefüllt, Seriennummer ergänzen, zurück zum Produkt mit Bestätigung
+  await p.goto(BASE + '#/produkte?bereich=vorwerk');
+  await p.click('.produkt-kachel[data-produkt="vorwerk-vg100plus"]');
+  await p.waitForSelector('dialog [data-zum-bestand]');
+  if ((await p.textContent('dialog [data-im-bestand]')).includes('Schon')) fail('Produktdetail meldet Bestand, obwohl keiner da ist');
+  await p.click('dialog [data-zum-bestand]');
+  await p.waitForSelector('dialog h2:has-text("Neues Vorführgerät")');
+  if ((await p.inputValue('dialog [name=name]')) !== 'Kobold VG100+ Flächenreiniger (Akku-Fenstersauger)') fail('Bezeichnung nicht vorbefüllt');
+  if ((await p.inputValue('dialog [name=katalog]')) !== 'vorwerk-vg100plus') fail('Produktbezug nicht vorbefüllt');
+  await p.waitForFunction(() => document.activeElement?.getAttribute('name') === 'sn');
+  await p.keyboard.type('SN-E2E-4711');
+  await p.click('dialog button.primary');
+  await p.waitForFunction(() => (document.querySelector('#toast')?.textContent || '').includes('ist jetzt in deinem Vorführbestand'));
+  await p.waitForSelector('dialog [data-im-bestand]:has-text("1 × als Vorführgerät")');
+  await p.click('dialog .dlg-actions button.primary');
+  if (!(await p.url()).includes('#/produkte')) fail('Nach dem Anlegen nicht in der Produktübersicht geblieben');
+  // Reinigungsmittel: Fenster Verbrauchsmaterial, Abbrechen führt zurück zum Produkt
+  await p.click('.produkt-kachel[data-produkt="vorwerk-koboclean-universal-500ml"]');
+  await p.click('dialog [data-zum-bestand]');
+  await p.waitForSelector('dialog h2:has-text("Neues Verbrauchsmaterial")');
+  if ((await p.inputValue('dialog [name=einheit]')) !== 'Flasche') fail('Einheit nicht aus dem Namen übernommen');
+  await p.click('dialog .dlg-actions button.ghost');
+  await p.waitForSelector('dialog [data-zum-bestand]');
+  await p.click('dialog .dlg-actions button.primary');
+  await p.goto(BASE + '#/bestand');
+  await p.waitForFunction(() => document.querySelector('.geraete')?.textContent.includes('SN-E2E-4711'));
   // Verleihen aus der Kundenansicht: Kunde ist vorausgefüllt
   await p.goto(BASE + '#/kunden');
   await p.click('#liste a.zeile:has-text("Prüfer")');
