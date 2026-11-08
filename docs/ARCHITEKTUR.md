@@ -38,6 +38,7 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/dom.ts ......... Toast, Dialog, Download, Zwischenablage
  ├─ src/ui/parts.ts ....... Status-Chips, Termin-Dialog, Terminliste, ICS-Export
  ├─ src/ui/theme.ts ...... Hell/Dunkel/Automatisch
+ ├─ src/ui/symbole.ts .... einheitliche Linien-Symbole (Leiste, „Mehr“, Einstellungen), inline SVG
  ├─ src/ui/kontakt.ts .... Anrufen, E-Mail (Mailprogramm-Wahl)
  ├─ src/ui/enpaldoku.ts .. Enpal-Gesprächsdokumentation
  ├─ src/ui/navi.ts ....... „Hinfahren“ (Apple Karten / Google Maps)

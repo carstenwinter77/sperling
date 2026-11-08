@@ -1501,3 +1501,6 @@ input.schalter:disabled { opacity: .5; cursor: not-allowed; }
 }
 .einst.suchend .einst-inhalt { display: flex; flex-direction: column; }
 .einst.suchend .einst-bereich.vorne { order: -1; }
+/* „Mehr“-Menü: drei gleich breite Spalten, lange Wörter („Auswertungen“) dürfen nicht überstehen */
+.mehr-raster { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.mehr-eintrag span { max-width: 100%; overflow-wrap: anywhere; hyphens: auto; text-align: center; font-size: .85rem; }

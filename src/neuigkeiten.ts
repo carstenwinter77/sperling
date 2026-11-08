@@ -2,6 +2,13 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.11.1',
+    punkte: [
+      'Einstellungen aufgeräumt: acht Bereiche statt einer langen Liste, jeweils mit dem aktuellen Stand. Oben kannst du suchen, z. B. nach „Passwort“.',
+      'Die Menüleiste hat jetzt klare, einheitliche Symbole statt der kleinen Logo-Bildchen.',
+    ],
+  },
+  {
     version: '0.11.0',
     punkte: [
       'Auswertungen neu: oben die vier wichtigsten Zahlen (Abschlüsse, Abschlussquote, offene Chancen, Gespräche), darunter der Verkaufstrichter mit Tipp, wo die meisten Kunden hängen bleiben.',
