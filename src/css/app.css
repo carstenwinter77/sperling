@@ -59,6 +59,10 @@
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; } /* Safari: Schrift beim Drehen nicht aufblähen */
+/* Runde Knöpfe und Punkte: auf älterem iPad-Safari nicht zur Ellipse stauchen (Standard-Polster des Knopfs, Schrumpfen in Flex-Zeilen) */
+.hilfe-knopf, .haken, .foto button, .schutz-knopf, .k-griff.mitte, .gl-dot, .gl-haken, .plus-knopf, .foto-laedt,
+.chip i, .legende i, .kf-status i, .tour-punkte i, .gm-live { flex: none; padding: 0; aspect-ratio: 1; -webkit-appearance: none; appearance: none; }
 html, body { margin: 0; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -1317,3 +1321,23 @@ body.schutz-aktiv .plus-knopf, body.ka-aktiv .plus-knopf { display: none; }
 /* „Hinfahren“: Wahl der Karten-App */
 .navi-wahl { display: grid; gap: .5rem; margin-top: .75rem; }
 .navi-wahl .btn { min-height: 52px; font-size: 1.05rem; }
+
+/* iPad quer und kleine Laptops (900–1199 px): schmale Leiste mit Symbol und kurzer Beschriftung,
+   damit der Inhalt mehr Platz bekommt; zwei Spalten erst ab 1200 px */
+@media (min-width: 900px) and (max-width: 1199px) {
+  :root { --nav-w: 96px; }
+  .hauptnav { padding: .5rem .35rem; gap: .1rem; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+  .hauptnav::-webkit-scrollbar { display: none; }
+  .marke-zeile { flex-direction: column; padding: 0 0 .4rem; gap: .35rem; }
+  .marke-zeile .marke-logo { width: 72px; max-width: 100%; height: auto; }
+  .hauptnav .sperr-knopf { width: 52px; height: 48px; }
+  .hauptnav a, .nav-suche { flex-direction: column; justify-content: center; gap: 2px; font-size: .68rem; padding: .3rem .1rem; text-align: center; border-radius: 12px; min-height: 52px; }
+  .nav-suche { border: 0; background: none; margin-bottom: 0; }
+  .hauptnav a > span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hauptnav .nav-bild { width: 32px; height: 32px; }
+  .hauptnav .nav-einstellungen { padding-top: .4rem; min-height: 52px; }
+  .hauptnav .nav-einstellungen > span { align-items: center; }
+  .nav-version { font-size: .55rem; }
+  .inhalt { padding: 20px 24px; }
+  .spalten { grid-template-columns: 1fr; }
+}

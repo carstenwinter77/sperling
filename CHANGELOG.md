@@ -1,5 +1,9 @@
 # Änderungsverlauf
 
+## 0.10.34 – 08.11.2026
+- **iPad: runde Knöpfe bleiben rund.** Die „?“-Hilfeknöpfe und andere runde Knöpfe/Punkte wirkten auf älterem iPad-Safari (iPad 6, iOS 17) gestaucht. Sie haben jetzt kein Standard-Polster mehr, schrumpfen in Flex-Zeilen nicht und halten das Seitenverhältnis 1:1 (`aspect-ratio`). Dazu `text-size-adjust: 100 %`, damit Safari die Schrift beim Drehen nicht aufbläht.
+- **iPad quer (900–1199 px): schmale Seitenleiste.** Statt 220 px breiter Leiste eine 96 px schmale Leiste mit Bild über dem Text; der Inhalt bekommt rund 120 px mehr Breite (Monatskalender, Übersicht, Kunde).
+
 ## 0.10.33 – 08.11.2026
 - **Karte, eigener Standort:** Auf iPads ohne Mobilfunk (kein GPS) lief die genaue Ortung oft in die Zeitgrenze, dann zoomte die Karte nicht. Jetzt erst schnelle, grobe Ortung (WLAN) und Hinzoomen, danach genaues Nachbessern; ein hellblauer Kreis zeigt die Ungenauigkeit. Ein einzelnes Antippen der Karte verhindert das Hinzoomen nicht mehr (nur echtes Verschieben/Zoomen). Ist der Standortzugriff aus, sagt Sperling, wo man ihn einschaltet.
 

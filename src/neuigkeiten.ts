@@ -2,6 +2,13 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.34',
+    punkte: [
+      'iPad: Die runden „?“-Knöpfe sehen nicht mehr gestaucht aus.',
+      'iPad quer: schmalere Seitenleiste, dadurch mehr Platz für Kalender und Kunden.',
+    ],
+  },
+  {
     version: '0.10.33',
     punkte: [
       'Karte: Zoomt jetzt auch auf älteren iPads zuverlässig auf deinen Standort. Ein hellblauer Kreis zeigt, wie genau er ist.',

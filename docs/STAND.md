@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.10.33
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.10.34
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,12 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.33)
+## Erledigt (Version 0.10.34)
+
+### Neu in 0.10.34
+- [x] Runde Knöpfe („?“ usw.) auf altem iPad-Safari nicht mehr gestaucht.
+- [x] iPad quer: schmale Seitenleiste (96 px) für mehr Inhaltsbreite.
+- [ ] Auf dem iPad 6 prüfen: „?“-Knöpfe rund, Seitenleiste quer.
 
 ### Neu in 0.10.33
 - [x] Karte: Standort auch auf iPads ohne GPS (erst grob per WLAN, dann genau), Ungenauigkeitskreis, Hinweis bei abgeschaltetem Standortzugriff.
