@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.4
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.5
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,10 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.13.4)
+## Erledigt (Version 0.13.5)
+
+### Neu in 0.13.5
+- [x] Gesprächsmodus: „Zuletzt“ als einzeilige, aufklappbare Zeile (`.gm-zuletzt` in `src/ui/views/gespraechsmodus.ts`), Einträge aufgeklappt auf drei Zeilen gekürzt.
 
 ### Neu in 0.13.4
 - [x] Rechner „Wann rechnet sich das?“ ist ein eigener Menüpunkt „Rechner“ (#/rechner, `src/ui/views/rechner.ts`) mit eigenem Leisten-Symbol (Taschenrechner, `rechner` in `src/ui/symbole.ts`); Handy und iPad hochkant unter „Mehr“. Unter Förderung steht nur noch ein Verweis dorthin (alte Links `#/foerderung?rechner` leiten um). Auch im Beratungs-Schutz erreichbar.

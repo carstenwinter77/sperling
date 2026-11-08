@@ -2,7 +2,7 @@
 // links die Kundendaten (weiter bearbeitbar), rechts Notizen, Leitfaden und Abschluss.
 // Am Handy werden daraus Reiter. Der Entwurf bleibt im Arbeitsspeicher, bis gespeichert oder verworfen wird.
 import * as schnellwahl from '../schnellwahl.ts';
-import { esc, formatDateTime, localInputToIso } from '../../core/util.ts';
+import { esc, formatDate, formatDateTime, localInputToIso } from '../../core/util.ts';
 import { SPARTEN, SPARTEN_KEYS, STATUS, AUSGANG, KONTAKTART, kundenTitel, adresseEinzeilig, type Sparte } from '../../core/model.ts';
 import { kundenVerlauf } from '../../core/verlauf.ts';
 import * as store from '../../storage/store.ts';
@@ -58,11 +58,11 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
         <div class="gm-chips">${statusChips(k)}</div>
         <div class="formgrid">${felderHtml('kontakt', k, store.getData().einstellungen.felder, { 'kontakt.telefon': '<button type="button" class="btn klein" id="gmAnrufen" aria-label="Anrufen">📞</button>' })}</div>
       </div>
-      <div class="karte-box">
-        <h2>Zuletzt</h2>
-        ${bisher.length ? `<ul class="gm-bisher">${bisher.map((v) => `<li><b>${esc(formatDateTime(v.zeitpunkt))}</b> · ${esc(v.titel)}<p>${esc(v.zeilen.join('\n')).replace(/\n/g, '<br>')}</p></li>`).join('')}</ul>
-          <a class="btn klein ghost" href="#/kunde/${esc(id)}?tab=verlauf">Ganzer Verlauf</a>` : '<p class="hinweis">Erstes Gespräch mit diesem Kunden.</p>'}
-      </div>
+      ${bisher.length ? `<details class="karte-box gm-zuletzt">
+        <summary><b>Zuletzt</b> <span class="gm-zuletzt-vorschau"><span class="gm-zuletzt-datum">${esc(formatDate(bisher[0].zeitpunkt))}</span> ${esc(bisher[0].zeilen.join(' · ') || bisher[0].titel)}</span></summary>
+        <ul class="gm-bisher">${bisher.map((v) => `<li><b>${esc(formatDateTime(v.zeitpunkt))}</b> · ${esc(v.titel)}<p>${esc(v.zeilen.join('\n')).replace(/\n/g, '<br>')}</p></li>`).join('')}</ul>
+        <a class="btn klein ghost" href="#/kunde/${esc(id)}?tab=verlauf">Ganzer Verlauf</a>
+      </details>` : '<p class="hinweis gm-zuletzt-leer">Erstes Gespräch mit diesem Kunden.</p>'}
       ${SPARTEN_KEYS.map((s) => `
       <details class="karte-box gm-bogen bereich-rand bereich-${s}" ${e.sparten.includes(s) ? 'open' : ''}>
         <summary>${maskottchen(spartenIcon(s), 'mini')} ${esc(SPARTEN[s].label)} <small>${esc(STATUS[k.status[s]].label)}</small></summary>

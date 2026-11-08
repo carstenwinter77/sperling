@@ -595,6 +595,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   // Klemmbrett ist die erste Seite: Kartei-Felder direkt ausfüllen, Antworten antippen, Haken und Zähler
   await p.waitForSelector('.gk .gk-ring');
   if ((await p.$$('.gk-abschnitt[data-abschnitt]')).length !== 3) fail('Klemmbrett hat nicht 3 Abschnitte');
+  if (await p.$('.gm-zuletzt[open]')) fail('Zuletzt ist nicht eingeklappt');
   await p.fill('.gk-punkt[data-pid="pv.stromverbrauch"] input', '4500');
   await p.waitForSelector('.gk-punkt[data-pid="pv.stromverbrauch"].erledigt');
   await p.waitForFunction(() => document.querySelector('.gm-links [data-feld="pv.stromverbrauch"]')?.value === '4500');

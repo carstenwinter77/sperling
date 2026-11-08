@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.13.5 – 08.11.2026
+- **Gespräch: „Zuletzt“ kompakter.** Links steht nur noch eine Zeile mit Datum und Anfang des letzten Eintrags. Ein Tipp klappt die letzten drei Gespräche/Notizen auf (je höchstens drei Zeilen) mit Knopf „Ganzer Verlauf“.
+
 ## 0.13.4 – 08.11.2026
 - **Rechner „Wann rechnet sich das?“ als eigener Menüpunkt.** Der Rechner steht nicht mehr unter Förderung, sondern hat in der Leiste links einen eigenen Knopf „Rechner“ mit Taschenrechner-Symbol (Handy und iPad hochkant: unter „Mehr“). Die Förderung verweist mit einem Link darauf.
 - **Aus dem Kunden direkt in den Rechner.** In der Kundenkartei (Reiter Photovoltaik und Wärmepumpe) führt „🧮 Wann rechnet sich das?“ in den Rechner, mit den Angaben des Kunden schon eingetragen: Strompreis und Speicherwunsch bei Photovoltaik, Wärmebedarf aus dem Gas- oder Ölverbrauch und Gaspreis aus den Heizkosten bei der Wärmepumpe. „‹ Zurück zum Kunden“ bringt einen an dieselbe Stelle in der Kartei zurück.

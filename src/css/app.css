@@ -558,10 +558,19 @@ body.ka-aktiv { overflow: hidden; }
 .gm-bogen summary { cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: .4rem; }
 .gm-bogen summary small { font-weight: 500; color: var(--text-2); margin-left: auto; }
 .gm-bogen[open] summary { margin-bottom: .6rem; }
-.gm-bisher { list-style: none; margin: 0 0 .5rem; padding: 0; }
+.gm-zuletzt { padding-top: .55rem; padding-bottom: .55rem; }
+.gm-zuletzt summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: .6rem; }
+.gm-zuletzt-vorschau { flex: 1; min-width: 0; color: var(--text-2); font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gm-zuletzt-datum { font-weight: 700; color: var(--text); margin-right: .25rem; }
+.gm-zuletzt summary::-webkit-details-marker { display: none; }
+.gm-zuletzt summary::after { content: '▾'; color: var(--text-2); transition: transform .2s ease; }
+.gm-zuletzt[open] summary::after { transform: rotate(180deg); }
+.gm-zuletzt[open] .gm-zuletzt-vorschau { visibility: hidden; }
+.gm-zuletzt-leer { margin: 0 0 .75rem; }
+.gm-bisher { list-style: none; margin: .25rem 0 .5rem; padding: 0; }
 .gm-bisher li + li { border-top: 1px solid var(--linie); }
 .gm-bisher li { padding: .4rem 0; font-size: .9rem; }
-.gm-bisher p { margin: .2rem 0 0; color: var(--text-2); }
+.gm-bisher p { margin: .2rem 0 0; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .gm-art { margin-bottom: .6rem; display: inline-flex; border: 1px solid var(--linie); border-radius: 12px; overflow: hidden; max-width: 100%; }
 .gm-art button { flex: 1 1 auto; min-width: 0; }
 .gm-art button { border: 0; background: none; padding: .5rem .8rem; font: inherit; font-weight: 600; color: var(--text-2); min-height: 44px; cursor: pointer; }

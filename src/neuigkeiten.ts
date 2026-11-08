@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.13.5',
+    punkte: [
+      'Im Gespräch nimmt „Zuletzt“ nur noch eine Zeile ein. Antippen zeigt die letzten Einträge.',
+    ],
+  },
+  {
     version: '0.13.4',
     punkte: [
       '„Wann rechnet sich das?“ hat jetzt einen eigenen Knopf „Rechner“ in der Leiste links, nicht mehr unter Förderung.',
