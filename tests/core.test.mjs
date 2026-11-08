@@ -1529,7 +1529,7 @@ test('Als Nächstes: laufender Termin vor fälliger Wiedervorlage, sonst ältest
 
 test('Statusverlauf (Schema 8): Migration schätzt, Änderungen werden mit Datum festgehalten', async () => {
   const { statusVerlaufAbgleichen, letzterVerlaufStatus, SCHEMA_VERSION } = await import('../src/core/model.ts');
-  assert.equal(SCHEMA_VERSION, 8);
+  assert.ok(SCHEMA_VERSION >= 8); // ab 0.12.0 Schema 9
   // Alte Daten (Schema 7): vorhandener Status wird als geschätzter Wechsel zum Anlagedatum nachgetragen
   const alt = migrate({ schemaVersion: 7, kunden: [{ id: 'k1', nachname: 'A', createdAt: '2026-10-01T08:00:00.000Z', status: { pv: 'angebot' } }] });
   const k = alt.kunden[0];
@@ -1624,4 +1624,199 @@ test('Demo: Statusverlauf passt zum Status, Kunden haben ein Anlagedatum', async
     assert.ok(k.statusVerlauf.every((w) => !w.geschaetzt), 'Demo ohne geschätzte Einträge');
     assert.ok(k.createdAt <= (k.statusVerlauf[0]?.zeitpunkt ?? k.createdAt));
   }
+});
+
+test('Vertrieb (Schema 9): Angebote normalisieren, Frist, Summe, Nachfassen', async () => {
+  const v = await import('../src/core/vertrieb.ts');
+  const { SCHEMA_VERSION } = await import('../src/core/model.ts');
+  assert.equal(SCHEMA_VERSION, 9);
+  // Alte Daten ohne die neuen Felder bleiben lesbar
+  const alt = migrate({ schemaVersion: 8, kunden: [{ id: 'k1', nachname: 'A' }] });
+  assert.deepEqual(alt.kunden[0].angebote, []);
+  assert.deepEqual(alt.kunden[0].auftrag, {});
+  assert.deepEqual(alt.kunden[0].ansprechpartner, []);
+  assert.deepEqual(alt.kunden[0].haustuer, []);
+  // Kaputtes wird repariert, nicht übernommen
+  const a = v.normalizeAngebot({ sparte: 'xx', betrag: 'abc', status: 'unsinn', datum: '2026-11-01T10:00:00.000Z', gueltigBis: '2026-10-01T10:00:00.000Z' });
+  assert.equal(a.sparte, 'pv');
+  assert.equal(a.betrag, null);
+  assert.equal(a.status, 'offen');
+  assert.equal(a.gueltigBis, null, 'Frist vor dem Angebotsdatum wird verworfen');
+  assert.equal(v.normalizeAngebot({ betrag: -5 }).betrag, null);
+  assert.equal(v.normalizeAngebot({ betrag: 18900.555 }).betrag, 18900.56);
+  const k = normalizeKunde({ id: 'k2', angebote: [
+    { id: 'x1', sparte: 'pv', betrag: 20000, datum: '2026-11-01T10:00:00.000Z', gueltigBis: '2026-11-05T22:00:00.000Z' },
+    { id: 'x2', sparte: 'wp', betrag: 30000, datum: '2026-11-03T10:00:00.000Z' },
+    { id: 'x3', sparte: 'wp', betrag: 99999, datum: '2026-11-03T10:00:00.000Z', status: 'abgelehnt', entschieden: '2026-11-04T10:00:00.000Z' },
+    { id: 'x4', sparte: 'vorwerk', datum: '2026-11-04T10:00:00.000Z' },
+  ] });
+  const jetzt = '2026-11-08T09:00:00.000Z';
+  const offen = v.offeneAngebote([k], jetzt);
+  assert.deepEqual(offen.map((o) => o.angebot.id), ['x1', 'x2', 'x4']);
+  assert.equal(offen[0].abgelaufen, true);
+  assert.equal(offen[1].abgelaufen, false);
+  assert.equal(offen[0].tageOffen, 6); // volle Tage
+  assert.equal(v.angebotsSumme(offen), 50000, 'ohne Betrag zählt nicht, abgelehnt zählt nicht');
+  assert.equal(v.offeneAngebote([k], jetzt, 'wp').length, 1);
+  // Nachfassen: Tag 3 und 7 nach dem Angebot, vergangene entfallen
+  const neu = v.normalizeAngebot({ sparte: 'wp', titel: 'WP 9 kW', datum: '2026-11-06T15:00:00.000Z', betrag: 27000 });
+  const nf = v.nachfassTermine(neu, 'k2', jetzt);
+  assert.equal(nf.length, 2);
+  assert.ok(nf.every((t) => t.art === 'wiedervorlage' && t.sparte === 'wp' && t.kundeId === 'k2' && t.titel === 'Angebot nachfassen: WP 9 kW'));
+  assert.ok(nf[0].beginn > jetzt && nf[0].beginn < nf[1].beginn);
+  assert.equal(v.nachfassTermine(neu, 'k2', '2026-11-12T12:00:00.000Z').length, 1);
+  const termine = nf.map((t, i) => ({ ...t, id: `t${i}`, erledigt: i === 1 }));
+  assert.equal(v.offeneNachfass(termine, 'k2', neu).length, 1);
+  assert.equal(v.offeneNachfass(termine, 'anders', neu).length, 0);
+  assert.equal(v.euro(18900), '18.900 €');
+  assert.equal(v.euro(null), '–');
+});
+
+test('Vertrieb: Auftragsstand und Pflege-Wiedervorlagen', async () => {
+  const v = await import('../src/core/vertrieb.ts');
+  const k = normalizeKunde({ id: 'k1', auftrag: { pv: { schritte: { vertrag: { datum: '2026-10-01', erledigt: true }, montage: { datum: '2027-03-12', erledigt: false }, netz: { datum: 'kaputt', erledigt: 'ja' } } }, unsinn: {} } });
+  assert.deepEqual(Object.keys(k.auftrag), ['pv'], 'nur begonnene, bekannte Sparten');
+  assert.equal(k.auftrag.pv.schritte.netz.datum, '');
+  assert.equal(k.auftrag.pv.schritte.netz.erledigt, false);
+  const st = v.auftragStand('pv', k.auftrag.pv);
+  assert.equal(st.erledigt, 1);
+  assert.equal(st.gesamt, 5);
+  assert.equal(st.naechster.key, 'planung');
+  assert.equal(st.fertig, false);
+  assert.match(v.auftragText('pv', k.auftrag.pv), /Planung.*\(1 von 5\)/);
+  const kt = v.auftragKundentext('pv', k.auftrag.pv, 'Guten Tag Frau A,', 'Jan');
+  assert.match(kt, /✓ Vertrag unterschrieben \(01\.10\.2026\)/);
+  assert.match(kt, /○ Montage – geplant am 12\.03\.2027/);
+  assert.ok(!/Wärmepumpe|Vorwerk/.test(kt), 'Kundentext nur für die eine Sparte');
+  const fertig = v.neuerAuftrag('wp', '2026-11-01');
+  for (const s of v.AUFTRAG_SCHRITTE.wp) fertig.schritte[s.key] = { datum: '2026-11-01', erledigt: true };
+  const st2 = v.auftragStand('wp', fertig);
+  assert.equal(st2.fertig, true);
+  assert.equal(st2.fertigAm, '2026-11-01');
+  const p = v.pflegeVorschlaege('wp', st2.fertigAm, '2026-11-08T09:00:00.000Z');
+  assert.ok(p.length >= 2 && p.every((x) => x.sparte === 'wp' && x.beginn > '2026-11-08'));
+  assert.ok(p.some((x) => /Wartung/.test(x.titel)));
+  assert.equal(v.pflegeVorhanden([{ kundeId: 'k1', sparte: 'wp', titel: p[0].titel }], 'k1', p[0]), true);
+  assert.equal(v.pflegeVorhanden([], 'k1', p[0]), false);
+});
+
+test('Vertrieb: Ansprechpartner, Haustür, Werbeverbot, letzter Kontakt', async () => {
+  const v = await import('../src/core/vertrieb.ts');
+  const { letzterKontakt, kundenVerlauf } = await import('../src/core/verlauf.ts');
+  const k = normalizeKunde({ id: 'k1', firma: 'Hof Meyer', status: { pv: 'potenzial', wp: 'interesse' },
+    ansprechpartner: [{ name: 'Heinz', rolle: 'boss' }, { name: 'Anke', rolle: 'finanzen' }],
+    haustuer: [{ ergebnis: 'nicht_da', zeitpunkt: '2026-11-01T10:00:00.000Z' }, { ergebnis: 'falsch' }] });
+  assert.equal(k.ansprechpartner[0].rolle, 'sonstiges');
+  assert.equal(k.ansprechpartner[1].rolle, 'finanzen');
+  assert.equal(k.haustuer.length, 1, 'unbekanntes Ergebnis wird verworfen');
+  assert.equal(letzterKontakt({ termine: [], leihvorgaenge: [] }, k, '2026-11-08T00:00:00.000Z'), null, '„nicht angetroffen“ ist kein Kontakt');
+  k.haustuer.push(v.neuerHaustuerEintrag('spaeter', '', '2026-11-03T10:00:00.000Z'));
+  assert.equal(letzterKontakt({ termine: [], leihvorgaenge: [] }, k, '2026-11-08T00:00:00.000Z'), '2026-11-03T10:00:00.000Z');
+  assert.equal(v.werbeverbot(k), false);
+  k.haustuer.push(v.neuerHaustuerEintrag('werbeverbot', '', '2026-11-05T10:00:00.000Z'));
+  assert.equal(v.werbeverbot(k), true);
+  assert.equal(v.letzteHaustuer(k).ergebnis, 'werbeverbot');
+  assert.ok(kundenVerlauf({ termine: [], leihvorgaenge: [], geraete: [] }, k).some((e) => e.art === 'haustuer' && /Keine Werbung/.test(e.titel)));
+  // „Kein Interesse“ an der Tür betrifft nur vermutete Bereiche
+  assert.deepEqual(v.haustuerStatus({ pv: 'potenzial', wp: 'interesse', vorwerk: 'unbekannt' }, 'kein_interesse'), { pv: 'kein_interesse', wp: 'interesse', vorwerk: 'unbekannt' });
+  assert.deepEqual(v.haustuerStatus({ pv: 'potenzial', wp: 'interesse', vorwerk: 'unbekannt' }, 'gespraech'), { pv: 'potenzial', wp: 'interesse', vorwerk: 'unbekannt' });
+  // Papierkorb: Ansprechpartner löschen und wiederherstellen
+  const pk = await import('../src/core/papierkorb.ts');
+  const d = migrate({ schemaVersion: 9, kunden: [k] });
+  const apId = d.kunden[0].ansprechpartner[1].id;
+  assert.equal(pk.ansprechpartnerLoeschen(d, 'k1', apId), true);
+  assert.equal(d.kunden[0].ansprechpartner.length, 1);
+  assert.equal(d.papierkorb[0].typ, 'ansprechpartner');
+  assert.equal(pk.eintragTitel(migrate(d).papierkorb[0], d).art, 'Ansprechpartner');
+  pk.wiederherstellen(d, d.papierkorb[0].id);
+  assert.equal(d.kunden[0].ansprechpartner.length, 2);
+});
+
+test('Vertrieb: Terminbestätigung und Nummern für SMS/WhatsApp', async () => {
+  const v = await import('../src/core/vertrieb.ts');
+  assert.equal(v.waNummer('05344 123456'), '495344123456');
+  assert.equal(v.waNummer('+49 170 1112223'), '491701112223');
+  assert.equal(v.waNummer('0049 170 1112223'), '491701112223');
+  assert.equal(v.waNummer('123'), '');
+  assert.equal(v.smsNummer('+49 (170) 111-2223'), '+491701112223');
+  assert.match(v.smsUrl('0170 1', 'a b'), /^sms:01701\?&body=a%20b$/);
+  assert.match(v.waUrl('0170 1112223', 'Hallo & tschüss'), /^https:\/\/wa\.me\/491701112223\?text=Hallo%20%26%20tsch%C3%BCss$/);
+  assert.equal(v.anredeZeile({ anrede: 'frau', vorname: 'Anna', nachname: 'Beispiel' }), 'Guten Tag Frau Beispiel,');
+  assert.equal(v.anredeZeile({ anrede: '', vorname: 'Anna', nachname: 'Beispiel' }), 'Guten Tag Anna Beispiel,');
+  assert.equal(v.anredeZeile(null), 'Guten Tag,');
+  const text = v.terminBestaetigung({ beginn: new Date(2026, 10, 10, 15, 0).toISOString(), sparte: 'pv', dauerMin: 60 }, { anrede: 'Herr', vorname: 'Bernd', nachname: 'Muster' },
+    { bereitlegen: v.BEREITLEGEN.pv.slice(0, 2), absender: 'Jan Sperling', ort: 'Lindenweg 6, 38268 Lengede' });
+  assert.match(text, /^Guten Tag Herr Muster,/);
+  assert.match(text, /Dienstag, 10\.11\.2026 um 15:00 Uhr \(Lindenweg 6, 38268 Lengede\)/);
+  assert.match(text, /- die letzte Stromrechnung/);
+  assert.match(text, /Viele Grüße\nJan Sperling$/);
+  assert.ok(!/Enpal|GALVANY|€/.test(text), 'ohne Anbieternamen und Preise');
+  const ohne = v.terminBestaetigung({ beginn: new Date(2026, 10, 10, 15, 0).toISOString(), sparte: '', dauerMin: 60 }, null, { bereitlegen: [] });
+  assert.ok(!/bereit/.test(ohne));
+});
+
+test('Vertrieb: Tagesroute mit Stopps und Vorschlägen an der Strecke', async () => {
+  const v = await import('../src/core/vertrieb.ts');
+  const tag = '2026-11-10';
+  const um = (h) => new Date(2026, 10, 10, h, 0).toISOString();
+  const d = migrate({ schemaVersion: 9,
+    kunden: [
+      { id: 'a', nachname: 'A', lat: 52.2060, lng: 10.3000 },
+      { id: 'b', nachname: 'B', lat: 52.2600, lng: 10.3650 },
+      { id: 'mitte', nachname: 'Mitte', lat: 52.2330, lng: 10.3330, status: { pv: 'potenzial' } },
+      { id: 'angebot', nachname: 'Angebot', lat: 52.2335, lng: 10.3320, angebote: [{ sparte: 'wp', betrag: 20000 }] },
+      { id: 'weit', nachname: 'Weit', lat: 52.4000, lng: 10.6000, status: { pv: 'interesse' } },
+      { id: 'kein', nachname: 'Kein', lat: 52.2331, lng: 10.3331, status: { pv: 'potenzial' }, haustuer: [{ ergebnis: 'werbeverbot' }] },
+      { id: 'egal', nachname: 'Egal', lat: 52.2332, lng: 10.3332 },
+    ],
+    termine: [
+      { id: 't2', kundeId: 'b', art: 'termin', beginn: um(14) },
+      { id: 't1', kundeId: 'a', art: 'termin', beginn: um(9) },
+      { id: 'wv', kundeId: 'mitte', art: 'wiedervorlage', beginn: um(11) },
+      { id: 'andererTag', kundeId: 'weit', art: 'termin', beginn: new Date(2026, 10, 11, 9).toISOString() },
+    ] });
+  const st = v.tagesStopps(d, tag);
+  assert.deepEqual(st.map((x) => x.termin.id), ['t1', 't2'], 'nur Termine des Tages, zeitlich sortiert');
+  assert.deepEqual(st.map((x) => x.nr), [1, 2]);
+  assert.ok(v.streckeKm(st) > 5 && v.streckeKm(st) < 10);
+  const u = v.unterwegs(d, st, 1500, 15, um(8));
+  assert.deepEqual(u.map((x) => x.kunde.id), ['angebot', 'mitte'], 'Angebot zuerst, kein Werbeverbot, nichts Fernes, nichts ohne Anlass');
+  assert.equal(u[0].grund, 'Angebot offen');
+  const g = v.googleRoute(st);
+  assert.match(g, /^https:\/\/www\.google\.com\/maps\/dir\/\?api=1&origin=52\.206%2C10\.3&destination=52\.26%2C10\.365/);
+  assert.ok(!/A|B/.test(g.replace(/api|maps|dir|travelmode|driving|destination|origin|https|www|google|com/g, '')), 'keine Namen in der Route');
+  assert.equal(v.googleRoute(st.slice(0, 1)), '');
+  assert.ok(v.abstandZurStrecke(52.2330, 10.3330, [52.2060, 10.3000], [52.2600, 10.3650]) < 300);
+});
+
+test('Vertrieb: Nachfass-Abstände und Bereitlegen-Listen aus den Einstellungen', async () => {
+  const v = await import('../src/core/vertrieb.ts');
+  const { normalizeEinstellungen } = await import('../src/core/model.ts');
+  // Standard für alte Daten
+  const alt = normalizeEinstellungen({});
+  assert.deepEqual(alt.nachfassTage, [3, 7]);
+  assert.deepEqual(alt.bereitlegen.pv, v.BEREITLEGEN.pv);
+  // Bereinigen: ganze Tage 1–90, ohne Doppelte, sortiert, höchstens 6; leer bleibt leer (= aus)
+  assert.deepEqual(v.normalizeNachfassTage([14, '3', 3, 0, 91, 2.5, 'x', null, 7]), [3, 7, 14]);
+  assert.deepEqual(v.normalizeNachfassTage([]), []);
+  assert.deepEqual(v.normalizeNachfassTage('3,7'), [3, 7]);
+  assert.equal(v.normalizeNachfassTage([1, 2, 3, 4, 5, 6, 7, 8]).length, v.NACHFASS_MAX);
+  assert.equal(v.tageListeText([3, 7]), '3 und 7 Tagen');
+  assert.equal(v.tageListeText([2, 5, 10]), '2, 5 und 10 Tagen');
+  assert.equal(v.tageListeText([1]), '1 Tag');
+  assert.equal(v.tageListeText([]), '');
+  // eigene Abstände steuern die Wiedervorlagen
+  const a = v.normalizeAngebot({ sparte: 'pv', titel: 'PV', datum: '2026-11-08T12:00:00.000Z' });
+  const nf = v.nachfassTermine(a, 'k1', '2026-11-08T13:00:00.000Z', [1, 14]);
+  assert.equal(nf.length, 2);
+  assert.match(nf[0].notiz, /^1 Tag nach/);
+  assert.match(nf[1].notiz, /^14 Tage nach/);
+  assert.equal(v.nachfassTermine(a, 'k1', '2026-11-08T13:00:00.000Z', []).length, 0);
+  // Bereitlegen: Leerzeilen und Doppelte weg, fehlender Bereich = Standard, leere Liste erlaubt
+  const b = v.normalizeBereitlegen({ pv: [' Stromrechnung ', '', 'Stromrechnung', 'Dachplan', 42], wp: [] });
+  assert.deepEqual(b.pv, ['Stromrechnung', 'Dachplan', '42']);
+  assert.deepEqual(b.wp, []);
+  assert.deepEqual(b.vorwerk, v.BEREITLEGEN.vorwerk);
+  assert.equal(v.normalizeBereitlegen({ pv: Array.from({ length: 30 }, (_, i) => `P${i}`) }).pv.length, v.BEREITLEGEN_MAX);
+  assert.equal(normalizeEinstellungen({ nachfassTage: [5], bereitlegen: { pv: ['X'] } }).nachfassTage[0], 5);
 });

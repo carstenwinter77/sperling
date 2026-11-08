@@ -2,6 +2,7 @@
 // Reine Datenfunktionen, werden innerhalb von store.mutate() aufgerufen.
 import { uid, nowIso, clone } from './util.ts';
 import { kundenTitel, normalizeKunde, normalizeNotiz, normalizeEnpalKontakt, normalizeTermin, type Daten, type PapierkorbEintrag } from './model.ts';
+import { normalizeAnsprechpartner } from './vertrieb.ts';
 
 type Bezug = NonNullable<PapierkorbEintrag['bezug']>;
 
@@ -45,6 +46,16 @@ export function enpalKontaktLoeschen(data: Daten, kundeId: string, kontaktId: st
   return true;
 }
 
+export function ansprechpartnerLoeschen(data: Daten, kundeId: string, apId: string): boolean {
+  const k = data.kunden.find((x) => x.id === kundeId);
+  const a = k?.ansprechpartner.find((x) => x.id === apId);
+  if (!k || !a) return false;
+  k.ansprechpartner = k.ansprechpartner.filter((x) => x.id !== apId);
+  k.updatedAt = nowIso();
+  ablegen(data, 'ansprechpartner', a, kundeId);
+  return true;
+}
+
 export function terminLoeschen(data: Daten, terminId: string): boolean {
   const t = data.termine.find((x) => x.id === terminId);
   if (!t) return false;
@@ -76,6 +87,12 @@ export function wiederherstellen(data: Daten, eintragId: string): string {
     if (e.typ === 'notiz' ? k.notizen.some((x) => x.id === o.id) : k.enpalKontakte.some((x) => x.id === o.id)) o.id = uid();
     if (e.typ === 'notiz') k.notizen.push(normalizeNotiz(o)); else k.enpalKontakte.push(normalizeEnpalKontakt(o));
     k.updatedAt = nowIso();
+  } else if (e.typ === 'ansprechpartner') {
+    const k = data.kunden.find((x) => x.id === e.kundeId);
+    if (!k) throw new Error('Der Kunde dazu ist gelöscht. Bitte zuerst den Kunden wiederherstellen.');
+    if (k.ansprechpartner.some((x) => x.id === o.id)) o.id = uid();
+    k.ansprechpartner.push(normalizeAnsprechpartner(o));
+    k.updatedAt = nowIso();
   } else if (e.typ === 'termin') {
     if (o.kundeId && !data.kunden.some((x) => x.id === o.kundeId)) o.kundeId = '';
     if (data.termine.some((x) => x.id === o.id)) o.id = uid();
@@ -104,5 +121,6 @@ export function eintragTitel(e: PapierkorbEintrag, data: Daten): { art: string; 
   if (e.typ === 'notiz') return { art: 'Notiz', text: `${String(o.text || '').slice(0, 80)}${zu}` };
   if (e.typ === 'enpalKontakt') return { art: 'Enpal-Doku', text: `${o.art === 'hausbesuch' ? 'Hausbesuch' : 'Telefonat'}${zu}` };
   if (e.typ === 'termin') return { art: 'Termin', text: `${o.titel || 'Termin'}${zu}` };
+  if (e.typ === 'ansprechpartner') return { art: 'Ansprechpartner', text: `${o.name || 'ohne Namen'}${zu}` };
   return { art: e.typ, text: '' };
 }

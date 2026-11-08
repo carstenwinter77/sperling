@@ -1515,3 +1515,60 @@ input.schalter:disabled { opacity: .5; cursor: not-allowed; }
 .ph-knopf:hover { border-color: var(--braun-hell); }
 .ph-knopf:focus-visible { outline: 3px solid rgba(232, 137, 44, .45); outline-offset: 1px; }
 @media (pointer: coarse) { .ph-knopf { min-height: 44px; } }
+
+/* ---------- Vertrieb: Angebote, Auftrag, Ansprechpartner, Haustür, Tagesroute (0.13.0) ---------- */
+.ang-summe { margin: 0 0 .6rem; }
+.ang-liste, .haustuer-liste, .route-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+.ang { background: var(--karte); border: 1px solid var(--linie); border-radius: var(--radius); padding: .6rem .8rem; }
+.ang-kopf { display: flex; gap: .5rem; align-items: baseline; flex-wrap: wrap; }
+.ang-kopf strong { flex: 1; min-width: 10ch; }
+.ang-betrag { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ang-zeile { margin: .3rem 0; font-size: .9rem; color: var(--text-2); }
+.ang-notiz { margin: .3rem 0; font-size: .9rem; }
+.ang-angenommen { box-shadow: inset 4px 0 0 var(--gruen); }
+.ang-abgelehnt, .ang-zurueckgezogen { opacity: .75; }
+.tag.ang-st-angenommen { background: var(--tag-vw-bg); color: var(--tag-vw); }
+.tag.ang-st-abgelehnt { background: var(--tag-warn-bg); color: var(--rot); }
+.auftrag { border: 1px solid var(--linie); border-radius: var(--radius); padding: .6rem .8rem; margin-bottom: .8rem; background: var(--karte); }
+.auftrag h3 { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin: 0 0 .4rem; }
+.auftrag h3 small { font-weight: 400; color: var(--text-2); }
+.auftrag-balken { height: 8px; border-radius: 999px; background: var(--flaeche-2); overflow: hidden; margin-bottom: .5rem; }
+.auftrag-balken span { display: block; height: 100%; background: var(--gruen); }
+.auftrag-schritte { list-style: none; margin: 0 0 .5rem; padding: 0; display: grid; gap: .3rem; }
+.auftrag-schritte li { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+.auftrag-schritte li .check { flex: 1; min-width: 14ch; margin: 0; }
+.auftrag-schritte li small { color: var(--text-2); }
+.auftrag-schritte li.erledigt .check { color: var(--text-2); }
+.auftrag-schritte input[type=date] { width: auto; min-height: 38px; }
+.haustuer-knoepfe { display: flex; flex-wrap: wrap; gap: .3rem; }
+.haustuer-knoepfe .btn { min-height: 38px; }
+.popup .haustuer-knoepfe .btn { margin-top: 0; min-height: 32px; padding: .2rem .5rem; font-size: .8rem; }
+.popup-tuer { margin-top: .4rem; color: var(--text-2); }
+.haustuer-liste { margin-top: .6rem; font-size: .9rem; }
+.werbeverbot-band { background: var(--tag-warn-bg); color: color-mix(in srgb, var(--rot) 75%, var(--text)); border-radius: var(--radius); padding: .5rem .8rem; margin: .4rem 0; }
+.pin.werbeverbot span { opacity: .55; }
+.pin.werbeverbot::after { content: '⛔'; position: absolute; top: -6px; right: -8px; font-size: 14px; line-height: 1; }
+.ap-liste .zeile { display: flex; gap: .5rem; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.ap-liste .zeile-haupt { display: flex; flex-direction: column; gap: .15rem; min-width: 0; flex: 1; }
+.tag.ap-rolle-entscheider { background: var(--tag-pv-bg); color: var(--tag-pv); }
+.route-panel { background: var(--karte); border-bottom: 1px solid var(--linie); padding: .5rem .7rem; max-height: 36dvh; overflow: auto; overscroll-behavior: contain; }
+.route-kopf { display: flex; gap: .6rem; flex-wrap: wrap; align-items: end; }
+.route-kopf label { display: flex; flex-direction: column; font-size: .8rem; gap: .15rem; }
+.route-kopf input, .route-kopf select { width: auto; min-height: 38px; }
+.route-kopf label.check { flex-direction: row; align-items: center; font-size: .9rem; min-height: 38px; }
+.route-kopf label.check input { min-height: 0; }
+.route-panel h3 { margin: .8rem 0 .4rem; font-size: 1rem; }
+.route-summe { margin: .5rem 0; }
+.route-liste li { display: flex; gap: .5rem; align-items: center; }
+.route-liste .zeile-haupt { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.route-liste small { color: var(--text-2); overflow-wrap: anywhere; }
+.route-nr-klein, .route-nr span { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--braun); color: var(--auf-akzent); font-weight: 700; font-size: .85rem; flex-shrink: 0; border: 2px solid var(--karte); box-shadow: 0 1px 4px rgba(0,0,0,.35); }
+.route-offen .karte-hinweis { display: none; }
+.ap-liste .zeile-haupt small { white-space: normal; overflow: visible; text-overflow: clip; }
+
+/* Einstellungen → Vertrieb: Nachfass-Abstände (0.13.0) */
+.nf-tage { display: flex; flex-wrap: wrap; gap: .4rem; margin: .5rem 0 .6rem; }
+.nf-tag { display: inline-flex; align-items: center; gap: .3rem; padding: .3rem .3rem .3rem .75rem; border-radius: 999px; border: 1px solid var(--linie); background: var(--karte); font-weight: 600; }
+.nf-weg { border: 0; background: none; font: inherit; font-size: 1.1rem; line-height: 1; min-width: 36px; min-height: 36px; border-radius: 50%; cursor: pointer; color: var(--text-2); }
+.nf-weg:hover, .nf-weg:focus-visible { background: color-mix(in srgb, var(--text-2) 12%, transparent); }
+#nfNeu { width: 7rem; }

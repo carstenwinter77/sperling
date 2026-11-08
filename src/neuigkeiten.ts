@@ -2,6 +2,17 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.13.0',
+    punkte: [
+      'Angebote beim Kunden: Bereich, Betrag, „gültig bis“. Sperling erinnert ans Nachfassen (Abstände stellst du unter Einstellungen → Vertrieb ein, Standard 3 und 7 Tage) und zeigt, wie viel Euro an Angeboten offen sind.',
+      'Auftragsstand nach dem Abschluss: Vertrag, Planung, Montage, Netzanmeldung, Inbetriebnahme abhaken, mit Datum. Den Stand kannst du dem Kunden kopieren. Danach schlägt Sperling Pflege-Wiedervorlagen vor (Zufriedenheit, Jahresbilanz, Wartung).',
+      'Termin bestätigen: In der Termin-Karte eine fertige SMS, WhatsApp oder E-Mail mit „Bitte bereitlegen“-Liste. Die Liste je Bereich legst du unter Einstellungen → Vertrieb selbst fest.',
+      'Tagesroute auf der Karte: Termine des Tages in Reihenfolge, dazu Kunden an der Strecke, bei denen sich ein Besuch lohnt. Andere Kunden sind ausgeblendet und lassen sich bei Bedarf einblenden.',
+      'Firmen und Höfe: mehrere Ansprechpartner mit Rolle (entscheidet, Technik, Buchhaltung).',
+      'An der Haustür: Ergebnis mit einem Tipp in der Karte festhalten, auch für Häuser, die noch nicht markiert sind. „Keine Werbung“ nimmt die Adresse aus allen Vorschlägen.',
+    ],
+  },
+  {
     version: '0.12.1',
     punkte: [
       'Textvorlagen: Platzhalter wie Vorname oder Adresse fügst du jetzt per Knopf ein, statt sie abzutippen.',

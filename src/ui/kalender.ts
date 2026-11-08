@@ -159,6 +159,7 @@ export function zeichnen(el, zustand, onWechsel, neuZeichnen) {
     <div class="k-leiste">
       <div class="k-nav"><button type="button" class="btn klein ghost" data-schritt="-1" aria-label="Zurück">‹</button><button type="button" class="btn klein ghost" data-schritt="0">Heute</button><button type="button" class="btn klein ghost" data-schritt="1" aria-label="Weiter">›</button></div>
       <strong class="k-titel">${esc(titel)}</strong>
+      ${ansicht === 'tag' ? `<a class="btn klein ghost" href="#/karte?route=${datum.getFullYear()}-${String(datum.getMonth() + 1).padStart(2, '0')}-${String(datum.getDate()).padStart(2, '0')}">🚗 Route des Tages</a>` : ''}
       ${d.geraete.length ? `<label class="check k-leih"><input type="checkbox" id="kLeih" ${leihZeigen ? 'checked' : ''}> Leihgaben zeigen</label>` : ''}
     </div>
     <p class="hinweis k-tipp">${ansicht === 'monat'

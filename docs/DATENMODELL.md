@@ -1,4 +1,4 @@
-# Datenmodell (Schema-Version 7)
+# Datenmodell (Schema-Version 9)
 
 Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Menschen. Bei Abweichungen gilt der Code, und diese Datei wird nachgezogen.
 
@@ -6,7 +6,7 @@ Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Mensch
 
 | Feld | Typ | Beschreibung |
 |---|---|---|
-| `schemaVersion` | Zahl | aktuell `8` |
+| `schemaVersion` | Zahl | aktuell `9` |
 | `kunden` | Kunde[] | alle Kunden und markierten Standorte |
 | `termine` | Termin[] | Termine und Wiedervorlagen |
 | `einstellungen` | Objekt | siehe unten |
@@ -35,6 +35,10 @@ Quelle der Wahrheit: `src/core/model.ts`. Diese Datei beschreibt sie für Mensch
 | `fotos` | KundenFoto[] | ab 0.10.16: `{id, sparte (pv/wp/vorwerk), zeitpunkt, notiz, bytes, breite, hoehe}`, höchstens 200. Nur die Beschreibung; die Bilder liegen verschlüsselt in der IndexedDB-Tabelle `fotos`. |
 | `produkte` | ProduktMarkierung[] | Produkte im Gespräch (ab Schema 5): Ereignisse `{id, produktId, name, bereich, markierung, zeitpunkt}`; `markierung` ist `interesse`, `spaeter`, `vorhanden`, `kein` oder `''` (aufgehoben). Es gilt das jüngste Ereignis je Produkt. Name und Bereich sind mitgespeichert, damit Verlauf und Texte auch ohne Katalogeintrag funktionieren. Höchstens 2000 Ereignisse je Kunde. |
 | `statusVerlauf` | StatusWechsel[] | ab Schema 8: `{zeitpunkt, sparte, von, nach, geschaetzt?}`, älteste zuerst, höchstens 1000. Wird nach jeder Änderung von `store.mutate` ergänzt, wenn der Status einer Sparte vom letzten Eintrag abweicht (`statusVerlaufAbgleichen()`); `geschaetzt: true` = bei der Migration nachgetragen (Anlagedatum, ohne echten Zeitpunkt). Grundlage für Abschlüsse, Abschlussquote, offene Chancen und den Verkaufstrichter (`vertrieb()` in `src/core/auswertung.ts`). |
+| `angebote` | Angebot[] | ab Schema 9: `{id, sparte, titel, betrag (Euro oder null), datum, gueltigBis (ISO oder null, nie vor `datum`), status (offen/angenommen/abgelehnt/zurueckgezogen), entschieden (ISO oder null), notiz, createdAt, updatedAt}`, höchstens 200. Nachfass-Wiedervorlagen sind normale Termine mit Titel „Angebot nachfassen: …“ (`nachfassTermine()` in `src/core/vertrieb.ts`). Angebote stehen in keinem Anbieter-Text (R-TEXT unberührt). |
+| `auftrag` | Objekt | ab Schema 9: je begonnener Sparte `{schritte: {schlüssel: {datum: 'JJJJ-MM-TT' oder '', erledigt}}, notiz}`. Schritte stehen in `AUFTRAG_SCHRITTE` (PV: vertrag, planung, montage, netz, inbetrieb; WP: vertrag, foerderung, planung, montage, inbetrieb; Vorwerk: vertrag, lieferung, einweisung). Datum ohne Haken = geplant. Unbekannte Sparten/Schritte werden verworfen. |
+| `ansprechpartner` | Ansprechpartner[] | ab Schema 9: `{id, name, rolle (entscheider/technik/finanzen/nutzer/sonstiges), funktion, telefon, email, notiz}`, höchstens 30. Löschen legt den Eintrag in „Gelöscht“ (Typ `ansprechpartner`). |
+| `haustuer` | HaustuerEintrag[] | ab Schema 9: `{id, zeitpunkt, ergebnis (nicht_da/spaeter/gespraech/kein_interesse/werbeverbot), notiz}`, höchstens 200. Es gilt das jüngste Ergebnis: `werbeverbot` = „Keine Werbung erwünscht“ (Pin mit ⛔, nie in „Unterwegs vorbeischauen“). „Später“, „Gespräch“ und „Kein Interesse“ zählen als Kontakt (`letzterKontakt()`). „Kein Interesse“ setzt Sparten mit Status „Potenzial“ auf „Kein Interesse“. |
 | `eigene` | Objekt | Werte der eigenen Felder (ab Schema 4): Schlüssel = Feld-ID aus `einstellungen.felder.eigene`, Wert = Text, Zahl oder `true`/`false`. Datum als `JJJJ-MM-TT`. Werte gelöschter Felder werden beim Löschen entfernt; ausgeblendete bleiben. |
 
 ### Status je Sparte
@@ -162,6 +166,8 @@ Belegt ist ein Gerät, wenn sich der Zeitraum mit einer Reservierung oder einem 
 | `fotosMitsichern` | Boolean | ab 0.10.16, Standard `true`: Kundenfotos in die Sicherung/iCloud-Datei aufnehmen |
 | `absender` | Gruß unter den Texten |
 | `vorlagen.pv`, `vorlagen.wp`, `vorlagen.vorwerk` | Textvorlagen mit Platzhaltern, je Bereich (ab Schema 7; vorher `enpal` für PV + WP) |
+| `nachfassTage` | Zahlen[] – Tage nach einem Angebot, an denen eine Nachfass-Wiedervorlage entsteht (ab 0.13.0, Standard `[3, 7]`, ganze Tage 1–90, aufsteigend, höchstens 6; leer = kein Nachfassen; `normalizeNachfassTage()` in `src/core/vertrieb.ts`) |
+| `bereitlegen` | `{pv, wp, vorwerk}` je Liste von Texten – „Bitte bereitlegen“ in der Terminbestätigung (ab 0.13.0, höchstens 12 Punkte zu je 200 Zeichen; fehlt ein Bereich, gilt `BEREITLEGEN` aus `src/core/vertrieb.ts`) |
 | `kalenderStart` | `liste`, `monat`, `woche`, `tag` oder `geraete` – Startansicht des Kalenders (ab Schema 7, Standard `monat`) |
 | `karte` | letzte Position, Zoom, Layer (`satellit`/`strasse`) |
 | `autoSperreMin` | 0–240, 0 = nie |
@@ -191,7 +197,7 @@ Beispielkunden, -termine, -geräte und -verleihe in der echten App erkennt man a
 
 **Einstellungsdatei** (ab 0.10.5, `src/core/einstellungsdatei.ts`): `{art: 'sperling-einstellungen', schemaVersion, erstellt, einstellungen, geraet: {farbschema, mailprogramm}}`, ohne `zuletzt`, verschlüsselt im selben Umschlag wie die Sicherung (`deviceId: 'einstellungen'`). „Sicherung einspielen“ lehnt sie ab, damit keine Kunden verloren gehen.
 
-Schema 1 → 2: `enpalKontakte` und `einstellungen.empfaenger` kommen hinzu; die Normalisierung ergänzt sie leer. Schema 2 → 3: `reservierungen`, `papierkorb`, `einstellungen.kartenApp` und die Beleg-Felder am Leihvorgang kommen hinzu (leer). 0.9.0 bleibt bei Schema 3: die neuen Felder (`letzterKontaktManuell`, `kundenansicht`, `nachbarRadiusM`, `zuletzt`) ergänzt die Normalisierung mit Standardwerten. Schema 6 → 7 (drei Texte, Kalender-Start): `vorlagen` und `empfaenger` je Bereich; eine eigene frühere Enpal-Vorlage bzw. ein Enpal-Empfänger gilt für PV und WP, die unveränderte alte Standardvorlage wird durch die neuen ersetzt; `kalenderStart` kommt mit `monat` hinzu. Schema 5 → 6 (Textbausteine): `einstellungen.bausteine` kommt hinzu; fehlt ein Bereich, gilt die Startliste aus `src/core/bausteine.ts`. Schema 4 → 5 (Produkte im Gespräch): `kunde.produkte` kommt hinzu (leer). Schema 3 → 4 (Feldverwaltung): `kunde.eigene` und `einstellungen.felder` kommen hinzu (leer); das frühere `einstellungen.dropbox` wird verworfen. Schema 7 → 8 (Statusverlauf): `kunde.statusVerlauf` kommt hinzu; jeder Status ungleich „Unbekannt“ wird als geschätzter Wechsel zum Anlagedatum nachgetragen. Künftige Versionen ergänzen schrittweise Blöcke `if (v < 5) { … }`.
+Schema 1 → 2: `enpalKontakte` und `einstellungen.empfaenger` kommen hinzu; die Normalisierung ergänzt sie leer. Schema 2 → 3: `reservierungen`, `papierkorb`, `einstellungen.kartenApp` und die Beleg-Felder am Leihvorgang kommen hinzu (leer). 0.9.0 bleibt bei Schema 3: die neuen Felder (`letzterKontaktManuell`, `kundenansicht`, `nachbarRadiusM`, `zuletzt`) ergänzt die Normalisierung mit Standardwerten. Schema 6 → 7 (drei Texte, Kalender-Start): `vorlagen` und `empfaenger` je Bereich; eine eigene frühere Enpal-Vorlage bzw. ein Enpal-Empfänger gilt für PV und WP, die unveränderte alte Standardvorlage wird durch die neuen ersetzt; `kalenderStart` kommt mit `monat` hinzu. Schema 5 → 6 (Textbausteine): `einstellungen.bausteine` kommt hinzu; fehlt ein Bereich, gilt die Startliste aus `src/core/bausteine.ts`. Schema 4 → 5 (Produkte im Gespräch): `kunde.produkte` kommt hinzu (leer). Schema 3 → 4 (Feldverwaltung): `kunde.eigene` und `einstellungen.felder` kommen hinzu (leer); das frühere `einstellungen.dropbox` wird verworfen. Schema 7 → 8 (Statusverlauf): `kunde.statusVerlauf` kommt hinzu; jeder Status ungleich „Unbekannt“ wird als geschätzter Wechsel zum Anlagedatum nachgetragen. Schema 8 → 9 (Vertriebswerkzeuge): `kunde.angebote`, `kunde.auftrag`, `kunde.ansprechpartner` und `kunde.haustuer` kommen hinzu (leer); `einstellungen.nachfassTage` und `einstellungen.bereitlegen` ergänzt die Normalisierung mit den Standardwerten (kein eigener Schemaschritt). Künftige Versionen ergänzen schrittweise Blöcke `if (v < 10) { … }`.
 
 ## Kundenfotos (IndexedDB-Tabelle `fotos`, ab Datenbank-Version 2)
 

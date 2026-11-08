@@ -773,7 +773,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.check('#hilfeKnoepfe');
   // Einstellungen in Bereichen: breit Liste + Inhalt, Wechsel ohne Neuladen, Suche über alle Bereiche
   await p.goto(BASE + '#/einstellungen');
-  if ((await p.locator('.einst-gruppe').count()) !== 8) fail('Einstellungen: nicht 8 Bereiche');
+  if ((await p.locator('.einst-gruppe').count()) !== 9) fail('Einstellungen: nicht 9 Bereiche');
   if (!(await p.isVisible('#absender'))) fail('Einstellungen breit: Allgemein nicht vorausgewählt');
   await p.click('[data-gruppe-link=sicherheit]');
   if (!(await p.isVisible('#autoSperre')) || (await p.isVisible('#absender'))) fail('Bereichswechsel zeigt falschen Inhalt');
@@ -1026,6 +1026,136 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     await p.waitForTimeout(300);
     if (await p.isVisible('#plusKnopf')) fail('„+“-Knopf auf der Karte sichtbar');
     if (await p.evaluate(() => window.__xss)) fail('XSS bei den Schnellknöpfen ausgeführt!');
+  }
+  // Vertriebswerkzeuge (0.13.0): Ansprechpartner, Haustür, Angebot mit Nachfassen, Auftrag, Pflege, Terminbestätigung
+  {
+    // Einstellungen → Vertrieb: dritter Nachfass-Abstand, eigene Bereitlegen-Liste für PV
+    await p.goto(BASE + '#/einstellungen?bereich=vertrieb');
+    await p.waitForSelector('#nachfassEinstellungen .nf-tag');
+    if ((await p.locator('#nachfassEinstellungen .nf-tag').count()) !== 2) fail('Vertrieb: Standard 3 und 7 Tage fehlt');
+    await p.fill('#nfNeu', '14');
+    await p.click('#nfDazu');
+    await p.waitForFunction(() => document.querySelectorAll('#nachfassEinstellungen .nf-tag').length === 3);
+    await p.click('[data-bl-bereich=pv] summary');
+    await p.fill('textarea[data-bereitlegen=pv]', 'die letzte Stromrechnung\n\nE2E-Hausplan <b>x</b>');
+    await p.press('textarea[data-bereitlegen=pv]', 'Tab');
+    await p.waitForTimeout(300);
+    if (!(await p.textContent('[data-status=vertrieb]')).includes('3, 7 und 14 Tagen')) fail('Vertrieb: Stand unter dem Bereich falsch: ' + (await p.textContent('[data-status=vertrieb]')));
+    await p.goto(BASE + '#/kunden');
+    await p.click('#neu');
+    await p.waitForSelector('[data-feld="nachname"]');
+    await p.fill('[data-feld="nachname"]', 'Vertrieb');
+    await p.fill('[data-feld="firma"]', '<img src=x onerror="window.__xss=1">Hof');
+    await p.fill('[data-feld="telefon"]', '0170 1112223');
+    await p.waitForTimeout(500);
+    const vid = (await p.evaluate(() => location.hash)).match(/kunde\/([^?]+)/)[1];
+    await p.goto(BASE + '#/kunde/' + vid);
+    await p.waitForSelector('.ap-box [data-ap-neu]');
+    await p.click('.ap-box [data-ap-neu]');
+    await p.fill('dialog input[name=name]', '<img src=x onerror="window.__xss=1">Heinz');
+    await p.selectOption('dialog select[name=rolle]', 'technik');
+    await p.click('dialog .dlg-actions button.primary');
+    await p.waitForSelector('.ap-liste li');
+    if (!(await p.textContent('.ap-box')).includes('Entscheidet')) fail('Ansprechpartner: Hinweis auf fehlenden Entscheider fehlt');
+    await p.click('.haustuer-box [data-haustuer=werbeverbot]');
+    await p.waitForSelector('#kBand .werbeverbot-band');
+    await p.click('button[data-tab=angebote]');
+    await p.click('#angNeu');
+    await p.waitForSelector('dialog input[name=titel]');
+    if (!(await p.textContent('dialog')).includes('Nachfassen nach 3, 7 und 14 Tagen')) fail('Angebot: eingestellte Nachfass-Abstände nicht im Dialog');
+    await p.fill('dialog input[name=titel]', 'PV <img src=x onerror="window.__xss=1">');
+    await p.fill('dialog input[name=betrag]', '18.900');
+    await p.click('dialog .dlg-actions button.primary');
+    await p.waitForSelector('.ang-liste li');
+    if ((await p.textContent('.ang-betrag')).trim() !== '18.900 €') fail('Angebot: Betrag falsch: ' + (await p.textContent('.ang-betrag')));
+    if (!(await p.textContent('.ang-summe')).includes('18.900')) fail('Angebot: offene Summe fehlt');
+    await p.click('button[data-tab=termine]');
+    if ((await p.locator('.terminliste li.termin:not(.erledigt)', { hasText: 'Angebot nachfassen' }).count()) !== 3) fail('Angebot: 3 Nachfass-Wiedervorlagen erwartet (3, 7, 14 Tage)');
+    await p.click('button[data-tab=angebote]');
+    await p.click('.ang-liste [data-ang=angenommen]');
+    await p.click('dialog .dlg-actions button.primary');
+    await p.waitForSelector('.auftrag[data-sparte=pv]');
+    if (!(await p.getAttribute('#kChips .bereich-chip-pv', 'title')).includes('Abschluss')) fail('Angebot angenommen: Status nicht Abschluss');
+    // Alle Schritte abhaken; beim letzten kommen die Pflege-Vorschläge
+    for (let i = 0; i < 5; i++) {
+      const box = p.locator('.auftrag[data-sparte=pv] input[data-schritt]:not(:checked)').first();
+      if (!(await box.count())) break;
+      await box.click();
+      await p.waitForTimeout(150);
+    }
+    await p.waitForSelector('dialog [name=p]');
+    await p.click('dialog .dlg-actions button.primary');
+    await p.waitForFunction(() => /Wiedervorlage/.test(document.querySelector('#toast')?.textContent || ''));
+    await p.click('button[data-tab=termine]');
+    if ((await p.locator('.terminliste li.termin:not(.erledigt)', { hasText: 'Angebot nachfassen' }).count()) !== 0) fail('Angebot angenommen: Nachfass-Wiedervorlagen nicht erledigt');
+    if (!(await p.locator('.terminliste li.termin', { hasText: 'Läuft die PV-Anlage' }).count())) fail('Pflege-Wiedervorlage fehlt');
+    // Termin bestätigen: Termin anlegen, Karte öffnen, Bestätigung als Text kopieren
+    await p.click('#neu');
+    await p.selectOption('dialog select[name=art]', 'termin');
+    await p.fill('dialog input[name=titel]', 'Beratung vor Ort');
+    await p.selectOption('dialog select[name=sparte]', 'pv');
+    await p.click('dialog .dlg-actions button.primary');
+    await p.waitForSelector('.terminliste li.termin >> text=Beratung vor Ort');
+    await p.locator('.terminliste li.termin', { hasText: 'Beratung vor Ort' }).locator('.termin-titel').click();
+    await p.click('dialog [data-tk=bestaetigen]');
+    await p.waitForSelector('dialog textarea[name=text]');
+    const best = await p.inputValue('dialog textarea[name=text]');
+    if (!/Beratung Photovoltaik/.test(best) || !/Stromrechnung/.test(best)) fail('Terminbestätigung: Text unvollständig');
+    if (!best.includes('E2E-Hausplan <b>x</b>') || /Zählerschrank/.test(best)) fail('Terminbestätigung: eigene Bereitlegen-Liste nicht verwendet');
+    if ((await p.locator('dialog [name=b]').count()) !== 2) fail('Terminbestätigung: Leerzeile in der Liste nicht entfernt');
+    if (!(await p.$('dialog .werbeverbot-band'))) fail('Terminbestätigung: Hinweis „Keine Werbung“ fehlt');
+    await p.uncheck('dialog [name=b] >> nth=0');
+    if (/Stromrechnung/.test(await p.inputValue('dialog textarea[name=text]'))) fail('Terminbestätigung: abgewählter Punkt bleibt im Text');
+    if (!(await p.locator('dialog .dlg-actions button', { hasText: 'WhatsApp' }).count())) fail('Terminbestätigung: WhatsApp fehlt');
+    await p.locator('dialog .dlg-actions button', { hasText: 'Kopieren' }).click();
+    await p.waitForTimeout(200);
+    await p.click('button[data-tab=verlauf]');
+    if (!(await p.textContent('.verlauf')).includes('Keine Werbung erwünscht')) fail('Haustür fehlt im Verlauf');
+    if (await p.evaluate(() => window.__xss)) fail('XSS in den Vertriebswerkzeugen ausgeführt!');
+    // Nach Neuladen ist alles noch da (verschlüsselt gespeichert)
+    await p.waitForTimeout(600);
+    await p.reload();
+    await p.fill('input[name=pw]', 'testpasswort');
+    await p.click('#sperrForm button');
+    await p.waitForSelector('.hauptnav');
+    await p.goto(BASE + '#/kunde/' + vid + '?tab=angebote');
+    await p.waitForSelector('.ang-liste li.ang-angenommen');
+    await p.waitForSelector('.auftrag[data-sparte=pv] .auftrag-balken');
+  }
+  // Tagesroute und Haustür auf der Karte (Demo mit Beispieldaten, eigener Tab)
+  {
+    const dp = await ctx.newPage();
+    dp.on('pageerror', (e) => errs.push('Demo: ' + e.message));
+    await dp.goto(BASE + '?demo');
+    await dp.waitForSelector('.hauptnav');
+    const ueber = await dp.evaluate(() => { const x = new Date(); x.setDate(x.getDate() + 2); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; });
+    await dp.goto(BASE + '?demo#/karte?route=' + ueber);
+    await dp.waitForSelector('#rPanel:not([hidden]) .route-liste li');
+    const stopps = await dp.locator('#rInhalt ol.route-liste > li').count();
+    if (stopps < 3) fail('Tagesroute: mindestens 3 Termine erwartet, gefunden ' + stopps);
+    const ohneOrt = await dp.locator('#rInhalt ol.route-liste > li', { hasText: 'ohne Standort' }).count();
+    if ((await dp.locator('.route-nr').count()) !== stopps - ohneOrt) fail('Tagesroute: Nummern auf der Karte fehlen');
+    if (!(await dp.textContent('#rInhalt ol.route-liste')).includes('Bäckerei Test')) fail('Tagesroute: Beispieltermin fehlt');
+    if (!(await dp.textContent('#rInhalt')).includes('Unterwegs vorbeischauen')) fail('Tagesroute: Vorschläge fehlen');
+    if (!(await dp.$('#rInhalt a[href*="google.com/maps/dir"]'))) fail('Tagesroute: Link für die ganze Route fehlt');
+    if (/Bäckerei|Muster|Probe/.test(await dp.getAttribute('#rInhalt a[href*="google.com/maps/dir"]', 'href'))) fail('Tagesroute: Namen im Routenlink');
+    // Andere Kunden sind während der Route ausgeblendet und lassen sich einblenden
+    const pinsRoute = await dp.locator('.leaflet-marker-icon.pin').count();
+    const routeKunden = await dp.locator('#rInhalt a[href^="#/kunde/"]').count();
+    if (pinsRoute < 1 || pinsRoute > routeKunden) fail(`Tagesroute: ${pinsRoute} Pins, erwartet höchstens ${routeKunden} (nur Route und Vorschläge)`);
+    await dp.check('#rAlle');
+    await dp.waitForFunction((n) => document.querySelectorAll('.leaflet-marker-icon.pin').length > n, pinsRoute);
+    await dp.uncheck('#rAlle');
+    await dp.waitForFunction((n) => document.querySelectorAll('.leaflet-marker-icon.pin').length === n, pinsRoute);
+    await dp.click('#rKnopf');
+    if (await dp.isVisible('#rPanel')) fail('Tagesroute lässt sich nicht schließen');
+    // Haustür in der Infobox eines Pins
+    await dp.goto(BASE + '?demo#/kunden');
+    await dp.goto(BASE + '?demo#/karte?kunde=demo-2');
+    await dp.waitForSelector('.leaflet-popup .haustuer-knoepfe');
+    await dp.click('.leaflet-popup [data-haustuer=spaeter]');
+    await dp.waitForFunction(() => /Später wiederkommen/.test(document.querySelector('#toast')?.textContent || ''));
+    await dp.close();
   }
   // Unbekannte Route / unbekannter Kunde stürzen nicht ab
   await p.goto(BASE + '#/kunde/gibtsnicht');
