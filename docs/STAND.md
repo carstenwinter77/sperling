@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.6
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.7
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,10 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.13.6)
+## Erledigt (Version 0.13.7)
+
+### Neu in 0.13.7
+- [x] „Name A–Z“: Einträge ohne Namen werden nicht mehr ans Ende gestellt, sondern mit Ort (bzw. Straße, je nach `ortsFolge`) als Sortierschlüssel zwischen die Namen einsortiert (`kundenVergleich` in `src/core/model.ts`). Unit-Test angepasst.
 
 ### Neu in 0.13.6
 - [x] Kundenliste „Name A–Z“ sortiert nach Nachname, dann Vorname (nur Vorname oder nur Firma zählt wie ein Nachname); Einträge ohne Namen stehen danach, sortiert nach Ort, dann Straße oder nach Straße, dann Ort (`kundenVergleich` in `src/core/model.ts`, Hausnummern numerisch). Auch die Kundenauswahl im Kalender/Verleih nutzt diese Reihenfolge bei gleicher Trefferwertung.

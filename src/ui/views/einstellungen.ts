@@ -170,7 +170,7 @@ function inhalt(key: GruppeKey, demo: boolean): string {
           ${ORTS_FOLGEN.map(([k, l]) => `<option value="${k}" ${e.ortsFolge === k ? 'selected' : ''}>${l}</option>`).join('')}
         </select></label>
       </div>
-      ${mehr('Wie wird sortiert?', '<p class="hinweis">„Name A–Z“ in der Kundenliste sortiert immer nach dem Nachnamen, dann nach dem Vornamen. Steht nur ein Vorname oder nur eine Firma da, zählt diese wie ein Nachname. Einträge ohne Namen (z. B. ein Pin auf der Karte) folgen danach, je nach Wahl nach Ort und dann Straße oder nach Straße und dann Ort. Texte für Enpal, GALVANY und Vorwerk sowie Leihscheine schreiben den Namen immer als „Vorname Nachname“.</p>')}
+      ${mehr('Wie wird sortiert?', '<p class="hinweis">„Name A–Z“ in der Kundenliste sortiert immer nach dem Nachnamen, dann nach dem Vornamen. Steht nur ein Vorname oder nur eine Firma da, zählt diese wie ein Nachname. Einträge ohne Namen (z. B. ein Pin auf der Karte) stehen alphabetisch dazwischen, je nach Wahl mit dem Ort (dann Straße) oder der Straße (dann Ort) wie ein Name. Texte für Enpal, GALVANY und Vorwerk sowie Leihscheine schreiben den Namen immer als „Vorname Nachname“.</p>')}
     </section>
     ${feldverwaltung.html(e.felder)}
     <section class="karte-box" id="kaEinstellungen">

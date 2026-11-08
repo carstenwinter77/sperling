@@ -2,9 +2,15 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.13.7',
+    punkte: [
+      'Kunden ohne Namen stehen in „Name A–Z“ jetzt alphabetisch zwischen den Namen, nach ihrem Ort (oder ihrer Straße, je nach Einstellung).',
+    ],
+  },
+  {
     version: '0.13.6',
     punkte: [
-      'Kunden „Name A–Z“ werden jetzt nach dem Nachnamen sortiert. Einträge ohne Namen stehen danach, nach Ort und Straße.',
+      'Kunden „Name A–Z“ werden jetzt nach dem Nachnamen sortiert.',
       'Unter Einstellungen → Kundendaten stellst du ein, ob Namen als „Vorname Nachname“ oder „Nachname, Vorname“ erscheinen, und ob bei Einträgen ohne Namen der Ort oder die Straße vorne steht.',
     ],
   },

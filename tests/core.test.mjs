@@ -1871,15 +1871,13 @@ test('Namensanzeige und Sortierung nach Nachname', () => {
       { strasse: 'Bahnhofstraße 10', plz: '38268', ort: 'Lengede' }, { strasse: 'Bahnhofstraße 2', plz: '38268', ort: 'Lengede' },
       { strasse: 'Am Markt 1', plz: '31224', ort: 'Peine' }, { firma: 'Meyer GmbH' }, { vorname: 'Anton', nachname: 'Müller' },
     ];
-    for (const f of ['vorname', 'nachname']) {
-      anzeigeSetzen({ namensFolge: f, ortsFolge: 'ort' });
-      assert.deepEqual([...liste].sort(kundenVergleich).map((x) => kundenTitel(x, 'strasse')).slice(0, 5).map((t) => t.replace(/^(\S+), (\S+)$/, '$2 $1')),
-        ['Zoe Albers', 'Meyer GmbH', 'Anton Müller', 'Bernd Müller', 'Anna Zander']);
-    }
-    anzeigeSetzen({ ortsFolge: 'ort' });
-    assert.deepEqual([...liste].sort(kundenVergleich).slice(5).map((x) => kundenTitel(x)), ['Lengede, Bahnhofstraße 2', 'Lengede, Bahnhofstraße 10', 'Peine, Am Markt 1']);
-    anzeigeSetzen({ ortsFolge: 'strasse' });
-    assert.deepEqual([...liste].sort(kundenVergleich).slice(5).map((x) => kundenTitel(x)), ['Am Markt 1, 31224 Peine', 'Bahnhofstraße 2, 38268 Lengede', 'Bahnhofstraße 10, 38268 Lengede']);
+    const titel = () => [...liste].sort(kundenVergleich).map((x) => kundenTitel(x));
+    anzeigeSetzen({ namensFolge: 'vorname', ortsFolge: 'ort' });
+    assert.deepEqual(titel(), ['Zoe Albers', 'Lengede, Bahnhofstraße 2', 'Lengede, Bahnhofstraße 10', 'Meyer GmbH', 'Anton Müller', 'Bernd Müller', 'Peine, Am Markt 1', 'Anna Zander']);
+    anzeigeSetzen({ namensFolge: 'nachname', ortsFolge: 'ort' });
+    assert.deepEqual(titel(), ['Albers, Zoe', 'Lengede, Bahnhofstraße 2', 'Lengede, Bahnhofstraße 10', 'Meyer GmbH', 'Müller, Anton', 'Müller, Bernd', 'Peine, Am Markt 1', 'Zander, Anna']);
+    anzeigeSetzen({ namensFolge: 'nachname', ortsFolge: 'strasse' });
+    assert.deepEqual(titel(), ['Albers, Zoe', 'Am Markt 1, 31224 Peine', 'Bahnhofstraße 2, 38268 Lengede', 'Bahnhofstraße 10, 38268 Lengede', 'Meyer GmbH', 'Müller, Anton', 'Müller, Bernd', 'Zander, Anna']);
   } finally {
     anzeigeSetzen(null);
   }

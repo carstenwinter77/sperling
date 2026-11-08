@@ -822,20 +822,19 @@ export function kundenTitel(k: MitAdresse, folge: OrtsFolge = anzeige.ortsFolge)
 const vergleich = new Intl.Collator('de', { numeric: true, sensitivity: 'base' });
 /**
  * Sortierung „Name A–Z“: Kunden mit Namen nach Nachname, dann Vorname, dann Firma
- * (nur Vorname oder nur Firma zählt wie ein Nachname). Danach die Einträge ohne Namen,
- * je nach Einstellung nach Ort, dann Straße oder nach Straße, dann Ort.
+ * (nur Vorname oder nur Firma zählt wie ein Nachname). Einträge ohne Namen stehen
+ * dazwischen, je nach Einstellung mit dem Ort (dann Straße) oder der Straße (dann Ort) als Name.
  */
 export function kundenVergleich(a: MitAdresse, b: MitAdresse, folge: OrtsFolge = anzeige.ortsFolge): number {
   const t = (s?: string) => (s || '').trim();
-  const schluessel = (k: MitAdresse): [number, string[]] => {
+  const schluessel = (k: MitAdresse): string[] => {
     const nn = t(k.nachname) || t(k.vorname) || t(k.firma);
-    if (nn) return [0, [nn, t(k.nachname) ? t(k.vorname) : '', t(k.firma)]];
+    if (nn) return [nn, t(k.nachname) ? t(k.vorname) : '', t(k.firma)];
     const ort = t(k.ort) || t(k.plz);
-    return [1, folge === 'strasse' ? [t(k.strasse), ort, t(k.plz)] : [ort, t(k.strasse), t(k.plz)]];
+    return folge === 'strasse' ? [t(k.strasse), ort, t(k.plz)] : [ort, t(k.strasse), t(k.plz)];
   };
-  const [ga, sa] = schluessel(a);
-  const [gb, sb] = schluessel(b);
-  if (ga !== gb) return ga - gb;
+  const sa = schluessel(a);
+  const sb = schluessel(b);
   for (let i = 0; i < sa.length; i++) {
     const x = sa[i]!, y = sb[i]!;
     if (x === y) continue;

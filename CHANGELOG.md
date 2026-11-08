@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.13.7 – 08.11.2026
+- **Einträge ohne Namen stehen zwischen den Namen.** In „Name A–Z“ zählt bei Einträgen ohne Namen der Ort (oder die Straße, je nach Einstellung) wie ein Name, z. B. „Lengede, Lindenweg 8“ zwischen „Lehmann“ und „Meier“. Bisher standen sie gesammelt am Ende.
+
 ## 0.13.6 – 08.11.2026
 - **Kunden nach Nachname sortieren.** „Name A–Z“ in der Kundenliste geht jetzt nach dem Nachnamen, dann nach dem Vornamen (vorher nach dem Vornamen). Einträge ohne Namen, etwa ein Pin auf der Karte, stehen danach und sind nach Ort und dann Straße sortiert (Hausnummern der Größe nach).
 - **Neue Einstellung „Namen in Listen“** (Einstellungen → Kundendaten): Namen als „Vorname Nachname“ oder „Nachname, Vorname“ anzeigen, und Einträge ohne Namen mit „Ort, dann Straße“ oder „Straße, dann Ort“ benennen und sortieren. Texte für Enpal, GALVANY und Vorwerk sowie Leihscheine schreiben den Namen weiter als „Vorname Nachname“.
