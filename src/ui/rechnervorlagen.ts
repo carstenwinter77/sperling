@@ -9,6 +9,7 @@ import {
 } from '../core/rechnervorlagen.ts';
 import * as store from '../storage/store.ts';
 import { bestaetigen, toast } from './dom.ts';
+import { frageKnopf, erklaerungHtml, frageUmschalten } from './rechner.ts';
 
 let offen = ''; // aufgeklappte Vorlage überlebt das Neuzeichnen
 
@@ -17,8 +18,8 @@ const zahl = (n: number) => n.toLocaleString('de-DE', { maximumFractionDigits: 2
 function felderHtml(v: RechnerVorlage, art: Rechner, felder: Feld[]): string {
   const werte = v[art] as Record<string, number>;
   return `<fieldset class="rv-felder"><legend>${art === 'pv' ? 'Photovoltaik' : 'Wärmepumpe'}</legend>
-    ${felder.map((f) => `<label class="rz-feld"><span>${esc(f.label)}${f.einheit ? ` <small>(${esc(f.einheit)})</small>` : ''}</span>
-      <input data-rv-feld="${art}.${esc(f.key)}" inputmode="decimal" autocomplete="off" value="${esc(zahl(werte[f.key]))}"></label>`).join('')}
+    ${felder.map((f) => { const id = `rv-${esc(v.id)}-${art}-${esc(f.key)}`; return `<div class="rz-feld"><span class="rz-feld-kopf"><label for="${id}">${esc(f.label)}${f.einheit ? ` <small>(${esc(f.einheit)})</small>` : ''}</label>${frageKnopf(art, f, id)}</span>
+      <input id="${id}" data-rv-feld="${art}.${esc(f.key)}" inputmode="decimal" autocomplete="off" value="${esc(zahl(werte[f.key]))}">${erklaerungHtml(art, f, id)}</div>`; }).join('')}
   </fieldset>`;
 }
 
@@ -82,6 +83,7 @@ export function verdrahten(root: HTMLElement, neuZeichnen: () => void) {
   });
   box.addEventListener('click', async (ev) => {
     const t = ev.target as Element;
+    if (frageUmschalten(t)) return;
     if (t.closest('#rvNeu')) {
       const id = neueVorlagenId();
       const basis = store.getData().einstellungen.rechnerVorlagen.find((v) => v.id === VORLAGE_PRIVAT)!;

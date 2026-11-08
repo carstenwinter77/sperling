@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.14.1 – 08.11.2026
+- **Rechner: Erklärungen zu den Feldern.** Neben jedem Feld steht ein kleines „?“. Ein Tipp klappt darunter eine kurze Erklärung auf, z. B. was „Ohnehin fällig“ oder die Jahresarbeitszahl bedeuten und woher man den Wert bekommt. Ein zweiter Tipp klappt sie wieder zu. Das gilt auch für die Vorlagen in den Einstellungen.
+
 ## 0.14.0 – 08.11.2026 (Schema 10)
 Abläufe verzahnt: Nach einer Auswahl bietet Sperling gleich den passenden nächsten Schritt an, und nach dem Abstecher geht es an genau die Stelle zurück, von der man kam (Seite, Reiter, Scrollstelle; Regel R-FLOW).
 - **Termin und Gespräch gehören zusammen.** „💬 Gespräch starten“ jetzt auch in der Termin-Karte (Kalender, Terminlisten) und in „Jetzt nachfassen“ der Auswertung. Aus einem Termin übernimmt das Gespräch Bereich und Kontaktart (Termin = Hausbesuch, Wiedervorlage = Telefon) und zeigt die Termin-Notiz oben; beim Speichern wird der Termin automatisch abgehakt.

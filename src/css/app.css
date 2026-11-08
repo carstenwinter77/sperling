@@ -1651,3 +1651,13 @@ input.schalter:disabled { opacity: .5; cursor: not-allowed; }
 .folge-liste small { color: var(--text-2); font-size: .8rem; padding-left: .3rem; }
 .gm-termin { margin: 0 0 .6rem; padding: .55rem .75rem; border-radius: 10px; background: var(--flaeche-2); border-left: 4px solid var(--gruen); }
 .gm-vorschlag { margin: .3rem 0 0; font-size: .8rem; }
+
+/* Rechner: „?“ am Feld mit kurzer Erklärung darunter */
+.rz-feld-kopf { display: flex; align-items: flex-start; justify-content: space-between; gap: .35rem; }
+.rz-feld-kopf label { font-weight: 600; }
+.rz-frage { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--braun-hell); background: var(--karte); color: var(--braun); font: inherit; font-size: .8rem; font-weight: 800; line-height: 1; cursor: pointer; position: relative; display: inline-flex; align-items: center; justify-content: center; }
+.rz-frage::after { content: ''; position: absolute; inset: -10px; } /* Tippfläche 44 px */
+.rz-frage.offen { background: var(--braun); color: var(--auf-akzent); border-color: var(--braun); }
+.rz-erklaerung { display: block; font-weight: 500; font-size: .85rem; line-height: 1.4; padding: .45rem .6rem; border-radius: 8px; background: var(--aktiv-bg); color: var(--text); }
+.rz-erklaerung[hidden] { display: none; }
+body.hilfe-aus .rz-frage { display: none; }

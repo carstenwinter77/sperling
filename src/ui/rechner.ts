@@ -3,7 +3,7 @@
 import { esc } from '../core/util.ts';
 import {
   PV_STANDARD, WP_STANDARD, PV_FELDER, WP_FELDER, RECHNER_HINWEIS, rechnePv, rechneWp, staffel, hoechstpreis, wpZuschuss,
-  pvAusKunde, wpAusKunde, zahlLesen, euro, jahreText, rechnerText, type Rechner, type PvAnnahmen, type WpAnnahmen, type Ergebnis, type Feld,
+  pvAusKunde, wpAusKunde, zahlLesen, ERKLAERUNG, euro, jahreText, rechnerText, type Rechner, type PvAnnahmen, type WpAnnahmen, type Ergebnis, type Feld,
 } from '../core/amortisation.ts';
 import {
   WERKS_VORLAGEN, VORLAGE_HINWEIS, VORLAGE_PRIVAT, VORLAGEN_MAX, VORLAGE_NAME_MAX, normalizeRechnerVorlagen, zuletztGewaehlt, neueVorlagenId,
@@ -81,11 +81,31 @@ function diagramm(e: Ergebnis): string {
   </figure>`;
 }
 
+/** „?“ am Feld: klappt eine kurze Erklärung darunter auf (nur wenn es eine gibt). */
+export function frageKnopf(sparte: Rechner, f: Feld, id: string): string {
+  return ERKLAERUNG[sparte][f.key] ? `<button type="button" class="rz-frage" data-rz-frage="${id}-e" aria-expanded="false" aria-controls="${id}-e" aria-label="Was bedeutet „${esc(f.label)}“?">?</button>` : '';
+}
+export function erklaerungHtml(sparte: Rechner, f: Feld, id: string): string {
+  const t = ERKLAERUNG[sparte][f.key];
+  return t ? `<small class="rz-erklaerung" id="${id}-e" hidden>${esc(t)}</small>` : '';
+}
+/** Klick auf „?“ verarbeiten (true, wenn es einer war). */
+export function frageUmschalten(t: Element): boolean {
+  const b = t.closest<HTMLButtonElement>('[data-rz-frage]');
+  if (!b) return false;
+  const e = document.getElementById(b.dataset.rzFrage || '');
+  if (!e) return true;
+  e.hidden = !e.hidden;
+  b.setAttribute('aria-expanded', String(!e.hidden));
+  b.classList.toggle('offen', !e.hidden);
+  return true;
+}
+
 function feldHtml(f: Feld, wert: number): string {
   const id = `rz-${f.key}`;
-  return `<label class="rz-feld" for="${id}"><span>${esc(f.label)}${f.einheit ? ` <small>(${esc(f.einheit)})</small>` : ''}</span>
+  return `<div class="rz-feld"><span class="rz-feld-kopf"><label for="${id}">${esc(f.label)}${f.einheit ? ` <small>(${esc(f.einheit)})</small>` : ''}</label>${frageKnopf(art, f, id)}</span>
     <input id="${id}" data-rz="${esc(f.key)}" inputmode="decimal" autocomplete="off" value="${esc(zahl(wert))}"${f.hilfe ? ` aria-describedby="${id}-h"` : ''}>
-    ${f.hilfe ? `<small class="hinweis" id="${id}-h">${esc(f.hilfe)}</small>` : ''}</label>`;
+    ${f.hilfe ? `<small class="hinweis" id="${id}-h">${esc(f.hilfe)}</small>` : ''}${erklaerungHtml(art, f, id)}</div>`;
 }
 
 function ergebnisHtml(): string {
@@ -165,6 +185,7 @@ export function binden(box: HTMLElement) {
   });
   box.addEventListener('click', async (ev) => {
     const t = ev.target as Element;
+    if (frageUmschalten(t)) return;
     const wahl = t.closest<HTMLElement>('[data-rz-art]');
     if (wahl) { art = wahl.dataset.rzArt as Rechner; neuZeichnen(); box.querySelector<HTMLElement>(`[data-rz-art=${art}]`)?.focus(); return; }
     const vw = t.closest<HTMLElement>('[data-rz-vorlage]');

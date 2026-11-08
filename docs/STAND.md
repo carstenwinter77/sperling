@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.14.0
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.14.1
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,10 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.14.0)
+## Erledigt (Version 0.14.1)
+
+### Neu in 0.14.1
+- [x] Rechner: „?“ an jedem Feld (Rechner und Einstellungen → Rechner-Vorlagen) klappt eine kurze Erklärung in einfacher Sprache auf (`ERKLAERUNG` in `src/core/amortisation.ts`, `frageKnopf`/`frageUmschalten` in `src/ui/rechner.ts`). Folgt der Einstellung „?-Knöpfe“. Unit-Test (jedes Feld erklärt, kein Verkaufsdruck), Browser-Test.
 
 ### Neu in 0.14.0 (Abläufe verzahnt, Schema 10)
 Alle 14 Punkte aus dem Vorschlag „Abläufe verzahnen“ vom 08.11. und die Grundregel „danach zurück, wo man war“ (R-FLOW).

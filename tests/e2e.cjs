@@ -955,6 +955,13 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForFunction((v) => document.querySelector('.rz-haupt b')?.textContent !== v, vorher);
   await p.click('[data-rz-art=wp]');
   await p.waitForSelector('#rechner #rz-jaz');
+  // „?“ am Feld klappt die Erklärung auf und wieder zu
+  if (await p.isVisible('#rz-sowieso-e')) fail('Rechner: Erklärung sollte zu Beginn zu sein');
+  await p.click('[data-rz-frage="rz-sowieso-e"]');
+  await p.waitForSelector('#rz-sowieso-e:visible');
+  if (!(await p.textContent('#rz-sowieso-e')).includes('ohnehin')) fail('Rechner: Erklärung „Ohnehin fällig“ fehlt');
+  await p.click('[data-rz-frage="rz-sowieso-e"]');
+  if (await p.isVisible('#rz-sowieso-e')) fail('Rechner: Erklärung lässt sich nicht zuklappen');
   await p.click('[data-rz-kopieren]');
   await p.waitForFunction(() => document.querySelector('#toast')?.textContent.includes('Rechnung'));
   const rzText = await p.evaluate(() => navigator.clipboard.readText());

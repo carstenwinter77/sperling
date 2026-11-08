@@ -1477,6 +1477,17 @@ test('Rechner: Angaben aus der Kundenkartei übernehmen (nur passende Werte)', a
   assert.deepEqual(wpAusKunde({ heizungsart: 'Gas', verbrauchMenge: 2000, verbrauchEinheit: 'Liter' }).werte, {}, 'Einheit passt nicht zur Heizung');
 });
 
+test('Rechner: jedes Feld hat eine Erklärung hinter dem „?“, ohne Verkaufsdruck', async () => {
+  const { ERKLAERUNG, WP_FELDER } = await import('../src/core/amortisation.ts');
+  for (const [art, felder] of [['pv', PV_FELDER], ['wp', WP_FELDER]]) {
+    for (const f of felder) {
+      const t = ERKLAERUNG[art][f.key];
+      assert.ok(t && t.length > 40 && t.length < 400, `${art}.${f.key}`);
+      assert.ok(!/garantiert|sicher(e|er)? Rendite|lohnt sich immer|sofort zuschlagen/i.test(t), `${art}.${f.key} ohne Verkaufsdruck`);
+    }
+  }
+});
+
 test('Rechner-Vorlagen: Privat und Gewerbe immer da, Grenzen, eigene, zuletzt gewählte', async () => {
   const rv = await import('../src/core/rechnervorlagen.ts');
   const leer = rv.normalizeRechnerVorlagen(undefined);

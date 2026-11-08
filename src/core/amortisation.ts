@@ -8,6 +8,37 @@ export type Rechner = 'pv' | 'wp';
 
 export interface Feld { key: string; label: string; einheit: string; min: number; max: number; schritt: number; hilfe?: string }
 
+/** Ausführlichere Erklärung je Feld (hinter dem „?“ am Feld), in einfacher Sprache. */
+export const ERKLAERUNG: Record<Rechner, Record<string, string>> = {
+  pv: {
+    investition: 'Was die Anlage komplett kostet: Module, Wechselrichter, Montage, Gerüst, Zähler und, falls gewünscht, Speicher. Am besten den Betrag aus dem Angebot nehmen. Privat fällt seit 2023 keine Mehrwertsteuer an.',
+    leistung: 'Größe der Anlage in Kilowatt-Peak (kWp), also die Höchstleistung aller Module zusammen. Faustregel: etwa 5 bis 6 m² Dachfläche je kWp. Ein Einfamilienhaus hat meist 8 bis 12 kWp.',
+    ertrag: 'Wie viel Strom 1 kWp im Jahr erzeugt. Hängt von Ausrichtung, Neigung und Schatten ab: Süddach eher 950 bis 1.000, Ost/West eher 800 bis 850, mit Schatten weniger. Der Rechner zieht pro Jahr 0,5 % für die Alterung der Module ab.',
+    eigenverbrauch: 'Anteil des Solarstroms, den der Haushalt selbst nutzt, statt ihn einzuspeisen. Selbst genutzter Strom spart den teuren Bezugspreis, eingespeister bringt nur die Vergütung. Speicher, E-Auto oder Wärmepumpe erhöhen den Anteil.',
+    strompreis: 'Was eine Kilowattstunde Strom heute kostet (Arbeitspreis, ohne Grundgebühr). Steht auf der Stromrechnung. Je höher der Preis, desto mehr spart jede selbst genutzte Kilowattstunde.',
+    verguetung: 'Geld je eingespeister Kilowattstunde, 20 Jahre lang fest. Gilt der Satz zum Tag der Inbetriebnahme. Für neue Anlagen ab 2027 ist sie noch offen, Details unter Förderung.',
+    steigerung: 'Um wie viel Prozent der Strompreis jedes Jahr steigt. Niemand weiß das genau. 2 % ist eine vorsichtige Annahme; mit 0 sieht man, wie es ohne Preissteigerung aussähe.',
+    betrieb: 'Kosten pro Jahr für den Betrieb: Versicherung, Wartung, Zählermiete, ab und zu Reinigung. Rücklagen für einen neuen Wechselrichter nach 12 bis 15 Jahren gehören auch hier hinein.',
+    zuschuss: 'Geld, das es zur Anlage dazugibt, z. B. von der Gemeinde oder dem Land. Wird von der Anschaffung abgezogen. Für Privatleute gibt es derzeit selten einen Zuschuss.',
+    jahre: 'Über wie viele Jahre gerechnet wird. Module halten meist 25 bis 30 Jahre. Die Einspeisevergütung gibt es nur 20 Jahre, danach rechnet der Rechner ohne sie weiter.',
+  },
+  wp: {
+    investition: 'Was die Wärmepumpe komplett kostet: Gerät, Einbau, Elektrik, Ausbau der alten Heizung und nötige Umbauten an Heizkörpern. Am besten den Betrag aus dem Angebot nehmen.',
+    foerderung: 'Zuschuss der KfW in Prozent: 30 % Grundförderung, dazu je nach Fall Klimageschwindigkeits- und Einkommensbonus, zusammen höchstens 80 %. Gefördert werden höchstens 28.000 € Kosten. Details unter Förderung.',
+    sowieso: 'Geld, das der Kunde ohnehin ausgeben müsste, auch ohne Wärmepumpe, z. B. weil die alte Heizung kaputt ist und eine neue Gasheizung etwa 12.000 € kosten würde. Wird abgezogen, gezählt wird dann nur der Mehrpreis. Läuft die alte Heizung noch, bleibt es bei 0.',
+    waermebedarf: 'Wie viel Wärme das Haus im Jahr braucht (Heizen und Warmwasser). Ungefähr: bisheriger Gasverbrauch in kWh mal Wirkungsgrad, bei Öl Liter mal 10 mal Wirkungsgrad. Kommt der Rechner aus der Kundenkartei, rechnet er das selbst aus.',
+    brennstoffpreis: 'Was eine Kilowattstunde Gas oder Öl heute kostet. Gas: steht auf der Rechnung. Öl: Literpreis durch 10, also 1,10 € je Liter ≈ 11 ct/kWh.',
+    wirkungsgrad: 'Wie viel der eingekauften Energie die alte Heizung als Wärme ins Haus bringt. Neue Brennwertkessel etwa 95 %, ältere Kessel 80 bis 90 %, sehr alte eher weniger.',
+    jaz: 'Jahresarbeitszahl: wie viel Wärme die Wärmepumpe aus 1 kWh Strom macht, übers Jahr gemittelt. 3,5 heißt: aus 1 kWh Strom werden 3,5 kWh Wärme. Fußbodenheizung und gute Dämmung bringen mehr, alte Heizkörper eher 3.',
+    wpstrompreis: 'Strompreis für die Wärmepumpe. Viele Versorger haben günstigere Wärmepumpentarife (eigener Zähler). Ohne eigenen Tarif den normalen Strompreis eintragen.',
+    steigerungFossil: 'Um wie viel Prozent Gas oder Öl jedes Jahr teurer werden. Der CO2-Preis steigt planmäßig, und ab 2029 muss Bio-Anteil beigemischt werden. Deshalb ist die Annahme hier höher als beim Strom.',
+    steigerungStrom: 'Um wie viel Prozent der Strom für die Wärmepumpe jedes Jahr teurer wird. 2 % ist eine vorsichtige Annahme.',
+    wartungAlt: 'Was die alte Heizung pro Jahr nebenbei kostet: Wartung, Schornsteinfeger, bei Gas auch die Grundgebühr. Fällt mit der Wärmepumpe weg.',
+    wartungWp: 'Was die Wärmepumpe pro Jahr nebenbei kostet: Wartung, ggf. Zählergebühr für den Wärmepumpentarif.',
+    jahre: 'Über wie viele Jahre gerechnet wird. Wärmepumpen halten meist 15 bis 20 Jahre.',
+  },
+};
+
 /** PV: Annahmen (alles änderbar). */
 export const PV_STANDARD = {
   investition: 18000, // € brutto, Anlage mit Montage (0 % USt)

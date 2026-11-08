@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.14.1',
+    punkte: [
+      'Rechner: Das „?“ neben jedem Feld erklärt kurz, was gemeint ist und woher du den Wert bekommst, z. B. bei „Ohnehin fällig“ oder der Jahresarbeitszahl.',
+    ],
+  },
+  {
     version: '0.14.0',
     punkte: [
       'Sperling führt dich jetzt Schritt für Schritt: Nach einer Auswahl kommt gleich der passende nächste Schritt, und danach landest du wieder genau dort, wo du warst.',
