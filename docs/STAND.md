@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.12.0
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.12.1
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,11 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.12.0)
+## Erledigt (Version 0.12.1)
+
+### Neu in 0.12.1
+- [x] Textvorlagen: Platzhalter per Knopf („+ Vorname“, „+ Kundendaten“ …) an der Schreibmarke einfügen; Fokus bleibt in der Vorlage, wird sofort gespeichert.
+
 
 ### Neu in 0.12.0
 - [x] **Gespräch als digitales Klemmbrett** (`src/core/klemmbrett.ts`, `src/ui/views/gespraech.ts`, `src/ui/views/gespraechsmodus.ts`): ersetzt die 7 Phasen aus 0.10.6. Je Bereich Situation / Bedarf / Nächster Schritt. Kartei-Felder werden direkt in die Kartei geschrieben (gleiche Bindung wie die Kundenseite), Antworten (Antippen + Freitext) kommen beim Speichern als Zeilen in die Notiz des eigenen Bereichs (R-TEXT). Haken, Zähler, Fortschrittsring, Vorbereitung „Heute noch klären“, schwebender Einwand-Knopf mit Fenster von unten (Rückfrage vor Antwort), Gesprächsbilanz „x von y erfasst“ mit offenen Punkten, nächster Schritt vorausgefüllt. Antworten nur im Entwurf (Arbeitsspeicher), kein Schemawechsel. Unit-Tests und Browser-Test angepasst.

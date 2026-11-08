@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.12.1 – 08.11.2026
+- **Textvorlagen: Platzhalter per Knopf.** Unter jeder Vorlage (Einstellungen → Texte & E-Mail) stehen Knöpfe mit verständlichen Namen („+ Vorname“, „+ Adresse“, „+ Kundendaten“ …). Ein Tipp fügt den Platzhalter an der Schreibmarke ein (markierter Text wird ersetzt); die Vorlage behält den Fokus, die Tastatur auf dem iPad bleibt offen, gespeichert wird sofort. Abtippen von `{{…}}` ist nicht mehr nötig.
+
 ## 0.12.0 – 08.11.2026
 - **Gespräch als digitales Klemmbrett** (ersetzt den Leitfaden mit 7 Phasen aus 0.10.6). Im Gesprächsmodus ist „📋 Klemmbrett“ die erste Seite: je Bereich drei Abschnitte (Situation, Bedarf, Nächster Schritt) mit Punkten zum Ausfüllen statt Fragen zum Abhaken. Kartei-Felder (z. B. Stromverbrauch, Dachausrichtung, Heizungsart, Bodenbeläge) werden direkt in die Kundenkartei geschrieben; Auswahlfelder als große Antipp-Knöpfe. Gesprächsantworten (Anlass, was ärgert, was wichtig ist, Entscheider, nächster Schritt, Widerrufsrecht) per Antippen plus eigenem Text; sie landen beim Speichern als „Frage: Antwort“-Zeilen in der Notiz des jeweiligen Bereichs (R-TEXT). Unter jedem Punkt eine kleine Formulierungshilfe. Erledigte Punkte bekommen Haken und Farbe, Zähler je Abschnitt und ein Fortschrittsring zeigen, was noch fehlt. Ausgeblendete Kartei-Felder erscheinen nicht.
 - **Vorbereitung:** oben aufklappbar, was aus früheren Gesprächen bekannt ist und was heute noch zu klären ist.

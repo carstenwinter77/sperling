@@ -1508,3 +1508,10 @@ input.schalter:disabled { opacity: .5; cursor: not-allowed; }
 /* „Mehr“-Menü: drei gleich breite Spalten, lange Wörter („Auswertungen“) dürfen nicht überstehen */
 .mehr-raster { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .mehr-eintrag span { max-width: 100%; overflow-wrap: anywhere; hyphens: auto; text-align: center; font-size: .85rem; }
+/* Textvorlagen: Platzhalter per Knopf einfügen */
+.ph-titel { margin: .5rem 0 .3rem; }
+.ph-leiste { display: flex; flex-wrap: wrap; gap: .4rem; }
+.ph-knopf { appearance: none; border: 1px solid var(--linie); background: var(--flaeche-2); color: var(--braun); border-radius: 999px; padding: .3rem .75rem; min-height: 36px; font: inherit; font-size: .88rem; font-weight: 600; cursor: pointer; }
+.ph-knopf:hover { border-color: var(--braun-hell); }
+.ph-knopf:focus-visible { outline: 3px solid rgba(232, 137, 44, .45); outline-offset: 1px; }
+@media (pointer: coarse) { .ph-knopf { min-height: 44px; } }
