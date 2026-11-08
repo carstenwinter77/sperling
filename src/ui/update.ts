@@ -1,6 +1,7 @@
 // Sperling – Updates: neue Version erkennen, Leiste „Jetzt aktualisieren“, danach „Was ist neu“.
 // Die Prüfung lädt nur sw.js von der App-Adresse, es werden keine Daten gesendet.
 import * as store from '../storage/store.ts';
+import * as ablauf from './gespraechsablauf.ts';
 import { esc } from '../core/util.ts';
 import { dialog } from './dom.ts';
 import { NEUIGKEITEN, versionVergleich } from '../neuigkeiten.ts';
@@ -30,7 +31,7 @@ async function leisteZeigen() {
   div.querySelector('#updSpaeter').addEventListener('click', () => div.remove());
   div.querySelector('#updJetzt').addEventListener('click', async (ev) => {
     (ev.currentTarget as HTMLButtonElement).disabled = true;
-    try { await store.flush(); } catch { /* Speichern versucht; Daten bleiben in jedem Fall lokal */ }
+    try { ablauf.sichern(); await store.flush(); } catch { /* Speichern versucht; Daten bleiben in jedem Fall lokal */ }
     reg?.waiting?.postMessage({ typ: 'jetzt' });
   });
 }

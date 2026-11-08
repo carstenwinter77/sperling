@@ -19,7 +19,9 @@ const BILDER_HOSTS = ['cdn.prod.website-files.com', 'a.storyblok.com', 'media.vo
 self.addEventListener('install', (e) => {
   // Erste Installation: sofort aktiv. Update: warten, bis der Nutzer „Jetzt aktualisieren“ tippt
   // (nie mitten in einer Eingabe wechseln).
-  e.waitUntil(caches.open(CACHE_VERSION).then((c) => c.addAll(SHELL)).then(() => (self.registration.active ? undefined : self.skipWaiting())));
+  // cache: 'reload' = immer frisch vom Server, nie eine bis zu 10 Minuten alte Kopie aus dem Browser-Zwischenspeicher
+  // (sonst könnte eine neue Version mit der alten Startseite zusammengepackt werden und nicht starten).
+  e.waitUntil(caches.open(CACHE_VERSION).then((c) => c.addAll(SHELL.map((u) => new Request(u, { cache: 'reload' })))).then(() => (self.registration.active ? undefined : self.skipWaiting())));
 });
 
 self.addEventListener('message', (e) => {

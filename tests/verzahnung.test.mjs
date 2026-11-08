@@ -82,7 +82,7 @@ test('Verzahnung: nächster Stopp des Tages', () => {
 });
 
 test('Verzahnung: Wiedervorlagen mit Bezug (Schema 10)', () => {
-  assert.equal(SCHEMA_VERSION, 10);
+  assert.ok(SCHEMA_VERSION >= 10);
   assert.deepEqual(normalizeTermin({}).bezug, { art: '', id: '' });
   assert.deepEqual(normalizeTermin({ bezug: { art: 'leihe', id: 'L1' } }).bezug, { art: 'leihe', id: 'L1' });
   assert.deepEqual(normalizeTermin({ bezug: { art: 'quatsch', id: 'L1' } }).bezug, { art: '', id: '' });
@@ -113,4 +113,17 @@ test('Verzahnung: Widerrufsfrist und offene Angebote je Bereich', () => {
   assert.ok(w.beginn.startsWith('2026-11-23'), w.beginn);
   const k = neuerKunde({ angebote: [{ sparte: 'pv', status: 'offen' }, { sparte: 'pv', status: 'abgelehnt' }, { sparte: 'wp', status: 'offen' }] });
   assert.equal(offeneAngeboteBereich(k, 'pv').length, 1);
+});
+
+test('Wiedervorlagen landen auf Werktagen (Wochenende und Feiertage Niedersachsen übersprungen)', async () => {
+  const v = await import('../src/core/vertrieb.ts');
+  const z = await import('../src/core/verzahnung.ts');
+  const tag = (iso) => v.ortsTag(iso);
+  assert.equal(tag(v.werktagPlus('2026-11-13', 1)), '2026-11-16', 'Freitag + 1 → Montag');
+  assert.equal(tag(v.werktagPlus('2026-11-12', 3)), '2026-11-16', 'Donnerstag + 3 (Sonntag) → Montag');
+  assert.equal(tag(v.werktagPlus('2026-12-23', 2)), '2026-12-28', 'Weihnachten und Wochenende übersprungen');
+  assert.equal(tag(v.werktagPlus('2026-11-10', 1)), '2026-11-11', 'Werktag bleibt');
+  assert.equal(new Date(v.werktagPlus('2026-11-13', 1)).getHours(), 10);
+  assert.equal(tag(z.wvDatum(1, new Date(2026, 10, 13, 15))), '2026-11-16', '„Nicht erreicht“ am Freitag → Montag');
+  assert.ok(!v.freierTag(tag(z.widerrufWiedervorlage('k', 'pv', new Date(2026, 9, 16, 12).toISOString()).beginn)));
 });

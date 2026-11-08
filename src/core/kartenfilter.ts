@@ -61,3 +61,26 @@ export function pinStatus(k: Pick<Kunde, 'status'>, f: KartenFilter): string {
   const teil = { status: Object.fromEntries(sparten.filter((s) => !f.status.length || f.status.includes(k.status[s])).map((s) => [s, k.status[s]])) };
   return hauptStatus(teil as Pick<Kunde, 'status'>);
 }
+
+/**
+ * Farbe des Karten-Pins nach Bereich (ab 0.14.6): Geht es beim Kunden um genau einen Bereich, hat der Pin dessen
+ * Farbe (PV gelb, Wärmepumpe blau, Vorwerk grün); bei mehreren Bereichen eine eigene Mischfarbe; ohne laufenden
+ * Bereich (alles unbekannt oder kein Interesse) grau. „Gemeint“ ist ein Bereich, wenn sein Status weder
+ * „Unbekannt“ noch „Kein Interesse“ ist; ein Filter grenzt auf die gewählten Bereiche und Status ein.
+ */
+export type PinFarbe = Sparte | 'misch' | 'leer';
+export function pinBereiche(k: Pick<Kunde, 'status'>, f: KartenFilter = leererKartenFilter()): Sparte[] {
+  const sparten = f.sparten.length ? f.sparten : SPARTEN_KEYS;
+  return sparten.filter((s) => (f.status.length ? f.status.includes(k.status[s]) : true) && !['unbekannt', 'kein_interesse'].includes(k.status[s]));
+}
+export function pinFarbe(k: Pick<Kunde, 'status'>, f: KartenFilter = leererKartenFilter()): PinFarbe {
+  const b = pinBereiche(k, f);
+  return b.length === 1 ? b[0]! : b.length > 1 ? 'misch' : 'leer';
+}
+export const PIN_FARBEN: Record<PinFarbe, { label: string; css: string }> = {
+  pv: { label: 'Photovoltaik', css: 'var(--pv)' },
+  wp: { label: 'Wärmepumpe', css: 'var(--wp)' },
+  vorwerk: { label: 'Vorwerk', css: 'var(--vw)' },
+  misch: { label: 'Mehrere Bereiche', css: 'var(--pin-misch)' },
+  leer: { label: 'Noch offen / kein Interesse', css: 'var(--pin-leer)' },
+};

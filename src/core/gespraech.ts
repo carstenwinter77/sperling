@@ -102,7 +102,7 @@ export function speichern(data: Daten, e: Entwurf, abschluesse: Abschluss[], jet
   if (enpalThemen.length) {
     const fristen = enpal.map((a) => a.wv).filter(Boolean).sort() as string[];
     k.enpalKontakte.push(normalizeEnpalKontakt({
-      zeitpunkt: jetzt, art: e.kontaktart, erreicht: e.erreicht, gespraechspartner: kundenName(k), themen: enpalThemen,
+      zeitpunkt: jetzt, art: e.kontaktart, erreicht: e.erreicht, gespraechspartner: kundenName(k, 'vorname'), themen: enpalThemen,
       ergebnis: enpal.find((a) => a.ausgang)?.ausgang || '',
       naechsterSchritt: enpal.map((a) => a.schritt).filter(Boolean).join(' / '),
       frist: fristen[0] || null,

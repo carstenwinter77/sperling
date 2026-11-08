@@ -6,7 +6,7 @@ import { BEREITLEGEN, NACHFASS_TAGE, NACHFASS_MAX, BEREITLEGEN_MAX, normalizeBer
 import { DEFAULT_VORLAGEN, KUNDENANSICHT_TEILE, SPARTEN, SPARTEN_KEYS, migrate, normalizeGeraet, type KundenansichtTeil, type Sparte } from '../../core/model.ts';
 import { demoDaten, beispielAnzahl, beispielEinfuegen, beispielEntfernen, beispielBestand, bestandAnzahl, bestandEinfuegen, bestandEntfernen, beispielSicher } from '../../demo.ts';
 import { PLATZHALTER } from '../../core/textgen.ts';
-import { validateEnvelope } from '../../core/crypto.ts';
+import { validateEnvelope, WrongPasswordError } from '../../core/crypto.ts';
 import * as store from '../../storage/store.ts';
 import * as db from '../../storage/db.ts';
 import * as fotos from '../../storage/fotos.ts';
@@ -592,7 +592,14 @@ export function render(el: HTMLElement, params?: URLSearchParams) {
       knoepfe: [{ label: 'Einspielen', primaer: true, wert: (dlg) => dlg.querySelector('[name=pw]').value }],
     });
     if (!pw) return;
-    try { await store.adoptEnvelope(env, pw); await db.setMeta('abgleichStand', store.getStand()).catch(() => {}); toast('Sicherung eingespielt', 'ok'); render(el); } catch (err) { toast((err as Error).message, 'error'); }
+    try {
+      await store.adoptEnvelope(env, pw);
+      await db.setMeta('abgleichStand', store.getStand()).catch(() => {});
+      // als neuen Stand speichern: sonst hält der iCloud-Abgleich eine neuere Datei für „neuer“ und ersetzt die eingespielte ohne Rückfrage
+      store.mutate(() => {});
+      await store.flush();
+      toast('Sicherung eingespielt', 'ok'); render(el);
+    } catch (err) { toast((err as Error).message, 'error'); }
   });
 
   db.listHistory().then((liste) => {
@@ -608,7 +615,21 @@ export function render(el: HTMLElement, params?: URLSearchParams) {
       const h = liste[Number(b.dataset.i)];
       if (!(await bestaetigen('Version wiederherstellen?', `Stand vom ${formatDateTime(h.updatedAt)} wird geladen. Der aktuelle Stand bleibt als Version erhalten.`, 'Wiederherstellen'))) return;
       try {
-        await store.adoptEnvelope(h.env);
+        try {
+          await store.adoptEnvelope(h.env);
+        } catch (err) {
+          if (!(err instanceof WrongPasswordError)) throw err;
+          // Version aus der Zeit vor einem Passwortwechsel: nach dem damaligen Passwort fragen, das aktuelle bleibt gültig
+          const altPw = await dialog<string>({
+            titel: 'Früheres Passwort',
+            html: '<p>Diese Version wurde vor einem Passwortwechsel gespeichert. Bitte das damalige Master-Passwort eingeben. Dein aktuelles Passwort bleibt danach gültig.</p><label>Früheres Passwort<input type="password" name="pw" autocomplete="off" required></label>',
+            knoepfe: [{ label: 'Wiederherstellen', primaer: true, wert: (dlg) => dlg.querySelector<HTMLInputElement>('[name=pw]')!.value }],
+          });
+          if (!altPw) return;
+          try { await store.adoptEnvelope(h.env, altPw, { passwortBehalten: true }); } catch (e2) {
+            throw e2 instanceof WrongPasswordError ? new Error('Das frühere Passwort stimmt nicht.') : e2;
+          }
+        }
         // als neuen Stand speichern, damit er beim Sync nicht vom älteren Zeitstempel verdrängt wird
         store.mutate(() => {});
         toast('Wiederhergestellt', 'ok');

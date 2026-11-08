@@ -85,10 +85,16 @@ export function dateiname(endung: string, jetzt = new Date()): string {
 
 // ---------- CSV (Semikolon, UTF-8 mit BOM: so öffnet deutsches Excel Umlaute und Spalten richtig) ----------
 
-/** Schutz vor Formel-Einschleusung: Zellen, die mit = + - @ oder Steuerzeichen beginnen, bekommen ein ' davor. */
+/** Telefonnummer wie „+49 170 1234567“ oder „+49 (5344) 12-34“: nur Ziffern und Trennzeichen, kann keine Formel ausführen. */
+const TELEFON = /^\+\d[\d ()/.-]{3,30}$/;
+
+/**
+ * Schutz vor Formel-Einschleusung: Zellen, die mit = + - @ oder Steuerzeichen beginnen, bekommen ein ' davor.
+ * Ausnahme (ab 0.14.6): reine Telefonnummern mit „+“, sonst stünde in der Tabelle „'+49 …“.
+ */
 export function csvZelle(v: string): string {
   let t = String(v ?? '');
-  if (/^[=+\-@\t\r]/.test(t)) t = `'${t}`;
+  if (/^[=+\-@\t\r]/.test(t) && !TELEFON.test(t)) t = `'${t}`;
   return /[";\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
 }
 

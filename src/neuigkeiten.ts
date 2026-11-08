@@ -2,6 +2,17 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.14.6',
+    punkte: [
+      'Gespräche gehen nicht mehr verloren: Ein laufendes, noch nicht gespeichertes Gespräch wird verschlüsselt mitgesichert. Nach dem Sperren, einem Update oder wenn das iPad die App neu lädt, ist es wieder da („▶ Gespräch fortsetzen“ beim Kunden).',
+      'Karte: Die Pins zeigen jetzt den Bereich. Gelb = Photovoltaik, Blau = Wärmepumpe, Grün = Vorwerk, Lila mit weißem Punkt = mehrere Bereiche, Grau = noch offen oder kein Interesse. Den Status siehst du beim Antippen.',
+      'iCloud-Abgleich: Wurde auf beiden Geräten etwas geändert, fragt Sperling jetzt immer nach, auch wenn die Datei älter ist.',
+      'Vorgeschlagene Wiedervorlagen fallen nicht mehr aufs Wochenende oder einen Feiertag, sondern auf den nächsten Werktag.',
+      'Kundenliste und Karte bleiben auch mit sehr vielen Kunden flüssig.',
+      'Kleinigkeiten: Enpal-Doku schreibt den Namen immer „Vorname Nachname“, CSV-Export ohne Hochkomma vor +49-Nummern, ältere Versionen lassen sich auch nach einem Passwortwechsel zurückholen, auf dem Handy wackelt keine Seite mehr seitlich.',
+    ],
+  },
+  {
     version: '0.14.5',
     punkte: [
       'Produkte → Bestand: Im Produktdetail (Vorwerk) gibt es „➕ Zu meinem Bestand hinzufügen“. Es öffnet sich das normale Fenster für ein neues Vorführgerät bzw. Material, mit Name, Bild und Zubehör schon ausgefüllt. Du ergänzt z. B. die Seriennummer und speicherst; danach bist du wieder beim Produkt.',

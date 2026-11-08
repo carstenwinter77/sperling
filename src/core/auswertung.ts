@@ -2,7 +2,7 @@
 // Berichte je Bereich (PV, WP, Vorwerk) oder für alles zusammen, als Tag, Woche, Monat, Kalenderjahr
 // oder letzte 365 Tage bis zum gewählten Tag. Jeder Bericht kennt den Vorzeitraum zum Vergleich.
 import { AUSGANG, SPARTEN, SPARTEN_KEYS, STATUS, type Daten, type Kunde, type Sparte, type StatusKey } from './model.ts';
-import { letzterKontakt, tageSeit } from './verlauf.ts';
+import { letzterKontakt, kontaktIndex, tageSeit } from './verlauf.ts';
 import { MARKIERUNG_KEYS, type Markierung } from './produkte.ts';
 import { tagVon, tagDatum, plusTage, wochenanfang, kalenderwoche, type Tag } from './belegung.ts';
 
@@ -525,6 +525,7 @@ export function nachfassListe(data: Daten, bereich: Bereich, heute: Tag = tagVon
     out.ueberfaellig.push({ art: 'ueberfaellig', kundeId: t.kundeId, sparte: t.sparte, text: `${t.art === 'termin' ? 'Termin' : 'Wiedervorlage'}: ${t.titel || 'ohne Titel'}`, wann: `seit ${plural(tage, 'Tag', 'Tagen')}`, tage, dringend: true, terminId: t.id });
   }
   const jetztIso = tagDatum(plusTage(heute, 1)).toISOString();
+  const idx = kontaktIndex(data);
   for (const k of data.kunden) {
     for (const s of sp) {
       if (k.status[s] !== 'angebot') continue;
@@ -532,7 +533,7 @@ export function nachfassListe(data: Daten, bereich: Bereich, heute: Tag = tagVon
       if (kommt) continue;
       const w = [...k.statusVerlauf].reverse().find((x) => x.sparte === s && x.nach === 'angebot');
       // Das Angebot selbst war ein Kontakt: „still“ zählt ab dem jüngeren von letztem Kontakt und Angebotsdatum
-      const lk = [letzterKontakt(data, k, jetztIso), w && !w.geschaetzt ? w.zeitpunkt : null].filter((x): x is string => !!x).sort().at(-1) ?? null;
+      const lk = [letzterKontakt(data, k, jetztIso, idx), w && !w.geschaetzt ? w.zeitpunkt : null].filter((x): x is string => !!x).sort().at(-1) ?? null;
       const tage = tageSeit(lk, tagDatum(heute));
       if (tage !== null && tage < ANGEBOT_STILL_TAGE) continue;
       out.angebot.push({ art: 'angebot', kundeId: k.id, sparte: s, text: `${SPARTEN[s].label}${w ? ` · Angebot vom ${tagMonat(tagVon(w.zeitpunkt))}` : ''}`, wann: tage === null ? 'noch kein Kontakt' : `${plural(tage, 'Tag', 'Tage')} still`, tage: tage ?? 999, dringend: false });
