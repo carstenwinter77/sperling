@@ -64,7 +64,7 @@ export function detailHtml(p: Produkt): string {
       ${p.modell ? `<p><small>Modell: ${esc(p.modell)}</small></p>` : ''}
       <p>${esc(p.kurzbeschreibung)}</p>
       ${p.technischeDaten.length ? `<dl class="ka-daten">${p.technischeDaten.map((t) => `<dt>${esc(t.bezeichnung)}</dt><dd>${esc(t.wert)}</dd>`).join('')}</dl>` : ''}
-      <p class="produkt-preis">${preis ? esc(preis) : 'Kein Preis veröffentlicht'}${p.preis?.uvp ? ` <small>(statt ${esc(p.preis.uvp.toLocaleString('de-DE', { minimumFractionDigits: 2 }))} €)</small>` : ''}</p>
+      <p class="produkt-preis">${preis ? esc(preis) : 'Kein Preis hinterlegt. Bitte auf der Herstellerseite nachsehen.'}${p.preis?.uvp ? ` <small>(statt ${esc(p.preis.uvp.toLocaleString('de-DE', { minimumFractionDigits: 2 }))} €)</small>` : ''}</p>
       <p class="hinweis">Stand ${esc(standText(p.stand))}, laut Hersteller-Website. Vor dem Nennen beim Kunden auf der Quellseite prüfen.${p.hinweise ? ` ${esc(p.hinweise)}` : ''}</p>
       ${p.quelleUrl ? `<p class="knopfreihe"><a class="btn ghost" href="${esc(p.quelleUrl)}" target="_blank" rel="noopener noreferrer">Beim Hersteller ansehen ↗</a> <button type="button" class="btn ghost" data-link-kopieren>🔗 Link kopieren</button></p>` : ''}
       ${passt.length ? `<h3>Passt dazu</h3><div class="produkt-passt">${passt.map((x) => `<button type="button" class="chip-wahl" data-produkt="${esc(x.id)}">${esc(x.name)}</button>`).join('')}</div>` : ''}

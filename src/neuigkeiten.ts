@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.16.1',
+    punkte: [
+      'Produktpreise geprüft (Stand 08.11.2026): Der Kobold VR7 mit Absaugstation hat jetzt seinen Preis (1.249,00 €), zwei Vorwerk-Aktionspreise sind aktualisiert, und Vorwerk-Zubehör verlinkt direkt auf die eigene Produktseite mit Preis.',
+    ],
+  },
+  {
     version: '0.16.0',
     punkte: [
       'Termin vereinbart? Dann öffnet sich gleich der Kalender: Du siehst alle Termine der Woche, freie Zeiten sind grün. Uhrzeit antippen, „Zeit übernehmen“, fertig. Das geht beim Telefonat, beim Hausbesuch, im Gespräch und bei jedem neuen Termin („📅 Im Kalender wählen“).',
