@@ -3,7 +3,7 @@
 // danach kommt Jan zurück in diese Liste; „Fertig“ schließt sie. Die Seite darunter ist schon die, von der Jan kam.
 import { esc, formatDateTime, nowIso } from '../core/util.ts';
 import { SPARTEN, kundenTitel, neuerTermin, type Sparte, type Termin } from '../core/model.ts';
-import { neuerAuftrag, ortsTag } from '../core/vertrieb.ts';
+import { neuerAuftrag, ortsTag, anredeZeile } from '../core/vertrieb.ts';
 import { querverkauf, offeneAngeboteBereich, naechsterStopp, wvDatum } from '../core/verzahnung.ts';
 import type { Abschluss, Entwurf } from '../core/gespraech.ts';
 import * as store from '../storage/store.ts';
@@ -91,7 +91,7 @@ async function unterlagenMail(kundeId: string, s: Sparte) {
   const k = store.findKunde(kundeId);
   if (!k) return;
   const absender = store.getData().einstellungen.absender;
-  const anrede = k.nachname ? `Guten Tag ${[k.anrede, k.nachname].filter(Boolean).join(' ')},` : 'Guten Tag,';
+  const anrede = anredeZeile(k);
   await emailSchreiben({ an: k.email, betreff: `Ihre Unterlagen ${SPARTEN[s].label}`, text: `${anrede}\n\nwie besprochen erhalten Sie anbei die Unterlagen.\n\n\nViele Grüße${absender ? `\n${absender}` : ''}` });
 }
 

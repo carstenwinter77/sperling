@@ -29,6 +29,18 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForSelector('[data-feld="vorname"]');
   await p.fill('[data-feld="vorname"]', '<img src=x onerror="window.__xss=1">');
   await p.fill('[data-feld="nachname"]', 'Prüfer');
+  // Anrede als Vorauswahl, Titel mit freier Eingabe (ab 0.15.0)
+  const anreden = await p.$$eval('[data-feld="anrede"] option', (o) => o.map((x) => x.textContent));
+  if (!['Keine Anrede', 'Frau', 'Herr', 'Familie'].every((x) => anreden.includes(x))) fail('Anrede-Auswahl unvollständig: ' + anreden.join(', '));
+  await p.selectOption('[data-feld="anrede"]', 'Frau');
+  await p.selectOption('[data-feld="titel"]', 'Prof. Dr.');
+  await p.selectOption('[data-feld="titel"]', '__frei');
+  await p.waitForSelector('dialog input[name=frei]');
+  await p.fill('dialog input[name=frei]', 'dr. rer. nat.');
+  await p.click('dialog button.primary');
+  await p.waitForFunction(() => document.querySelector('[data-feld="titel"]')?.value === 'Dr. rer. nat.');
+  await p.waitForTimeout(400);
+  if (!(await p.evaluate(() => document.body.innerText.includes('Dr. rer. nat.')))) fail('Titel erscheint nicht beim Namen');
   await p.selectOption('[data-feld="status.pv"]', 'interesse');
   await p.waitForTimeout(500);
   // Notiz mit manuellem Zeitstempel
@@ -259,7 +271,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     const csvText = (await laden('csv')).toString('utf8');
     const csvZeilen = csvText.replace(/^\uFEFF/, '').trim().split('\r\n');
     if (csvZeilen.length !== namen.length + 1) fail(`CSV hat ${csvZeilen.length - 1} statt ${namen.length} Kunden`);
-    if (!csvZeilen[0].startsWith('Nachname;Vorname;Firma')) fail('CSV-Kopf falsch');
+    if (!csvZeilen[0].startsWith('Nachname;Vorname;Anrede;Titel;Firma')) fail('CSV-Kopf falsch');
     await p.click('#export');
     const x = await laden('xlsx');
     if (x[0] !== 0x50 || x[1] !== 0x4B || !x.toString('latin1').includes('xl/worksheets/sheet1.xml')) fail('Excel-Datei ungültig');

@@ -11,6 +11,7 @@ import { naviLink } from './navi.ts';
 import { abhaken } from './abhaken.ts';
 import { anrufen, emailSchreiben } from './kontakt.ts';
 import { bestaetigungSenden } from './vertrieb.ts';
+import { anredeZeile } from '../core/vertrieb.ts';
 
 const uhr = (d: Date) => d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
@@ -67,7 +68,7 @@ export async function terminKarte(t0: Termin): Promise<boolean> {
   const a = aktion || wahl || '';
   if (a === 'anrufen' && k) { anrufen(kundenTitel(k), k.telefon); return false; }
   if (a === 'mail' && k) {
-    const anrede = k.nachname ? `Guten Tag ${[k.anrede, k.nachname].filter(Boolean).join(' ')},` : 'Guten Tag,';
+    const anrede = anredeZeile(k);
     const gruss = d.einstellungen.absender;
     emailSchreiben({ an: k.email, betreff: t.titel || '', text: `${anrede}\n\n\n\nViele Grüße${gruss ? `\n${gruss}` : ''}` });
     return false;

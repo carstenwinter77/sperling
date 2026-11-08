@@ -5,6 +5,7 @@
 import { type Rec, uid, nowIso, isValidDate, parseNumber, distanceMeters } from './util.ts';
 import type { Sparte, Kunde, Termin, Daten, StatusKey } from './model.ts';
 import { feiertage } from './feiertage.ts';
+import { anredeUndTitel, titelFuerAnrede, mitTitel } from './anrede.ts';
 
 // model.ts importiert die Normalisierer von hier; deshalb keine Laufzeit-Importe aus model.ts (Kreis).
 const SPARTEN: Sparte[] = ['pv', 'wp', 'vorwerk'];
@@ -378,17 +379,20 @@ export function normalizeBereitlegen(v: unknown): Record<Sparte, string[]> {
 
 const WOCHENTAG = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
-export function anredeZeile(k: Pick<Kunde, 'anrede' | 'vorname' | 'nachname'> | null | undefined): string {
+/** Erste Zeile von E-Mails und Bestätigungen: „Guten Tag Frau Dr. Beispiel,“ (Titel nur Prof./Dr., siehe titelFuerAnrede). */
+export function anredeZeile(k: Partial<Pick<Kunde, 'anrede' | 'titel' | 'vorname' | 'nachname'>> | null | undefined): string {
   if (!k) return 'Guten Tag,';
-  const an = (k.anrede || '').trim();
-  if (k.nachname && /^(frau|herr)$/i.test(an)) return `Guten Tag ${an[0]!.toUpperCase()}${an.slice(1).toLowerCase()} ${k.nachname},`;
-  const name = [k.vorname, k.nachname].filter(Boolean).join(' ');
+  const { anrede, titel } = anredeUndTitel(k.anrede, k.titel);
+  const tf = titelFuerAnrede(titel);
+  const nn = (k.nachname || '').trim();
+  if (nn && (anrede === 'Frau' || anrede === 'Herr' || anrede === 'Familie')) return `Guten Tag ${[anrede, anrede === 'Familie' ? '' : tf, nn].filter(Boolean).join(' ')},`;
+  const name = mitTitel(tf, [k.vorname, k.nachname].map((x) => (x || '').trim()).filter(Boolean).join(' '));
   return name ? `Guten Tag ${name},` : 'Guten Tag,';
 }
 
 export interface BestaetigungOptionen { bereitlegen: string[]; absender?: string; ort?: string }
 /** Text der Terminbestätigung (SMS, WhatsApp oder E-Mail). Ohne Anbieternamen, ohne Preise. */
-export function terminBestaetigung(t: Pick<Termin, 'beginn' | 'sparte' | 'dauerMin'>, k: Pick<Kunde, 'anrede' | 'vorname' | 'nachname'> | null, o: BestaetigungOptionen): string {
+export function terminBestaetigung(t: Pick<Termin, 'beginn' | 'sparte' | 'dauerMin'>, k: Partial<Pick<Kunde, 'anrede' | 'titel' | 'vorname' | 'nachname'>> | null, o: BestaetigungOptionen): string {
   const d = new Date(t.beginn);
   const tag = `${WOCHENTAG[d.getDay()]}, ${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
   const uhr = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });

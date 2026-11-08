@@ -34,6 +34,16 @@ export const THEMEN = {
       'Pfeiltasten wählen aus, Enter öffnet, Esc schließt.',
     ],
   },
+  anrede: {
+    titel: 'Anrede und Titel',
+    kurz: 'Anrede und Titel wählst du beim Kunden aus einer Liste. Sperling setzt daraus Namen und Begrüßung zusammen.',
+    schritte: [
+      'Anrede: Frau, Herr, Familie oder keine. E-Mails und Terminbestätigungen beginnen dann mit „Guten Tag Frau Beispiel,“, „Guten Tag Familie Beispiel,“ oder ohne Anrede mit Vor- und Nachnamen.',
+      'Titel: Dr., Prof., Prof. Dr., Dipl.-Ing. und weitere. Fehlt einer, „Anderer Titel …“ wählen und frei eintippen.',
+      'Der Titel steht vor dem Namen, z. B. „Dr. Anna Beispiel“. Sortiert wird weiter nach dem Nachnamen.',
+      'In die Begrüßung kommen nur Prof. und Dr. („Guten Tag Frau Prof. Dr. Beispiel,“). Zusätze wie „med.“ und Diplomgrade lässt Sperling dort weg, wie es üblich ist.',
+    ],
+  },
   kunden: {
     titel: 'Kundenliste',
     kurz: 'Alle Kunden mit Suche, Filter und Sortierung. Die Farbe zeigt, wie lange der letzte Kontakt her ist.',

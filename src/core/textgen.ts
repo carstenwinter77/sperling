@@ -11,6 +11,7 @@
 //      nichts verloren geht. Gemischte mit Vorwerk oder unmarkierte Notizen werden
 //      ausgelassen (und in der UI als Hinweis gezählt).
 
+import { anredeZeile } from './vertrieb.ts';
 import { SPARTEN, STATUS, FELDER, AUSGANG, KONTAKTART, kundenName, adresseEinzeilig, notizenSortiert, type Kunde, type Notiz, type EnpalKontakt, type Feld, type Sparte, type StatusKey, type Einstellungen } from './model.ts';
 
 /** Eine Textgruppe ist genau ein Bereich (seit 0.10.4). */
@@ -18,7 +19,7 @@ export type Gruppe = Sparte;
 export const GRUPPEN_KEYS: Gruppe[] = ['pv', 'wp', 'vorwerk'];
 type EinstellungenTeil = Partial<Pick<Einstellungen, 'absender' | 'vorlagen' | 'felder'>>;
 /** Kundenkopie nur mit Stammdaten und den Sparten einer Gruppe (siehe projizieren). */
-export interface Projektion extends Pick<Kunde, 'anrede' | 'vorname' | 'nachname' | 'firma' | 'strasse' | 'plz' | 'ort' | 'telefon' | 'email'> {
+export interface Projektion extends Pick<Kunde, 'anrede' | 'titel' | 'vorname' | 'nachname' | 'firma' | 'strasse' | 'plz' | 'ort' | 'telefon' | 'email'> {
   status: Partial<Record<Sparte, StatusKey>>;
   notizen: Notiz[];
   enpalKontakte?: EnpalKontakt[];
@@ -39,7 +40,7 @@ export const GRUPPEN: Record<Gruppe, GruppeInfo> = {
   vorwerk: { key: 'vorwerk', label: 'Vorwerk', anbieter: 'Vorwerk', sparten: ['vorwerk'], verwandt: ['vorwerk'] },
 };
 
-export const PLATZHALTER = ['name', 'vorname', 'nachname', 'firma', 'anrede', 'adresse', 'telefon', 'email', 'sparten', 'status', 'daten', 'notizen', 'datum', 'absender'];
+export const PLATZHALTER = ['name', 'vorname', 'nachname', 'firma', 'anrede', 'titel', 'begruessung', 'adresse', 'telefon', 'email', 'sparten', 'status', 'daten', 'notizen', 'datum', 'absender'];
 
 function gruppeOrThrow(gruppe: string): GruppeInfo {
   const g = GRUPPEN[gruppe as Gruppe];
@@ -60,7 +61,7 @@ export function projizieren(kunde: Kunde, gruppe: string, fe?: FeldEinstellungen
   const erlaubt = new Set((fe?.eigene || []).filter((f) => f.kategorie === 'kontakt' || g.sparten.includes(f.kategorie as Sparte)).map((f) => f.id));
   const eigene = Object.fromEntries(Object.entries(kunde.eigene || {}).filter(([id]) => erlaubt.has(id)));
   const p: Projektion = {
-    anrede: kunde.anrede, vorname: kunde.vorname, nachname: kunde.nachname, firma: kunde.firma,
+    anrede: kunde.anrede, titel: kunde.titel, vorname: kunde.vorname, nachname: kunde.nachname, firma: kunde.firma,
     strasse: kunde.strasse, plz: kunde.plz, ort: kunde.ort, telefon: kunde.telefon, email: kunde.email,
     status: {},
     notizen: (kunde.notizen || []).filter((n) => notizErlaubt(n, gruppe)).map((n) => ({ ...n })),
@@ -124,7 +125,8 @@ export function kontext(kunde: Kunde, gruppe: string, einstellungen: Einstellung
   const spartenLabel = (aktiv.length ? aktiv : g.sparten).map((s) => SPARTEN[s].label).join(' & ');
   return {
     name: kundenName(p, 'vorname') || '(ohne Namen)',
-    vorname: p.vorname, nachname: p.nachname, firma: p.firma, anrede: p.anrede,
+    vorname: p.vorname, nachname: p.nachname, firma: p.firma, anrede: p.anrede, titel: p.titel,
+    begruessung: anredeZeile(p),
     adresse: adresseEinzeilig(p) || '–',
     telefon: p.telefon || '–',
     email: p.email || '–',
