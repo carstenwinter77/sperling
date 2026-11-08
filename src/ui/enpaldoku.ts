@@ -3,14 +3,24 @@
 // speichert sie beim Kunden und liefert einen kopierfertigen Text für die Enpal-App.
 // Nur PV/WP – Vorwerk kommt hier nie vor (R-TEXT).
 import * as schnellwahl from './schnellwahl.ts';
+import * as terminwahl from './terminwahl.ts';
+import { TERMIN_DAUER } from '../core/terminfinder.ts';
+import { statusFuerAusgang, wvDatum } from '../core/verzahnung.ts';
+import { bestaetigungAnbieten } from './parts.ts';
 import { esc, nowIso, isoToLocalInput, localInputToIso, formatDateTime } from '../core/util.ts';
-import { AUSGANG, KONTAKTART, SPARTEN, kundenName, kundenTitel, adresseEinzeilig, normalizeEnpalKontakt, neuerTermin } from '../core/model.ts';
+import { AUSGANG, KONTAKTART, SPARTEN, kundenName, kundenTitel, adresseEinzeilig, normalizeEnpalKontakt, neuerTermin, type Termin } from '../core/model.ts';
 import { enpalDokuText, enpalVerlaufText } from '../core/textgen.ts';
 import * as store from '../storage/store.ts';
 import * as pk from '../core/papierkorb.ts';
 import { dialog, toast, kopieren, bestaetigen } from './dom.ts';
 
-/** Dialog zum Anlegen/Bearbeiten. Gibt die Kontakt-ID zurück oder null. */
+/**
+ * Dialog zum Anlegen/Bearbeiten. Gibt die Kontakt-ID zurück oder null.
+ * „Termin vereinbart“ (ab 0.16.0): das Datum ist Pflicht (Kalender mit freien Zeiten oder „Datum noch offen“),
+ * beim Speichern entsteht ein echter Termin und der Status der Themen geht auf „Termin vereinbart“.
+ * Der neu angelegte Termin steht danach in `zuletztTermin` (für die Terminbestätigung).
+ */
+export let zuletztTermin: Termin | null = null;
 export async function kontaktDialog(kundeId: string, { kontaktId = null as string | null, art = 'telefon' } = {}) {
   const k = store.findKunde(kundeId);
   if (!k) return null;
@@ -29,15 +39,43 @@ export async function kontaktDialog(kundeId: string, { kontaktId = null as strin
         </fieldset>
         <label>Ergebnis<select name="ergebnis"><option value="">– bitte wählen –</option>${Object.entries(AUSGANG).filter(([key]) => key !== 'test').map(([key, v]) => `<option value="${key}" ${key === c.ergebnis ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
         <label>Nächster Schritt<input name="schritt" value="${esc(c.naechsterSchritt)}" maxlength="1000" placeholder="z. B. Hausbesuch, Angebot rechnen"></label>
-        <div class="wv-feld"><label>Frist / Wiedervorlage<input type="datetime-local" name="frist" value="${esc(c.frist ? isoToLocalInput(c.frist) : '')}"></label>${schnellwahl.html('frist')}</div>
-        ${alt ? '' : '<label class="check"><input type="checkbox" name="termin" checked> Frist als Wiedervorlage in Termine</label>'}
+        <div class="wv-feld breit"><label><span class="ed-frist-label">${c.ergebnis === 'termin' ? 'Termin am' : 'Frist / Wiedervorlage'}</span><input type="datetime-local" name="frist" value="${esc(c.frist ? isoToLocalInput(c.frist) : '')}"></label>
+          <input type="hidden" name="dauer" value="${TERMIN_DAUER[c.themen[0] || 'pv']}">
+          <div class="tw-zeile">${terminwahl.knopfHtml('frist', { dauer: 'dauer', kundeId, klasse: c.ergebnis === 'termin' ? 'btn klein primary' : 'btn klein ghost' })}
+            ${alt ? '' : `<label class="check ed-offen" ${c.ergebnis === 'termin' ? '' : 'hidden'}><input type="checkbox" name="offen"> Datum noch offen</label>`}</div>
+          <p class="warnung-box tw-konflikt-feld" hidden></p>
+          ${schnellwahl.html('frist')}</div>
+        ${alt ? '' : `<label class="check ed-wv" ${c.ergebnis === 'termin' ? 'hidden' : ''}><input type="checkbox" name="termin" checked> Frist als Wiedervorlage in Termine</label>`}
         <label class="breit">Gesprächsinhalt<textarea name="notiz" rows="6" placeholder="Was wurde besprochen? Wünsche, Bedenken, Absprachen">${esc(c.notiz)}</textarea></label>
       </div>`,
+    onOpen: (dlg) => {
+      terminwahl.konfliktVerdrahten(dlg, 'frist', dlg.querySelector<HTMLElement>('.tw-konflikt-feld')!, { dauer: 'dauer' });
+      const erg = dlg.querySelector<HTMLSelectElement>('[name=ergebnis]')!;
+      const offen = dlg.querySelector<HTMLInputElement>('[name=offen]');
+      offen?.addEventListener('change', () => { dlg.querySelector<HTMLInputElement>('[name=frist]')!.disabled = offen.checked; });
+      erg.addEventListener('change', () => {
+        const termin = erg.value === 'termin';
+        dlg.querySelector<HTMLElement>('.ed-frist-label')!.textContent = termin ? 'Termin am' : 'Frist / Wiedervorlage';
+        const o = dlg.querySelector<HTMLElement>('.ed-offen'); if (o) o.hidden = !termin;
+        const wv = dlg.querySelector<HTMLElement>('.ed-wv'); if (wv) wv.hidden = termin;
+        if (!termin && offen) { offen.checked = false; dlg.querySelector<HTMLInputElement>('[name=frist]')!.disabled = false; }
+        const knopf = dlg.querySelector<HTMLElement>('.tw-knopf')!;
+        knopf.className = `btn klein ${termin ? 'primary' : 'ghost'} tw-knopf`;
+        // R-FLOW: vereinbarter Termin ohne Datum → gleich den Kalender öffnen
+        if (termin && !alt && !dlg.querySelector<HTMLInputElement>('[name=frist]')!.value) void terminwahl.fuerKnopf(knopf);
+      });
+      // Bereich der Themen bestimmt die übliche Termindauer
+      dlg.querySelectorAll<HTMLInputElement>('[name=thema]').forEach((x) => x.addEventListener('change', () => {
+        const erstes = dlg.querySelector<HTMLInputElement>('[name=thema]:checked')?.value as 'pv' | 'wp' | undefined;
+        if (erstes) dlg.querySelector<HTMLInputElement>('[name=dauer]')!.value = String(TERMIN_DAUER[erstes]);
+      }));
+    },
     knoepfe: [{
       label: 'Speichern', primaer: true,
       pruefen: (dlg) => {
         const q = (n) => dlg.querySelector(`[name=${n}]`);
         if (!localInputToIso(q('zeitpunkt').value)) return 'Bitte einen gültigen Zeitpunkt angeben.';
+        if (!alt && q('erreicht').checked && q('ergebnis').value === 'termin' && !q('frist').value && !q('offen')?.checked) return 'Wann ist der vereinbarte Termin? Bitte im Kalender wählen oder „Datum noch offen“ ankreuzen.';
         if (q('frist').value && !localInputToIso(q('frist').value)) return 'Die Frist ist kein gültiges Datum.';
         if (!dlg.querySelectorAll('[name=thema]:checked').length) return 'Bitte mindestens ein Thema wählen (Photovoltaik oder Wärmepumpe).';
         return null;
@@ -52,21 +90,37 @@ export async function kontaktDialog(kundeId: string, { kontaktId = null as strin
           themen: [...dlg.querySelectorAll('[name=thema]:checked')].map((x) => x.value),
           ergebnis: q('ergebnis').value,
           naechsterSchritt: q('schritt').value.trim(),
-          frist: q('frist').value ? localInputToIso(q('frist').value) : null,
+          frist: q('frist').value && !q('offen')?.checked ? localInputToIso(q('frist').value) : null,
           notiz: q('notiz').value,
           termin: q('termin')?.checked ?? false,
+          offen: q('offen')?.checked ?? false,
+          dauerMin: Number(q('dauer').value) || 60,
         };
       },
     }],
   });
+  zuletztTermin = null;
   if (!res) return null;
   const neu = normalizeEnpalKontakt({ ...c, ...res, updatedAt: nowIso() });
+  const vereinbart = !alt && neu.ergebnis === 'termin';
   await store.mutate((d) => {
     const kk = d.kunden.find((x) => x.id === kundeId);
     if (!kk) return;
     const i = kk.enpalKontakte.findIndex((x) => x.id === neu.id);
     if (i >= 0) kk.enpalKontakte[i] = neu; else kk.enpalKontakte.push(neu);
-    if (!alt && res.termin && neu.frist) {
+    // Status der besprochenen Themen folgt dem Ergebnis (hebt nur an, außer „Kein Interesse“/„Abschluss“)
+    if (!alt && neu.ergebnis) for (const s of neu.themen) kk.status[s] = statusFuerAusgang(neu.ergebnis as Parameters<typeof statusFuerAusgang>[0], kk.status[s]);
+    const sparte = neu.themen[0] || 'pv';
+    const wofuer = `${neu.naechsterSchritt || (neu.art === 'hausbesuch' ? 'Termin' : 'Hausbesuch')}`;
+    if (vereinbart && neu.frist) {
+      const t = neuerTermin({ kundeId, sparte, art: 'termin', beginn: neu.frist, dauerMin: res.dauerMin,
+        titel: `${SPARTEN[sparte].label}: ${wofuer} – ${kundenTitel(kk)}`, ort: adresseEinzeilig(kk), notiz: neu.notiz.slice(0, 5000) });
+      d.termine.push(t);
+      zuletztTermin = t;
+    } else if (vereinbart && res.offen) {
+      d.termine.push(neuerTermin({ kundeId, sparte, art: 'wiedervorlage', beginn: wvDatum(1), dauerMin: 15,
+        titel: `Termin-Datum klären – ${SPARTEN[sparte].label}: ${wofuer} – ${kundenTitel(kk)}`, ort: adresseEinzeilig(kk) }));
+    } else if (!alt && res.termin && neu.frist) {
       d.termine.push(neuerTermin({ kundeId, sparte: neu.themen[0] || 'pv', art: 'wiedervorlage', beginn: neu.frist, dauerMin: 60,
         titel: `Enpal-Frist: ${neu.naechsterSchritt || AUSGANG[neu.ergebnis] || 'nachfassen'} – ${kundenTitel(kk)}`, ort: adresseEinzeilig(kk) }));
     }
@@ -137,7 +191,13 @@ export function tab(el, k) {
     if (!b) return;
     if (b.dataset.neu) {
       const id = await kontaktDialog(k.id, { art: b.dataset.neu });
-      if (id) { neuZeichnen(); await textZeigen(k.id, id); }
+      const termin = zuletztTermin;
+      if (id) {
+        neuZeichnen();
+        if (termin) toast(`Termin eingetragen: ${formatDateTime(termin.beginn)}`, 'ok');
+        await textZeigen(k.id, id);
+        if (termin) await bestaetigungAnbieten(termin, 'Termin eingetragen');
+      }
     } else if (b.dataset.kopie) {
       await textZeigen(k.id, b.dataset.kopie);
     } else if (b.dataset.bearb) {

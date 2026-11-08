@@ -106,6 +106,8 @@ export const THEMEN = {
       'Finger auf einem Termin halten zeigt Griffe: in der Mitte verschieben (in der Woche auch auf einen anderen Tag), oben oder unten länger und kürzer ziehen, im 15-Minuten-Raster. Mit der Maus einfach ziehen. Tipp daneben wählt ab.',
       'Im Monat einen Termin halten und auf einen anderen Tag ziehen; die Uhrzeit bleibt.',
       'Leihgaben (↗ geht raus, ↙ kommt zurück, 📌 Reservierung, ⚠ überfällig) stehen mit im Kalender; der Schalter „Leihgaben zeigen“ blendet sie aus. Antippen zeigt Gerät, Kunde und Leihschein.',
+      '„🔒 Feste Zeiten“: Arbeitszeit eintragen und Zeiten blocken, in denen du keine Kundentermine machst (einmalig, z. B. Urlaub, oder jede Woche / alle 2 Wochen). Sie stehen gestreift im Kalender.',
+      '„📅 Im Kalender wählen“ neben einem Termin-Datum zeigt den Kalender mit allen Terminen; frei ist grün. Oben stehen Zeiten, in denen du sowieso in der Nähe bist. Bei „Termin vereinbart“ (Telefonat, Hausbesuch, Gespräch) öffnet er sich von selbst.',
     ],
   },
   gespraech: {

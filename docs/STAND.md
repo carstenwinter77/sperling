@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.15.0
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.16.0
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -13,6 +13,16 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 - [ ] Auf dem Tablet „Zum Home-Bildschirm“ hinzufügen und Master-Passwort festlegen
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
+
+## Erledigt (Version 0.16.0)
+
+### Neu in 0.16.0 (vereinbarte Termine sicher eintragen, Schema 13)
+- [x] Terminfinder `src/core/terminfinder.ts` (rein, getestet in `tests/terminfinder.test.mjs`): Arbeitszeit, feste Zeiten mit Wiederholung (einmalig/mehrtägig, wöchentlich, 2-wöchentlich, Ende), Belegung je Tag, freie Zeiten mit Puffer (Wiedervorlagen blockieren nicht), Vorschläge in der Nähe (15 km, 14 Tage, höchstens 5), Überschneidungen.
+- [x] „📅 Im Kalender wählen“ (`src/ui/terminwahl.ts`): ganzer Kalender Tag/Woche mit vorhandenen Terminen im Fenster; am Termin-Fenster, Gesprächsabschluss, Leitfaden und an der Enpal-Doku. Warnzeile bei Überschneidung.
+- [x] Feste Zeiten verwalten (`src/ui/sperrzeiten.ts`): Kalender „🔒 Feste Zeiten“, Einstellungen → Allgemein; gestreift im Kalender (Woche/Tag).
+- [x] „Termin vereinbart“ Pflichtdatum oder „Datum noch offen“ (Wiedervorlage „Termin-Datum klären“, nächster Werktag); Kalender öffnet sich bei Wahl des Ergebnisses (R-FLOW). Klemmbrett schätzt kein Termindatum mehr.
+- [x] Enpal-Doku: echter Termin bei „Termin vereinbart“, Status folgt dem Ergebnis, danach Terminbestätigung anbieten.
+- [ ] Mit Jan testen: Stimmen Standard-Arbeitszeit (Mo–Fr 8–18 Uhr), Puffer 15 Min., Termindauer PV/WP 1,5 Std., Umkreis 15 km? Private Kalender (iPhone/Google) bleiben bewusst außen vor.
 
 ## Erledigt (Version 0.15.0)
 

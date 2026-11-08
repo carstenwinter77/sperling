@@ -2,6 +2,15 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.16.0',
+    punkte: [
+      'Termin vereinbart? Dann öffnet sich gleich der Kalender: Du siehst alle Termine der Woche, freie Zeiten sind grün. Uhrzeit antippen, „Zeit übernehmen“, fertig. Das geht beim Telefonat, beim Hausbesuch, im Gespräch und bei jedem neuen Termin („📅 Im Kalender wählen“).',
+      'Oben im Kalender schlägt Sperling Zeiten vor, in denen du sowieso in der Nähe bist, z. B. „Di 10:45, nach 9:30 Müller (Lengede), 2 km“.',
+      'Ohne Datum lässt sich ein vereinbarter Termin nicht mehr speichern. Steht das Datum noch nicht fest, kreuze „Datum noch offen“ an: Dann erinnert dich Sperling morgen daran.',
+      'Feste Zeiten blocken: Im Kalender unter „🔒 Feste Zeiten“ trägst du deine Arbeitszeit ein und Zeiten, in denen du keine Kundentermine machst (z. B. jeden Mittwochnachmittag privat, Urlaub). Sie stehen gestreift im Kalender.',
+    ],
+  },
+  {
     version: '0.15.0',
     punkte: [
       'Anrede zum Antippen: Frau, Herr, Familie oder keine. Dazu ein eigenes Feld „Titel“ mit Dr., Prof., Prof. Dr., Dipl.-Ing. und mehr; fehlt einer, „Anderer Titel …“ wählen und eintippen.',

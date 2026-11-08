@@ -23,6 +23,7 @@ import * as feldverwaltung from '../feldverwaltung.ts';
 import * as bausteinverwaltung from '../bausteinverwaltung.ts';
 import * as rechnervorlagen from '../rechnervorlagen.ts';
 import { KALENDER_ANSICHTEN } from '../kalender.ts';
+import * as sperrzeiten from '../sperrzeiten.ts';
 import { einstellungenPaket, einstellungenAusPaket, geraeteWahl } from '../../core/einstellungsdatei.ts';
 
 export const APP_VERSION = __APP_VERSION__; // aus package.json (vite.config.ts)
@@ -35,7 +36,7 @@ function tageText(iso: string): string {
 
 /** Bereiche der Einstellungen: links (iPad quer) bzw. als Übersicht (Handy, iPad hochkant). */
 export const GRUPPEN = [
-  { key: 'allgemein', sym: 'allgemein', titel: 'Allgemein', such: 'absender gruss name farbschema hell dunkel automatisch kalender start ansicht hinfahren navigation karten app apple google waze' },
+  { key: 'allgemein', sym: 'allgemein', titel: 'Allgemein', such: 'absender gruss name farbschema hell dunkel automatisch kalender start ansicht hinfahren navigation karten app apple google waze arbeitszeit feste zeiten blocken sperren privat urlaub buero puffer frei' },
   { key: 'texte', sym: 'texte', titel: 'Texte & E-Mail', such: 'textvorlagen vorlage platzhalter textbausteine baustein mail e-mail mailprogramm empfaenger gmail outlook' },
   { key: 'vertrieb', sym: 'vertrieb', titel: 'Vertrieb', such: 'nachfassen angebot wiedervorlage tage abstand bereitlegen terminbestaetigung termin bestaetigen sms whatsapp stromrechnung rechner vorlage vorlagen beispielwerte startwerte privat gewerbe firma amortisation' },
   { key: 'kunden', sym: 'kundendaten', titel: 'Kundendaten', such: 'namen name nachname vorname reihenfolge sortierung sortieren ort strasse ohne namen felder eigene felder feldverwaltung kundenansicht herzeigen fotos kundenfotos speicher' },
@@ -115,6 +116,12 @@ function inhalt(key: GruppeKey, demo: boolean): string {
         </select></label>
       </div>
       ${mehr('Warum nicht die Standard-App von iOS?', '<p class="hinweis">Eine Web-App kann die in iOS gewählte Standard-Navigations-App nicht direkt aufrufen. Wähle hier die App, mit der du fährst; Google Maps und Waze öffnen sich, wenn sie installiert sind, sonst im Browser.</p>')}
+    </section>
+    <section class="karte-box" id="arbeitszeitEinstellungen">
+      <h2>Arbeitszeit und feste Zeiten</h2>
+      <p class="hinweis">Damit zeigt der Kalender beim Termin-Eintragen, wo noch etwas frei ist, und schlägt Zeiten vor, in denen du sowieso in der Nähe bist. Feste Zeiten (privat, Büro, Urlaub) blockst du hier, auch wiederkehrend.</p>
+      <p><b id="azZusammenfassung">${esc(sperrzeiten.zusammenfassung())}</b></p>
+      <div class="knopfreihe"><button type="button" class="btn ghost" id="azBearbeiten">🔒 Arbeitszeit und feste Zeiten bearbeiten</button></div>
     </section>`;
 
     case 'texte': return `
@@ -430,6 +437,10 @@ export function render(el: HTMLElement, params?: URLSearchParams) {
   });
   el.querySelector('#hinweiseZurueck')?.addEventListener('click', () => { hilfe.hinweiseZuruecksetzen(); toast('Hinweise werden wieder gezeigt (Karte, Installation).', 'ok'); });
   el.querySelector('#hilfeKnoepfe')?.addEventListener('change', (ev) => { hilfe.vorliebeSetzen({ knoepfe: (ev.target as HTMLInputElement).checked }); toast('Gespeichert', 'ok'); });
+  el.querySelector('#azBearbeiten')?.addEventListener('click', async () => {
+    await sperrzeiten.verwalten();
+    const z = el.querySelector('#azZusammenfassung'); if (z) z.textContent = sperrzeiten.zusammenfassung();
+  });
   el.querySelector('#kalenderStart').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.kalenderStart = (ev.target as HTMLSelectElement).value as typeof d.einstellungen.kalenderStart; }));
   // Namensanzeige gilt sofort, auch im Demo-Modus (dort nur bis zum Neuladen)
   el.querySelector('#namensFolge')?.addEventListener('change', (ev) => { const v = (ev.target as HTMLSelectElement).value === 'nachname' ? 'nachname' : 'vorname'; store.mutate((d) => { d.einstellungen.namensFolge = v; }); toast(v === 'nachname' ? 'Namen jetzt als „Nachname, Vorname“' : 'Namen jetzt als „Vorname Nachname“', 'ok'); });

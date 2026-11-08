@@ -38,6 +38,10 @@ export interface Abschluss {
   schritt: string;
   /** Wiedervorlage/Termin (ISO) oder null */
   wv: string | null;
+  /** Dauer des vereinbarten Termins in Minuten (ab 0.16.0, aus dem Terminfinder); fehlt = 60 */
+  dauerMin?: number;
+  /** „Termin vereinbart“, Datum aber noch offen (ab 0.16.0): `wv` ist dann die Wiedervorlage „Termin-Datum klären“ */
+  datumOffen?: boolean;
 }
 
 export const leererVerlauf = (): Verlauf => ({ pv: {}, wp: {}, vorwerk: {} });
@@ -81,9 +85,10 @@ export function speichern(data: Daten, e: Entwurf, abschluesse: Abschluss[], jet
     }
     if (a.status && a.status in STATUS) k.status[s] = a.status;
     if (a.wv) {
+      const offen = a.ausgang === 'termin' && a.datumOffen === true;
       data.termine.push(neuerTermin({
-        kundeId: k.id, sparte: s, art: a.ausgang === 'termin' ? 'termin' : 'wiedervorlage', beginn: a.wv, dauerMin: 60,
-        titel: `${SPARTEN[s].label}: ${a.schritt || (a.ausgang ? AUSGANG[a.ausgang] : 'Wiedervorlage')} – ${kundenTitel(k)}`, ort: adresseEinzeilig(k), notiz: notiz(g).slice(0, 5000),
+        kundeId: k.id, sparte: s, art: a.ausgang === 'termin' && !offen ? 'termin' : 'wiedervorlage', beginn: a.wv, dauerMin: offen ? 15 : a.dauerMin || 60,
+        titel: `${offen ? 'Termin-Datum klären – ' : ''}${SPARTEN[s].label}: ${a.schritt || (a.ausgang ? AUSGANG[a.ausgang] : 'Wiedervorlage')} – ${kundenTitel(k)}`, ort: adresseEinzeilig(k), notiz: notiz(g).slice(0, 5000),
       }));
     }
   }

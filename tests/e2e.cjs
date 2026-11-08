@@ -84,6 +84,23 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.waitForSelector('#gKontaktart');
   await p.selectOption('#gKontaktart', 'telefon');
   await p.selectOption('[data-abschluss] [name=ausgang]', 'termin');
+  // „Termin vereinbart“ ohne Datum öffnet gleich den Kalender (ab 0.15.0); Tipp auf Di 10:00 der nächsten Woche
+  await p.waitForSelector('dialog.dlg-terminwahl .tw-spalte');
+  await p.click('dialog.dlg-terminwahl [data-tw-ansicht=woche]');
+  await p.click('dialog.dlg-terminwahl [data-tw-schritt="1"]');
+  {
+    const sp = p.locator('dialog.dlg-terminwahl .tw-spalte >> nth=1');
+    await sp.scrollIntoViewIfNeeded();
+    await p.evaluate(() => { document.querySelector('dialog.dlg-terminwahl .tw-raster').scrollTop = 0; });
+    const box = await sp.boundingBox();
+    await p.mouse.click(box.x + box.width / 2, box.y + 4 * 52 + 5);
+  }
+  await p.waitForSelector('dialog.dlg-terminwahl .tw-auswahl');
+  if (!/Di.*10:00–11:30/.test(await p.textContent('dialog.dlg-terminwahl .tw-wahl'))) fail('Terminwahl: gewählte Zeit falsch: ' + await p.textContent('dialog.dlg-terminwahl .tw-wahl'));
+  await p.click('dialog.dlg-terminwahl .dlg-actions button.primary');
+  await p.waitForFunction(() => !document.querySelector('dialog.dlg-terminwahl'));
+  if (!/T10:00$/.test(await p.inputValue('[data-abschluss] [name=wv]'))) fail('Terminwahl: Zeit nicht ins Feld übernommen');
+  if ((await p.inputValue('[data-abschluss] [name=dauer]')) !== '90') fail('Terminwahl: Dauer nicht übernommen');
   await p.click('#gSpeichernKnopf');
   await p.waitForTimeout(500);
   // Karte: Adresssuche (Adressdienst gemockt); Kundennamen dürfen nie an den Dienst gehen
@@ -757,6 +774,14 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   if (!/erfasst/.test(bilanz) || !bilanz.includes('Widerrufsrecht erklärt') || !bilanz.includes('1 Einwand')) fail('Gesprächsbilanz unvollständig: ' + bilanz);
   await p.selectOption('[data-abschluss] [name=ausgang] >> nth=0', 'termin');
   await p.waitForSelector('#gmBilanz.gut');
+  // „Termin vereinbart“: Kalender öffnet sich; abbrechen, dann ist Speichern ohne Datum gesperrt
+  await p.waitForSelector('dialog.dlg-terminwahl');
+  await p.click('dialog.dlg-terminwahl .dlg-actions button.ghost');
+  await p.waitForFunction(() => !document.querySelector('dialog.dlg-terminwahl'));
+  if (await p.isHidden('[data-abschluss] .gm-offen >> nth=0')) fail('„Datum noch offen“ fehlt bei „Termin vereinbart“');
+  await p.click('#gmSpeichern');
+  await p.waitForFunction(() => /Wann ist der vereinbarte Termin/.test(document.querySelector('#toast')?.textContent || ''));
+  if (!(await p.$('.gm-seiten'))) fail('Gespräch trotz fehlendem Termindatum gespeichert');
   await p.selectOption('[data-abschluss] [name=ausgang] >> nth=0', 'wiedervorlage');
   const gmKunde = await p.evaluate(() => location.hash.split('/')[2]);
   await p.click('#gmSpeichern');
@@ -913,7 +938,7 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.fill('#suchFeld', 'neuer termin');
   await p.keyboard.press('Enter');
   await p.waitForSelector('dialog.dlg input[name=titel]');
-  await p.click('dialog.dlg button.ghost');
+  await p.click('dialog.dlg .dlg-actions button.ghost');
   // Hilfe: ?-Knopf zeigt Kurzhilfe, Hilfe-Seite mit Suche und Installationshilfe, abschaltbar
   await p.goto(BASE + '#/kunden');
   await p.click('.seitenkopf h1 .hilfe-knopf');
@@ -1422,6 +1447,62 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     await dp.waitForSelector('.leaflet-marker-icon.pin.tuer-spaeter .pin-tuer');
     if ((await dp.textContent('.leaflet-marker-icon.pin.tuer-spaeter .pin-tuer')).trim() !== '⏰') fail('Pin: Symbol „Später“ fehlt');
     if (!(await dp.textContent('.legende-tuer')).includes('Nicht da')) fail('Karte: Legende der Haustür-Symbole fehlt');
+    await dp.close();
+  }
+  // Terminfinder (ab 0.15.0): Enpal-Doku „Termin vereinbart“ → Kalender mit Vorschlägen in der Nähe → echter Termin;
+  // feste Zeiten im Kalender anlegen und anzeigen
+  {
+    const dp = await ctx.newPage();
+    dp.on('pageerror', (e) => errs.push('Terminfinder: ' + e.message));
+    await dp.goto(BASE + '?demo#/kunde/demo-1?tab=doku');
+    await dp.waitForSelector('[data-neu=telefon]');
+    await dp.evaluate(() => document.querySelector('#tour')?.remove());
+    await dp.click('[data-neu=telefon]');
+    await dp.selectOption('dialog [name=ergebnis]', 'termin');
+    await dp.waitForSelector('dialog.dlg-terminwahl .tw-nahe');
+    if (!(await dp.$('dialog.dlg-terminwahl [data-tw-vorschlag]'))) fail('Terminfinder: keine Vorschläge in der Nähe (Demo)');
+    if (!(await dp.$('dialog.dlg-terminwahl .k-block'))) fail('Terminfinder: vorhandene Termine fehlen im Kalender');
+    await dp.click('dialog.dlg-terminwahl [data-tw-vorschlag] >> nth=0');
+    await dp.waitForSelector('dialog.dlg-terminwahl .tw-auswahl');
+    await dp.click('dialog.dlg-terminwahl .dlg-actions button.primary');
+    await dp.waitForFunction(() => !document.querySelector('dialog.dlg-terminwahl'));
+    if (!(await dp.inputValue('dialog [name=frist]'))) fail('Terminfinder: Vorschlag nicht übernommen');
+    await dp.click('dialog .dlg-actions button.primary');
+    await dp.waitForSelector('.doku-text');
+    await dp.click('dialog .dlg-actions button.ghost');
+    await dp.waitForSelector('dialog h2:has-text("Termin eingetragen")');
+    await dp.click('dialog .dlg-actions button.ghost');
+    await dp.click('button[data-tab=termine]');
+    await dp.waitForSelector('.terminliste');
+    if (!/Photovoltaik: Hausbesuch/.test(await dp.textContent('.terminliste'))) fail('Enpal-Doku: vereinbarter Termin fehlt in den Terminen');
+    // Pflicht: ohne Datum nicht speichern; „Datum noch offen“ legt eine Wiedervorlage an
+    await dp.click('button[data-tab=doku]');
+    await dp.click('[data-neu=telefon]');
+    await dp.selectOption('dialog [name=ergebnis]', 'termin');
+    await dp.waitForSelector('dialog.dlg-terminwahl');
+    await dp.click('dialog.dlg-terminwahl .dlg-actions button.ghost');
+    await dp.click('dialog .dlg-actions button.primary');
+    await dp.waitForFunction(() => /Wann ist der vereinbarte Termin/.test(document.querySelector('#toast')?.textContent || ''));
+    await dp.check('dialog [name=offen]');
+    await dp.click('dialog .dlg-actions button.primary');
+    await dp.waitForSelector('.doku-text');
+    await dp.click('dialog .dlg-actions button.ghost');
+    await dp.click('button[data-tab=termine]');
+    if (!/Termin-Datum klären/.test(await dp.textContent('.terminliste'))) fail('„Datum noch offen“ legt keine Wiedervorlage an');
+    // Feste Zeit im Kalender anlegen
+    await dp.goto(BASE + '?demo#/termine');
+    await dp.click('#kalTabs [data-ansicht=woche]');
+    await dp.waitForSelector('.k-raster .k-sperre');
+    await dp.click('#kSperren');
+    await dp.waitForSelector('.tw-sperrliste li');
+    await dp.click('#szNeu');
+    await dp.fill('[name=szTitel]', 'Zahnarzt <img src=x onerror="window.__xss=1">');
+    await dp.selectOption('[name=szWdh]', 'einmal');
+    await dp.click('dialog:last-of-type .dlg-actions button.primary');
+    await dp.waitForFunction(() => document.querySelectorAll('.tw-sperrliste li').length === 3);
+    if (await dp.evaluate(() => window.__xss)) fail('XSS in festen Zeiten ausgeführt!');
+    await dp.click('dialog .dlg-actions button.primary');
+    await dp.waitForSelector('.k-raster .k-sperre:has-text("Zahnarzt")');
     await dp.close();
   }
   // Bereichsleiste auf der Übersicht: Zahl führt in die gefilterte Kundenliste (Bereich + Status)

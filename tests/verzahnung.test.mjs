@@ -21,7 +21,7 @@ test('Verzahnung: „Vereinbart“ stellt Ergebnis und Wiedervorlage vor', () =>
   // Partner fehlt, nichts vereinbart: Termin mit beiden
   const b = leereAntworten();
   b.pv.entscheider = 'Partner fehlt';
-  assert.deepEqual(abschlussVorschlag('pv', b), { ausgang: 'termin', tage: 7, schritt: 'Termin mit beiden Entscheidern' });
+  assert.deepEqual(abschlussVorschlag('pv', b), { ausgang: 'termin', tage: null, schritt: 'Termin mit beiden Entscheidern' });
   // Freitext ohne bekannte Option: Text bleibt, kein Ergebnis
   const c = leereAntworten();
   c.pv.schritt = 'ruft nach dem Urlaub an';

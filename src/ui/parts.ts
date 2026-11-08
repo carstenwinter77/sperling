@@ -2,6 +2,7 @@
 import { feiertag } from '../core/feiertage.ts';
 import * as schnellwahl from './schnellwahl.ts';
 import * as kundenwahl from './kundenwahl.ts';
+import * as terminwahl from './terminwahl.ts';
 import { esc, isoToLocalInput, localInputToIso, formatDateTime, parseNumber } from '../core/util.ts';
 import { SPARTEN, SPARTEN_KEYS, STATUS, kundenTitel, adresseEinzeilig, neuerTermin, normalizeTermin, type Termin } from '../core/model.ts';
 import { erzeugeIcs } from '../core/ics.ts';
@@ -54,6 +55,8 @@ export async function terminDialog({ termin = null as Termin | null, kundeId = '
       <label>Dauer (Min.) <input type="number" name="dauerMin" min="5" max="1440" step="5" value="${esc(t.dauerMin)}"></label>
     </div>
     <p class="hinweis feiertag-hinweis" hidden></p>
+    <p class="warnung-box tw-konflikt-feld" hidden></p>
+    <div class="tw-zeile">${terminwahl.knopfHtml('beginn', { dauer: 'dauerMin', ohneTerminId: termin?.id || '' })}</div>
     ${schnellwahl.html('beginn')}
     <label>Ort <input name="ort" value="${esc(t.ort)}" maxlength="500"></label>
     <label>Notiz <textarea name="notiz" rows="3" maxlength="5000">${esc(t.notiz)}</textarea></label>`;
@@ -67,6 +70,8 @@ export async function terminDialog({ termin = null as Termin | null, kundeId = '
       const hinweis = dlg.querySelector<HTMLElement>('.feiertag-hinweis')!;
       const zeigen = () => { const ft = feld.value ? feiertag(feld.value.slice(0, 10)) : null; hinweis.hidden = !ft; hinweis.textContent = ft ? `🎉 Feiertag in Niedersachsen: ${ft}` : ''; };
       feld.addEventListener('input', zeigen); feld.addEventListener('change', zeigen); zeigen();
+      // Überschneidung mit anderen Terminen oder festen Zeiten (ab 0.16.0), nur Hinweis
+      terminwahl.konfliktVerdrahten(dlg, 'beginn', dlg.querySelector<HTMLElement>('.tw-konflikt-feld')!, { dauer: 'dauerMin', ohneTerminId: termin?.id || '' });
     },
     knoepfe: [{
       label: 'Speichern', primaer: true,
@@ -93,17 +98,21 @@ export async function terminDialog({ termin = null as Termin | null, kundeId = '
   });
   toast('Gespeichert', 'ok');
   // Neuer Termin mit Kunde: gleich die Bestätigung an den Kunden anbieten (ab 0.14.0)
-  const kk = store.getData().kunden.find((x) => x.id === gespeichert.kundeId);
-  if (!termin && kk && gespeichert.art === 'termin' && (kk.telefon || kk.email) && gespeichert.beginn > new Date().toISOString()) {
-    const jetzt = await dialog<boolean>({
-      titel: 'Termin gespeichert',
-      html: `<p>${esc(formatDateTime(gespeichert.beginn))} mit ${esc(kundenTitel(kk))}. Gleich eine Bestätigung schicken (SMS, WhatsApp oder E-Mail, mit „Bitte bereitlegen“)?</p>`,
-      knoepfe: [{ label: '✅ Jetzt bestätigen', primaer: true, wert: true }],
-      onOpen: (dlg) => { const b = dlg.querySelector<HTMLElement>('.dlg-actions button.ghost'); if (b) b.textContent = 'Später'; },
-    });
-    if (jetzt) await bestaetigungSenden(gespeichert);
-  }
+  if (!termin) await bestaetigungAnbieten(gespeichert);
   return gespeichert;
+}
+
+/** Neuer Termin mit Kunde in der Zukunft: gleich die Bestätigung an den Kunden anbieten (ab 0.14.0). */
+export async function bestaetigungAnbieten(t: Termin, titel = 'Termin gespeichert') {
+  const kk = store.getData().kunden.find((x) => x.id === t.kundeId);
+  if (!kk || t.art !== 'termin' || !(kk.telefon || kk.email) || t.beginn <= new Date().toISOString()) return;
+  const jetzt = await dialog<boolean>({
+    titel,
+    html: `<p>${esc(formatDateTime(t.beginn))} mit ${esc(kundenTitel(kk))}. Gleich eine Bestätigung schicken (SMS, WhatsApp oder E-Mail, mit „Bitte bereitlegen“)?</p>`,
+    knoepfe: [{ label: '✅ Jetzt bestätigen', primaer: true, wert: true }],
+    onOpen: (dlg) => { const b = dlg.querySelector<HTMLElement>('.dlg-actions button.ghost'); if (b) b.textContent = 'Später'; },
+  });
+  if (jetzt) await bestaetigungSenden(t);
 }
 
 function naechsteVolleStunde() {

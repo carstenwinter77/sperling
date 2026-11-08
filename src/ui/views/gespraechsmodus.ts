@@ -2,6 +2,8 @@
 // links die Kundendaten (weiter bearbeitbar), rechts Notizen, Leitfaden und Abschluss.
 // Am Handy werden daraus Reiter. Der Entwurf bleibt im Arbeitsspeicher, bis gespeichert oder verworfen wird.
 import * as schnellwahl from '../schnellwahl.ts';
+import * as terminwahl from '../terminwahl.ts';
+import { TERMIN_DAUER } from '../../core/terminfinder.ts';
 import { esc, formatDate, formatDateTime, localInputToIso, isoToLocalInput } from '../../core/util.ts';
 import { SPARTEN, SPARTEN_KEYS, STATUS, AUSGANG, KONTAKTART, kundenTitel, adresseEinzeilig, type Sparte } from '../../core/model.ts';
 import { kundenVerlauf } from '../../core/verlauf.ts';
@@ -16,7 +18,7 @@ import { felderHtml } from '../felder.ts';
 import { markierenHtml, markierenVerdrahten, markierenNeuZeichnen } from '../produkte.ts';
 import { bausteinAnhaengen } from '../../core/bausteine.ts';
 import { stand } from '../../core/klemmbrett.ts';
-import { abschlussVorschlag, statusFuerAusgang, wvDatum, kontaktartFuerTermin, spartenFuerTermin } from '../../core/verzahnung.ts';
+import { abschlussVorschlag, statusFuerAusgang, wvDatum, kontaktartFuerTermin, spartenFuerTermin, fehlendesTerminDatum } from '../../core/verzahnung.ts';
 import * as ruecksprung from '../ruecksprung.ts';
 import { folgenNachGespraech, folgenZeigen } from '../folgeschritte.ts';
 
@@ -206,7 +208,12 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
             <label>Ergebnis<select name="ausgang"><option value="">${e.erreicht ? '– bitte wählen –' : '– keins –'}</option>${Object.entries(AUSGANG).map(([key, txt]) => `<option value="${key}" ${key === v.ausgang ? 'selected' : ''}>${esc(txt)}</option>`).join('')}</select></label>
             <label>Status<select name="status">${statusOptions(st)}</select></label>
             <label>Nächster Schritt<input name="schritt" maxlength="1000" placeholder="z. B. Angebot rechnen lassen" value="${esc(v.schritt)}"></label>
-            <div class="wv-feld"><label>${v.ausgang === 'termin' ? 'Termin am' : 'Wiedervorlage / Termin am'}<input type="datetime-local" name="wv" value="${v.tage !== null ? esc(isoToLocalInput(wvDatum(v.tage))) : ''}"></label>${schnellwahl.html('wv')}</div>
+            <div class="wv-feld breit"><label><span class="gm-wv-label">${v.ausgang === 'termin' ? 'Termin am' : 'Wiedervorlage / Termin am'}</span><input type="datetime-local" name="wv" value="${v.tage !== null ? esc(isoToLocalInput(wvDatum(v.tage))) : ''}"></label>
+              <input type="hidden" name="dauer" value="${TERMIN_DAUER[s]}">
+              <div class="tw-zeile">${terminwahl.knopfHtml('wv', { dauer: 'dauer', kundeId: id, klasse: v.ausgang === 'termin' ? 'btn klein primary' : 'btn klein ghost' })}
+                <label class="check gm-offen" ${v.ausgang === 'termin' ? '' : 'hidden'}><input type="checkbox" name="offen"> Datum noch offen</label></div>
+              <p class="warnung-box tw-konflikt-feld" hidden></p>
+              ${schnellwahl.html('wv')}</div>
           </div>
           ${v.ausgang || v.tage !== null ? '<p class="hinweis gm-vorschlag">Vorgeschlagen aus dem Gespräch, alles änderbar.</p>' : ''}
         </fieldset>`; }).join('')}
@@ -216,6 +223,22 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
           <button type="button" class="btn ghost danger-text" id="gmVerwerfen">Verwerfen</button>
         </div>
       </div>`;
+    // „Termin vereinbart“ (ab 0.16.0): Feld heißt „Termin am“, Kalender-Knopf wird Hauptknopf, „Datum noch offen“
+    // erscheint; ist noch kein Datum drin, öffnet sich gleich der Kalender (R-FLOW). Überschneidungen als Hinweis.
+    rechts.querySelectorAll<HTMLFieldSetElement>('[data-abschluss]').forEach((fs) => {
+      terminwahl.konfliktVerdrahten(fs, 'wv', fs.querySelector<HTMLElement>('.tw-konflikt-feld')!, { dauer: 'dauer' });
+      const offen = fs.querySelector<HTMLInputElement>('[name=offen]')!;
+      offen.addEventListener('change', () => { fs.querySelector<HTMLInputElement>('[name=wv]')!.disabled = offen.checked; });
+      fs.querySelector<HTMLSelectElement>('[name=ausgang]')!.addEventListener('change', (ev) => {
+        const termin = (ev.target as HTMLSelectElement).value === 'termin';
+        fs.querySelector<HTMLElement>('.gm-wv-label')!.textContent = termin ? 'Termin am' : 'Wiedervorlage / Termin am';
+        fs.querySelector<HTMLElement>('.gm-offen')!.hidden = !termin;
+        if (!termin) { offen.checked = false; fs.querySelector<HTMLInputElement>('[name=wv]')!.disabled = false; }
+        const knopf = fs.querySelector<HTMLElement>('.tw-knopf')!;
+        knopf.className = `btn klein ${termin ? 'primary' : 'ghost'} tw-knopf`;
+        if (termin && !fs.querySelector<HTMLInputElement>('[name=wv]')!.value) void terminwahl.fuerKnopf(knopf);
+      });
+    });
     // Status folgt dem Ergebnis, solange er nicht von Hand geändert wurde
     rechts.querySelectorAll<HTMLSelectElement>('[data-abschluss] [name=status]').forEach((sel) => sel.addEventListener('change', () => { sel.dataset.vonHand = '1'; }));
     rechts.querySelectorAll<HTMLSelectElement>('[data-abschluss] [name=ausgang]').forEach((sel) => sel.addEventListener('change', () => {
@@ -237,12 +260,21 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
       for (const fs of rechts.querySelectorAll<HTMLFieldSetElement>('[data-abschluss]')) {
         const s = fs.dataset.abschluss as Sparte;
         const f = (n: string) => fs.querySelector<HTMLInputElement>(`[name=${n}]`);
-        const wvRoh = f('wv').value;
-        const wv = wvRoh ? localInputToIso(wvRoh) : null;
-        if (wvRoh && !wv) { toast(`Ungültiges Datum bei ${SPARTEN[s].label}.`, 'error'); return; }
         const ausgang = f('ausgang').value as ablauf.Abschluss['ausgang'];
+        const datumOffen = ausgang === 'termin' && f('offen').checked;
+        const wvRoh = datumOffen ? '' : f('wv').value;
+        const wv = datumOffen ? wvDatum(1) : wvRoh ? localInputToIso(wvRoh) : null;
+        if (wvRoh && !wv) { toast(`Ungültiges Datum bei ${SPARTEN[s].label}.`, 'error'); return; }
         if (e.erreicht && !ausgang && ablauf.hatEinwaende(e.verlauf, s)) { toast(`Bitte das Ergebnis für ${SPARTEN[s].label} wählen.`, 'error'); f('ausgang').focus(); return; }
-        abschluesse.push({ sparte: s, ausgang, status: f('status').value as ablauf.Abschluss['status'], schritt: f('schritt').value.trim(), wv });
+        abschluesse.push({ sparte: s, ausgang, status: f('status').value as ablauf.Abschluss['status'], schritt: f('schritt').value.trim(), wv, dauerMin: Number(f('dauer').value) || 60, datumOffen });
+      }
+      // Vereinbarter Termin ohne Datum geht sonst verloren (ab 0.16.0)
+      const fehlt = fehlendesTerminDatum(abschluesse, e.erreicht);
+      if (fehlt) {
+        toast(`${SPARTEN[fehlt.sparte].label}: Wann ist der vereinbarte Termin? Bitte im Kalender wählen oder „Datum noch offen“ ankreuzen.`, 'error');
+        const knopf = rechts.querySelector<HTMLElement>(`[data-abschluss="${fehlt.sparte}"] .tw-knopf`);
+        knopf?.scrollIntoView({ block: 'center' }); knopf?.focus();
+        return;
       }
       const etwas = ablauf.hatInhalt(e) || abschluesse.some((a) => a.ausgang || a.schritt || a.wv) || !e.erreicht;
       if (!etwas) { toast('Noch nichts zu speichern: Notiz schreiben oder Ergebnis wählen.', 'error'); return; }
