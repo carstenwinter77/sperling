@@ -1,5 +1,16 @@
 # Änderungsverlauf
 
+## 0.16.0 – 08.11.2026
+Vereinbarte Termine sicher eintragen, mit Blick in den Kalender (Schema 13).
+- **Zeit im Kalender wählen** (`src/ui/terminwahl.ts`): Neben jedem Termin-Datum (Termin-Fenster, Gesprächsabschluss, Leitfaden, Enpal-Doku) steht „📅 Im Kalender wählen“. Es öffnet den ganzen Kalender (Tag/Woche) mit allen vorhandenen Terminen, Wiedervorlagen und festen Zeiten; freie Zeiten in der Arbeitszeit sind grün, außerhalb grau. Uhrzeit antippen wählt (15-Minuten-Raster), Termin antippen zeigt Details, Dauer wählbar (PV/WP 1,5 Std., Vorwerk 1 Std. vorbelegt).
+- **„Du bist sowieso in der Nähe“** (`naheVorschlaege()` in `src/core/terminfinder.ts`): freie Zeiten direkt vor oder nach Terminen im Umkreis von 15 km (Luftlinie, Fahrzeit grob geschätzt, mit Puffer), nächste 2 Wochen, höchstens 5.
+- **Überschneidungen:** Warnhinweis, wenn ein Termin sich mit einem anderen Termin oder einer festen Zeit überschneidet oder außerhalb der Arbeitszeit liegt (nur Hinweis, nie Sperre).
+- **Arbeitszeit und feste Zeiten** (`src/ui/sperrzeiten.ts`, Kalender „🔒 Feste Zeiten“ und Einstellungen → Allgemein): Arbeitstage, von/bis, Puffer zwischen Terminen; feste Zeiten einmalig (auch mehrere Tage, z. B. Urlaub), jede Woche oder alle 2 Wochen, ganztägig oder von/bis, mit optionalem Ende. Gestreift im Kalender.
+- **„Termin vereinbart“ geht nicht mehr verloren:** Das Datum ist Pflicht (Gesprächsmodus, Leitfaden, Enpal-Doku). Wählt Jan das Ergebnis, öffnet sich gleich der Kalender. Kennt er das Datum noch nicht, kreuzt er „Datum noch offen“ an: Sperling legt für den nächsten Werktag die Wiedervorlage „Termin-Datum klären“ an. Das Klemmbrett schätzt kein Termindatum mehr (vorher +3 Tage).
+- **Enpal-Doku (Telefonat und Hausbesuch)** legt bei „Termin vereinbart“ einen echten Termin an (Bereich, Adresse als Ort, gewählte Dauer), hebt den Status der Themen und bietet danach die Terminbestätigung an. Auch andere Ergebnisse ziehen den Status mit (wie im Gesprächsmodus).
+- **Kalender Woche/Tag:** Die Tageszeile mit dem Datum bleibt beim Scrollen oben stehen (das Raster scrollt in sich, die Stelle bleibt beim Ziehen/Bearbeiten erhalten).
+- Schema 13: `einstellungen.arbeitszeit`, `einstellungen.sperrzeiten`.
+
 ## 0.15.0 – 08.11.2026
 Anrede und Titel als Vorauswahl (Schema 12).
 - **Anrede als Auswahl:** Keine Anrede, Frau, Herr, Familie. Statt freier Eingabe ein Auswahlfeld in der Kundenkarte und im Gesprächsmodus.

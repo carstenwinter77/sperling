@@ -16,6 +16,13 @@ export function demoDaten(): Rec {
   const d: Rec = emptyData();
   d.einstellungen.absender = 'Max Sperling · Außendienst';
   d.einstellungen.karte = { lat: 52.2058, lng: 10.3020, zoom: 13, layer: 'satellit' };
+  // Feste Zeiten für den Terminfinder (ab 0.16.0): ab dem Montag dieser Woche
+  const montag = new Date(); montag.setDate(montag.getDate() - ((montag.getDay() + 6) % 7));
+  const ab = `${montag.getFullYear()}-${String(montag.getMonth() + 1).padStart(2, '0')}-${String(montag.getDate()).padStart(2, '0')}`;
+  d.einstellungen.sperrzeiten = [
+    { id: 'demo-sz-1', titel: 'Privat', wiederholung: 'woechentlich', tage: [3], datum: ab, bisDatum: '', ganztags: false, von: '14:00', bis: '18:00' },
+    { id: 'demo-sz-2', titel: 'Büro / Abrechnung', wiederholung: 'woechentlich', tage: [5], datum: ab, bisDatum: '', ganztags: false, von: '13:00', bis: '17:00' },
+  ];
   d.kunden = [
     {
       id: 'demo-1', anrede: 'Frau', vorname: 'Anna', nachname: 'Beispiel', strasse: 'Lindenweg 4', plz: '38268', ort: 'Lengede',

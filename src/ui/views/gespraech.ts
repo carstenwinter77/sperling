@@ -2,6 +2,9 @@
 // direkt ausfüllen, Einwand-Fenster), ohne Gespräch ein Spickzettel zum Nachschlagen mit Einwandbehandlung.
 // Gespeichert wird je Sparte eine EIGENE Notiz (R-TEXT: nie Sparten mischen).
 import * as schnellwahl from '../schnellwahl.ts';
+import * as terminwahl from '../terminwahl.ts';
+import { TERMIN_DAUER } from '../../core/terminfinder.ts';
+import { wvDatum } from '../../core/verzahnung.ts';
 import * as kundenwahl from '../kundenwahl.ts';
 import { esc, nowIso, formatDate, formatDateTime, localInputToIso } from '../../core/util.ts';
 import { SPARTEN, SPARTEN_KEYS, kundenTitel, neueNotiz, neuerTermin, normalizeGespraech, normalizeEnpalKontakt, KONTAKTART, kundenName, adresseEinzeilig, STATUS, AUSGANG, type Sparte, type StatusKey, type Kunde } from '../../core/model.ts';
@@ -370,7 +373,10 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
             <label>Worauf lief es hinaus?<select name="ausgang"><option value="">– bitte wählen –</option>${Object.entries(AUSGANG).map(([key, v]) => `<option value="${key}">${esc(v)}</option>`).join('')}</select></label>
             <label>Status ${esc(SPARTEN[s].label)}<select name="status">${statusOptions(k.status[s])}</select></label>
             <label>Nächster Schritt<input name="schritt" placeholder="z. B. Angebot rechnen lassen" maxlength="1000"></label>
-            <div class="wv-feld"><label>Wiedervorlage / Termin am<input type="datetime-local" name="wv"></label>${schnellwahl.html('wv')}</div>
+            <div class="wv-feld breit"><label>Wiedervorlage / Termin am<input type="datetime-local" name="wv"></label>
+              <input type="hidden" name="dauer" value="${TERMIN_DAUER[s]}">
+              <div class="tw-zeile">${terminwahl.knopfHtml('wv', { dauer: 'dauer', kundeId: k.id })}<label class="check gm-offen" hidden><input type="checkbox" name="offen"> Datum noch offen</label></div>
+              ${schnellwahl.html('wv')}</div>
             <label class="breit">Notiz<textarea name="notiz" rows="2" placeholder="Was war wichtig?"></textarea></label>
           </div>
         </fieldset>`;
@@ -378,6 +384,15 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
       <div class="knopfreihe"><button class="btn primary" id="gSpeichernKnopf">Gespräch beim Kunden speichern</button>
       <button class="btn" id="gGeteilt">📞 Mit Kundendaten weiter</button>
       <a class="btn ghost" href="#/kunde/${esc(k.id)}?tab=gespraeche">Alle Gespräche ansehen</a></div>`;
+    // „Termin vereinbart“ (ab 0.16.0): „Datum noch offen“ zeigen und, falls noch kein Datum drin ist, gleich den Kalender öffnen
+    box.querySelectorAll<HTMLFieldSetElement>('[data-abschluss]').forEach((fs) => {
+      fs.querySelector<HTMLSelectElement>('[name=ausgang]')!.addEventListener('change', (ev) => {
+        const termin = (ev.target as HTMLSelectElement).value === 'termin';
+        fs.querySelector<HTMLElement>('.gm-offen')!.hidden = !termin;
+        if (!termin) fs.querySelector<HTMLInputElement>('[name=offen]')!.checked = false;
+        if (termin && !fs.querySelector<HTMLInputElement>('[name=wv]')!.value) void terminwahl.fuerKnopf(fs.querySelector<HTMLElement>('.tw-knopf')!);
+      });
+    });
     box.querySelector('#gGeteilt').addEventListener('click', () => {
       // Nahtlos in die geteilte Ansicht: angetippte Einwände wandern in das laufende Gespräch
       const mit = SPARTEN_KEYS.filter((s) => Object.keys(zustand.verlauf[s]).length);
@@ -385,18 +400,20 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
       location.hash = `#/kunde/${k.id}/gespraech?seite=leitfaden`;
     });
     box.querySelector('#gSpeichernKnopf').addEventListener('click', () => {
-      const eintraege: { s: Sparte; ausgang: string; status: string; schritt: string; wv: string | null; notiz: string }[] = [];
+      const eintraege: { s: Sparte; ausgang: string; status: string; schritt: string; wv: string | null; notiz: string; dauer: number; offen: boolean }[] = [];
       for (const fs of box.querySelectorAll('[data-abschluss]')) {
         const s = fs.dataset.abschluss as Sparte;
         const f = (n) => fs.querySelector(`[name=${n}]`);
         const ausgang = f('ausgang').value;
         const anzahl = Object.keys(zustand.verlauf[s]).length;
-        const wvRoh = f('wv').value;
-        const wv = wvRoh ? localInputToIso(wvRoh) : null;
+        const offen = ausgang === 'termin' && f('offen').checked;
+        const wvRoh = offen ? '' : f('wv').value;
+        const wv = offen ? wvDatum(1) : wvRoh ? localInputToIso(wvRoh) : null;
         if (wvRoh && !wv) { toast(`Ungültiges Datum bei ${SPARTEN[s].label}.`, 'error'); return; }
+        if (ausgang === 'termin' && !wv) { toast(`${SPARTEN[s].label}: Wann ist der vereinbarte Termin? Bitte im Kalender wählen oder „Datum noch offen“ ankreuzen.`, 'error'); fs.querySelector<HTMLElement>('.tw-knopf')?.focus(); return; }
         if (!ausgang && !anzahl && !f('notiz').value.trim()) continue; // nichts zu speichern für diese Sparte
         if (!ausgang) { toast(`Bitte das Ergebnis für ${SPARTEN[s].label} wählen.`, 'error'); f('ausgang').focus(); return; }
-        eintraege.push({ s, ausgang, status: f('status').value, schritt: f('schritt').value.trim(), wv, notiz: f('notiz').value.trim() });
+        eintraege.push({ s, ausgang, status: f('status').value, schritt: f('schritt').value.trim(), wv, notiz: f('notiz').value.trim(), dauer: Number(f('dauer').value) || 60, offen });
       }
       if (!eintraege.length) { toast('Noch nichts zu speichern: Einwand antippen oder Ergebnis wählen.', 'error'); return; }
       const l = (s) => LEITFADEN[s];
@@ -413,8 +430,8 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
           kk.notizen.push(neueNotiz({ text, sparten: [e.s], zeitpunkt: jetzt }));
           if (e.status in STATUS) kk.status[e.s] = e.status as StatusKey;
           if (e.wv) {
-            data.termine.push(neuerTermin({ kundeId: kk.id, sparte: e.s, art: e.ausgang === 'termin' ? 'termin' : 'wiedervorlage', beginn: e.wv, dauerMin: 60,
-              titel: `${SPARTEN[e.s].label}: ${e.schritt || AUSGANG[e.ausgang]} – ${kundenTitel(kk)}`, ort: adresseEinzeilig(kk), notiz: e.notiz }));
+            data.termine.push(neuerTermin({ kundeId: kk.id, sparte: e.s, art: e.ausgang === 'termin' && !e.offen ? 'termin' : 'wiedervorlage', beginn: e.wv, dauerMin: e.offen ? 15 : e.dauer,
+              titel: `${e.offen ? 'Termin-Datum klären – ' : ''}${SPARTEN[e.s].label}: ${e.schritt || AUSGANG[e.ausgang]} – ${kundenTitel(kk)}`, ort: adresseEinzeilig(kk), notiz: e.notiz }));
           }
         }
         // Enpal-Dokumentation: EIN Eintrag für PV und WP zusammen (beides Enpal, R-TEXT erlaubt das).

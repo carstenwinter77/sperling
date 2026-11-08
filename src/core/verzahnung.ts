@@ -13,9 +13,10 @@ const anheben = (aktuell: StatusKey, ziel: StatusKey): StatusKey => (STATUS_RANG
 /** Was eine Antwort bei „Vereinbart“ (Klemmbrett) für den Abschluss bedeutet: Ergebnis, Status und Abstand der Wiedervorlage in Tagen. */
 export interface AbschlussVorschlag { ausgang: Ausgang | ''; tage: number | null; schritt: string }
 
+// Termine bekommen kein geschätztes Datum (ab 0.16.0): Jan wählt es im Kalender, sonst wäre ein falscher Tag eingetragen.
 const VEREINBART: Record<string, Omit<AbschlussVorschlag, 'schritt'>> = {
-  'Vor-Ort-Termin': { ausgang: 'termin', tage: 3 },
-  'Vor-Ort-Check': { ausgang: 'termin', tage: 3 },
+  'Vor-Ort-Termin': { ausgang: 'termin', tage: null },
+  'Vor-Ort-Check': { ausgang: 'termin', tage: null },
   'Angebot rechnen': { ausgang: 'angebot', tage: 3 },
   Angebot: { ausgang: 'angebot', tage: 3 },
   'Plan für den Tausch': { ausgang: 'wiedervorlage', tage: 7 },
@@ -39,7 +40,7 @@ export function abschlussVorschlag(s: Sparte, antworten: Antworten | undefined, 
   const partnerFehlt = (a.entscheider || '').includes('Partner fehlt');
   const schritt = a.schritt || (partnerFehlt ? 'Termin mit beiden Entscheidern' : '');
   if (treffer) return { ...treffer, schritt };
-  if (partnerFehlt) return { ausgang: 'termin', tage: 7, schritt };
+  if (partnerFehlt) return { ausgang: 'termin', tage: null, schritt };
   return { ausgang: '', tage: null, schritt };
 }
 
@@ -103,4 +104,13 @@ export function widerrufWiedervorlage(kundeId: string, s: Sparte, angenommenAm: 
     titel: `${SPARTEN[s].label}: Widerrufsfrist vorbei – nachfragen, ob alles klar ist`,
     notiz: 'Die 14 Tage Widerrufsfrist sind um. Kurz melden: Gibt es noch Fragen? Wie geht es weiter (nächster Auftragsschritt)?',
   };
+}
+
+/**
+ * „Termin vereinbart“ braucht ein Datum (ab 0.16.0): erster Bereich, bei dem es fehlt (und nicht als „noch offen“
+ * markiert ist), sonst null. Nicht erreicht: keine Pflicht.
+ */
+export function fehlendesTerminDatum<T extends { sparte: Sparte; ausgang: string; wv: string | null; datumOffen?: boolean }>(abschluesse: readonly T[], erreicht = true): T | null {
+  if (!erreicht) return null;
+  return abschluesse.find((a) => a.ausgang === 'termin' && !a.wv && !a.datumOffen) || null;
 }

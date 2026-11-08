@@ -97,6 +97,9 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/views/rechner.ts  Rechner #/rechner?kunde=ID&art=pv|wp (eigener Menüpunkt, auch im Beratungs-Schutz)
  ├─ src/ui/rechnervorlagen.ts  Einstellungen → Vertrieb → Rechner-Vorlagen (Privat, Gewerbe, eigene)
  ├─ src/ui/ruecksprung.ts  merkt Adresse + Scrollstelle vor einem verzahnten Schritt (Links ins Gespräch automatisch), `zurueck()` führt nach dem Abstecher dorthin, Router stellt die Scrollstelle wieder her
+ ├─ src/core/terminfinder.ts  Arbeitszeit, feste Zeiten (Wiederholung), freie Zeiten, Vorschläge in der Nähe, Überschneidungen (rein)
+ ├─ src/ui/terminwahl.ts  „📅 Im Kalender wählen“: Kalender Tag/Woche mit allen Terminen im Fenster, Vorschläge, Rückgabe Beginn + Dauer; Knopf-Handler am document
+ ├─ src/ui/sperrzeiten.ts  Fenster „Arbeitszeit und feste Zeiten“ (Kalender, Einstellungen → Allgemein)
  ├─ src/core/verzahnung.ts  was eine Auswahl für den nächsten Schritt bedeutet: „Vereinbart“ → Ergebnis/Status/Wiedervorlage, Status zum Ergebnis, Querverkauf, nächster Stopp (rein)
  ├─ src/ui/folgeschritte.ts  Fenster „Als Nächstes“ nach dem Gespräch (Termin bestätigen, Angebot erfassen, Auftrag, Enpal-Doku, Partner, Querverkauf, nächster Termin)
  ├─ src/ui/views/foerderung.ts  Förderung #/foerderung (auch im Beratungs-Schutz, iPhone und iPad hochkant unter „Mehr“)

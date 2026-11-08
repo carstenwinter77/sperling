@@ -9,9 +9,10 @@ import { normalizeBausteine } from './bausteine.ts';
 import { anredeUndTitel, mitTitel } from './anrede.ts';
 import { normalizeFotoListe } from './fotos.ts';
 import { normalizeRechnerVorlagen, zuletztGewaehlt } from './rechnervorlagen.ts';
+import { normalizeArbeitszeit, normalizeSperrzeiten } from './terminfinder.ts';
 import { normalizeAngebot, normalizeAuftrag, normalizeNachfassTage, normalizeBereitlegen, normalizeAnsprechpartner, normalizeHaustuer, ANGEBOTE_MAX, ANSPRECHPARTNER_MAX, HAUSTUER_MAX, type HaustuerEintrag } from './vertrieb.ts';
 
-export const SCHEMA_VERSION = 12;
+export const SCHEMA_VERSION = 13;
 
 /** Die drei Geschäftszweige, jeder mit eigenem Anbieter und eigenem Textgenerator (R-TEXT). */
 export const SPARTEN = {
@@ -728,6 +729,10 @@ export function normalizeEinstellungen(e: unknown) {
     rechnerVorlagen: normalizeRechnerVorlagen(src.rechnerVorlagen),
     /** Zuletzt im Rechner gewählte Vorlage (ab 0.13.10, Standard „privat“); der Rechner startet wieder damit */
     rechnerVorlageZuletzt: zuletztGewaehlt(src.rechnerVorlageZuletzt, normalizeRechnerVorlagen(src.rechnerVorlagen)),
+    /** Arbeitstage und -zeit für freie Zeiten im Terminfinder (ab Schema 13, Standard Mo–Fr 8–18 Uhr, 15 Min. Puffer) */
+    arbeitszeit: normalizeArbeitszeit(src.arbeitszeit),
+    /** Feste Zeiten, die Jan blockt (privat, Büro, Urlaub), einmalig oder wiederkehrend (ab Schema 13) */
+    sperrzeiten: normalizeSperrzeiten(src.sperrzeiten),
   };
 }
 
@@ -791,7 +796,8 @@ export function migrate(input: unknown): Daten {
   // (bezugNachtragen unten), damit auch ältere Nachfass- und Nachfrage-Erinnerungen die passenden Knöpfe bekommen.
   // v10 → v11: entwuerfe (laufende Gespräche, verschlüsselt im Bestand), leer ergänzt.
   // v11 → v12: kunde.titel. Anrede wird Vorauswahl; Freitexte wie „herr dr.“ teilt normalizeKunde in Anrede „Herr“ und Titel „Dr.“.
-  // Künftige Migrationen hier schrittweise: if (v < 13) { ... }
+  // v12 → v13: einstellungen.arbeitszeit (Standard) und einstellungen.sperrzeiten (leer) für den Terminfinder.
+  // Künftige Migrationen hier schrittweise: if (v < 14) { ... }
   const kunden = Array.isArray(data.kunden) ? data.kunden.map(normalizeKunde) : [];
   for (const k of kunden) statusVerlaufAbgleichen(k, v < 8 || !k.statusVerlauf.length ? k.createdAt : k.updatedAt, true);
   // Doppelte IDs verhindern (z. B. nach manuellem Zusammenführen)

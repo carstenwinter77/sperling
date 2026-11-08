@@ -8,6 +8,8 @@ import { esc } from '../core/util.ts';
 import { kundenTitel, type Termin } from '../core/model.ts';
 import { geraeteEintraege, GERAET_EINTRAG_TEXT, gezogen, aufTag, type GeraetEintrag } from '../core/kalender.ts';
 import { balkenFuer } from '../core/belegung.ts';
+import { sperrenAm } from '../core/terminfinder.ts';
+import * as sperrzeiten from './sperrzeiten.ts';
 import * as store from '../storage/store.ts';
 import { terminDialog } from './parts.ts';
 import { terminKarte } from './terminkarte.ts';
@@ -104,6 +106,15 @@ function blockHtml(t, d) {
   return `<div class="k-block${an ? ' gewaehlt' : ''}" data-block="${esc(t.id)}" style="top:${top}px;height:${h}px">${eintragHtml(t, d.kunden)}${an ? GRIFFE : ''}</div>`;
 }
 
+/** Feste Zeiten (ab 0.15.0) gestreift hinter den Terminen; nicht antippbar, Termine darüber bleiben möglich. */
+function sperrenHtml(d, key: string) {
+  return sperrenAm(d.einstellungen.sperrzeiten, key).map((b) => {
+    const von = Math.max(b.vonMin, START_STUNDE * 60); const bis = Math.min(b.bisMin, ENDE_STUNDE * 60);
+    if (bis <= von) return '';
+    return `<div class="tw-sperre k-sperre" style="top:${((von - START_STUNDE * 60) / SLOT_MIN) * SLOT_PX}px;height:${((bis - von) / SLOT_MIN) * SLOT_PX - 2}px" title="${esc(b.titel)}"><span>🔒 ${esc(b.titel)}</span></div>`;
+  }).join('');
+}
+
 function rasterHtml(tage, d, heuteKey, ge: Map<string, GeraetEintrag[]>) {
   const slots = ((ENDE_STUNDE - START_STUNDE) * 60) / SLOT_MIN;
   const keys = tage.map(tagKey);
@@ -117,6 +128,7 @@ function rasterHtml(tage, d, heuteKey, ge: Map<string, GeraetEintrag[]>) {
     const liste = termineAm(d.termine, key);
     const frueh = liste.filter((t) => { const h = new Date(t.beginn).getHours(); return h < START_STUNDE || h >= ENDE_STUNDE; });
     return `<div class="k-spalte${feiertag(key) ? ' feiertag' : ''}" data-tag="${key}" style="height:${slots * SLOT_PX}px">
+          ${sperrenHtml(d, key)}
           ${frueh.length ? `<div class="k-ausserhalb">${frueh.map((t) => eintragHtml(t, d.kunden)).join('')}</div>` : ''}
           ${liste.filter((t) => !frueh.includes(t)).map((t) => blockHtml(t, d)).join('')}
           <div class="k-auswahl" hidden></div>
@@ -155,18 +167,24 @@ export function zeichnen(el, zustand, onWechsel, neuZeichnen) {
     titel = datum.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     inhalt = rasterHtml([datum], d, heuteKey, ge);
   }
+  // Woche/Tag scrollen innerhalb des Rasters, damit die Tageszeile oben stehen bleibt; Stelle beim Neuzeichnen halten
+  const altScroll = (el.querySelector('.k-raster') as HTMLElement | null)?.scrollTop ?? null;
   el.innerHTML = `
     <div class="k-leiste">
       <div class="k-nav"><button type="button" class="btn klein ghost" data-schritt="-1" aria-label="Zurück">‹</button><button type="button" class="btn klein ghost" data-schritt="0">Heute</button><button type="button" class="btn klein ghost" data-schritt="1" aria-label="Weiter">›</button></div>
       <strong class="k-titel">${esc(titel)}</strong>
       ${ansicht === 'tag' ? `<a class="btn klein ghost" href="#/karte?route=${datum.getFullYear()}-${String(datum.getMonth() + 1).padStart(2, '0')}-${String(datum.getDate()).padStart(2, '0')}">🚗 Route des Tages</a>` : ''}
+      <button type="button" class="btn klein ghost" id="kSperren" title="Arbeitszeit und feste Zeiten blocken">🔒 Feste Zeiten</button>
       ${d.geraete.length ? `<label class="check k-leih"><input type="checkbox" id="kLeih" ${leihZeigen ? 'checked' : ''}> Leihgaben zeigen</label>` : ''}
     </div>
     <p class="hinweis k-tipp">${ansicht === 'monat'
     ? 'Tag antippen = Tagesansicht mit allen Terminen dieses Tages. Finger auf einem Termin halten und auf einen anderen Tag ziehen = verschieben.'
     : 'Uhrzeit antippen = neuer Termin (Finger halten und ziehen für die Dauer). Termin antippen = Details. Finger auf dem Termin halten = Griffe zum Verschieben und Länger/Kürzer-Ziehen.'}</p>
     ${inhalt}`;
+  const raster = el.querySelector('.k-raster') as HTMLElement | null;
+  if (raster) raster.scrollTop = altScroll ?? Math.max(0, ((Math.max(START_STUNDE, Math.min(new Date().getHours() - 1, 8)) - START_STUNDE) * 60 / SLOT_MIN) * SLOT_PX);
 
+  el.querySelector('#kSperren')?.addEventListener('click', async () => { if (await sperrzeiten.verwalten()) neuZeichnen(); });
   el.querySelector('#kLeih')?.addEventListener('change', (e) => { leihZeigen = (e.target as HTMLInputElement).checked; neuZeichnen(); });
   el.querySelector('.k-nav').addEventListener('click', (e) => {
     const b = (e.target as Element).closest('[data-schritt]');
