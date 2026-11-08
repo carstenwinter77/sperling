@@ -234,6 +234,35 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.goto(BASE + '#/kunden');
   await p.waitForSelector('#liste .tag-beispiel');
   if ((await p.locator('#liste .tag-beispiel').count()) !== 54) fail(`Beispielkunden nicht markiert (${await p.locator('#liste .tag-beispiel').count()})`);
+  // Kundenliste exportieren: genau die angezeigte (gesuchte, sortierte) Liste als CSV, Excel und PDF
+  {
+    await p.fill('#suche', 'Lengede');
+    await p.selectOption('#sortierung', 'name');
+    const namen = await p.$$eval('#liste .zeile-haupt strong', (xs) => xs.map((x) => x.childNodes[0].textContent.trim()));
+    if (!namen.length) fail('Export-Test: keine Treffer für die Suche');
+    await p.click('#export');
+    await p.waitForSelector('dialog .export-wahl');
+    if (!(await p.textContent('dialog')).includes(`${namen.length} von`)) fail('Export-Dialog nennt die Anzahl nicht');
+    if (!(await p.textContent('dialog')).includes('nicht verschlüsselt')) fail('Export-Dialog ohne Datenschutz-Hinweis');
+    const laden = async (format) => {
+      const [dl] = await Promise.all([p.waitForEvent('download'), p.click(`dialog [data-format=${format}]`)]);
+      const datei = await dl.path();
+      if (!/^Kundenliste-\d{4}-\d{2}-\d{2}\./.test(dl.suggestedFilename())) fail('Export-Dateiname: ' + dl.suggestedFilename());
+      return require('fs').readFileSync(datei);
+    };
+    const csvText = (await laden('csv')).toString('utf8');
+    const csvZeilen = csvText.replace(/^\uFEFF/, '').trim().split('\r\n');
+    if (csvZeilen.length !== namen.length + 1) fail(`CSV hat ${csvZeilen.length - 1} statt ${namen.length} Kunden`);
+    if (!csvZeilen[0].startsWith('Nachname;Vorname;Firma')) fail('CSV-Kopf falsch');
+    await p.click('#export');
+    const x = await laden('xlsx');
+    if (x[0] !== 0x50 || x[1] !== 0x4B || !x.toString('latin1').includes('xl/worksheets/sheet1.xml')) fail('Excel-Datei ungültig');
+    await p.click('#export');
+    const pdf = await laden('pdf');
+    if (!pdf.slice(0, 5).toString().startsWith('%PDF')) fail('PDF-Export ungültig');
+    await p.fill('#suche', '');
+    await p.dispatchEvent('#suche', 'input');
+  }
   // Potenzial-Markierung auf der Karte über die Infobox löschen (mit Sicherheitsabfrage)
   await p.goto(BASE + '#/karte');
   await p.waitForSelector('.leaflet-marker-icon');

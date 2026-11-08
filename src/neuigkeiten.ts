@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.13.7',
+    punkte: [
+      'Kundenliste exportieren: Unter Kunden neben der Sortierung „⬇ Export“ tippen und PDF (zum Ausdrucken), Excel-Tabelle oder CSV wählen. Exportiert wird genau die Liste, die du gerade siehst, mit Suche, Filter und Sortierung. Notizen und Fotos bleiben in Sperling.',
+    ],
+  },
+  {
     version: '0.13.6',
     punkte: [
       'Kunden „Name A–Z“ werden jetzt nach dem Nachnamen sortiert. Einträge ohne Namen stehen danach, nach Ort und Straße.',

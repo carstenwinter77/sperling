@@ -1,5 +1,10 @@
 # Änderungsverlauf
 
+## 0.13.7 – 08.11.2026
+- **Kundenliste exportieren** (Kunden → „⬇ Export“ neben der Sortierung, `src/core/kundenexport.ts`, `src/ui/kundenexport.ts`): genau die angezeigte Liste (Suche, Filter, Sortierung und Namensanzeige aus 0.13.6) als **PDF** (A4 quer, Kopfzeile auf jeder Seite, Seitenzahlen, Hinweis „Vertraulich“), als **Excel-Tabelle** (.xlsx: fette, fixierte Kopfzeile mit Filter, alle Zellen als Text, damit PLZ und Telefonnummern führende Nullen behalten) oder als **CSV** (Semikolon, UTF-8, öffnet in deutschem Excel richtig; Zellen, die mit `=`, `+`, `-` oder `@` beginnen, bekommen ein `'` davor). Spalten: Nachname, Vorname, Firma, Straße, PLZ, Ort, Telefon, E-Mail, Status je Bereich, letzter Kontakt. Notizen, Gespräche, Fotos und eigene Felder werden nicht exportiert.
+- **Datenschutz:** Die Datei entsteht nur auf dem Gerät (keine Bibliothek, kein Dienst; die Excel-Datei erzeugt Sperling selbst) und geht über das Teilen-Menü nur dorthin, wohin der Nutzer sie schickt. Der Dialog weist darauf hin, dass die Datei nicht verschlüsselt ist. Ergänzt in Einstellungen → Sicherheit & Datenschutz → „Was wohin geht“ und in R-KRYPTO/R-EXTERN.
+- 3 neue Unit-Tests (Tabelle ohne Notizen, CSV-Schutz, gültige XLSX), Browser-Test lädt CSV, Excel und PDF einer gesuchten Liste herunter und vergleicht die Anzahl.
+
 ## 0.13.6 – 08.11.2026
 - **Kunden nach Nachname sortieren.** „Name A–Z“ in der Kundenliste geht jetzt nach dem Nachnamen, dann nach dem Vornamen (vorher nach dem Vornamen). Einträge ohne Namen, etwa ein Pin auf der Karte, stehen danach und sind nach Ort und dann Straße sortiert (Hausnummern der Größe nach).
 - **Neue Einstellung „Namen in Listen“** (Einstellungen → Kundendaten): Namen als „Vorname Nachname“ oder „Nachname, Vorname“ anzeigen, und Einträge ohne Namen mit „Ort, dann Straße“ oder „Straße, dann Ort“ benennen und sortieren. Texte für Enpal, GALVANY und Vorwerk sowie Leihscheine schreiben den Namen weiter als „Vorname Nachname“.

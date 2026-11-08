@@ -82,6 +82,12 @@ Kundendaten liegen dabei **nie** auf dem Webserver, nur die Programmdateien.
 - **„+ Eigenes Feld“**: Bezeichnung, Bereich und Art (Text, langer Text, Zahl mit Einheit, Datum, Ja/Nein, Auswahlliste, Telefon, E-Mail, Link). Eigene Felder stehen in Kartei, Gesprächsmodus, den Texten ihres Bereichs, Kundenansicht und Suche; Ja/Nein und Auswahllisten auch im Filter.
 - 🗑 löscht ein eigenes Feld samt Werten (mit Rückfrage). Zum Behalten nur ausblenden.
 
+## Kundenliste exportieren
+- Kunden → **„⬇ Export“** (neben der Sortierung, auf dem Handy nur „⬇“). Exportiert wird genau die Liste, die gerade zu sehen ist: erst suchen, filtern und sortieren, dann exportieren.
+- **PDF** zum Ausdrucken, **Excel-Tabelle** (.xlsx) zum Weiterbearbeiten oder **CSV** für andere Programme. Auf iPad/iPhone öffnet sich das Teilen-Menü (z. B. „In Dateien sichern“ oder AirDrop), am Computer wird die Datei heruntergeladen.
+- Enthalten sind Name, Firma, Adresse, Telefon, E-Mail, Status je Bereich und letzter Kontakt, keine Notizen oder Fotos.
+- Die Datei ist **nicht verschlüsselt**. Nur an Berechtigte weitergeben und löschen, wenn sie nicht mehr gebraucht wird.
+
 ## Vorwerk-Liste importieren
 
 - Kunden → **„📄 PDF-Liste importieren“** und die PDF wählen. Sie wird nur auf dem Gerät gelesen.

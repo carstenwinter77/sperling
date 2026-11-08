@@ -27,6 +27,8 @@ export function sucheTrifft(k, suche: string) {
 const filter: KartenFilter = leererKartenFilter();
 let sortierung: Sortierung = 'name';
 let suche = '';
+/** Zuletzt angezeigte Liste (Reihenfolge wie auf dem Bildschirm) für den Export. */
+let angezeigt: { k: any; kontakt: string | null }[] = []; // any: Kunde aus store, wie in zeichnen()
 
 export function render(el: HTMLElement, params: URLSearchParams) {
   // Link von der Übersicht (#/kunden?sparte=pv) setzt den Filter neu
@@ -42,10 +44,11 @@ export function render(el: HTMLElement, params: URLSearchParams) {
         <button class="btn primary" id="neu">+ Neuer Kunde</button>
       </div>
     </header>
-    <div class="filterleiste">
+    <div class="filterleiste mit-export">
       <input type="search" id="suche" placeholder="Name, Adresse, Telefon …" value="${esc(suche)}" autocomplete="off">
       <button type="button" class="btn" id="fKnopf" aria-expanded="false" aria-controls="kFilter">Filter <span id="fAnzahl"></span></button>
       <select id="sortierung" aria-label="Sortierung">${SORTIERUNG.map(([k, l]) => `<option value="${k}" ${k === sortierung ? 'selected' : ''}>${l}</option>`).join('')}</select>
+      <button type="button" class="btn" id="export" title="Angezeigte Liste als PDF, Excel oder CSV exportieren" aria-label="Angezeigte Liste exportieren (PDF, Excel, CSV)">⬇<span class="export-text"> Export</span></button>
     </div>
     ${filterPanelHtml('kFilter', store.getData().einstellungen.felder)}
     <ul class="liste" id="liste"></ul>
@@ -65,6 +68,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       : sortierung === 'kontakt-neu' ? (a, b) => tage(a) - tage(b) || name(a, b)
         : sortierung === 'neu' ? (a, b) => (a.k.createdAt < b.k.createdAt ? 1 : -1)
           : name);
+    angezeigt = treffer;
     const aktiv = filterAktiv(filter);
     el.querySelector('#fAnzahl').textContent = aktiv ? `· ${treffer.length} von ${alle.length}` : '';
     el.querySelector('#fKnopf').classList.toggle('primary', aktiv > 0);
@@ -99,6 +103,13 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     (e.currentTarget as HTMLElement).setAttribute('aria-expanded', String(!panel.hidden));
   });
   filterPanelVerdrahten(panel, filter, zeichnen);
+  el.querySelector('#export').addEventListener('click', async () => {
+    const { exportDialog } = await import('../kundenexport.ts');
+    const teile = [`Sortiert: ${SORTIERUNG.find(([k]) => k === sortierung)?.[1] || ''}`];
+    if (filterAktiv(filter)) teile.push('Filter aktiv');
+    if (suche.trim()) teile.push(`Suche „${suche.trim()}“`);
+    await exportDialog({ eintraege: angezeigt, gesamt: store.getData().kunden.length, beschreibung: teile.join(' · ') });
+  });
   el.querySelector('#pdfImport').addEventListener('click', async () => {
     const { importieren } = await import('../listenimport.ts');
     await importieren(() => render(el, params));
