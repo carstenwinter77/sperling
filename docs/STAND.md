@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.11.1
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.12.0
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,11 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.11.1)
+## Erledigt (Version 0.12.0)
+
+### Neu in 0.12.0
+- [x] **Gespräch als digitales Klemmbrett** (`src/core/klemmbrett.ts`, `src/ui/views/gespraech.ts`, `src/ui/views/gespraechsmodus.ts`): ersetzt die 7 Phasen aus 0.10.6. Je Bereich Situation / Bedarf / Nächster Schritt. Kartei-Felder werden direkt in die Kartei geschrieben (gleiche Bindung wie die Kundenseite), Antworten (Antippen + Freitext) kommen beim Speichern als Zeilen in die Notiz des eigenen Bereichs (R-TEXT). Haken, Zähler, Fortschrittsring, Vorbereitung „Heute noch klären“, schwebender Einwand-Knopf mit Fenster von unten (Rückfrage vor Antwort), Gesprächsbilanz „x von y erfasst“ mit offenen Punkten, nächster Schritt vorausgefüllt. Antworten nur im Entwurf (Arbeitsspeicher), kein Schemawechsel. Unit-Tests und Browser-Test angepasst.
+- [ ] Mit Jan im echten Gespräch ausprobieren: Reihenfolge und Auswahl der Punkte je Bereich nachschärfen.
 
 ### Neu in 0.11.1
 - [x] Einstellungen in acht Bereichen statt einer langen Liste: Allgemein, Texte & E-Mail, Kundendaten, Sicherung, Sicherheit & Datenschutz, Meine Kontaktseite, Hilfe, Gelöscht & Beispieldaten. Unter jedem Bereich der aktuelle Stand (Sicherung orange, wenn älter als eine Woche). Ab 900 px links Liste, rechts Inhalt; schmaler Übersicht → Unterseite mit „‹ Alle Einstellungen“ (`?bereich=…`). Suchfeld über alle Bereiche. Ein/Aus als Schalter, lange Erklärungen hinter „ⓘ“, Vorlagen je Bereich eingeklappt, „Alles löschen“ im Gefahrenbereich. Keine Funktion entfernt, kein Datenmodell geändert.
@@ -144,7 +148,7 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 - [x] Sperren oben neben dem Logo, Einstellungen unten mit Trennlinie; „Jetzt sperren“ in Einstellungen.
 
 ### Neu in 0.10.6
-- [x] **Geführter Gesprächsleitfaden** (`src/core/leitfragen.ts`, `src/ui/views/gespraech.ts`): 7 Phasen mit Phasenleiste (Wischen/Antippen), Leitfragen je Bereich mit Stichwort in die Notiz, Denkanstoß je Anbieter, Einwände mit Rückfrage vor Antwort, „Widerrufsrecht erklärt“, Gesprächsbilanz mit Maskottchen, Animationen mit „Bewegung reduzieren“. Zustand nur im Entwurf (Arbeitsspeicher), kein Schemawechsel. 2 neue Unit-Tests, Browser-Test erweitert. Grundlage: Vorschlagsdokument „Gesprächsleitfäden: Strategien erfolgreicher Berater“ (freigegeben 07.11.2026, ohne Konfetti).
+- [x] **Geführter Gesprächsleitfaden** (0.10.6, in 0.12.0 durch das Klemmbrett ersetzt): 7 Phasen mit Phasenleiste (Wischen/Antippen), Leitfragen je Bereich mit Stichwort in die Notiz, Denkanstoß je Anbieter, Einwände mit Rückfrage vor Antwort, „Widerrufsrecht erklärt“, Gesprächsbilanz mit Maskottchen, Animationen mit „Bewegung reduzieren“. Zustand nur im Entwurf (Arbeitsspeicher), kein Schemawechsel. 2 neue Unit-Tests, Browser-Test erweitert. Grundlage: Vorschlagsdokument „Gesprächsleitfäden: Strategien erfolgreicher Berater“ (freigegeben 07.11.2026, ohne Konfetti).
 - [ ] Auf echtem iPad testen: Wischen zwischen Phasen, Stichwort-Flug, Diktat in der Leitfaden-Notiz
 
 ### Neu in 0.10.5

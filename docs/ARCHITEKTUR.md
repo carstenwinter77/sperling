@@ -13,7 +13,7 @@ Browser (Tablet / Handy / Laptop)
  │   ├─ textgen.ts ....... Enpal-/Vorwerk-Texte (strikt getrennt)
  │   ├─ ics.ts ........... Kalenderexport (RFC 5545)
  │   ├─ einwaende.ts ..... Gesprächsleitfaden: Einwände, Überleitungen
-│   ├─ leitfragen.ts .... Geführter Ablauf: 7 Phasen, Leitfragen je Bereich, Fluss-Zustand (nur Arbeitsspeicher)
+│   ├─ klemmbrett.ts ... Gesprächs-Klemmbrett: Abschnitte je Bereich (Kartei-Felder + Antworten), Stand, Notiztext (rein, ohne DOM)
  │   ├─ papierkorb.ts .... Löschen in „Gelöscht“, Wiederherstellen, endgültig löschen
  │   ├─ belegung.ts ...... Belegungskalender: Tage, Balken, freie Zeiträume
  │   ├─ kalender.ts ...... Leihgaben je Tag für den Kalender, Termine ziehen (15-Min-Raster), auf anderen Tag legen

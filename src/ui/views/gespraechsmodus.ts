@@ -15,16 +15,16 @@ import { bindeFelder } from './kunde.ts';
 import { felderHtml } from '../felder.ts';
 import { markierenHtml, markierenVerdrahten, markierenNeuZeichnen } from '../produkte.ts';
 import { bausteinAnhaengen } from '../../core/bausteine.ts';
-import { neuerFluss, anzahlGefragt } from '../../core/leitfragen.ts';
+import { stand, schrittVorschlag } from '../../core/klemmbrett.ts';
 
 type Seite = 'notizen' | 'leitfaden' | 'abschluss';
-const SEITEN: [Seite, string][] = [['notizen', '📝 Notizen'], ['leitfaden', '💬 Leitfaden'], ['abschluss', '✓ Abschließen']];
+const SEITEN: [Seite, string][] = [['leitfaden', '📋 Klemmbrett'], ['notizen', '📝 Notizen'], ['abschluss', '✓ Abschließen']];
 
 export function render(el: HTMLElement, params: URLSearchParams, [id = '']: string[]) {
   const k0 = store.findKunde(id);
   if (!k0) { location.hash = '#/kunden'; return; }
   const e = ablauf.beginnen(id);
-  let seite: Seite = SEITEN.some(([s]) => s === params.get('seite')) ? params.get('seite') as Seite : 'notizen';
+  let seite: Seite = SEITEN.some(([s]) => s === params.get('seite')) ? params.get('seite') as Seite : 'leitfaden';
   // Am Handy: Kunde oder Gespräch zeigen
   let handyKunde = false;
   let uhr = 0;
@@ -115,7 +115,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
       ${gs.length ? '<p class="hinweis gm-diktat">🎤 Lieber sprechen? Ins Notizfeld tippen und auf der Tastatur das Mikrofon antippen. Bausteine änderst du unter Einstellungen → Textbausteine.</p>' : ''}
       ${gs.length > 1 ? '<p class="hinweis">Jeder Bereich wird getrennt notiert, damit Enpal, GALVANY und Vorwerk nur ihren eigenen Teil im Text bekommen.</p>' : ''}
       <div class="knopfreihe">
-        <button type="button" class="btn" data-geh="leitfaden">💬 Leitfaden öffnen</button>
+        <button type="button" class="btn" data-geh="leitfaden">📋 Zum Klemmbrett</button>
         <button type="button" class="btn primary" data-geh="abschluss">Gespräch abschließen ›</button>
       </div>`;
     rechts.querySelectorAll<HTMLTextAreaElement>('textarea[data-gruppe]').forEach((t) => t.addEventListener('input', () => { e.notiz[t.dataset.gruppe as ablauf.Gruppe] = t.value; }));
@@ -151,28 +151,29 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
   };
 
   const leitfadenZeichnen = () => {
-    rechts.innerHTML = `<div class="gm-leitfaden"></div>
-      <div class="knopfreihe gm-unten"><button type="button" class="btn ghost" data-geh="notizen">‹ Zurück zu den Notizen</button><button type="button" class="btn primary" data-geh="abschluss">Gespräch abschließen ›</button></div>`;
+    rechts.innerHTML = '<div class="gm-leitfaden"></div>';
     leitfaden.render(rechts.querySelector('.gm-leitfaden'), new URLSearchParams(), [], {
-      kundeId: id, sparte: e.leitfadenSparte, verlauf: e.verlauf, fluss: e.fluss || (e.fluss = neuerFluss()), notiz: e.notiz,
+      entwurf: e,
       onSparte: (s) => { e.leitfadenSparte = s; if (!e.sparten.includes(s)) e.sparten.push(s); },
       onEinwand: () => { if (!e.sparten.includes(e.leitfadenSparte)) e.sparten.push(e.leitfadenSparte); },
+      onFeld: () => { if (!e.sparten.includes(e.leitfadenSparte)) e.sparten.push(e.leitfadenSparte); linksZeichnen(); },
     });
   };
 
-  /** Kleine Bilanz des Gesprächs; das Maskottchen zeigt sich, wenn ein Termin oder Abschluss gewählt wird. */
+  /** Bilanz des Gesprächs je Bereich: wie viel erfasst ist und was offen blieb. Das Maskottchen zeigt sich bei einem guten Ergebnis. */
   const bilanzHtml = (sparten: Sparte[]) => {
-    const f = e.fluss;
-    const fragen = f ? anzahlGefragt(f) : 0;
-    const einwaende = SPARTEN_KEYS.reduce((n, s) => n + Object.keys(e.verlauf[s]).length, 0);
-    const teile = [
-      fragen ? `${fragen} ${fragen === 1 ? 'Leitfrage' : 'Leitfragen'} gestellt` : '',
-      einwaende ? `${einwaende} ${einwaende === 1 ? 'Einwand' : 'Einwände'} besprochen` : '',
-      f?.widerruf.length ? `Widerrufsrecht erklärt (${f.widerruf.map((s) => SPARTEN[s].kurz).join(', ')})` : '',
-    ].filter(Boolean);
+    const k = store.findKunde(id);
+    const fe = store.getData().einstellungen.felder;
+    const zeilen = sparten.map((s) => {
+      const st = stand(s, k, e.antworten!, fe);
+      const einw = Object.keys(e.verlauf[s]).length;
+      const widerruf = (e.antworten?.[s]?.widerruf || '').includes('erklärt');
+      const teile = [`${st.erledigt} von ${st.gesamt} erfasst`, einw ? `${einw} ${einw === 1 ? 'Einwand' : 'Einwände'}` : '', widerruf ? 'Widerrufsrecht erklärt' : ''].filter(Boolean);
+      return `<li><b>${esc(SPARTEN[s].label)}:</b> ${esc(teile.join(' · '))}${st.offen.length ? `<br><small>Noch offen: ${esc(st.offen.slice(0, 6).join(', '))}${st.offen.length > 6 ? ' …' : ''}</small>` : ''}</li>`;
+    });
     return `<div class="gm-bilanz" id="gmBilanz">
       <span class="gm-bilanz-bild" aria-hidden="true">${maskottchen('sperling', 'gm-bilanz-sperling')}</span>
-      <p><b id="gmBilanzTitel">Gesprächsbilanz</b><br>${teile.length ? esc(teile.join(' · ')) : 'Noch keine Leitfragen oder Einwände angetippt.'}</p>
+      <div><b id="gmBilanzTitel">Gesprächsbilanz</b>${zeilen.length ? `<ul class="gm-bilanz-liste">${zeilen.join('')}</ul>` : '<p>Noch nichts erfasst.</p>'}</div>
     </div>`;
   };
 
@@ -191,7 +192,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
           <div class="formgrid">
             <label>Ergebnis<select name="ausgang"><option value="">${e.erreicht ? '– bitte wählen –' : '– keins –'}</option>${Object.entries(AUSGANG).map(([key, v]) => `<option value="${key}">${esc(v)}</option>`).join('')}</select></label>
             <label>Status<select name="status">${statusOptions(k.status[s])}</select></label>
-            <label>Nächster Schritt<input name="schritt" maxlength="1000" placeholder="z. B. Angebot rechnen lassen"></label>
+            <label>Nächster Schritt<input name="schritt" maxlength="1000" placeholder="z. B. Angebot rechnen lassen" value="${esc(schrittVorschlag(s, e.antworten))}"></label>
             <div class="wv-feld"><label>Wiedervorlage / Termin am<input type="datetime-local" name="wv"></label>${schnellwahl.html('wv')}</div>
           </div>
         </fieldset>`).join('')}

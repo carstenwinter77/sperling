@@ -24,7 +24,7 @@ Tests in `tests/core.test.mjs` sichern das ab. Diese Tests dürfen nie gelöscht
 
 **R-ENPAL-DOKU – Gesprächsdokumentation für Enpal.** Jeder Enpal-Kontakt (Telefon, Hausbesuch) wird beim Kunden in `enpalKontakte` gespeichert und als kopierfertiger Text für die Enpal-App angeboten. Der Gesprächsleitfaden legt bei PV/WP automatisch einen Eintrag an. Fristen können als Wiedervorlage in die Termine.
 
-**R-LEITFADEN – Seriöse Gesprächsführung.** Leitfragen (`src/core/leitfragen.ts`) und Einwandbehandlung (`src/core/einwaende.ts`) nutzen nur kundenorientierte Methoden: Fragen, Zuhören, ehrliche Empfehlung, freiwilliger nächster Schritt. Keine künstliche Verknappung, kein Angstmachen, kein Drängen zur Unterschrift, keine Preise, Förderquoten oder Renditeversprechen (UWG §§ 4a, 5, 7). Das Widerrufsrecht (14 Tage bei Haustür- und Telefonverträgen) wird aktiv erklärt. Ein Unit-Test prüft verbotene Formulierungen.
+**R-LEITFADEN – Seriöse Gesprächsführung.** Klemmbrett-Fragen (`src/core/klemmbrett.ts`) und Einwandbehandlung (`src/core/einwaende.ts`) nutzen nur kundenorientierte Methoden: Fragen, Zuhören, ehrliche Empfehlung, freiwilliger nächster Schritt. Keine künstliche Verknappung, kein Angstmachen, kein Drängen zur Unterschrift, keine Preise, Förderquoten oder Renditeversprechen (UWG §§ 4a, 5, 7). Das Widerrufsrecht (14 Tage bei Haustür- und Telefonverträgen) wird aktiv erklärt. Ein Unit-Test prüft verbotene Formulierungen.
 
 ## Sicherheit
 

@@ -5,7 +5,7 @@ import {
 } from './model.ts';
 import { LEITFADEN, gespraechsNotiz } from './einwaende.ts';
 import { nowIso } from './util.ts';
-import type { Fluss } from './leitfragen.ts';
+import { klemmbrettText, type Antworten } from './klemmbrett.ts';
 
 /** Notizen werden je Bereich getrennt geführt (seit 0.10.4: PV, WP und Vorwerk einzeln, R-TEXT). */
 export type Gruppe = Sparte;
@@ -25,8 +25,8 @@ export interface Entwurf {
   /** Einwände aus dem Leitfaden: Sparte -> Einwand-ID -> Ergebnis */
   verlauf: Verlauf;
   leitfadenSparte: Sparte;
-  /** Geführter Ablauf (Phase, abgehakte Leitfragen); nur im Arbeitsspeicher */
-  fluss?: Fluss;
+  /** Antworten vom Klemmbrett (Bereich -> Punkt -> Text); nur im Arbeitsspeicher */
+  antworten?: Antworten;
 }
 
 export interface Abschluss {
@@ -43,7 +43,7 @@ export const hatEinwaende = (v: Verlauf, s: Sparte) => Object.keys(v[s]).length 
 
 /** Ist im Entwurf schon etwas festgehalten? */
 export function hatInhalt(e: Entwurf): boolean {
-  return !!(GRUPPEN_KEYS.some((g) => (e.notiz[g] || '').trim()) || (Object.keys(e.verlauf) as Sparte[]).some((s) => hatEinwaende(e.verlauf, s)));
+  return !!(GRUPPEN_KEYS.some((g) => (e.notiz[g] || '').trim() || klemmbrettText(g, e.antworten)) || (Object.keys(e.verlauf) as Sparte[]).some((s) => hatEinwaende(e.verlauf, s)));
 }
 
 /**
@@ -59,7 +59,8 @@ export function speichern(data: Daten, e: Entwurf, abschluesse: Abschluss[], jet
   const gespeichert: Sparte[] = [];
   const notizTeile: Record<Gruppe, string[]> = { pv: [], wp: [], vorwerk: [] };
   const notizSparten: Record<Gruppe, Set<Sparte>> = { pv: new Set(), wp: new Set(), vorwerk: new Set() };
-  const notiz = (g: Gruppe) => (e.notiz[g] || '').trim();
+  // Notiz je Bereich: Antworten vom Klemmbrett („Label: Antwort“), dann der Freitext
+  const notiz = (g: Gruppe) => [klemmbrettText(g, e.antworten), (e.notiz[g] || '').trim()].filter(Boolean).join('\n');
   for (const g of GRUPPEN_KEYS) {
     if (notiz(g)) {
       notizTeile[g].push(notiz(g));

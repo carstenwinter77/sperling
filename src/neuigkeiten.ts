@@ -2,6 +2,15 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.12.0',
+    punkte: [
+      'Gespräch als digitales Klemmbrett: Punkte ausfüllen statt Fragen abhaken. Kartei-Felder gehen direkt in die Kundenkartei, Antworten tippst du an und ergänzt sie mit eigenen Worten. Sie stehen nach dem Speichern in der Notiz.',
+      'Haken, Zähler und ein Ring zeigen, was noch fehlt. Oben steht, was du vom Kunden schon weißt.',
+      'Einwand-Knopf unten rechts: Einwand wählen, Rückfrage stellen, Antwort aufdecken, zurück zum Gespräch.',
+      'Beim Abschließen siehst du, was erfasst ist und was offen bleibt. Der nächste Schritt ist schon eingetragen.',
+    ],
+  },
+  {
     version: '0.11.1',
     punkte: [
       'Einstellungen aufgeräumt: acht Bereiche statt einer langen Liste, jeweils mit dem aktuellen Stand. Oben kannst du suchen, z. B. nach „Passwort“.',

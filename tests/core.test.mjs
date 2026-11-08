@@ -965,45 +965,67 @@ test('Einstellungsdatei: ohne Kunden und „zuletzt“, verschlüsselt übertrag
   assert.equal(ed.istEinstellungsPaket(emptyData()), false);
 });
 
-test('Geführter Ablauf: 7 Phasen, Leitfragen je Bereich, eindeutige IDs', async () => {
-  const lf = await import('../src/core/leitfragen.ts');
-  assert.equal(lf.PHASEN.length, 7);
-  assert.deepEqual(lf.PHASEN_IDS, ['vorbereiten', 'einstieg', 'situation', 'problem', 'zusammenfassen', 'loesung', 'schritt']);
+test('Klemmbrett: Abschnitte je Bereich, Felder aus der Kartei, eindeutige IDs, keine Druck-Formulierungen', async () => {
+  const kb = await import('../src/core/klemmbrett.ts');
+  const { FELDER } = await import('../src/core/model.ts');
   for (const s of ['pv', 'wp', 'vorwerk']) {
-    const alle = lf.alleLeitfragen(s);
-    assert.equal(new Set(alle.map((q) => q.id)).size, alle.length, `doppelte IDs in ${s}`);
-    for (const p of ['situation', 'problem', 'schritt']) assert.ok(lf.leitfragen(s, p).length >= 2, `${s}/${p} zu wenige Fragen`);
-    assert.ok(lf.IMPULS[s].length > 20);
-    // Bereichseigene Fragen kommen zuerst, fremde Bereiche nie
-    const fremd = ['pv', 'wp', 'vorwerk'].filter((x) => x !== s).map((x) => (x === 'vorwerk' ? 'vw-' : `${x}-`));
-    assert.ok(alle.every((q) => !fremd.some((f) => q.id.startsWith(f))), `fremde Fragen in ${s}`);
+    const abs = kb.abschnitte(s);
+    assert.deepEqual(abs.map((a) => a.id), ['situation', 'bedarf', 'schritt']);
+    const punkte = abs.flatMap((a) => a.punkte);
+    const ids = punkte.map((p) => kb.punktId(s, p));
+    assert.equal(new Set(ids).size, ids.length, `doppelte Punkte in ${s}`);
+    for (const p of punkte) if (p.art === 'feld') assert.ok(FELDER[s].some((f) => f.key === p.key), `${s}.${p.key} gibt es nicht in der Kartei`);
+    assert.ok(punkte.some((p) => p.art === 'antwort' && p.id === 'widerruf'), `Widerruf fehlt in ${s}`);
+    assert.ok(punkte.every((p) => p.frage.length > 5));
   }
-  // R-LEITFADEN: keine Druck-Formulierungen
-  const text = ['pv', 'wp', 'vorwerk'].flatMap((s) => lf.alleLeitfragen(s).map((q) => q.frage)).join(' ') + Object.values(lf.IMPULS).join(' ');
+  const text = ['pv', 'wp', 'vorwerk'].flatMap((s) => kb.KLEMMBRETT[s].flatMap((a) => a.punkte.map((p) => p.frage))).join(' ') + Object.values(kb.IMPULS).join(' ');
   assert.doesNotMatch(text, /nur heute|sofort unterschreiben|letzte Chance|€|Prozent/i);
+  // Ausgeblendete Kartei-Felder erscheinen nicht auf dem Klemmbrett
+  const ohne = kb.abschnitte('pv', { aus: ['pv.stromverbrauch'], eigene: [] }).flatMap((a) => a.punkte);
+  assert.ok(!ohne.some((p) => p.art === 'feld' && p.key === 'stromverbrauch'));
 });
 
-test('Geführter Ablauf: Navigation, Abhaken, Fortschritt, Stichpunkt', async () => {
-  const lf = await import('../src/core/leitfragen.ts');
-  assert.equal(lf.nachbar('vorbereiten', -1), 'vorbereiten');
-  assert.equal(lf.nachbar('vorbereiten', 1), 'einstieg');
-  assert.equal(lf.nachbar('schritt', 1), 'schritt');
-  assert.equal(lf.phasenIndex('quatsch'), 0);
-  const f = lf.neuerFluss();
-  assert.equal(f.phase, 'vorbereiten');
-  const q = lf.leitfragen('pv', 'problem')[0];
-  assert.equal(lf.umschalten(f, 'pv', q.id), true);
-  assert.equal(lf.fortschritt(f, 'pv').problem, 1);
-  assert.equal(lf.fortschritt(f, 'wp').problem, 0, 'Fortschritt ist je Bereich getrennt');
-  assert.equal(lf.anzahlGefragt(f), 1);
-  assert.equal(lf.umschalten(f, 'pv', q.id), false);
-  assert.equal(lf.anzahlGefragt(f), 0);
-  assert.equal(lf.stichpunkt({ id: 'x', frage: 'F?', stichwort: 'Dach' }), 'Dach: ');
-  assert.equal(lf.stichpunkt({ id: 'x', frage: 'F?' }), '');
-  // Zwei neue Abläufe teilen keinen Zustand
-  const a = lf.neuerFluss(); const b = lf.neuerFluss();
-  lf.umschalten(a, 'wp', 'wp-sit-heizung');
-  assert.equal(b.gefragt.wp.length, 0);
+test('Klemmbrett: erledigt, Stand, Optionen, Freitext, Notiztext je Bereich (R-TEXT)', async () => {
+  const kb = await import('../src/core/klemmbrett.ts');
+  const k = normalizeKunde({ id: 'k1', nachname: 'Test', pv: { stromverbrauch: 4500, eauto: false } });
+  const a = kb.leereAntworten();
+  const vorher = kb.stand('pv', k, a);
+  assert.ok(vorher.erledigt >= 2, 'Kartei-Felder mit Wert (auch „nein“) zählen als erledigt');
+  assert.ok(vorher.offen.includes('Dachausrichtung'));
+  // Einzelwahl ersetzt, Freitext bleibt; Mehrfachwahl ergänzt
+  let w = kb.optionUmschalten('', 'Partner fehlt', ['Beide dabei', 'Partner fehlt', 'Allein']);
+  assert.equal(w, 'Partner fehlt');
+  w = kb.mitFreitext(w, ['Beide dabei', 'Partner fehlt', 'Allein'], 'kommt Freitag');
+  assert.equal(w, 'Partner fehlt, kommt Freitag');
+  w = kb.optionUmschalten(w, 'Beide dabei', ['Beide dabei', 'Partner fehlt', 'Allein']);
+  assert.equal(w, 'Beide dabei, kommt Freitag');
+  assert.equal(kb.freiAnteil(w, ['Beide dabei', 'Partner fehlt', 'Allein']), 'kommt Freitag');
+  assert.equal(kb.optionUmschalten(w, 'Beide dabei', ['Beide dabei']), 'kommt Freitag', 'erneutes Antippen nimmt die Option weg');
+  const opt = ['Wenig Aufwand (Miete)', 'Viel Ersparnis (Kauf)', 'Unabhängigkeit', 'Umwelt'];
+  assert.equal(kb.optionUmschalten(kb.optionUmschalten('', 'Umwelt', opt, true), 'Unabhängigkeit', opt, true), 'Unabhängigkeit, Umwelt');
+  kb.antwortSetzen(a, 'pv', 'aerger', '  Preiserhöhungen  ');
+  kb.antwortSetzen(a, 'pv', 'widerruf', 'erklärt');
+  kb.antwortSetzen(a, 'vorwerk', 'nervt', 'Tierhaare');
+  kb.antwortSetzen(a, 'pv', 'nutzen', '');
+  assert.equal(a.pv.nutzen, undefined, 'leere Antwort wird entfernt');
+  assert.equal(kb.stand('pv', k, a).erledigt, vorher.erledigt + 2);
+  assert.equal(kb.klemmbrettText('pv', a), 'Ärgert am meisten: Preiserhöhungen\nWiderrufsrecht: erklärt');
+  assert.ok(!kb.klemmbrettText('pv', a).includes('Tierhaare'));
+  assert.equal(kb.klemmbrettText('vorwerk', a), 'Nervt beim Putzen: Tierhaare');
+  kb.antwortSetzen(a, 'pv', 'schritt', 'Vor-Ort-Termin');
+  assert.equal(kb.schrittVorschlag('pv', a), 'Vor-Ort-Termin');
+  // Antworten kommen beim Speichern in die Notiz des eigenen Bereichs
+  const g = await import('../src/core/gespraech.ts');
+  const data = emptyData();
+  data.kunden = [k];
+  const e = { kundeId: 'k1', start: '2026-11-08T10:00:00.000Z', kontaktart: 'hausbesuch', erreicht: true, sparten: ['pv', 'vorwerk'], notiz: { pv: 'Hund bellt', wp: '', vorwerk: '' }, verlauf: g.leererVerlauf(), leitfadenSparte: 'pv', antworten: a };
+  assert.ok(g.hatInhalt({ ...e, notiz: { pv: '', wp: '', vorwerk: '' } }), 'Antworten allein zählen als Inhalt');
+  g.speichern(data, e, [{ sparte: 'pv', ausgang: 'termin', status: '', schritt: 'Vor-Ort-Termin', wv: null }], '2026-11-08T10:30:00.000Z');
+  const pvNotiz = data.kunden[0].notizen.find((n) => n.sparten.includes('pv'));
+  const vwNotiz = data.kunden[0].notizen.find((n) => n.sparten.includes('vorwerk'));
+  assert.ok(pvNotiz.text.includes('Ärgert am meisten: Preiserhöhungen') && pvNotiz.text.includes('Hund bellt'));
+  assert.ok(!pvNotiz.text.includes('Tierhaare'));
+  assert.ok(vwNotiz && vwNotiz.text.includes('Nervt beim Putzen: Tierhaare') && !vwNotiz.text.includes('Preiserhöhungen'));
 });
 
 test('Beispielkunden im Gebiet: viele, plausibel, Produkte aus dem Katalog, stabil', async () => {
