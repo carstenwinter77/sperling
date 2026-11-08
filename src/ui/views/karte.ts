@@ -2,6 +2,7 @@
 import { esc, nowIso, isValidCoord } from '../../core/util.ts';
 import { SPARTEN, SPARTEN_KEYS, STATUS, hauptStatus, kundenTitel, kundenName, adresseEinzeilig, neuerKunde, neueNotiz } from '../../core/model.ts';
 import * as store from '../../storage/store.ts';
+import * as hilfe from '../hilfe.ts';
 import { adresseZuKoordinate, adressenSuchen } from '../../services/geo.ts';
 import { toast, maskottchen, bestaetigen } from '../dom.ts';
 import * as pk from '../../core/papierkorb.ts';
@@ -74,7 +75,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       </section>
       ${filterPanelHtml('fPanel', store.getData().einstellungen.felder)}
       <div id="map" class="map"></div>
-      <div class="karte-hinweis" id="kHinweis">${maskottchen('karte', 'mini')} Tippe lange (oder Rechtsklick) auf ein Haus, um es zu markieren.</div>
+      ${hilfe.kartenHinweisZeigen() ? `<div class="karte-hinweis" id="kHinweis">${maskottchen('karte', 'mini')} <span id="kHinweisText">Tippe lange (oder Rechtsklick) auf ein Haus, um es zu markieren.</span> <button type="button" class="karte-hinweis-weg" id="kHinweisWeg" aria-label="Hinweis ausblenden">✕</button></div>` : ''}
       <div class="legende">${Object.entries(STATUS).map(([, v]) => `<span><i style="background:${v.farbe}"></i>${esc(v.label)}</span>`).join('')}</div>
     </div>`;
 
@@ -90,8 +91,9 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       kachelFehler++;
       if (kachelFehler === 3 && !store.isDemo()) toast('Kartenbilder werden nicht geladen (offline oder blockiert).', 'error', 5000);
       if (kachelFehler === 3 && store.isDemo()) {
-        const h = el.querySelector('#kHinweis');
-        if (h) h.innerHTML = 'In dieser Vorschau sind Kartenbilder gesperrt. In der echten App siehst du hier das Satellitenbild bzw. die Straßenkarte.';
+        const h = el.querySelector('#kHinweisText');
+        const text = 'In dieser Vorschau sind Kartenbilder gesperrt. In der echten App siehst du hier das Satellitenbild bzw. die Straßenkarte.';
+        if (h) h.textContent = text; else toast(text, 'info', 6000);
       }
     });
     if (name === 'satellit') labels = L.tileLayer(LABELS, { maxZoom: 20, maxNativeZoom: 19 }).addTo(map);
@@ -275,6 +277,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
         map.closePopup();
         zeichnen();
         toast(`Markiert: ${HAUSTUER[ergebnis].label}`, 'ok');
+        markierungGezaehlt();
         void haustuerWeiter(k.id, ergebnis); // „Gespräch“: Klemmbrett mit dem neuen Haus, Name links eintragen
         return;
       }
@@ -288,11 +291,22 @@ export function render(el: HTMLElement, params: URLSearchParams) {
       store.mutate((d) => { d.kunden.push(k); });
       routeFilter?.add(k.id);
       map.closePopup();
+      markierungGezaehlt();
       if (b.dataset.neu === 'kunde') location.hash = `#/kunde/${k.id}?neu=1`;
       else { zeichnen(); toast('Markiert', 'ok'); }
     });
   };
   map.on('contextmenu', neuerPunkt);
+
+  // Karten-Hinweis: ✕ blendet ihn dauerhaft aus, nach einigen Markierungen verschwindet er von selbst.
+  el.querySelector('#kHinweisWeg')?.addEventListener('click', () => {
+    hilfe.vorliebeSetzen({ kartenHinweisWeg: true });
+    el.querySelector('#kHinweis')?.remove();
+    toast('Hinweis ausgeblendet. Zurückholen: Einstellungen → Hilfe.', 'ok');
+  });
+  const markierungGezaehlt = () => {
+    if (hilfe.kartenMarkierungZaehlen()) el.querySelector('#kHinweis')?.remove();
+  };
 
   // ---------- Adresssuche ----------
   // Datenschutz (R-EXTERN): Zuerst werden die eigenen Kunden lokal durchsucht. Passt der Suchtext

@@ -606,6 +606,8 @@ body.ka-aktiv { overflow: hidden; }
 .karte-filter { display: grid; gap: .6rem; margin: 0; border-radius: 0; position: relative; z-index: 600; }
 .karte-filter[hidden] { display: none; }
 .filter-offen .karte-hinweis { display: none; }
+.karte-hinweis-weg { flex: none; min-width: 28px; min-height: 28px; border: 0; border-radius: 999px; background: transparent; color: var(--text); font-size: .9rem; cursor: pointer; margin-left: .1rem; }
+.karte-hinweis-weg:hover, .karte-hinweis-weg:focus-visible { background: var(--flaeche-2); outline: 2px solid var(--braun); outline-offset: -2px; }
 .kf-gruppe { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
 .kf-gruppe strong { min-width: 5.5rem; font-size: .9rem; }
 .kf-status i { display: inline-block; width: .7rem; height: .7rem; border-radius: 50%; background: var(--c); margin-right: .35rem; vertical-align: -1px; }

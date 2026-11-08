@@ -259,6 +259,7 @@ function inhalt(key: GruppeKey, demo: boolean): string {
     <section class="karte-box" id="hilfeEinstellungen">
       <div class="schalter-liste">${schalter('hilfeKnoepfe', '?-Knöpfe mit Kurzhilfe anzeigen', hilfe.vorlieben().knoepfe, false, 'Die Hilfe-Seite bleibt auch ohne ?-Knöpfe erreichbar.')}</div>
       <div class="knopfreihe"><button type="button" class="btn primary" data-tour-start>🧭 Rund-Tour starten</button><a class="btn" href="#/hilfe">📖 Hilfe öffnen</a><a class="btn ghost" href="#/hilfe?thema=installieren">📲 App installieren</a></div>
+      <div class="knopfreihe"><button type="button" class="btn" id="hinweiseZurueck">💬 Ausgeblendete Hinweise wieder zeigen</button> ${hilfe.knopf('hinweise')}</div>
     </section>`;
 
     case 'aufraeumen': {
@@ -427,6 +428,7 @@ export function render(el: HTMLElement, params?: URLSearchParams) {
     toast(`${weg.size} Foto${weg.size === 1 ? '' : 's'} gelöscht`, 'ok');
     fotoAnzeige();
   });
+  el.querySelector('#hinweiseZurueck')?.addEventListener('click', () => { hilfe.hinweiseZuruecksetzen(); toast('Hinweise werden wieder gezeigt (Karte, Installation).', 'ok'); });
   el.querySelector('#hilfeKnoepfe')?.addEventListener('change', (ev) => { hilfe.vorliebeSetzen({ knoepfe: (ev.target as HTMLInputElement).checked }); toast('Gespeichert', 'ok'); });
   el.querySelector('#kalenderStart').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.kalenderStart = (ev.target as HTMLSelectElement).value as typeof d.einstellungen.kalenderStart; }));
   // Namensanzeige gilt sofort, auch im Demo-Modus (dort nur bis zum Neuladen)

@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.14.2 – 08.11.2026
+- **Karten-Hinweis verschwindet nach der Eingewöhnung.** „Tippe lange (oder Rechtsklick) auf ein Haus, um es zu markieren.“ steht nur noch, bis drei Häuser auf der Karte markiert wurden (Potenzial, Kunde anlegen oder Haustür-Ergebnis). Ein ✕ am Hinweis blendet ihn sofort aus. Unter Einstellungen → Hilfe holt „Ausgeblendete Hinweise wieder zeigen“ ihn zurück, ebenso den Installationshinweis der Übersicht. Gemerkt wird das nur auf dem Gerät (`sperling.hilfe`, keine Kundendaten).
+
 ## 0.14.1 – 08.11.2026
 - **Rechner: Erklärungen zu den Feldern.** Neben jedem Feld steht ein kleines „?“. Ein Tipp klappt darunter eine kurze Erklärung auf, z. B. was „Ohnehin fällig“ oder die Jahresarbeitszahl bedeuten und woher man den Wert bekommt. Ein zweiter Tipp klappt sie wieder zu. Das gilt auch für die Vorlagen in den Einstellungen.
 

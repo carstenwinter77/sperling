@@ -1990,3 +1990,14 @@ test('Buchstaben-Trenner passen zur Sortierung, Excel bekommt Trennzeilen', asyn
   const text = new TextDecoder().decode(exportXlsx(zeilen, 'Kundenliste', new Date(), trennZeilen));
   assert.ok(text.includes('<c r="A2" t="inlineStr" s="2"><is><t>A</t></is></c>'));
 });
+
+test('Karten-Hinweis „Tippe lange …“ verschwindet nach Eingewöhnung oder per ✕', async () => {
+  const h = await import('../src/core/hilfe.ts');
+  assert.equal(h.KARTEN_HINWEIS_BIS, 3);
+  assert.equal(h.kartenHinweisSichtbar(0, false), true);
+  assert.equal(h.kartenHinweisSichtbar(2, false), true);
+  assert.equal(h.kartenHinweisSichtbar(3, false), false, 'nach drei Markierungen weg');
+  assert.equal(h.kartenHinweisSichtbar(50, false), false);
+  assert.equal(h.kartenHinweisSichtbar(0, true), false, '✕ blendet sofort aus');
+  assert.ok(h.THEMEN.hinweise.kurz.includes('✕'), 'Hilfe erklärt das Zurückholen');
+});

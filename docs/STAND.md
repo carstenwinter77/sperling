@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.14.1
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.14.2
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,11 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.14.1)
+## Erledigt (Version 0.14.2)
+
+### Neu in 0.14.2
+- [x] Karten-Hinweis „Tippe lange (oder Rechtsklick) auf ein Haus …“ verschwindet nach der Eingewöhnung: nach drei Markierungen auf der Karte (Potenzial, Kunde anlegen, Haustür-Ergebnis an neuem Haus) oder sofort mit ✕. Gerätevorliebe in `sperling.hilfe` (`kartenMarkiert`, `kartenHinweisWeg`), Logik `kartenHinweisSichtbar()`/`KARTEN_HINWEIS_BIS` in `src/core/hilfe.ts`. Einstellungen → Hilfe → „Ausgeblendete Hinweise wieder zeigen“ holt ihn (und den Installationshinweis) zurück. Unit-Test, Browser-Test.
+- [ ] Offen: Jan im Alltag fragen, ob drei Markierungen passen.
 
 ### Neu in 0.14.1
 - [x] Rechner: „?“ an jedem Feld (Rechner und Einstellungen → Rechner-Vorlagen) klappt eine kurze Erklärung in einfacher Sprache auf (`ERKLAERUNG` in `src/core/amortisation.ts`, `frageKnopf`/`frageUmschalten` in `src/ui/rechner.ts`). Folgt der Einstellung „?-Knöpfe“. Unit-Test (jedes Feld erklärt, kein Verkaufsdruck), Browser-Test.
@@ -278,7 +282,7 @@ Alle 14 Punkte aus dem Vorschlag „Abläufe verzahnen“ vom 08.11. und die Gru
 - [x] **Kundenansicht** konfigurierbar (`einstellungen.kundenansicht`).
 - [x] **Beratungs-Schutz** (`src/ui/schutz.ts`, Sicht in `store.getData()`), Aufheben mit Face ID/Passwort.
 - [x] **Kommandozeile** (`src/core/suche.ts`, `src/ui/suche.ts`): ⌘K/Strg+K, Aktionen, Verben, Zuletzt geöffnet (`einstellungen.zuletzt`). Am Handy keine Lupe in der unteren Leiste (kein Platz), dort über das Feld auf der Übersicht.
-- [x] **Hilfe** (`src/core/hilfe.ts`, `src/ui/hilfe.ts`, `#/hilfe`): ?-Knöpfe, Anleitungen, Begriffe, Fragen, Suche; **Installationshilfe** (`src/core/installieren.ts`) je Gerät/Browser mit eigenem Installieren-Knopf (Chrome/Edge/Samsung). Abschaltbar (`localStorage sperling.hilfe`).
+- [x] **Hilfe** (`src/core/hilfe.ts`, `src/ui/hilfe.ts`, `#/hilfe`): ?-Knöpfe, Anleitungen, Begriffe, Fragen, Suche; **Installationshilfe** (`src/core/installieren.ts`) je Gerät/Browser mit eigenem Installieren-Knopf (Chrome/Edge/Samsung). Abschaltbar (`localStorage sperling.hilfe`). Karten-Hinweis blendet sich nach drei Markierungen aus (seit 0.14.2), „Ausgeblendete Hinweise wieder zeigen“ holt Hinweise zurück.
 - [x] **Branding** (`scripts/branding.py`, `public/assets/marke/`, `docs/MASKOTTCHEN.md`): grünes Farbkonzept hell/dunkel, Bereichsfarben PV gelb/WP blau/Vorwerk grün, neues Logo, App-Icon, Bereichs-Icons; Hell/Dunkel nur in Einstellungen; Einstellungen + Version unten links.
 - [ ] Auf echtem iPad testen: Gesprächsmodus, Suche mit Bildschirmtastatur, Installationshilfe, neue Icons auf dem Home-Bildschirm
 

@@ -2,6 +2,13 @@
 // Die ?-Knöpfe zeigen den Kurztext eines Themas; die Seite #/hilfe zeigt alles mit Suche.
 import { suchText, punkte } from './suche.ts';
 
+/** Nach so vielen Markierungen auf der Karte blendet sich der Hinweis „Tippe lange …“ aus. */
+export const KARTEN_HINWEIS_BIS = 3;
+/** Karten-Hinweis zeigen? Nur bis Jan sich eingearbeitet hat (einige Markierungen) und nicht weggeklickt. */
+export function kartenHinweisSichtbar(markiert: number, weg: boolean): boolean {
+  return !weg && !(markiert >= KARTEN_HINWEIS_BIS);
+}
+
 export interface Thema { titel: string; kurz: string; schritte?: string[] }
 
 export const THEMEN = {
@@ -62,12 +69,16 @@ export const THEMEN = {
       'Du kannst zwischendurch andere Seiten öffnen; das Gespräch bleibt, bis du es speicherst oder verwirfst.',
     ],
   },
+  hinweise: {
+    titel: 'Ausgeblendete Hinweise',
+    kurz: 'Kurze Hinweise wie „Tippe lange auf ein Haus“ auf der Karte verschwinden, sobald du dich eingearbeitet hast (nach drei Markierungen) oder wenn du ✕ tippst. Dieser Knopf zeigt sie wieder an, auch den Installationshinweis auf der Übersicht.',
+  },
   karte: {
     titel: 'Karte',
     kurz: 'Kunden und Potenziale auf der Karte, als Satellit oder Straßenkarte.',
     schritte: [
       'Oben eine Adresse suchen, dann „Als Potenzial markieren“ oder „Kunde anlegen“.',
-      'Lange auf ein Haus tippen (am Laptop Rechtsklick) markiert genau diese Stelle.',
+      'Lange auf ein Haus tippen (am Laptop Rechtsklick) markiert genau diese Stelle. Der Hinweis dazu verschwindet nach drei Markierungen oder mit ✕; unter Einstellungen → Hilfe holst du ihn zurück.',
       '„Filter“ zeigt nur bestimmte Bereiche, Status oder lange nicht kontaktierte Kunden.',
       'An der Haustür: In der Infobox eines Hauses mit einem Tipp festhalten, wie es lief (nicht angetroffen, später, Gespräch, kein Interesse, keine Werbung). Bei einem neuen Haus legt das gleich eine Markierung an. „Keine Werbung“ zeigt ein ⛔ am Pin, Sperling schlägt die Adresse nicht mehr vor.',
       '„🚗 Tagesroute“ zeigt die Termine eines Tages nummeriert in zeitlicher Reihenfolge mit Linie dazwischen. Darunter „Unterwegs vorbeischauen“: Kunden nahe der Strecke mit offenem Angebot, fälliger Wiedervorlage, Interesse oder Potenzial, ideal für Lücken oder ausgefallene Termine. Andere Kunden sind dabei ausgeblendet; mit „Andere Kunden zeigen“ kommen sie dazu.',

@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.14.2',
+    punkte: [
+      'Karte: Der Hinweis „Tippe lange auf ein Haus …“ verschwindet, sobald du drei Häuser markiert hast, oder sofort mit ✕. Zurückholen: Einstellungen → Hilfe → „Ausgeblendete Hinweise wieder zeigen“.',
+    ],
+  },
+  {
     version: '0.14.1',
     punkte: [
       'Rechner: Das „?“ neben jedem Feld erklärt kurz, was gemeint ist und woher du den Wert bekommst, z. B. bei „Ohnehin fällig“ oder der Jahresarbeitszahl.',

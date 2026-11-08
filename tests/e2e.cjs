@@ -269,6 +269,27 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     await p.fill('#suche', '');
     await p.dispatchEvent('#suche', 'input');
   }
+  // Karten-Hinweis „Tippe lange …“: anfangs da, nach drei Markierungen weg, ✕ blendet aus, Einstellungen holen ihn zurück
+  const hilfeSetzen = (teil) => p.evaluate((t) => localStorage.setItem('sperling.hilfe', JSON.stringify({ ...JSON.parse(localStorage.getItem('sperling.hilfe') || '{}'), ...t })), teil);
+  await hilfeSetzen({ kartenMarkiert: 0, kartenHinweisWeg: false });
+  await p.goto(BASE + '#/karte');
+  await p.waitForSelector('#kHinweis #kHinweisWeg');
+  await p.waitForTimeout(600);
+  await hilfeSetzen({ kartenMarkiert: 3 });
+  await p.goto(BASE + '#/start'); await p.waitForSelector('.hauptnav'); await p.goto(BASE + '#/karte');
+  await p.waitForSelector('.leaflet-marker-icon'); await p.waitForTimeout(600);
+  if (await p.$('#kHinweis')) fail('Karten-Hinweis nach drei Markierungen noch da');
+  await p.goto(BASE + '#/einstellungen?bereich=hilfe');
+  await p.click('#hinweiseZurueck');
+  await p.goto(BASE + '#/karte');
+  await p.waitForSelector('#kHinweisWeg');
+  await p.waitForTimeout(600);
+  await p.click('#kHinweisWeg');
+  if (await p.$('#kHinweis')) fail('✕ blendet den Karten-Hinweis nicht aus');
+  await p.goto(BASE + '#/start'); await p.waitForSelector('.hauptnav'); await p.goto(BASE + '#/karte');
+  await p.waitForSelector('.leaflet-marker-icon'); await p.waitForTimeout(600);
+  if (await p.$('#kHinweis')) fail('Weggeklickter Karten-Hinweis kommt wieder');
+  await hilfeSetzen({ kartenMarkiert: 0, kartenHinweisWeg: false });
   // Potenzial-Markierung auf der Karte über die Infobox löschen (mit Sicherheitsabfrage)
   await p.goto(BASE + '#/karte');
   await p.waitForSelector('.leaflet-marker-icon');

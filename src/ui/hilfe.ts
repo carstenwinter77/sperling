@@ -1,15 +1,16 @@
 // Sperling – Hilfe (Oberfläche): ?-Knöpfe mit Kurzhilfe, Installieren-Angebot des Browsers, Installationshinweis.
 // Gerätevorlieben in localStorage `sperling.hilfe` (keine Kundendaten, R-KRYPTO-Ausnahme):
 // { knoepfe: ?-Knöpfe zeigen, installiert: auf diesem Gerät schon installiert, hinweisWeg: Hinweis weggeklickt,
-//   tourGesehen: Willkommen/Rund-Tour schon gezeigt }.
+//   tourGesehen: Willkommen/Rund-Tour schon gezeigt, kartenMarkiert: so oft auf der Karte markiert,
+//   kartenHinweisWeg: Karten-Hinweis „Tippe lange …“ weggeklickt }.
 import { esc } from '../core/util.ts';
-import { THEMEN, type ThemaId } from '../core/hilfe.ts';
+import { THEMEN, kartenHinweisSichtbar, type ThemaId } from '../core/hilfe.ts';
 import { erkennen, type Geraet, type Browser } from '../core/installieren.ts';
 import { dialog } from './dom.ts';
 
 const KEY = 'sperling.hilfe';
-interface Vorlieben { knoepfe: boolean; installiert: boolean; hinweisWeg: boolean; tourGesehen: boolean }
-const STANDARD: Vorlieben = { knoepfe: true, installiert: false, hinweisWeg: false, tourGesehen: false };
+interface Vorlieben { knoepfe: boolean; installiert: boolean; hinweisWeg: boolean; tourGesehen: boolean; kartenMarkiert: number; kartenHinweisWeg: boolean }
+const STANDARD: Vorlieben = { knoepfe: true, installiert: false, hinweisWeg: false, tourGesehen: false, kartenMarkiert: 0, kartenHinweisWeg: false };
 
 export function vorlieben(): Vorlieben {
   try {
@@ -19,6 +20,8 @@ export function vorlieben(): Vorlieben {
       installiert: v.installiert === true,
       hinweisWeg: v.hinweisWeg === true,
       tourGesehen: v.tourGesehen === true,
+      kartenMarkiert: Number.isInteger(v.kartenMarkiert) && v.kartenMarkiert > 0 ? Math.min(v.kartenMarkiert, 999) : 0,
+      kartenHinweisWeg: v.kartenHinweisWeg === true,
     };
   } catch { return { ...STANDARD }; }
 }
@@ -123,4 +126,22 @@ export function hinweisVerdrahten(root: ParentNode) {
     vorliebeSetzen({ hinweisWeg: true });
     root.querySelector('#installHinweis')?.remove();
   });
+}
+
+// ---------- Karten-Hinweis „Tippe lange …“ ----------
+// Verschwindet von selbst nach einigen Markierungen auf der Karte oder per ✕ (Einstellungen → Hilfe holt ihn zurück).
+
+export function kartenHinweisZeigen(): boolean {
+  const v = vorlieben();
+  return kartenHinweisSichtbar(v.kartenMarkiert, v.kartenHinweisWeg);
+}
+/** Eine Markierung auf der Karte zählen. true = der Hinweis ist ab jetzt ausgeblendet. */
+export function kartenMarkierungZaehlen(): boolean {
+  const vorher = kartenHinweisZeigen();
+  vorliebeSetzen({ kartenMarkiert: vorlieben().kartenMarkiert + 1 });
+  return vorher && !kartenHinweisZeigen();
+}
+/** Weggeklickte Hinweise (Installation, Karte) wieder zeigen. */
+export function hinweiseZuruecksetzen() {
+  vorliebeSetzen({ hinweisWeg: false, kartenHinweisWeg: false, kartenMarkiert: 0 });
 }
