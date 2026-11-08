@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.10.32 – 08.11.2026
+- **Kalender, Monat:** Ein Tipp auf einen Tag öffnet jetzt immer die Tagesansicht dieses Tages, auch wenn man dabei einen Termin trifft. Vorher öffnete ein Tipp auf einen Termin dessen Karte und ein Tipp auf eine freie Stelle das Fenster „Neuer Termin“. Termine verschieben (Finger halten und ziehen) bleibt; neue Termine in der Tagesansicht oder mit „+ Neu“.
+
 ## 0.10.31 – 08.11.2026
 - Kontaktseite, Häufige Fragen: „Gibt es Fördermittel?“ deckt jetzt Photovoltaik (0 % Umsatzsteuer, KfW-Kredit, Einspeisevergütung im Wandel) und Wärmepumpe ab, mit Hinweis auf eigene Programme für Unternehmen und Landwirtschaft. Neue Frage „Passen Photovoltaik und Wärmepumpe zusammen?“.
 

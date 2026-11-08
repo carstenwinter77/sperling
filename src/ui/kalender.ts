@@ -162,7 +162,7 @@ export function zeichnen(el, zustand, onWechsel, neuZeichnen) {
       ${d.geraete.length ? `<label class="check k-leih"><input type="checkbox" id="kLeih" ${leihZeigen ? 'checked' : ''}> Leihgaben zeigen</label>` : ''}
     </div>
     <p class="hinweis k-tipp">${ansicht === 'monat'
-    ? 'Tag antippen = neuer Termin. Termin antippen = Details. Finger auf dem Termin halten und auf einen anderen Tag ziehen = verschieben.'
+    ? 'Tag antippen = Tagesansicht mit allen Terminen dieses Tages. Finger auf einem Termin halten und auf einen anderen Tag ziehen = verschieben.'
     : 'Uhrzeit antippen = neuer Termin (Finger halten und ziehen für die Dauer). Termin antippen = Details. Finger auf dem Termin halten = Griffe zum Verschieben und Länger/Kürzer-Ziehen.'}</p>
     ${inhalt}`;
 
@@ -184,6 +184,11 @@ export function zeichnen(el, zustand, onWechsel, neuZeichnen) {
   el.addEventListener('click', async (e) => {
     if (klickGesperrt()) { e.preventDefault(); return; }
     const ziel = e.target as Element;
+    // Monat: Tipp irgendwo auf einen Tag (auch auf einen Termin darin) öffnet die Tagesansicht dieses Tages
+    if (ansicht === 'monat') {
+      const zelle = ziel.closest<HTMLElement>('.k-tag');
+      if (zelle?.dataset.tag) { onWechsel({ ansicht: 'tag', datum: tagVon(zelle.dataset.tag) }); return; }
+    }
     const t = ziel.closest<HTMLElement>('[data-termin]');
     if (t) {
       const termin = store.getData().termine.find((x) => x.id === t.dataset.termin);
@@ -194,14 +199,6 @@ export function zeichnen(el, zustand, onWechsel, neuZeichnen) {
     if (g) { if (await geraetOeffnen(g.dataset.geGeraet!, g.dataset.geId!)) neuZeichnen(); return; }
     const zt = ziel.closest<HTMLElement>('[data-zum-tag]');
     if (zt) { onWechsel({ ansicht: 'tag', datum: tagVon(zt.dataset.zumTag) }); return; }
-    if (ansicht === 'monat') {
-      const zelle = ziel.closest<HTMLElement>('.k-tag');
-      if (!zelle) return;
-      const tag = tagVon(zelle.dataset.tag);
-      const jetzt = new Date();
-      if (zelle.dataset.tag === tagKey(jetzt)) { tag.setHours(Math.min(jetzt.getHours() + 1, 21), 0, 0, 0); } else tag.setHours(10, 0, 0, 0);
-      neuerTermin(tag);
-    }
   });
 
   if (ansicht === 'monat') monatZiehenVerdrahten(el, neuZeichnen);

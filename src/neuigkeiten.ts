@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.32',
+    punkte: [
+      'Kalender: Ein Tipp auf einen Tag im Monat öffnet die Tagesansicht dieses Tages, auch wenn du dabei einen Termin triffst.',
+    ],
+  },
+  {
     version: '0.10.29',
     punkte: [
       'Hinfahren: Beim ersten Mal fragt Sperling, ob du mit Google Maps, Apple Karten oder Waze navigierst, und öffnet danach immer diese App.',

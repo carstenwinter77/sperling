@@ -453,11 +453,20 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   await p.click('.tabs [data-ansicht=monat]');
   await p.waitForSelector('.k-monat');
   if (!(await p.textContent('.k-monat')).includes('Kalendertermin')) fail('Termin fehlt in Monatsansicht');
-  await p.locator('.k-tag:not(.fremd)').nth(14).click({ position: { x: 40, y: 80 } });
-  await p.waitForSelector('dialog [name=titel]');
-  await p.click('dialog .dlg-actions button.ghost');
-  await p.locator('.k-tag.heute .k-nr').click();
-  await p.waitForSelector('.k-raster[style*="--spalten:1"]');
+  {
+    // Tipp auf einen Tag – auch direkt auf einen Termin darin – öffnet die Tagesansicht dieses Tages, keinen Dialog
+    const e = p.locator('.k-monat .k-eintrag', { hasText: 'Kalendertermin' }).first();
+    const tagKey = await e.evaluate((x) => x.closest('.k-tag').dataset.tag);
+    await e.click();
+    await p.waitForSelector('.k-raster[style*="--spalten:1"]');
+    if (await p.$('dialog[open]')) fail('Tipp auf Termin im Monat öffnet Dialog statt Tagesansicht');
+    if (!(await p.$(`.k-spalte[data-tag="${tagKey}"]`))) fail('Tagesansicht zeigt nicht den angetippten Tag');
+    await p.click('.tabs [data-ansicht=monat]');
+    await p.waitForSelector('.k-monat');
+    await p.locator('.k-tag:not(.fremd)').nth(14).click({ position: { x: 40, y: 80 } });
+    await p.waitForSelector('.k-raster[style*="--spalten:1"]');
+    if (await p.$('dialog[open]')) fail('Tipp auf leeren Tag im Monat öffnet Dialog');
+  }
   await p.click('.k-nav [data-schritt="1"]');
   await p.click('.k-nav [data-schritt="0"]');
   await p.click('.tabs [data-ansicht=woche]');
@@ -509,11 +518,13 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   // Löschen nur nach Sicherheitsabfrage
   await p.waitForTimeout(500);
   await p.locator(`.k-monat [data-termin="${tid}"]`).click();
+  await p.waitForSelector('.k-raster[style*="--spalten:1"]');
+  await p.locator(`.k-block[data-block="${tid}"] .k-eintrag`).click({ position: { x: 6, y: 10 } });
   await p.waitForSelector('dialog .termin-karte');
   await p.click('dialog .dlg-actions button.danger');
   await p.waitForSelector('dialog:not(:has(.termin-karte)) button.danger');
   await p.click('dialog:not(:has(.termin-karte)) .dlg-actions button.ghost');
-  if (!(await p.$(`.k-monat [data-termin="${tid}"]`))) fail('Termin trotz Abbruch gelöscht');
+  if (!(await p.$(`.k-block[data-block="${tid}"]`))) fail('Termin trotz Abbruch gelöscht');
   await p.click('.tabs [data-ansicht=geraete]');
   await p.waitForSelector('#bkInhalt');
   await p.click('#kalTabs [data-ansicht=woche]');

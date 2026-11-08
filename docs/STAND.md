@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.10.31
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.10.32
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,10 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.10.31)
+## Erledigt (Version 0.10.32)
+
+### Neu in 0.10.32
+- [x] Kalender Monat: Tipp auf einen Tag öffnet immer die Tagesansicht.
 
 ### Neu in 0.10.31
 - [x] Kontaktseite: Förder-Frage für PV und Wärmepumpe, neue Frage zur Kombination.
