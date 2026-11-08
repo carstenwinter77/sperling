@@ -58,7 +58,9 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/bausteinverwaltung.ts  Einstellungen → Textbausteine
  ├─ src/demo-gebiet.ts  Beispielkunden im Beratungsgebiet (fester Startwert)
  ├─ src/ui/ziehsortieren.ts  Listen per Griff umsortieren (Zeiger + Pfeiltasten)
+ ├─ src/core/kundenexport.ts  Kundenliste als Tabelle, CSV und XLSX (eigene ZIP-Erzeugung, rein, in Node getestet)
  ├─ src/core/listenimport.ts  Vorwerk-PDF-Liste: Zeilen aus Textstücken, Abgleich, Übernahme (rein, in Node getestet)
+ ├─ src/ui/kundenexport.ts  Export-Dialog der Kundenliste, PDF mit jsPDF (lazy geladen)
  ├─ src/ui/listenimport.ts  PDF wählen, mit pdf.js lesen (lazy geladen), Vorschau-Dialog
  ├─ src/core/kundenwahl.ts  Kundensuche und „zuletzt benutzt“ für Auswahlfelder (rein)
  ├─ src/core/bestandkunde.ts  Geräte aus Sicht eines Kunden, Verkauf buchen (rein)

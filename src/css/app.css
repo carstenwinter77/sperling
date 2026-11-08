@@ -1605,3 +1605,19 @@ input.schalter:disabled { opacity: .5; cursor: not-allowed; }
 .foe-rechner-link small { color: var(--text-2); }
 .foe-rechner-link > span:last-child { font-size: 1.4rem; color: var(--text-2); }
 .foe-rechner-link .sym { width: 30px; height: 30px; }
+
+/* Kundenliste exportieren */
+.export-wahl { display: grid; gap: .5rem; margin: .75rem 0; }
+.export-wahl .btn { min-height: 48px; justify-content: flex-start; text-align: left; }
+.export-warnung { border-left: 3px solid var(--orange); padding-left: .6rem; }
+.filterleiste.mit-export { grid-template-columns: 1fr 1fr auto; }
+.filterleiste.mit-export #export { white-space: nowrap; min-width: 48px; }
+.filterleiste.mit-export .export-text { display: none; }
+@media (min-width: 640px) {
+  .filterleiste.mit-export { grid-template-columns: 2fr 1fr 1fr auto; }
+  .filterleiste.mit-export .export-text { display: inline; }
+}
+
+/* Buchstaben-Trenner in „Name A–Z“ (bleibt beim Scrollen oben stehen) */
+.liste li.buchstabe { position: sticky; top: var(--band-h); z-index: 2; padding: .2rem .75rem; background: color-mix(in srgb, var(--gruen) 16%, var(--karte)); color: var(--text); font-weight: 800; font-size: .95rem; letter-spacing: .04em; border-top: 0; }
+.liste li.buchstabe + li { border-top: 0; }

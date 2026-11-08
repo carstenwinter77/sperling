@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.8
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.9
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,13 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.13.8)
+## Erledigt (Version 0.13.9)
+
+### Neu in 0.13.9
+- [x] Kundenliste exportieren (Kunden → „⬇ Export“): die angezeigte Liste (Suche, Filter, Sortierung, Namensanzeige) als PDF (A4 quer), Excel (.xlsx, eigene ZIP-Erzeugung ohne Bibliothek, `src/core/kundenexport.ts`) oder CSV (Semikolon, UTF-8 mit BOM, Formelschutz). Nur Stammdaten, Status je Bereich, letzter Kontakt; keine Notizen/Fotos/eigenen Felder. Datei entsteht nur auf dem Gerät, Hinweis „nicht verschlüsselt“ im Dialog, Datenschutztext in den Einstellungen und R-KRYPTO/R-EXTERN ergänzt. Unit- und Browser-Test (Download von CSV, XLSX, PDF; Excel-Datei mit LibreOffice und openpyxl geprüft).
+- [x] Buchstaben-Trenner bei „Name A–Z“: Kundenliste (sticky `li.buchstabe`), PDF (Trennbalken, „Fortsetzung“ nach Seitenumbruch), Excel (getönte Trennzeilen, Stil 2); CSV bewusst ohne. `anfangsbuchstabe()` in `src/core/model.ts`, `trenner()`/`tabelleMitTrennern()` in `src/core/kundenexport.ts`. Unit- und Browser-Test.
+- [ ] Auf echtem iPad prüfen: Teilen-Menü mit .xlsx (In Dateien sichern, Öffnen in Numbers/Excel), PDF drucken.
+- [ ] Mit Jan klären, ob weitere Spalten gewünscht sind (z. B. eigene Felder, offene Angebote, nächste Wiedervorlage).
 
 ### Neu in 0.13.8
 - [x] Übersicht: Bereichsleiste (`.bereichsleiste` in `src/ui/views/start.ts`) ersetzt die großen Sparten-Kacheln. Je Bereich eine farbige Zeile mit Name (→ `#/kunden?sparte=…`) und drei Zahlen-Knöpfen Potenzial / in Arbeit / Kunden (→ `#/kunden?sparte=…&status=…`). Die Kundenliste übernimmt den Status aus dem Link in den Filter (`src/ui/views/kunden.ts`). Nebeneinander, sobald genug Breite da ist (iPad quer), sonst untereinander bzw. 2+1 auf dem iPad hochkant. Browser-Test prüft den Sprung.
@@ -360,7 +366,7 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 ### Version 2
 - [x] **Lieferscheine** zum Vorführbestand: seit 0.8.0 als Leihschein/Rückgabeschein mit Unterschrift und Fotos
 - [ ] **iCloud Stufe 2:** automatischer Abgleich über CloudKit JS (braucht Apple-Developer-Konto, 99 €/Jahr). Stufe 1 (manuelle Sicherung) ist seit 0.4.0 da.
-- [ ] CSV-Export, falls Enpal/Vorwerk strukturierte Daten brauchen
+- [x] CSV-Export der Kundenliste (seit 0.13.9, zusammen mit PDF und Excel)
 - [ ] Enpal-Doku: Felder an das tatsächliche Formular der Enpal-App anpassen, sobald ein Beispiel vorliegt (Reihenfolge/Bezeichnungen)
 - [ ] Übersicht: anstehende Enpal-Fristen gesondert hervorheben
 

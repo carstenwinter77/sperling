@@ -846,6 +846,18 @@ export function kundenVergleich(a: MitAdresse, b: MitAdresse, folge: OrtsFolge =
   return 0;
 }
 
+/**
+ * Buchstabe für die Trenner in „Name A–Z“ (Kundenliste und Export, ab 0.13.9). Passt zu `kundenVergleich`:
+ * erster Buchstabe des ersten Sortierschlüssels, Umlaute zum Grundbuchstaben (Ä → A), alles andere „#“.
+ */
+export function anfangsbuchstabe(k: MitAdresse, folge: OrtsFolge = anzeige.ortsFolge): string {
+  const t = (s?: string) => (s || '').trim();
+  const ort = t(k.ort) || t(k.plz);
+  const erster = t(k.nachname) || t(k.vorname) || t(k.firma) || (folge === 'strasse' ? t(k.strasse) || ort : ort || t(k.strasse));
+  const z = erster.normalize('NFD').replace(/[\u0300-\u036f]/g, '').charAt(0).toUpperCase();
+  return z >= 'A' && z <= 'Z' ? z : '#';
+}
+
 export function adresseEinzeilig(k: MitAdresse): string {
   const ortTeil = [k.plz, k.ort].filter(Boolean).join(' ');
   return [k.strasse, ortTeil].filter(Boolean).join(', ');
