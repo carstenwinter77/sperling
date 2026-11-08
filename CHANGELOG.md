@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.13.8 – 08.11.2026
+- **Übersicht: Bereichsleiste statt großer Kacheln.** Photovoltaik, Wärmepumpe und Vorwerk stehen in je einer schmalen, farbigen Zeile mit drei Zahlen-Knöpfen: Potenzial, in Arbeit, Kunden. Ein Tipp auf eine Zahl öffnet die Kundenliste, schon gefiltert nach Bereich und Status. Ein Tipp auf den Namen öffnet wie bisher den ganzen Bereich. Auf dem iPad quer nimmt die Leiste 62 statt 194 Pixel Höhe ein, auf dem Handy 198 statt 331.
+
 ## 0.13.7 – 08.11.2026
 - **Einträge ohne Namen stehen zwischen den Namen.** In „Name A–Z“ zählt bei Einträgen ohne Namen der Ort (oder die Straße, je nach Einstellung) wie ein Name, z. B. „Lengede, Lindenweg 8“ zwischen „Lehmann“ und „Meier“. Bisher standen sie gesammelt am Ende.
 

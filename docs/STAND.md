@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.7
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.8
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,10 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.13.7)
+## Erledigt (Version 0.13.8)
+
+### Neu in 0.13.8
+- [x] Übersicht: Bereichsleiste (`.bereichsleiste` in `src/ui/views/start.ts`) ersetzt die großen Sparten-Kacheln. Je Bereich eine farbige Zeile mit Name (→ `#/kunden?sparte=…`) und drei Zahlen-Knöpfen Potenzial / in Arbeit / Kunden (→ `#/kunden?sparte=…&status=…`). Die Kundenliste übernimmt den Status aus dem Link in den Filter (`src/ui/views/kunden.ts`). Nebeneinander, sobald genug Breite da ist (iPad quer), sonst untereinander bzw. 2+1 auf dem iPad hochkant. Browser-Test prüft den Sprung.
 
 ### Neu in 0.13.7
 - [x] „Name A–Z“: Einträge ohne Namen werden nicht mehr ans Ende gestellt, sondern mit Ort (bzw. Straße, je nach `ortsFolge`) als Sortierschlüssel zwischen die Namen einsortiert (`kundenVergleich` in `src/core/model.ts`). Unit-Test angepasst.

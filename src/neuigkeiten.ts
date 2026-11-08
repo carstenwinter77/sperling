@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.13.8',
+    punkte: [
+      'Übersicht: Die drei großen Bereichs-Kacheln sind jetzt eine schmale farbige Leiste. Tippe auf eine Zahl (Potenzial, in Arbeit, Kunden), dann öffnet sich die Kundenliste gleich mit diesem Bereich und Status gefiltert.',
+    ],
+  },
+  {
     version: '0.13.7',
     punkte: [
       'Kunden ohne Namen stehen in „Name A–Z“ jetzt alphabetisch zwischen den Namen, nach ihrem Ort (oder ihrer Straße, je nach Einstellung).',

@@ -1201,6 +1201,15 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     await dp.waitForFunction(() => /Später wiederkommen/.test(document.querySelector('#toast')?.textContent || ''));
     await dp.close();
   }
+  // Bereichsleiste auf der Übersicht: Zahl führt in die gefilterte Kundenliste (Bereich + Status)
+  await p.goto(BASE + '#/');
+  await p.waitForSelector('.bereichsleiste .bereich-pv .bl-zahl');
+  await p.click('.bereichsleiste .bereich-pv .bl-zahl');
+  await p.waitForSelector('#kFilter:not([hidden])');
+  if (!(await p.$('[data-f-sparte="pv"][aria-pressed="true"]')) || !(await p.$('[data-f-status="potenzial"][aria-pressed="true"]'))) fail('Bereichsleiste: Filter Photovoltaik + Potenzial nicht gesetzt');
+  await p.goto(BASE + '#/kunden?sparte=wp');
+  await p.waitForSelector('[data-f-sparte="wp"][aria-pressed="true"]');
+  if (await p.$('[data-f-status][aria-pressed="true"]')) fail('Bereichsleiste: Bereichsname setzt fälschlich einen Status');
   // Unbekannte Route / unbekannter Kunde stürzen nicht ab
   await p.goto(BASE + '#/kunde/gibtsnicht');
   await p.waitForSelector('.leer');

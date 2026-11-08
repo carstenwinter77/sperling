@@ -181,13 +181,17 @@ body { --band-h: 0px; }
 .hero { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
 .hero-bild { width: 88px; height: 88px; flex-shrink: 0; }
 .hero p { margin: .25rem 0 0; color: var(--text-2); }
-.kacheln { display: grid; grid-template-columns: 1fr; gap: .75rem; margin-bottom: 1rem; }
-.kachel { display: grid; grid-template-columns: 64px 1fr; grid-template-rows: auto auto auto; column-gap: .75rem; align-items: center; background: var(--karte); border-radius: var(--radius); box-shadow: var(--schatten); padding: .75rem 1rem; text-decoration: none; color: inherit; }
-.kachel-bild { width: 64px; height: 64px; grid-row: 1 / 4; }
-.kachel-titel { font-weight: 700; }
-.kachel-zahl { font-size: 1.4rem; font-weight: 800; color: var(--braun); }
-.kachel-zahl small { font-size: .8rem; font-weight: 600; }
-.kachel-sub { font-size: .8rem; color: var(--text-2); }
+/* Bereichsleiste: je Bereich eine farbige Zeile, Zahlen führen gefiltert in die Kundenliste */
+.bereichsleiste { display: flex; flex-wrap: wrap; gap: .4rem .6rem; margin-bottom: 1rem; }
+.bl-bereich { flex: 1 1 300px; display: flex; align-items: center; gap: .25rem; min-width: 0; border-radius: var(--radius); background: var(--a-bg); border: 2px solid var(--a); padding: .3rem; }
+.bl-name { display: flex; align-items: center; gap: .3rem; flex: 1; min-width: 0; min-height: 48px; padding: 0 .2rem; font-weight: 700; font-size: .9rem; color: var(--a-text); text-decoration: none; }
+.bl-name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bl-bild { width: 30px; height: 30px; flex: none; }
+.bl-zahl { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: none; min-width: 54px; min-height: 48px; padding: 0 .15rem; border-radius: 10px; background: var(--karte); color: var(--text); text-decoration: none; line-height: 1.1; }
+.bl-zahl b { font-size: 1.15rem; }
+.bl-zahl small { font-size: .68rem; color: var(--text-2); }
+.bl-abschluss b { color: var(--braun); }
+.bl-name:focus-visible, .bl-zahl:focus-visible { outline: 3px solid var(--a); outline-offset: 1px; }
 .spalten { display: grid; grid-template-columns: 1fr; gap: 0 1rem; }
 .spalten > * { min-width: 0; }
 .termin-text strong, .termin-text small { overflow-wrap: anywhere; }
@@ -256,9 +260,6 @@ body { --band-h: 0px; }
 @media (min-width: 640px) {
   .formgrid { grid-template-columns: 1fr 1fr; }
   .row2 { grid-template-columns: 1fr 1fr; }
-  .kacheln { grid-template-columns: repeat(3, 1fr); }
-  .kachel { grid-template-columns: 1fr; grid-template-rows: auto; text-align: center; justify-items: center; padding: 1rem; }
-  .kachel-bild { grid-row: auto; width: 84px; height: 84px; }
   .sparten-status { grid-template-columns: repeat(3, 1fr); }
   .filterleiste { grid-template-columns: 2fr 1fr 1fr; }
   .filterleiste input { grid-column: auto; }
@@ -718,8 +719,6 @@ body.hilfe-aus .hilfe-knopf { display: none; }
 .sperre-titel { margin: .4rem 0 0; line-height: 0; }
 .sperre-logo { width: min(280px, 70vw); height: auto; }
 .marke-logo { width: 150px; height: auto; }
-.kachel { border-top: 4px solid var(--k, var(--braun)); }
-.kachel-pv { --k: var(--pv); } .kachel-wp { --k: var(--wp); } .kachel-vorwerk { --k: var(--vw); }
 .hero-bild { border-radius: 22%; }
 .nav-version { display: block; font-size: .55rem; font-weight: 500; opacity: .9; }
 @media (min-width: 900px) {

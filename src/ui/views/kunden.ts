@@ -1,6 +1,6 @@
 // Kundenliste mit Suche, Filter (Mehrfachauswahl: Bereiche, Status, letzter Kontakt) und Sortierung.
 import { esc, formatDate } from '../../core/util.ts';
-import { SPARTEN, kundenTitel, kundenVergleich, adresseEinzeilig, neuerKunde, type Sparte } from '../../core/model.ts';
+import { SPARTEN, STATUS, kundenTitel, kundenVergleich, adresseEinzeilig, neuerKunde, type Sparte, type StatusKey } from '../../core/model.ts';
 import { passt, leererKartenFilter, filterAktiv, type KartenFilter } from '../../core/kartenfilter.ts';
 import { letzterKontakt, tageSeit, seitText } from '../../core/verlauf.ts';
 import { filterPanelHtml, filterPanelZeigen, filterPanelVerdrahten } from '../filterpanel.ts';
@@ -29,9 +29,12 @@ let sortierung: Sortierung = 'name';
 let suche = '';
 
 export function render(el: HTMLElement, params: URLSearchParams) {
-  // Link von der Übersicht (#/kunden?sparte=pv) setzt den Filter neu
+  // Link von der Übersicht (#/kunden?sparte=pv, optional &status=potenzial,interesse) setzt den Filter neu
   const sp = params.get('sparte');
-  if (sp && sp in SPARTEN) Object.assign(filter, leererKartenFilter(), { sparten: [sp as Sparte] });
+  if (sp && sp in SPARTEN) {
+    const status = (params.get('status') || '').split(',').filter((x): x is StatusKey => x in STATUS);
+    Object.assign(filter, leererKartenFilter(), { sparten: [sp as Sparte], status });
+  }
   if (params.has('q')) suche = params.get('q') || '';
 
   el.innerHTML = `

@@ -16,6 +16,8 @@ import { abhaken } from '../abhaken.ts';
 import { terminKarte } from '../terminkarte.ts';
 
 const AKTIV = ['interesse', 'termin', 'angebot', 'abschluss'];
+/** Zahlen der Bereichsleiste: Beschriftung, Status (für den Link in die Kundenliste), Zusatzklasse. */
+const BEREICH_ZAHLEN: [string, string[], string][] = [['Potenzial', ['potenzial'], ''], ['in Arbeit', ['interesse', 'termin', 'angebot'], ''], ['Kunden', ['abschluss'], ' bl-abschluss']];
 
 /** Cross-Selling: Kunde ist in einer Sparte aktiv, eine andere ist noch offen (unbekannt/potenzial). */
 export function crossSelling(kunden: Kunde[]): { kunde: Kunde; offen: string[] }[] {
@@ -54,14 +56,12 @@ export function render(el: HTMLElement) {
     ${store.isDemo() ? '' : hilfe.hinweisHtml()}
     <div id="sicherungHinweis"></div>
 
-    <section class="kacheln">
+    <section class="bereichsleiste" aria-label="Kunden nach Bereich">
       ${['pv', 'wp', 'vorwerk'].map((s) => `
-        <a class="kachel kachel-${s}" href="#/kunden?sparte=${s}">
-          ${maskottchen(s === 'pv' ? 'photovoltaik' : s === 'wp' ? 'waermepumpe' : 'vorwerk', 'kachel-bild')}
-          <span class="kachel-titel">${esc(SPARTEN[s].label)}</span>
-          <span class="kachel-zahl">${zaehl(s, ['abschluss'])} <small>Kunden</small></span>
-          <span class="kachel-sub">${zaehl(s, ['interesse', 'termin', 'angebot'])} in Arbeit · ${zaehl(s, ['potenzial'])} Potenzial</span>
-        </a>`).join('')}
+        <div class="bl-bereich bereich-${s}">
+          <a class="bl-name" href="#/kunden?sparte=${s}">${maskottchen(s === 'pv' ? 'photovoltaik' : s === 'wp' ? 'waermepumpe' : 'vorwerk', 'bl-bild')}<span>${esc(SPARTEN[s].label)}</span></a>
+          ${BEREICH_ZAHLEN.map(([label, werte, klasse]) => `<a class="bl-zahl${klasse}" href="#/kunden?sparte=${s}&status=${werte.join(',')}" aria-label="${esc(SPARTEN[s].label)}: ${zaehl(s, werte)} ${label}"><b>${zaehl(s, werte)}</b><small>${label}</small></a>`).join('')}
+        </div>`).join('')}
     </section>
 
     <div class="spalten">
