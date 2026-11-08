@@ -17,7 +17,7 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 ## Erledigt (Version 0.13.2)
 
 ### Neu in 0.13.2
-- [x] Klemmbrett Vorwerk, „Testgerät da gelassen“: freie Vorführgeräte direkt wählen (`geraeteFuerKunde` in `src/core/klemmbrett.ts`), Antippen öffnet `verleihDialog` aus `src/ui/views/bestand.ts` mit Kunde, Unterschrift und Leihschein-PDF. Danach Übergabe mit Leihschein-Knopf am Klemmbrett. Unit- und Browser-Test.
+- [x] Klemmbrett Vorwerk, „Testgerät da gelassen“: freie Vorführgeräte direkt wählen (`geraeteFuerKunde` in `src/core/klemmbrett.ts`), Antippen öffnet `verleihDialog` aus `src/ui/views/bestand.ts` mit Kunde, Unterschrift und Leihschein-PDF. Danach Übergabe mit Leihschein-Knopf am Klemmbrett; Scrollstelle wird nach Dialog und Leihschein wiederhergestellt. Unit- und Browser-Test.
 
 ### Neu in 0.13.1
 - [x] Belegungskalender: Titelzeile (Datumskopf) bleibt beim Scrollen oben stehen.

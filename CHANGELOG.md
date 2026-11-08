@@ -1,7 +1,7 @@
 # Änderungsverlauf
 
 ## 0.13.2 – 08.11.2026
-- **Klemmbrett Vorwerk: Gerät gleich dalassen.** Tippt man beim nächsten Schritt „Testgerät da gelassen“ an, klappt darunter die Auswahl der freien Vorführgeräte aus dem Bestand auf. Ein Tipp auf ein Gerät öffnet den bekannten Verleih-Dialog mit vorausgefülltem Kunden: Rückgabedatum, Zustandsfotos, Unterschrift des Kunden auf dem Tablet, danach Leihschein als PDF. Anschließend steht am Klemmbrett „✓ Gerät übergeben … · unterschrieben“ mit Knopf zum Leihschein; schon verliehene Geräte des Kunden stehen ebenfalls dort. Ausgemusterte und verliehene Geräte werden nicht angeboten.
+- **Klemmbrett Vorwerk: Gerät gleich dalassen.** Tippt man beim nächsten Schritt „Testgerät da gelassen“ an, klappt darunter die Auswahl der freien Vorführgeräte aus dem Bestand auf. Ein Tipp auf ein Gerät öffnet den bekannten Verleih-Dialog mit vorausgefülltem Kunden: Rückgabedatum, Zustandsfotos, Unterschrift des Kunden auf dem Tablet, danach Leihschein als PDF. Anschließend steht am Klemmbrett „✓ Gerät übergeben … · unterschrieben“ mit Knopf zum Leihschein; schon verliehene Geräte des Kunden stehen ebenfalls dort. Ausgemusterte und verliehene Geräte werden nicht angeboten. Nach Unterschrift und Leihschein steht das Klemmbrett wieder genau an der Stelle, an der man war.
 
 ## 0.13.1 – 08.11.2026
 - **Belegungskalender: Titelzeile bleibt oben.** Bei vielen Geräten scrollte die Datumszeile nach oben weg. Jetzt bleibt sie stehen: auf Tablet und Computer klebt sie oben an der Seite (unter dem Demo-Band), auf dem Handy scrollt die Geräteliste in einem eigenen Bereich unter der festen Zeile.

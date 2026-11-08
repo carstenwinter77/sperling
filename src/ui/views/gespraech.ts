@@ -189,6 +189,23 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
       : `<p class="hinweis">Kein freies Vorführgerät im Bestand. <a href="#/bestand">Zum Bestand</a></p>`;
     return da + wahl;
   };
+  /** Scrollt so, dass die Geräte-Box wieder an derselben Bildschirmstelle steht (auch nach dem Leihschein-Fenster). */
+  const zuruecksetzen = (top: number) => {
+    const ausrichten = () => {
+      const box = inhalt.querySelector<HTMLElement>('[data-gk-geraete]');
+      if (!box) return;
+      let d = box.getBoundingClientRect().top - top;
+      for (let x: HTMLElement | null = box.parentElement; x && Math.abs(d) > 1; x = x.parentElement) {
+        if (x.scrollHeight > x.clientHeight && /auto|scroll/.test(getComputedStyle(x).overflowY)) { const vorher = x.scrollTop; x.scrollTop += d; d -= x.scrollTop - vorher; }
+      }
+      if (Math.abs(d) > 1) window.scrollBy(0, d);
+      box.querySelectorAll('.gk-geraet-da').forEach((z) => { z.classList.remove('gk-pop'); void (z as HTMLElement).offsetWidth; z.classList.add('gk-pop'); });
+    };
+    ausrichten();
+    // Das Leihschein-Fenster öffnet sich gleich danach; nach dem Schließen noch einmal ausrichten
+    const warten = (n: number) => requestAnimationFrame(() => (document.querySelector('dialog[open]') && n < 20000 ? warten(n + 1) : setTimeout(ausrichten, 50)));
+    setTimeout(() => warten(0), 300);
+  };
   const geraeteNeu = () => { const box = inhalt.querySelector<HTMLElement>('[data-gk-geraete]'); if (box) box.innerHTML = geraeteHtml(); };
 
   const punktHtml = (s: Sparte, pk: Punkt, k: Kunde | null) => `
@@ -461,7 +478,16 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
     const schein = t.closest<HTMLElement>('[data-gk-schein]');
     if (leihen) {
       const g = store.getData().geraete.find((x) => x.id === leihen.dataset.gkLeihen);
-      if (g) void verleihDialog(g, null, '', zustand.kundeId).then((ok) => { if (ok) { geraeteNeu(); einb?.onFeld?.(); } });
+      if (g) {
+        // Nach Verleih, Unterschrift und Leihschein genau dorthin zurück, wo Jan im Klemmbrett war
+        const merk = leihen.closest<HTMLElement>('[data-gk-geraete]')!.getBoundingClientRect().top;
+        void verleihDialog(g, null, '', zustand.kundeId).then((ok) => {
+          if (!ok) return;
+          geraeteNeu();
+          einb?.onFeld?.();
+          zuruecksetzen(merk);
+        });
+      }
     } else if (schein) {
       void leihschein.anbieten(schein.dataset.gkSchein, 'ausgabe', dialog);
     } else if (t.closest('[data-zu]')) {

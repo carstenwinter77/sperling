@@ -875,7 +875,7 @@ dialog.dlg.dlg-termin { width: min(560px, calc(100vw - 24px)); }
 .gk-punkte { display: grid; grid-template-columns: 1fr; gap: .5rem; }
 .gk-punkt { padding: .65rem .8rem; border-radius: 14px; border: 1px solid var(--linie); background: var(--feld); transition: border-color .25s ease, background .25s ease, box-shadow .25s ease; }
 .gk-punkt.erledigt { border-color: var(--a); background: var(--a-bg); box-shadow: 0 0 0 1px var(--a) inset; }
-.gk-punkt.gk-pop { animation: gk-pop .35s cubic-bezier(.3,1.5,.5,1); }
+.gk-punkt.gk-pop, .gk-geraet-da.gk-pop { animation: gk-pop .35s cubic-bezier(.3,1.5,.5,1); }
 @keyframes gk-pop { 0% { transform: scale(.98); } 60% { transform: scale(1.015); } 100% { transform: none; } }
 .gk-kopf { display: flex; align-items: center; gap: .55rem; font-weight: 700; }
 .gk-haken { flex: 0 0 22px; height: 22px; border-radius: 50%; border: 2px solid var(--linie); position: relative; transition: background .2s ease, border-color .2s ease; }
@@ -942,7 +942,7 @@ dialog.dlg.dlg-termin { width: min(560px, calc(100vw - 24px)); }
 .gm-bilanz.gut .gm-bilanz-bild { width: 48px; opacity: 1; transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .gk-punkt.gk-pop, .gk-geraete, .gl-antwort, .gl-stufe, .gl-aufklappen { animation: none; }
+  .gk-punkt.gk-pop, .gk-geraet-da.gk-pop, .gk-geraete, .gl-antwort, .gl-stufe, .gl-aufklappen { animation: none; }
   .gk-ring, .gk-haken::after, .gm-bilanz-bild, .gk-sheet-hg, .gk-sheet-inhalt { transition: none; }
 }
 
