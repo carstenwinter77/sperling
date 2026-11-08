@@ -792,6 +792,8 @@ test('Produktkatalog: Datei prüft sauber, Unsinn wird übersprungen', async () 
     assert.ok(!p.bildUrl || p.bildUrl.startsWith('https://'), p.id);
   }
   for (const b of ['pv', 'wp', 'vorwerk']) assert.ok(pr.produkteFuer(kat, b).length > 0, b);
+  // Vorwerk nennt auf jeder Produktseite einen Preis (0.16.1: VR7 fehlte)
+  for (const p of kat.produkte.filter((x) => x.quelle === 'vorwerk')) assert.ok(p.preis && p.preis.betragEuro > 0, `Preis fehlt: ${p.id}`);
   assert.ok(kat.produkte.some((p) => p.quelle === 'galvany' && p.bereich === 'wp'));
   assert.ok(kat.produkte.some((p) => p.demnaechst), 'bald verfügbar');
   // Komplettpakete erscheinen zusätzlich unter WP

@@ -1,5 +1,15 @@
 # Änderungsverlauf
 
+## 0.16.1 – 08.11.2026
+Produktpreise gegen die Herstellerseiten geprüft (alle 79 Einträge, Stand 08.11.2026).
+- **Kobold VR7 mit RB7 Absaugstation:** Preis fehlte („Kein Preis veröffentlicht“), obwohl die Seite ihn zeigt. Jetzt 1.249,00 € (Summe der Einzelpreise 1.412 €).
+- **Aktionspreise:** VR7 & RB7 Titanium 949,00 € (vorher 1.299,00 €), VT300 Besserwischer 1.299,00 € (vorher 1.479,00 €).
+- **Statt-Preise ergänzt:** VK7 Saugwischer-Set (1.789,90 €), VT300 (1.121 €), VK7 mit EB7 (1.062 €), FP7 Filtertüten (46 €), AC7 Zubehör-Set (109 €), VK7 Service-Set plus (131,70 €).
+- **Vorwerk-Zubehör** (19 Einträge) verlinkt jetzt auf die eigene Produktseite statt auf die Kobold-Übersicht, die keine Preise zeigt. Preise alle bestätigt; Hinweise zu Kleindüsen, EB7-Ersatzteilen, SPB100 und Kobold Garantie (35–149 € je Gerät).
+- **Enpal:** EasyFlex mit 6,49 % Zinssatz (max. 25 Jahre), Solaranlage mit Speicher mit Kaufpreis-Spanne ca. 18.000–26.000 €, Heldenprogramm-Prämie 300 € + 300 € im Hinweis. Die übrigen Enpal- und GALVANY-Einträge ohne Preis nennen auch auf der Seite keinen.
+- Ohne Preis heißt es im Produkt jetzt „Kein Preis hinterlegt. Bitte auf der Herstellerseite nachsehen.“ statt „Kein Preis veröffentlicht“.
+- Unit-Test: Jedes Vorwerk-Produkt muss einen Preis haben.
+
 ## 0.16.0 – 08.11.2026
 Vereinbarte Termine sicher eintragen, mit Blick in den Kalender (Schema 13).
 - **Zeit im Kalender wählen** (`src/ui/terminwahl.ts`): Neben jedem Termin-Datum (Termin-Fenster, Gesprächsabschluss, Leitfaden, Enpal-Doku) steht „📅 Im Kalender wählen“. Es öffnet den ganzen Kalender (Tag/Woche) mit allen vorhandenen Terminen, Wiedervorlagen und festen Zeiten; freie Zeiten in der Arbeitszeit sind grün, außerhalb grau. Uhrzeit antippen wählt (15-Minuten-Raster), Termin antippen zeigt Details, Dauer wählbar (PV/WP 1,5 Std., Vorwerk 1 Std. vorbelegt).

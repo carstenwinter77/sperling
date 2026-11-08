@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.16.0
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.16.1
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -435,7 +435,7 @@ Alle 14 Punkte aus dem Vorschlag „Abläufe verzahnen“ vom 08.11. und die Gru
 
 ### Geplant: Version 0.10.0 (Wünsche vom 07.11.2026)
 - [x] **Feldverwaltung** (seit 0.9.8). Offen: Zuordnung eigener Felder beim Vorwerk-Listenimport (kommt mit dem Import).
-- [x] **Produktübersicht** (seit 0.10.0; `#/produkte`, Daten Enpal, GALVANY für Wärmepumpen, Vorwerk; Bilder nur verlinkt, Preise mit Stand).
+- [x] **Produktübersicht** (seit 0.10.0; `#/produkte`, Daten Enpal, GALVANY für Wärmepumpen, Vorwerk; Bilder nur verlinkt, Preise mit Stand). Alle Preise am 08.11.2026 gegen die Herstellerseiten geprüft (0.16.1); jedes Vorwerk-Produkt hat einen Preis und einen Link auf die eigene Produktseite. Offen: automatische Preisaktualisierung (Spezifikation `PREIS-AKTUALISIERUNG.md` im Projektordner, noch nicht gebaut).
 - [x] **Produkte im Gespräch markieren** (seit 0.10.0): Interesse, kein Interesse, schon vorhanden, später – beim Kunden gespeichert, filter- und auswertbar.
 - [ ] **Vorwerk-Listenimport** aus PDF (pdf.js lokal), Abgleich neu/geändert/gleich/fehlt, Dubletten zusammenführen.
 - [ ] **Gekaufte Vorwerk-Geräte** mit Servicewartung nach 1 Jahr und **Zubehör-Nachbestellungen**.

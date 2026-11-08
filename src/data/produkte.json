@@ -1,6 +1,6 @@
 {
   "katalogVersion": 1,
-  "stand": "2026-11-07",
+  "stand": "2026-11-08",
   "hinweis": "Momentaufnahme der Hersteller-Websites. Preise und Daten ohne Gewähr, vor Nennung beim Kunden auf der Quellseite prüfen. Bilder nur verlinkt, nicht kopiert.",
   "quellen": [
     {
@@ -48,7 +48,7 @@
       "preis": null,
       "quelleUrl": "https://www.enpal.de/enpal-one",
       "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/6a3147752c7fd94074191a49_260615_enpalone-hero.webp",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "enpal-one-box",
         "enpal-stromtarif",
@@ -94,7 +94,7 @@
       "preis": null,
       "quelleUrl": "https://www.enpal.de/enpal-one",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Teil der Energielösung, nicht einzeln verkauft. Maßangabe prüfen."
     },
     {
@@ -136,7 +136,7 @@
       },
       "quelleUrl": "https://www.enpal.de/stromtarif",
       "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/6ad2218fb3149fe45f866c46_261013_product-hero-stromtarif.webp",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Kein ct/kWh-Wert veröffentlicht. Seite wirbt mit „dynamischer Tarif zum festen Preis“ und günstigstem Anbieter in 98 % der PLZ (Marketingvergleich)."
     },
     {
@@ -191,7 +191,7 @@
       "preis": null,
       "quelleUrl": "https://www.enpal.de/wallbox",
       "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/6acf4a015aafccbb9466583e_260928_product-hero-Wallbox.webp",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Kein Einzelpreis. „0 € Anzahlung im Komplettpaket, Installation inklusive“ nur aus Zusammenfassung, nicht wörtlich geprüft. Kein Modellname."
     },
     {
@@ -243,7 +243,7 @@
       },
       "quelleUrl": "https://www.enpal.de/stromspeicher",
       "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/6ace046c38c1810b2c8bf5fd_260928_product-hero-Speicher.webp",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Preis gilt für das Nachrüst-Paket, nicht für den Speicher allein. Seite nennt außerdem Festpreis und 0 € Anzahlung."
     },
     {
@@ -288,7 +288,7 @@
       "preis": null,
       "quelleUrl": "https://www.enpal.de/notstrom",
       "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/677bd1dea9b9b7460a86910d_enpal-energyprotect-notstrom-og.webp",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "enpal-speicher",
         "enpal-wechselrichter"
@@ -327,7 +327,7 @@
       "preis": null,
       "quelleUrl": "https://www.enpal.de/photovoltaik/solarmodul",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Hersteller und Wirkungsgrad nicht genannt."
     },
     {
@@ -374,7 +374,7 @@
       },
       "quelleUrl": "https://www.enpal.de/photovoltaik/solaranlage-mieten",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "enpal-speicher",
         "enpal-wallbox",
@@ -405,18 +405,18 @@
         "modell": "miete",
         "betragEuro": 98,
         "einheit": "pro Monat",
-        "text": "ab 98 € monatlich",
+        "text": "ab 98 € monatlich (Kauf direkt: ca. 18.000–26.000 €)",
         "uvp": null,
         "laufzeitMonate": null
       },
       "quelleUrl": "https://www.enpal.de/photovoltaik/solaranlage-mit-speicher",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "enpal-speicher",
         "enpal-wallbox"
       ],
-      "hinweise": "Kaufpreis nicht Enpal-spezifisch genannt (nur Marktrichtwerte im Ratgeber). Überschneidet sich mit Komplettanlage."
+      "hinweise": "Kaufpreis-Spanne laut Seite („Sie wollen die PV-Anlage direkt kaufen? … ca. 18.000 - 26.000 €“). Überschneidet sich mit Komplettanlage."
     },
     {
       "id": "enpal-pv-komplettanlage",
@@ -457,7 +457,7 @@
       },
       "quelleUrl": "https://www.enpal.de/photovoltaik/komplettanlage",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Keine Enpal-Preisangabe."
     },
     {
@@ -503,14 +503,14 @@
         "modell": "finanzierung",
         "betragEuro": null,
         "einheit": null,
-        "text": "0 € Anzahlung",
+        "text": "0 € Anzahlung, 6,49 % gebundener Zinssatz bei max. 25 Jahren Laufzeit",
         "uvp": null,
         "laufzeitMonate": null
       },
       "quelleUrl": "https://www.enpal.de/easyflex",
       "bildUrl": null,
-      "stand": "2026-11-07",
-      "hinweise": "Zinssatz ohne Gültigkeitsdatum; vor Nennung beim Kunden prüfen."
+      "stand": "2026-11-08",
+      "hinweise": "Zinssatz laut FAQ der Seite, ohne Gültigkeitsdatum; vor Nennung beim Kunden prüfen."
     },
     {
       "id": "enpal-wp-ratenkauf",
@@ -556,8 +556,8 @@
       },
       "quelleUrl": "https://www.enpal.de/waermepumpe/kaufen",
       "bildUrl": null,
-      "stand": "2026-11-07",
-      "hinweise": "200 € ist eine Obergrenze. Eine echte WP-Miete bietet Enpal laut /waermepumpe/mieten nicht an."
+      "stand": "2026-11-08",
+      "hinweise": "200 € ist eine Obergrenze. Eine echte WP-Miete bietet Enpal laut /waermepumpe/mieten nicht an. „max. 200 € pro Monat“ steht nur in der Seitenbeschreibung, im sichtbaren Text: 0 € Anzahlung, Ratenkauf über bis zu 15 Jahre."
     },
     {
       "id": "enpal-wp-bosch",
@@ -604,7 +604,7 @@
       },
       "quelleUrl": "https://www.enpal.de/waermepumpe/bosch",
       "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/669544b6855a9e9f611edb74_6463486550e265ae2391d45e_Produktbild_Waermepumpe.jpeg",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "enpal-wp-ratenkauf",
         "enpal-wp-komplettset"
@@ -645,7 +645,7 @@
       },
       "quelleUrl": "https://www.enpal.de/waermepumpe/komplettset",
       "bildUrl": "https://cdn.prod.website-files.com/5e9474e5c30754387e0538e9/660fe51c9e120b905d0d41ea_enpal-waermepumpe-aufbau.jpg",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Unklar, ob Kauf- oder Ratenkauf-Basis."
     },
     {
@@ -670,7 +670,7 @@
       "preis": null,
       "quelleUrl": "https://www.enpal.de/produkt",
       "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/6ad2325eb8e5b55b62e84747_Komplettpaket.webp",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "bereicheZusaetzlich": [
         "wp"
       ],
@@ -693,7 +693,7 @@
       "preis": null,
       "quelleUrl": "https://www.enpal.de/easyflex",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Kein Preis genannt."
     },
     {
@@ -728,11 +728,11 @@
       "preis": null,
       "quelleUrl": "https://www.enpal.de/weiterempfehlen",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "bereicheZusaetzlich": [
         "wp"
       ],
-      "hinweise": "Teilnahmebedingungen (PDF) nicht gelesen."
+      "hinweise": "Kein Produktpreis. Prämie laut Seite: 300 € für Sie + 300 € für jeden Neukunden. Teilnahmebedingungen (PDF) nicht gelesen."
     },
     {
       "id": "enpal-app",
@@ -751,7 +751,7 @@
       "preis": null,
       "quelleUrl": "https://www.enpal.de/app",
       "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/67a0f41b28b3a15eb083df08_b539d20c821a465b90dcd690ed74f248_enpal-app-hero_desktop.jpg",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Kostenlos für Enpal-Kunden vermutet, Preis nicht genannt."
     },
     {
@@ -798,7 +798,7 @@
       },
       "quelleUrl": "https://www.enpal.de/photovoltaik/wechselrichter",
       "bildUrl": "https://cdn.prod.website-files.com/5e870ec047674e044920655e/67a61034ab9fb2f01a028272_250207_wechselrichter-hero.jpg",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "enpal-notstrom",
         "enpal-speicher"
@@ -822,7 +822,7 @@
       "preis": null,
       "quelleUrl": "https://www.enpal.de/produkt",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Nur Kurzangabe; /mieterstrom nicht gelesen."
     },
     {
@@ -865,7 +865,7 @@
       },
       "quelleUrl": "https://galvany.de/waermepumpe",
       "bildUrl": "https://a.storyblok.com/f/288501411354765/3840x3840/7b16477aa7/galvany-warmepumpe.png/m/1500x0",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "galvany-smartcare-premium",
         "galvany-smartcare-flex",
@@ -885,7 +885,7 @@
       "preis": null,
       "quelleUrl": "https://galvany.de/produkte",
       "bildUrl": "https://a.storyblok.com/f/288501411354765/3840x3840/fd9b0eaa08/galvany-cube.png/m/1500x0",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "verfuegbarkeit": "demnaechst",
       "hinweise": "Noch nicht verfügbar („demnächst“). Laut SmartCare-Seite Teil des Systems (Innenmodul, Außengerät, Cube)."
     },
@@ -900,7 +900,7 @@
       "preis": null,
       "quelleUrl": "https://galvany.de/produkte",
       "bildUrl": "https://a.storyblok.com/f/288501411354765/3840x2986/7f826c5e60/prop_batterie-still-p_main-rgba-v003-1001-1.png/m/1500x0",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "verfuegbarkeit": "demnaechst",
       "hinweise": "Noch nicht verfügbar; keine Kapazität genannt."
     },
@@ -933,7 +933,7 @@
       },
       "quelleUrl": "https://galvany.de/fusion",
       "bildUrl": "https://a.storyblok.com/f/288501411354765/3896x3358/af5090ca80/galvany-fusion.png/m/1500x0",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "verfuegbarkeit": "demnaechst",
       "hinweise": "„Bald verfügbar“, OPTIMIZE und COMPLETE nur Voranmeldung. Stromanbieter nicht genannt."
     },
@@ -971,7 +971,7 @@
       },
       "quelleUrl": "https://galvany.de/smartcare",
       "bildUrl": "https://a.storyblok.com/f/288501411354765/4800x3200/444784e50d/smartcare.png/m/2560x0",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Preis und Laufzeit widersprechen sich zwischen /smartcare und /produkte; vor Nennung prüfen."
     },
     {
@@ -998,7 +998,7 @@
       },
       "quelleUrl": "https://galvany.de/smartcare",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Preisangaben zwischen den Seiten widersprüchlich."
     },
     {
@@ -1023,7 +1023,7 @@
       "preis": null,
       "quelleUrl": "https://galvany.de/waermepumpe",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Leistungsumfang nicht genau beschrieben."
     },
     {
@@ -1050,7 +1050,7 @@
       },
       "quelleUrl": "https://galvany.de/waermepumpe",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Partner laut FAQ-Link vermutlich Cloover (nicht geprüft). Keine Raten oder Zinsen veröffentlicht."
     },
     {
@@ -1082,7 +1082,7 @@
       },
       "quelleUrl": "https://galvany.de/waermepumpe-kosten",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Gut als Einstieg im Kundengespräch."
     },
     {
@@ -1096,7 +1096,7 @@
       "preis": null,
       "quelleUrl": "https://galvany.de/faq",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "verfuegbarkeit": "demnaechst",
       "hinweise": "Laut FAQ noch nicht verfügbar."
     },
@@ -1150,12 +1150,12 @@
         "betragEuro": 1499.0,
         "einheit": "einmalig",
         "text": "1.499,00 € inkl. 19% MwSt., versandkostenfrei",
-        "uvp": null,
+        "uvp": 1789.9,
         "laufzeitMonate": null
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vk7-akku-staubsauger-eb7-elektrobuerste-sp7-saugwischer",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_DE303483_b?wid=633&hei=633&tmst=1790345932352",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Seite nennt den Saugwischer als Testsieger der Stiftung Warentest (veröffentlicht 18.06.2025, getestete Kombination inkl. BY7 Akku und SC7 Ladegerät). Lieferumfang: VK7, BY7 Akku, SC7 Ladegerät, SP7, EB7, 3 MF Reinigungstücher Universal, Koboclean Universal 500 ml, 6 FP7 Filtertüten. Kobold Garantie optional 149,00 €."
     },
     {
@@ -1183,7 +1183,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vk7-akku-staubsauger-titanium-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_DE303371_b:1x1?wid=600&hei=600&tmst=1790342191442",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Preis aus der Angebotskachel; Aktion. Technische Daten der Variante nicht gesondert bestätigt."
     },
     {
@@ -1216,7 +1216,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vk7-akku-staubsauger-saugwischer-akku-titanium-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_DE303449_b:1x1?wid=600&hei=600&tmst=1790327891079",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Aktion 05.10.26 bis 10.01.27, solange Vorrat reicht."
     },
     {
@@ -1254,12 +1254,12 @@
         "betragEuro": 1099.0,
         "einheit": "einmalig",
         "text": "1.099,00 € inkl. 19% MwSt., versandkostenfrei, Lieferzeit 3-5 Werktage",
-        "uvp": null,
+        "uvp": 1121.0,
         "laufzeitMonate": null
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vt300-bodenstaubsauger",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/5274_KS_b?wid=633&hei=633&tmst=1779357040678",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Lieferumfang: VT300, ESS300 Elektrosaugschlauch, ESR300 Elektrosaugrohr, EB400, 5 FP300. Kobold Garantie optional 119,00 €."
     },
     {
@@ -1279,16 +1279,16 @@
       ],
       "preis": {
         "modell": "kauf",
-        "betragEuro": 1479.0,
+        "betragEuro": 1299.0,
         "einheit": "einmalig",
-        "text": "1.479,00 € inkl. 19% MwSt., versandkostenfrei",
-        "uvp": 1590.8,
+        "text": "1.299,00 € inkl. 19% MwSt., versandkostenfrei (Aktionspreis, vorher 1.479,00 €)",
+        "uvp": 1479.0,
         "laufzeitMonate": null
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vt300-bodenstaubsauger-der-besserwischer-mit-kabel-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/2673_KS_b-1:1x1?wid=600&hei=600&tmst=1779180962843",
-      "stand": "2026-11-07",
-      "hinweise": "Inhalt nur aus der Kachel bekannt."
+      "stand": "2026-11-08",
+      "hinweise": "Aktionspreis: Seite streicht 1.479,00 € (niedrigster Preis der letzten 30 Tage) durch. Summe der regulären Einzelpreise laut früherer Angabe 1.590,80 €. Aktion kann jederzeit enden, vor Nennung prüfen."
     },
     {
       "id": "vorwerk-vt300-mehr-flaeche",
@@ -1315,7 +1315,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vt300-der-bodenstaubsauger-fuer-mehr-flaeche-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/2862_KS_b:1x1?wid=600&hei=600&tmst=1779356992583",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Inhalt nur aus der Kachel bekannt."
     },
     {
@@ -1343,7 +1343,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vt300-der-bodenstaubsauger-fuer-kleine-felle-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/2636_KS_b:1x1?wid=600&hei=600&tmst=1779356694925",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Inhalt nur aus der Kachel bekannt."
     },
     {
@@ -1371,7 +1371,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-sp600-saugwischer-universal-basis-set-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/kobold_set_sp600-basis-set_b:1x1?wid=600&hei=600&tmst=1779366208820",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Detailseite nicht abgerufen."
     },
     {
@@ -1399,7 +1399,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-pb440-matratzen-polster-set-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/kobold-set-kobold-vt-matratzen-polster-set_b:1x1?wid=600&hei=600&tmst=1779369055334",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Detailseite nicht abgerufen."
     },
     {
@@ -1437,11 +1437,18 @@
           "wert": "MyKobold App"
         }
       ],
-      "preis": null,
+      "preis": {
+        "modell": "kauf",
+        "betragEuro": 1249.0,
+        "einheit": "einmalig",
+        "text": "1.249,00 € inkl. 19% MwSt., versandkostenfrei, Lieferzeit 3-5 Werktage",
+        "uvp": 1412.0,
+        "laufzeitMonate": null
+      },
       "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vr7-saugroboter",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/10801_KS_a?wid=633&hei=633&tmst=1779205422986",
-      "stand": "2026-11-07",
-      "hinweise": "Seitentext ohne Preis. Variante mit einfacher Ladestation existiert (Preis nicht genannt). Kobold Garantie optional 149,00 €."
+      "stand": "2026-11-08",
+      "hinweise": "Set-Preis laut Seite („Du sparst beim Kauf dieses Sets 163 €“, Summe der regulären Einzelpreise 1.412 €). Teilzahlung ab 39,78 € im Monat. Variante mit CB7 Ladestation 999,00 € (eigener Eintrag). Kobold Garantie optional 149,00 €."
     },
     {
       "id": "vorwerk-vr7-titanium-set",
@@ -1460,16 +1467,16 @@
       ],
       "preis": {
         "modell": "kauf",
-        "betragEuro": 1299.0,
+        "betragEuro": 949.0,
         "einheit": "einmalig",
-        "text": "1.299,00 € inkl. 19% MwSt., versandkostenfrei, Lieferzeit 3-5 Werktage",
+        "text": "949,00 € inkl. 19% MwSt., versandkostenfrei (Aktionspreis)",
         "uvp": 1462.0,
         "laufzeitMonate": null
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vr7-saugroboter-rb7-servicestation-titanium-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_DE303518_b:1x1?wid=600&hei=600&tmst=1791797048868",
-      "stand": "2026-11-07",
-      "hinweise": "Aktion 13.10.26 bis 10.01.27."
+      "stand": "2026-11-08",
+      "hinweise": "Aktionspreis: Seite nennt 513,00 € Ersparnis gegenüber der Summe der regulären Einzelpreise (1.462,00 €). Aktion kann jederzeit enden, vor Nennung prüfen."
     },
     {
       "id": "vorwerk-vg100plus",
@@ -1516,7 +1523,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vg100-plus-flaechenreiniger-fenstersauger",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/int_kobold_VG100plus_standalone_2-2?wid=633&hei=633&tmst=1775812956721",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Lieferumfang: VG100+, Ladegerät, Abstellschale, 2 MF100 Mikrofasertücher, 1 Softfasertuch, GC100 Konzentrat. Kobold Garantie optional 35,00 €."
     },
     {
@@ -1549,7 +1556,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vg100-plus-flaechenreiniger-komplett-set-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/int_kobold_folletto_VG100plus_telescopic_tube_standalone_collage_b:1x1?wid=600&hei=600&tmst=1779359589809",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Teleskopstiel einzeln 60,00 €."
     },
     {
@@ -1576,7 +1583,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-ck7-clean-kit-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_DE302659_a:1x1?wid=600&hei=600&tmst=1779369094648",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Detailseite nicht abgerufen."
     },
     {
@@ -1624,7 +1631,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vm7-akku-handstaubsauger",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_DE302407_a?wid=633&hei=633&tmst=1779369083382",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Set mit CM7 Wandhalterung und Titanium-Varianten existieren, Preise nicht genannt."
     },
     {
@@ -1656,7 +1663,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vt300-bodenstaubsauger",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Sammeleintrag aus Produktkacheln."
     },
     {
@@ -1698,12 +1705,12 @@
         "betragEuro": 1049.0,
         "einheit": "einmalig",
         "text": "1.049,00 € inkl. 19% MwSt.",
-        "uvp": null,
+        "uvp": 1062.0,
         "laufzeitMonate": null
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vk7-akku-staubsauger-eb7-elektrobuerste",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/10410_KS_b?wid=633&hei=633",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-eb7-elektrobuerste",
         "vorwerk-hd7-hartbodenduese",
@@ -1755,7 +1762,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vr7-saugroboter-cb7-ladestation",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/10247_KS_b?wid=633&hei=633",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vr7",
         "vorwerk-kachel-vr7-seitenbuerste",
@@ -1806,7 +1813,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-hd7-hartbodenduese-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_HD7_02.109:1x1?wid=576&hei=576&fmt=png-alpha",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vk7-akku-staubsauger-eb7"
       ]
@@ -1875,7 +1882,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-eb7-elektrobuerste-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_EB7_02.125A:1x1?wid=576&hei=576&fmt=png-alpha",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vk7-akku-staubsauger-eb7",
         "vorwerk-fk7-frischer-kit-set"
@@ -1941,7 +1948,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-sp7-saugwischer-universal-basis-set-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/kobold_set_sp7-universal-basis-set_b:1x1?wid=576&hei=576&fmt=png-alpha",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vk7-akku-staubsauger-eb7",
         "vorwerk-koboclean-universal-500ml"
@@ -2001,7 +2008,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-pb7-elektro-polsterbuerste-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_PB7_01.7:1x1?wid=576&hei=576&fmt=png-alpha",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vk7-akku-staubsauger-eb7"
       ],
@@ -2041,7 +2048,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-fk7-frischer-kit-set-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/ks-accessory-set_fk-kobosan-fp7_b:1x1?wid=576&hei=576&fmt=png-alpha",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-eb7-elektrobuerste"
       ],
@@ -2081,7 +2088,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-by7-akku-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_BY7_02.176A:1x1?wid=576&hei=576&fmt=png-alpha",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vk7-akku-staubsauger-eb7"
       ]
@@ -2115,7 +2122,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vk7-service-set-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/Kobold_VK7-Service-Set_b_regular:1x1?wid=576&hei=576&fmt=png-alpha",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vk7-akku-staubsauger-eb7"
       ],
@@ -2155,12 +2162,12 @@
         "betragEuro": 38.0,
         "einheit": "einmalig",
         "text": "38,00 €",
-        "uvp": null,
+        "uvp": 46.0,
         "laufzeitMonate": null
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-fp7-premium-filtertueten-set-12stk-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/KS_FP7_01.834_12x_b-1:1x1?wid=576&hei=576&fmt=png-alpha",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vk7-akku-staubsauger-eb7"
       ],
@@ -2200,7 +2207,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-koboclean-universal-500ml-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/Kobold_Koboclean_Universal_bottle_75066:1x1?wid=576&hei=576&fmt=png-alpha",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-sp7-saugwischer-universal-basis-set",
         "vorwerk-sp600-basis"
@@ -2240,7 +2247,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/airumo-duftchip-wild-heart-de",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/int_kobold_airumo_wh_short_packaging_blister_steeper_left:1x1?wid=576&hei=576&fmt=png-alpha",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vt300",
         "vorwerk-vr7",
@@ -2282,7 +2289,7 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/c/home/produkte/kobold/kobold-vm7-akku-handstaubsauger-set",
       "bildUrl": "https://media.vorwerk.com/is/image/vorwerk/DE302408_b?wid=633&hei=633",
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vm7"
       ]
@@ -2303,9 +2310,9 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vk7-akku-staubsauger-fuer-hartboeden-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
     },
     {
@@ -2324,9 +2331,9 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-fk7-frischer-kit-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-eb7-elektrobuerste"
       ],
@@ -2345,12 +2352,12 @@
         "betragEuro": 119.0,
         "einheit": "einmalig",
         "text": "119,00 €",
-        "uvp": null,
+        "uvp": 131.7,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vk7-service-set-plus-u-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vk7-akku-staubsauger-eb7"
       ],
@@ -2372,13 +2379,13 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-eb7-revisionsklappe-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-eb7-elektrobuerste"
       ],
-      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen. Geprüft 08.11.: EB7 Revisionsklappe 6,00 €; Dichtlippe und Rundbürsten einzeln nicht gefunden (Rundbürsten im VK7 Service-Set plus)."
     },
     {
       "id": "vorwerk-kachel-vk7-kleinduesen",
@@ -2396,13 +2403,13 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-fd7-flaechenduese-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vk7-akku-staubsauger-eb7"
       ],
-      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen. Jede Düse einzeln 25,00 € (FD7 Flächendüse, CD7 Autodüse, VD7 Variodüse, TD7 Textildüse); Link führt zur FD7."
     },
     {
       "id": "vorwerk-kachel-ac7-zubehoer-set",
@@ -2417,12 +2424,12 @@
         "betragEuro": 99.0,
         "einheit": "einmalig",
         "text": "99,00 €",
-        "uvp": null,
+        "uvp": 109.0,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-ac7-zubehoer-set-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vk7-akku-staubsauger-eb7"
       ],
@@ -2444,9 +2451,9 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-hd7-borstentraegerplatte-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-hd7-hartbodenduese"
       ],
@@ -2468,9 +2475,9 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-sc7-ladegeraet-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-by7-akku"
       ],
@@ -2492,9 +2499,9 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-mf7-motorschutzfilter-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vk7-akku-staubsauger-eb7"
       ],
@@ -2516,9 +2523,9 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-mf-reinigungstuch-universal-3stk-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-sp7-saugwischer-universal-basis-set",
         "vorwerk-sp600-basis"
@@ -2541,9 +2548,9 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-koboclean-parkett-500ml-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-sp7-saugwischer-universal-basis-set"
       ],
@@ -2565,9 +2572,9 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-kobosan-active-2500g-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-fk7-frischer-kit-set"
       ],
@@ -2589,9 +2596,9 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-lavenia-matratzenpulver-720g-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-pb7-elektro-polsterbuerste"
       ],
@@ -2613,9 +2620,9 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-seitenbuerste-vr7-vr300-vr200-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vr7"
       ],
@@ -2637,9 +2644,9 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vr7-filter-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vr7"
       ],
@@ -2661,10 +2668,10 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-sp7-saugwischer-universal-basis-set-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
-      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+      "stand": "2026-11-08",
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen. Auf der Website heißt das Set „Kobold SP7 Saugwischer Universal Basis-Set“ (499,00 €, eigener Eintrag); SPB100 erscheint dort nur als Kompatibilitätsangabe."
     },
     {
       "id": "vorwerk-kachel-teleskopstiel",
@@ -2682,9 +2689,9 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-vg100-plus-teleskopstiel-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vg100plus"
       ],
@@ -2706,9 +2713,9 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/premium-filtertueten-3-in-1-vt265-300-5stk-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vt300"
       ],
@@ -2730,9 +2737,9 @@
         "uvp": null,
         "laufzeitMonate": null
       },
-      "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
+      "quelleUrl": "https://www.vorwerk.com/de/de/s/shop/kobold-da100-kalkreiniger-200ml-de",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
     },
     {
@@ -2753,12 +2760,12 @@
       },
       "quelleUrl": "https://www.vorwerk.com/de/de/produkte/kobold",
       "bildUrl": null,
-      "stand": "2026-11-07",
+      "stand": "2026-11-08",
       "passtZu": [
         "vorwerk-vk7-akku-staubsauger-eb7",
         "vorwerk-vr7"
       ],
-      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen."
+      "hinweise": "Nur aus Produktkachel im Shop gelesen, Detailseite nicht abgerufen. Preis je Gerät laut Produktseiten (08.11.): VG100+ 35,00 €, VK7 für Hartböden 89,00 €, VK7 Akku-Staubsauger 119,00 €, VK7-Saugwischer-Set und VR7 149,00 €."
     }
   ]
 }
