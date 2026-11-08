@@ -152,27 +152,53 @@ export function render(el: HTMLElement, params: URLSearchParams) {
   filterPanelVerdrahten(el.querySelector('#fPanel'), filter, zeichnen);
 
   // Eigener Standort: blauer Punkt; beim Öffnen der Karte automatisch dorthin zoomen.
+  // iPads ohne Mobilfunk haben kein GPS: Mit „hoher Genauigkeit“ läuft die Abfrage dort oft in die Zeitgrenze.
+  // Deshalb zuerst schnell und grob (WLAN-Ortung) hinzoomen, danach genau nachbessern.
   let ichPunkt: any = null; // eslint-disable-line @typescript-eslint/no-explicit-any
+  let ichKreis: any = null; // eslint-disable-line @typescript-eslint/no-explicit-any
+  let lauf = 0;
   const zuMirZoomen = ({ still = false, zoom = 18 } = {}) => {
     if (!navigator.geolocation) { if (!still) toast('Standort nicht verfügbar.', 'error'); return; }
-    navigator.geolocation.getCurrentPosition(
-      (p) => {
-        if (entfernt) return; // Ansicht schon verlassen
-        const ll = [p.coords.latitude, p.coords.longitude];
-        if (!isValidCoord(ll[0], ll[1])) return;
-        if (ichPunkt) map.removeLayer(ichPunkt);
-        ichPunkt = L.circleMarker(ll, { radius: 8, color: '#ffffff', weight: 3, fillColor: '#2a7de1', fillOpacity: 1, interactive: false }).addTo(map);
-        if (still && nutzerHatBewegt) return; // nicht wegspringen, wenn schon selbst verschoben/gesucht
-        map.setView(ll, zoom);
-      },
-      () => { if (!still) toast('Standort konnte nicht ermittelt werden. Bitte Standortzugriff erlauben.', 'error', 5000); },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
-    );
+    const meinLauf = ++lauf;
+    let gezoomt = false;
+    let fehlerGezeigt = false;
+    const setzen = (p: GeolocationPosition) => {
+      if (entfernt || meinLauf !== lauf) return; // Ansicht verlassen oder neuer Versuch gestartet
+      const ll: [number, number] = [p.coords.latitude, p.coords.longitude];
+      if (!isValidCoord(ll[0], ll[1])) return;
+      const genau = Math.min(Math.max(p.coords.accuracy || 0, 0), 5000);
+      if (ichPunkt) map.removeLayer(ichPunkt);
+      if (ichKreis) map.removeLayer(ichKreis);
+      ichKreis = genau > 15 ? L.circle(ll, { radius: genau, color: '#2a7de1', weight: 1, fillColor: '#2a7de1', fillOpacity: 0.12, interactive: false }).addTo(map) : null;
+      ichPunkt = L.circleMarker(ll, { radius: 8, color: '#ffffff', weight: 3, fillColor: '#2a7de1', fillOpacity: 1, interactive: false }).addTo(map);
+      if (still && nutzerHatBewegt) return; // nicht wegspringen, wenn schon selbst verschoben/gesucht
+      // grobe Ortung: nur so weit hinein, dass der Ungenauigkeitskreis passt
+      const z = genau > 200 ? Math.min(zoom, 15) : genau > 60 ? Math.min(zoom, 16) : zoom;
+      map.invalidateSize();
+      if (!gezoomt || map.getZoom() < z) map.setView(ll, Math.max(z, gezoomt ? map.getZoom() : 0));
+      else map.panTo(ll);
+      gezoomt = true;
+    };
+    const fehler = (e: GeolocationPositionError) => {
+      if (entfernt || meinLauf !== lauf || gezoomt || fehlerGezeigt) return;
+      if (still && e.code !== e.PERMISSION_DENIED) return;
+      fehlerGezeigt = true;
+      toast(e.code === e.PERMISSION_DENIED
+        ? 'Standortzugriff ist aus. iPad/iPhone: Einstellungen → Datenschutz & Sicherheit → Ortungsdienste einschalten, dort bei „Safari-Websites“ „Beim Verwenden“ wählen.'
+        : 'Standort konnte nicht ermittelt werden. Ist WLAN an? Ohne WLAN oder Mobilfunk findet ein iPad den Standort oft nicht.', 'error', 8000);
+    };
+    // 1. schnell und grob (auch aus dem Zwischenspeicher bis 5 Minuten)
+    navigator.geolocation.getCurrentPosition(setzen, (e) => { if (e.code === e.PERMISSION_DENIED) fehler(e); }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 });
+    // 2. genau nachbessern
+    navigator.geolocation.getCurrentPosition(setzen, fehler, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
   };
   let nutzerHatBewegt = false;
   let entfernt = false;
-  for (const typ of ['pointerdown', 'wheel', 'keydown']) map.getContainer().addEventListener(typ, () => { nutzerHatBewegt = true; }, { once: true, passive: true });
-  el.querySelector('#ich').addEventListener('click', () => zuMirZoomen());
+  // Nur echtes Verschieben/Zoomen zählt, nicht ein einzelnes Antippen
+  map.on('dragstart', () => { nutzerHatBewegt = true; });
+  map.getContainer().addEventListener('wheel', () => { nutzerHatBewegt = true; }, { once: true, passive: true });
+  map.getContainer().addEventListener('touchstart', (e: TouchEvent) => { if (e.touches.length > 1) nutzerHatBewegt = true; }, { passive: true });
+  el.querySelector('#ich').addEventListener('click', () => { nutzerHatBewegt = false; zuMirZoomen(); });
 
   // Neuen Standort setzen: Langes Tippen (contextmenu) oder Rechtsklick.
   const neuerPunkt = (e) => {

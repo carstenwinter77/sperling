@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.10.33 – 08.11.2026
+- **Karte, eigener Standort:** Auf iPads ohne Mobilfunk (kein GPS) lief die genaue Ortung oft in die Zeitgrenze, dann zoomte die Karte nicht. Jetzt erst schnelle, grobe Ortung (WLAN) und Hinzoomen, danach genaues Nachbessern; ein hellblauer Kreis zeigt die Ungenauigkeit. Ein einzelnes Antippen der Karte verhindert das Hinzoomen nicht mehr (nur echtes Verschieben/Zoomen). Ist der Standortzugriff aus, sagt Sperling, wo man ihn einschaltet.
+
 ## 0.10.32 – 08.11.2026
 - **Kalender, Monat:** Ein Tipp auf einen Tag öffnet jetzt immer die Tagesansicht dieses Tages, auch wenn man dabei einen Termin trifft. Vorher öffnete ein Tipp auf einen Termin dessen Karte und ein Tipp auf eine freie Stelle das Fenster „Neuer Termin“. Termine verschieben (Finger halten und ziehen) bleibt; neue Termine in der Tagesansicht oder mit „+ Neu“.
 

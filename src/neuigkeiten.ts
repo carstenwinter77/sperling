@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.10.33',
+    punkte: [
+      'Karte: Zoomt jetzt auch auf älteren iPads zuverlässig auf deinen Standort. Ein hellblauer Kreis zeigt, wie genau er ist.',
+    ],
+  },
+  {
     version: '0.10.32',
     punkte: [
       'Kalender: Ein Tipp auf einen Tag im Monat öffnet die Tagesansicht dieses Tages, auch wenn du dabei einen Termin triffst.',
