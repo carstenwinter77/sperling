@@ -1820,3 +1820,17 @@ test('Vertrieb: Nachfass-Abstände und Bereitlegen-Listen aus den Einstellungen'
   assert.equal(v.normalizeBereitlegen({ pv: Array.from({ length: 30 }, (_, i) => `P${i}`) }).pv.length, v.BEREITLEGEN_MAX);
   assert.equal(normalizeEinstellungen({ nachfassTage: [5], bereitlegen: { pv: ['X'] } }).nachfassTage[0], 5);
 });
+
+test('Klemmbrett: Gerät dalassen zeigt verliehene und freie Vorführgeräte', async () => {
+  const kb = await import('../src/core/klemmbrett.ts');
+  const data = emptyData();
+  data.geraete = [{ id: 'g1', name: 'VK7', aktiv: true }, { id: 'g2', name: 'VR7', aktiv: true }, { id: 'g3', name: 'Alt', aktiv: false }];
+  data.leihvorgaenge = [{ id: 'l1', geraetId: 'g1', kundeId: 'k1', ausgabe: '2026-11-08T10:00:00.000Z', rueckgabe: null }];
+  const r = kb.geraeteFuerKunde(data, 'k1');
+  assert.deepEqual(r.verliehen.map((x) => x.name), ['VK7']);
+  assert.deepEqual(r.frei.map((g) => g.id), ['g2'], 'verliehene und ausgemusterte Geräte sind nicht frei');
+  assert.equal(kb.geraeteFuerKunde(data, 'k2').verliehen.length, 0);
+  const pk = kb.KLEMMBRETT.vorwerk.flatMap((a) => a.punkte).find((p) => p.art === 'antwort' && p.id === 'schritt');
+  assert.ok(kb.istGeraetPunkt('vorwerk', pk) && pk.optionen.includes(kb.GERAET_DALASSEN));
+  assert.ok(!kb.istGeraetPunkt('pv', pk));
+});

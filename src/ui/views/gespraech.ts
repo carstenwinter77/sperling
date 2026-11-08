@@ -3,14 +3,16 @@
 // Gespeichert wird je Sparte eine EIGENE Notiz (R-TEXT: nie Sparten mischen).
 import * as schnellwahl from '../schnellwahl.ts';
 import * as kundenwahl from '../kundenwahl.ts';
-import { esc, nowIso, formatDateTime, localInputToIso } from '../../core/util.ts';
+import { esc, nowIso, formatDate, formatDateTime, localInputToIso } from '../../core/util.ts';
 import { SPARTEN, SPARTEN_KEYS, kundenTitel, neueNotiz, neuerTermin, normalizeGespraech, normalizeEnpalKontakt, KONTAKTART, kundenName, adresseEinzeilig, STATUS, AUSGANG, type Sparte, type StatusKey, type Kunde } from '../../core/model.ts';
 import { LEITFADEN, UEBERLEITUNG, ERGEBNIS, TECHNIKEN, gespraechsNotiz } from '../../core/einwaende.ts';
-import { KLEMMBRETT, IMPULS, MAX_ANTWORT, abschnitte, punktId, punktLabel, erledigt, stand, antwortSetzen, optionUmschalten, optionGewaehlt, freiAnteil, mitFreitext, leereAntworten, type Antworten, type Punkt, type AntwortPunkt } from '../../core/klemmbrett.ts';
+import { KLEMMBRETT, IMPULS, MAX_ANTWORT, abschnitte, punktId, punktLabel, erledigt, stand, antwortSetzen, optionUmschalten, optionGewaehlt, freiAnteil, mitFreitext, leereAntworten, GERAET_DALASSEN, istGeraetPunkt, geraeteFuerKunde, type Antworten, type Punkt, type AntwortPunkt } from '../../core/klemmbrett.ts';
 import { FELDER } from '../../core/model.ts';
 import { bindeFelder } from './kunde.ts';
 import * as store from '../../storage/store.ts';
-import { maskottchen, toast } from '../dom.ts';
+import { maskottchen, toast, dialog } from '../dom.ts';
+import { verleihDialog } from './bestand.ts';
+import * as leihschein from '../leihschein.ts';
 import { spartenIcon, statusOptions } from '../parts.ts';
 import * as ablauf from '../gespraechsablauf.ts';
 
@@ -173,11 +175,28 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
     return `<input class="gk-text" data-feld="${pfad}" value="${esc(typeof wert === 'string' ? wert : '')}" enterkeyhint="done">`;
   };
 
+  // Vorwerk „Gerät dalassen“: Gerät aus dem Vorführbestand wählen, Übergabe mit Unterschrift (Leihschein)
+  const geraeteHtml = () => {
+    if (!optionGewaehlt(antworten.vorwerk.schritt || '', GERAET_DALASSEN) || !zustand.kundeId) return '';
+    const { verliehen, frei } = geraeteFuerKunde(store.getData(), zustand.kundeId);
+    const da = verliehen.map(({ leihe, name }) => `
+        <p class="gk-geraet-da"><span>✓ <b>${esc(name)}</b> übergeben am ${esc(formatDate(leihe.ausgabe))}${leihe.rueckgabeGeplant ? `, zurück bis ${esc(formatDate(leihe.rueckgabeGeplant))}` : ''}${leihe.unterschriftAusgabe ? ' · unterschrieben' : ''}</span>
+        <button type="button" class="btn klein ghost" data-gk-schein="${esc(leihe.id)}">📄 Leihschein</button></p>`).join('');
+    const wahl = frei.length
+      ? `<p class="gk-geraet-titel">${verliehen.length ? 'Noch ein Gerät dalassen?' : 'Welches Gerät bleibt hier?'}</p>
+        <div class="gk-chips">${frei.map((g) => `<button type="button" class="chip-wahl gk-chip" data-gk-leihen="${esc(g.id)}">${esc(g.name)}</button>`).join('')}</div>
+        <p class="gk-frage">Danach: Rückgabedatum wählen, Kunde unterschreibt auf dem Tablet, Leihschein als PDF.</p>`
+      : `<p class="hinweis">Kein freies Vorführgerät im Bestand. <a href="#/bestand">Zum Bestand</a></p>`;
+    return da + wahl;
+  };
+  const geraeteNeu = () => { const box = inhalt.querySelector<HTMLElement>('[data-gk-geraete]'); if (box) box.innerHTML = geraeteHtml(); };
+
   const punktHtml = (s: Sparte, pk: Punkt, k: Kunde | null) => `
     <div class="gk-punkt ${erledigt(s, pk, k, antworten) ? 'erledigt' : ''}" data-pid="${esc(punktId(s, pk))}">
       <div class="gk-kopf"><span class="gk-haken" aria-hidden="true"></span><span class="gk-label">${esc(punktLabel(s, pk))}</span></div>
       <div class="gk-eingabe">${eingabeHtml(s, pk, k)}</div>
       <p class="gk-frage">„${esc(pk.frage)}“</p>
+      ${istGeraetPunkt(s, pk) ? `<div class="gk-geraete" data-gk-geraete>${geraeteHtml()}</div>` : ''}
     </div>`;
 
   const ringHtml = (st: { erledigt: number; gesamt: number }) =>
@@ -438,7 +457,14 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
     const ein = t.closest<HTMLElement>('[data-einwand]');
     const erg = t.closest<HTMLElement>('[data-ergebnis]');
     const wech = t.closest<HTMLElement>('[data-wechsel]');
-    if (t.closest('[data-zu]')) {
+    const leihen = t.closest<HTMLElement>('[data-gk-leihen]');
+    const schein = t.closest<HTMLElement>('[data-gk-schein]');
+    if (leihen) {
+      const g = store.getData().geraete.find((x) => x.id === leihen.dataset.gkLeihen);
+      if (g) void verleihDialog(g, null, '', zustand.kundeId).then((ok) => { if (ok) { geraeteNeu(); einb?.onFeld?.(); } });
+    } else if (schein) {
+      void leihschein.anbieten(schein.dataset.gkSchein, 'ausgabe', dialog);
+    } else if (t.closest('[data-zu]')) {
       sheetZu();
     } else if (fwahl) {
       const pfad = fwahl.dataset.fwahl || '';
@@ -456,6 +482,7 @@ export function render(el: HTMLElement, params: URLSearchParams, _teile: string[
       const wert = antworten[s][id] || '';
       awahl.parentElement?.querySelectorAll<HTMLElement>('[data-awahl]').forEach((b) => { const x = optionGewaehlt(wert, b.dataset.wert || ''); b.classList.toggle('aktiv', x); b.setAttribute('aria-pressed', String(x)); });
       aktualisieren();
+      if (istGeraetPunkt(s, pk)) geraeteNeu();
     } else if (art && ent) {
       ent.kontaktart = art.dataset.art as typeof ent.kontaktart;
       art.parentElement?.querySelectorAll('[data-art]').forEach((x) => x.classList.toggle('aktiv', x === art));

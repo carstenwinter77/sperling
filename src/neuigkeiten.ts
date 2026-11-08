@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.13.2',
+    punkte: [
+      'Klemmbrett Vorwerk: Bei „Testgerät da gelassen“ wählst du das Gerät gleich aus dem Bestand und lässt dir die Übergabe auf dem Tablet unterschreiben. Der Leihschein kommt danach als PDF.',
+    ],
+  },
+  {
     version: '0.13.1',
     punkte: [
       'Belegungskalender: Die Zeile mit den Tagen bleibt beim Scrollen oben stehen, auch bei vielen Geräten.',

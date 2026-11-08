@@ -891,6 +891,11 @@ dialog.dlg.dlg-termin { width: min(560px, calc(100vw - 24px)); }
 .gk-zahl { display: flex; align-items: center; gap: .5rem; max-width: 16rem; }
 .gk-zahl span { color: var(--text-2); font-weight: 600; white-space: nowrap; }
 .gk-frage { margin: .25rem 0 0 1.9rem; font-size: .82rem; font-style: italic; color: var(--text-2); }
+.gk-geraete:not(:empty) { margin: .6rem 0 0 1.9rem; padding: .6rem .75rem; border-radius: 12px; background: var(--karte); border: 1px dashed var(--a); animation: gl-aufklappen .35s cubic-bezier(.2,.8,.3,1) both; transform-origin: top; }
+.gk-punkt:has(.gk-geraete:not(:empty)) { grid-column: 1 / -1; }
+.gk-geraet-titel { margin: 0 0 .4rem; font-weight: 700; }
+.gk-geraet-da { margin: 0 0 .5rem; display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+.gk-geraete .gk-frage { margin-left: 0; }
 .gk-ueber { margin-top: .75rem; }
 .gk-ueber summary { cursor: pointer; font-weight: 600; min-height: 36px; display: flex; align-items: center; }
 .gk-spick { margin: 0 0 .5rem; padding-left: 1.1rem; display: flex; flex-direction: column; gap: .3rem; }
@@ -937,7 +942,7 @@ dialog.dlg.dlg-termin { width: min(560px, calc(100vw - 24px)); }
 .gm-bilanz.gut .gm-bilanz-bild { width: 48px; opacity: 1; transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .gk-punkt.gk-pop, .gl-antwort, .gl-stufe, .gl-aufklappen { animation: none; }
+  .gk-punkt.gk-pop, .gk-geraete, .gl-antwort, .gl-stufe, .gl-aufklappen { animation: none; }
   .gk-ring, .gk-haken::after, .gm-bilanz-bild, .gk-sheet-hg, .gk-sheet-inhalt { transition: none; }
 }
 

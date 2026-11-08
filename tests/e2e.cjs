@@ -373,6 +373,25 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
   if (!(await p.isVisible('dialog .kw-gewaehlt')) || !(await p.textContent('dialog .kw-gewaehlt')).includes('Prüfer')) fail('Kunde im Verleih nicht vorausgefüllt');
   await p.click('dialog .dlg-actions button.ghost');
   await p.waitForFunction(() => !document.querySelector('dialog'));
+  // Klemmbrett Vorwerk: „Gerät dalassen“ zeigt freie Vorführgeräte, Antippen öffnet Verleih mit Kunde und Unterschrift
+  await p.click('#gespraechStarten');
+  await p.waitForSelector('.gk .gk-ring');
+  await p.click('#gTabs [data-sparte=vorwerk]');
+  await p.waitForSelector('.gk.bereich-vorwerk');
+  if (await p.$('[data-gk-geraete] [data-gk-leihen]')) fail('Geräteauswahl vor „Gerät dalassen“ sichtbar');
+  await p.click('.gk-punkt[data-pid="schritt"] [data-wert="Testgerät da gelassen"]');
+  await p.click('[data-gk-geraete] [data-gk-leihen]:has-text("Kobold VM7")');
+  await p.waitForSelector('dialog canvas.unterschrift-feld');
+  if (!(await p.textContent('dialog .kw-gewaehlt')).includes('Prüfer')) fail('Kunde im Verleih vom Klemmbrett nicht vorausgefüllt');
+  await p.click('dialog .dlg-actions button.primary');
+  await p.waitForSelector('[data-gk-geraete] .gk-geraet-da:has-text("Kobold VM7")');
+  if (await p.$('dialog')) await p.click('dialog .dlg-actions button.ghost').catch(() => {});
+  await p.waitForFunction(() => !document.querySelector('dialog'));
+  if (await p.$('[data-gk-geraete] [data-gk-leihen]:has-text("Kobold VM7")')) fail('Verliehenes Gerät noch als frei angeboten');
+  await p.click('.gm-seiten [data-seite=abschluss]');
+  await p.click('#gmVerwerfen');
+  await p.click('dialog button:has-text("Verwerfen")');
+  await p.waitForFunction(() => !document.querySelector('.gm-teilung'));
   // Belegungskalender: Zeitleiste, leere Stelle antippen, Zeitraum wischen, Liste und Freie finden
   await p.goto(BASE + '#/belegung?ansicht=zeitleiste&zoom=28');
   await p.waitForSelector('.bk-bar.art-reserviert');

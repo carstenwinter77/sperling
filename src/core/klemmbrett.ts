@@ -10,8 +10,11 @@
 // Methodik dahinter: SPIN (Situation, Problem/Bedarf, Nutzen), offene Fragen, ehrlicher Denkanstoß,
 // freiwilliger nächster Schritt. R-LEITFADEN: keine Druck- oder Manipulationstechniken, keine Preise,
 // Förderquoten oder Renditeversprechen; Widerrufsrecht wird aktiv erklärt.
-import { FELDER, type Sparte } from './model.ts';
+import { FELDER, offenerVerleih, type Sparte, type Daten } from './model.ts';
 import { istAus, type FeldEinstellungen } from './felder.ts';
+
+/** Vorwerk: „Gerät dalassen“ öffnet am Klemmbrett die Geräteauswahl aus dem Vorführbestand. */
+export const GERAET_DALASSEN = 'Testgerät da gelassen';
 
 export type AbschnittId = 'situation' | 'bedarf' | 'schritt';
 
@@ -107,7 +110,7 @@ export const KLEMMBRETT: Record<Sparte, Abschnitt[]> = {
       antwort('eindruck', 'Eindruck Vorführung', 'Probieren Sie selbst: Wie fühlt sich das an?', ['Begeistert', 'Positiv', 'Unsicher', 'Kein Interesse']),
     ]),
     abschnitt('schritt', 'Nächster Schritt', [
-      antwort('schritt', 'Vereinbart', 'Was wäre für Sie ein sinnvoller nächster Schritt?', ['Testgerät da gelassen', 'Bestellung', 'Nachfragen in 2 Wochen', 'Später melden']),
+      antwort('schritt', 'Vereinbart', 'Was wäre für Sie ein sinnvoller nächster Schritt?', [GERAET_DALASSEN, 'Bestellung', 'Nachfragen in 2 Wochen', 'Später melden']),
       widerruf,
     ]),
   ],
@@ -191,6 +194,17 @@ export function klemmbrettText(s: Sparte, a: Antworten | undefined): string {
 }
 
 /** Vorschlag für „Nächster Schritt“ beim Abschließen aus der Antwort „Vereinbart“. */
+export const istGeraetPunkt = (s: Sparte, p: Punkt) => s === 'vorwerk' && p.art === 'antwort' && p.id === 'schritt';
+
+/** Was beim Kunden schon steht (offene Leihen) und welche aktiven Vorführgeräte frei sind. */
+export function geraeteFuerKunde(data: Daten, kundeId: string) {
+  const verliehen = data.leihvorgaenge
+    .filter((l) => l.kundeId === kundeId && !l.rueckgabe)
+    .map((l) => ({ leihe: l, name: data.geraete.find((g) => g.id === l.geraetId)?.name || 'Gerät' }));
+  const frei = data.geraete.filter((g) => g.aktiv && !offenerVerleih(data, g.id));
+  return { verliehen, frei };
+}
+
 export const schrittVorschlag = (s: Sparte, a: Antworten | undefined) => a?.[s]?.schritt || '';
 
 /** Freitext-Anteil einer Antwort (alles, was keine antippbare Option ist). */
