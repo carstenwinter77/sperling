@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.14.4 – 08.11.2026
+- **Karte: Haustür-Ergebnis als Symbol am Pin.** Neben „Keine Werbung“ (⛔) zeigt der Pin jetzt auch 🚪 „Nicht da“, ⏰ „Später“ und ✋ „Kein Interesse“, sobald das das jüngste Ergebnis an der Tür ist. Das Symbol sitzt in einem kleinen weißen Kreis oben rechts am Pin, damit es auf Satellit und Straße gut erkennbar ist; die Pinfarbe (Status) bleibt. „Gespräch geführt“ bekommt kein Symbol, das zeigt der Status. Die Legende unter der Karte erklärt die vier Symbole, der Tooltip am Pin nennt das Ergebnis.
+
 ## 0.14.3 – 08.11.2026
 - **Auswertung: Zahlen und Prozente direkt an den Balken.** Verkaufstrichter: rechts an jeder Stufe die Anzahl Kunden und ihr Anteil an allen im Trichter (erste Stufe 100 %); bei „Alles zusammen“ steht im Balken die Zahl je Sparte; zwischen den Stufen wie bisher die Quote zur Vorstufe. Kurze Erklärung unter dem Trichter.
 - **Gespräche im Verlauf:** über jeder Säule die Anzahl (leere Zeiträume ohne Zahl, bei vielen Säulen kleiner).

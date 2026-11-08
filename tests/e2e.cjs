@@ -1353,6 +1353,10 @@ const fail = (m) => { console.error('FEHLER:', m); process.exitCode = 1; };
     await dp.waitForSelector('dialog h2:has-text("Wann wiederkommen?")');
     await dp.click('dialog .dlg-actions button.primary');
     await dp.waitForFunction(() => /Wiedervorlage .* angelegt/.test(document.querySelector('#toast')?.textContent || ''));
+    // Haustür-Ergebnis steht als Symbol am Pin, die Legende erklärt es
+    await dp.waitForSelector('.leaflet-marker-icon.pin.tuer-spaeter .pin-tuer');
+    if ((await dp.textContent('.leaflet-marker-icon.pin.tuer-spaeter .pin-tuer')).trim() !== '⏰') fail('Pin: Symbol „Später“ fehlt');
+    if (!(await dp.textContent('.legende-tuer')).includes('Nicht da')) fail('Karte: Legende der Haustür-Symbole fehlt');
     await dp.close();
   }
   // Bereichsleiste auf der Übersicht: Zahl führt in die gefilterte Kundenliste (Bereich + Status)

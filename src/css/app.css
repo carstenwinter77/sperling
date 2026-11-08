@@ -1582,8 +1582,11 @@ input.schalter:disabled { opacity: .5; cursor: not-allowed; }
 .popup-tuer { margin-top: .4rem; color: var(--text-2); }
 .haustuer-liste { margin-top: .6rem; font-size: .9rem; }
 .werbeverbot-band { background: var(--tag-warn-bg); color: color-mix(in srgb, var(--rot) 75%, var(--text)); border-radius: var(--radius); padding: .5rem .8rem; margin: .4rem 0; }
-.pin.werbeverbot span { opacity: .55; }
-.pin.werbeverbot::after { content: '⛔'; position: absolute; top: -6px; right: -8px; font-size: 14px; line-height: 1; }
+/* Haustür-Ergebnis als kleines Abzeichen oben rechts am Pin (Nicht da, Später, Kein Interesse, Keine Werbung) */
+.pin .pin-tuer { position: absolute; top: -10px; right: -13px; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 1.5px solid rgba(0,0,0,.25); box-shadow: 0 1px 3px rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; font-size: 13px; line-height: 1; font-style: normal; pointer-events: none; }
+.pin.tuer-werbeverbot span { opacity: .55; }
+.legende-tuer { display: contents; }
+.legende-tuer > span:first-child { border-left: 1px solid var(--linie); padding-left: .8rem; }
 .ap-liste .zeile { display: flex; gap: .5rem; align-items: center; justify-content: space-between; flex-wrap: wrap; }
 .ap-liste .zeile-haupt { display: flex; flex-direction: column; gap: .15rem; min-width: 0; flex: 1; }
 .tag.ap-rolle-entscheider { background: var(--tag-pv-bg); color: var(--tag-pv); }

@@ -322,6 +322,15 @@ export function werbeverbot(k: { haustuer?: HaustuerEintrag[] }): boolean {
   return letzteHaustuer(k)?.ergebnis === 'werbeverbot';
 }
 
+/** Haustür-Ergebnisse, die als kleines Symbol am Karten-Pin stehen („Gespräch“ zeigt der Status selbst). */
+export const PIN_TUER: readonly HaustuerErgebnis[] = ['nicht_da', 'spaeter', 'kein_interesse', 'werbeverbot'];
+
+/** Jüngstes Haustür-Ergebnis, sofern es am Pin als Symbol erscheinen soll, sonst null. */
+export function pinTuer(k: { haustuer?: HaustuerEintrag[] }): HaustuerErgebnis | null {
+  const e = letzteHaustuer(k)?.ergebnis;
+  return e && PIN_TUER.includes(e) ? e : null;
+}
+
 /**
  * Statusänderung durch ein Haustür-Ergebnis: „Kein Interesse“ setzt nur Sparten, die bisher nur vermutet
  * waren (Potenzial), auf „Kein Interesse“. „Gespräch geführt“ hebt vermutete Sparten nicht an (das entscheidet Jan).

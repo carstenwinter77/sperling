@@ -59,6 +59,7 @@ export function vertriebBeispiele(d: Rec, tageAb: (t: number, h?: number, m?: nu
       }
     }
     if (i % 9 === 4 && !k.haustuer) k.haustuer = [{ id: `gh${i}`, zeitpunkt: tageAb(-(i % 10) - 1, 17, 30), ergebnis: i % 2 ? 'nicht_da' : 'werbeverbot' }];
+    else if (i % 9 === 7 && !k.haustuer && !Object.values(k.status || {}).includes('abschluss')) k.haustuer = [{ id: `gh${i}`, zeitpunkt: tageAb(-(i % 10) - 1, 18), ergebnis: 'kein_interesse' }];
   }
 
   // Ein voller Tag (übermorgen) für die Tagesroute: Lengede → Vechelde → Peine
