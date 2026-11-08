@@ -316,7 +316,7 @@ export async function berichtPdf(ber: Bericht, fokus: Fokus | null = null): Prom
   const zeilen = kennzahlZeilen.length + 1 + (zweiSpalten ? zweiSpalten + 1 : 0);
   const mitFokus = !!fokus && fokus.gesamt > 0;
   const fokusHoehe = mitFokus ? 6 + 6 + 5 + (fokus!.tipp ? 10 : 0) + 4 : 0;
-  const trichterHoehe = ber.vt.trichter.stufen[0]!.anzahl ? 6 + 5 * 5.2 + (ber.vt.trichter.tipp ? 9 : 0) + 3 : 0;
+  const trichterHoehe = ber.vt.trichter.stufen[0]!.anzahl ? 6 + 5 * 5.2 + (ber.vt.trichter.tipp ? 13.6 : 0) + 3 : 0;
   const fest = 6 + 22 + trichterHoehe + (zweiSpalten ? 7 + 6 : 0) + diagramm + fokusHoehe;
   const zh = Math.max(3.6, Math.min(6, (unten - y - fest) / Math.max(1, zeilen)));
   const fs = Math.max(7, Math.min(10, zh * 1.7));
@@ -378,8 +378,8 @@ export async function berichtPdf(ber: Bericht, fokus: Fokus | null = null): Prom
       y += 5.2;
     });
     if (t.tipp) {
-      doc.setFontSize(8.5);
-      const z = doc.splitTextToSize(ansi(`Tipp: ${t.tipp}`), B - 2 * R).slice(0, 2);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);
+      const z = doc.splitTextToSize(ansi(`Tipp: ${t.tipp}`), B - 2 * R).slice(0, 3);
       doc.text(z, R, y + 1); y += 4.2 * z.length + 1;
     }
     y += 3;
@@ -394,7 +394,7 @@ export async function berichtPdf(ber: Bericht, fokus: Fokus | null = null): Prom
     y += 6;
     const y0 = y;
     let yl = y; let yr = y;
-    if (erg.length) yl = tabelle(['Ergebnis', 'Jetzt', 'Vorher'], erg.map((a) => [AUSGANG[a], String(ber.jetzt.ergebnisse[a]), String(ber.vorher.ergebnisse[a])]), [R, R + 56, R + 72], mitte - 6);
+    if (erg.length) yl = tabelle(['Ergebnis', 'Jetzt', 'Vergleich'], erg.map((a) => [AUSGANG[a], String(ber.jetzt.ergebnisse[a]), String(ber.vorher.ergebnisse[a])]), [R, R + 56, R + 72], mitte - 6);
     y = y0;
     if (top.length) yr = tabelle(['Produkt', 'Interesse'], top.map((x) => [x.name, String(x.anzahl)]), [mitte, B - R - 16], B - R);
     y = Math.max(yl, yr) + 4;
