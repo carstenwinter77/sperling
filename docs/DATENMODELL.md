@@ -168,6 +168,8 @@ Belegt ist ein Gerät, wenn sich der Zeitraum mit einer Reservierung oder einem 
 | `vorlagen.pv`, `vorlagen.wp`, `vorlagen.vorwerk` | Textvorlagen mit Platzhaltern, je Bereich (ab Schema 7; vorher `enpal` für PV + WP) |
 | `nachfassTage` | Zahlen[] – Tage nach einem Angebot, an denen eine Nachfass-Wiedervorlage entsteht (ab 0.13.0, Standard `[3, 7]`, ganze Tage 1–90, aufsteigend, höchstens 6; leer = kein Nachfassen; `normalizeNachfassTage()` in `src/core/vertrieb.ts`) |
 | `bereitlegen` | `{pv, wp, vorwerk}` je Liste von Texten – „Bitte bereitlegen“ in der Terminbestätigung (ab 0.13.0, höchstens 12 Punkte zu je 200 Zeichen; fehlt ein Bereich, gilt `BEREITLEGEN` aus `src/core/vertrieb.ts`) |
+| `namensFolge` | `vorname` oder `nachname` – Namen in Listen als „Vorname Nachname“ oder „Nachname, Vorname“ (ab 0.13.6, Standard `vorname`, kein Schemaschritt; Anbieter-Texte und Leihschein immer `vorname`) |
+| `ortsFolge` | `ort` oder `strasse` – Kunden ohne Namen: Titel und Sortierung „Ort, Straße“ oder „Straße, PLZ Ort“ (ab 0.13.6, Standard `ort`, kein Schemaschritt) |
 | `kalenderStart` | `liste`, `monat`, `woche`, `tag` oder `geraete` – Startansicht des Kalenders (ab Schema 7, Standard `monat`) |
 | `karte` | letzte Position, Zoom, Layer (`satellit`/`strasse`) |
 | `autoSperreMin` | 0–240, 0 = nie |

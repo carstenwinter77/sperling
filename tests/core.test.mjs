@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { KeyRing, WrongPasswordError, InvalidEnvelopeError, validateEnvelope } from '../src/core/crypto.ts';
-import { migrate, emptyData, neuerKunde, neueNotiz, normalizeKunde, SCHEMA_VERSION, hauptStatus } from '../src/core/model.ts';
+import { migrate, emptyData, neuerKunde, neueNotiz, normalizeKunde, SCHEMA_VERSION, hauptStatus, kundenName, kundenTitel, kundenVergleich, anzeigeSetzen, normalizeEinstellungen } from '../src/core/model.ts';
 import { generiereText, projizieren, notizErlaubt, ausgelasseneNotizen } from '../src/core/textgen.ts';
 import { erzeugeIcs, icsEscape, foldLine } from '../src/core/ics.ts';
 import { parseNumber, isoToLocalInput, localInputToIso, esc, distanceMeters } from '../src/core/util.ts';
@@ -1850,4 +1850,37 @@ test('Klemmbrett: Gerät dalassen zeigt verliehene und freie Vorführgeräte', a
   const pk = kb.KLEMMBRETT.vorwerk.flatMap((a) => a.punkte).find((p) => p.art === 'antwort' && p.id === 'schritt');
   assert.ok(kb.istGeraetPunkt('vorwerk', pk) && pk.optionen.includes(kb.GERAET_DALASSEN));
   assert.ok(!kb.istGeraetPunkt('pv', pk));
+});
+
+test('Namensanzeige und Sortierung nach Nachname', () => {
+  try {
+    assert.equal(normalizeEinstellungen({}).namensFolge, 'vorname');
+    assert.equal(normalizeEinstellungen({}).ortsFolge, 'ort');
+    assert.equal(normalizeEinstellungen({ namensFolge: 'nachname', ortsFolge: 'strasse' }).namensFolge, 'nachname');
+    assert.equal(normalizeEinstellungen({ namensFolge: 'quatsch' }).namensFolge, 'vorname');
+    const k = { vorname: 'Anna', nachname: 'Zander', firma: 'Bäckerei' };
+    anzeigeSetzen({ namensFolge: 'vorname' });
+    assert.equal(kundenName(k), 'Anna Zander (Bäckerei)');
+    anzeigeSetzen({ namensFolge: 'nachname' });
+    assert.equal(kundenName(k), 'Zander, Anna (Bäckerei)');
+    assert.equal(kundenName({ vorname: 'Anna' }), 'Anna');
+    assert.equal(kundenName(k, 'vorname'), 'Anna Zander (Bäckerei)', 'Texte geben die Reihenfolge fest vor');
+    // Nachname zählt, egal wie angezeigt wird
+    const liste = [
+      { vorname: 'Bernd', nachname: 'Müller' }, { vorname: 'Anna', nachname: 'Zander' }, { vorname: 'Zoe', nachname: 'Albers' },
+      { strasse: 'Bahnhofstraße 10', plz: '38268', ort: 'Lengede' }, { strasse: 'Bahnhofstraße 2', plz: '38268', ort: 'Lengede' },
+      { strasse: 'Am Markt 1', plz: '31224', ort: 'Peine' }, { firma: 'Meyer GmbH' }, { vorname: 'Anton', nachname: 'Müller' },
+    ];
+    for (const f of ['vorname', 'nachname']) {
+      anzeigeSetzen({ namensFolge: f, ortsFolge: 'ort' });
+      assert.deepEqual([...liste].sort(kundenVergleich).map((x) => kundenTitel(x, 'strasse')).slice(0, 5).map((t) => t.replace(/^(\S+), (\S+)$/, '$2 $1')),
+        ['Zoe Albers', 'Meyer GmbH', 'Anton Müller', 'Bernd Müller', 'Anna Zander']);
+    }
+    anzeigeSetzen({ ortsFolge: 'ort' });
+    assert.deepEqual([...liste].sort(kundenVergleich).slice(5).map((x) => kundenTitel(x)), ['Lengede, Bahnhofstraße 2', 'Lengede, Bahnhofstraße 10', 'Peine, Am Markt 1']);
+    anzeigeSetzen({ ortsFolge: 'strasse' });
+    assert.deepEqual([...liste].sort(kundenVergleich).slice(5).map((x) => kundenTitel(x)), ['Am Markt 1, 31224 Peine', 'Bahnhofstraße 2, 38268 Lengede', 'Bahnhofstraße 10, 38268 Lengede']);
+  } finally {
+    anzeigeSetzen(null);
+  }
 });

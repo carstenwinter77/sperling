@@ -15,7 +15,7 @@ export async function kontaktDialog(kundeId: string, { kontaktId = null as strin
   const k = store.findKunde(kundeId);
   if (!k) return null;
   const alt = kontaktId ? k.enpalKontakte.find((c) => c.id === kontaktId) : null;
-  const c = alt || normalizeEnpalKontakt({ art, gespraechspartner: kundenName(k), themen: ['pv', 'wp'].filter((s) => !['unbekannt', 'kein_interesse'].includes(k.status[s])) });
+  const c = alt || normalizeEnpalKontakt({ art, gespraechspartner: kundenName(k, 'vorname'), themen: ['pv', 'wp'].filter((s) => !['unbekannt', 'kein_interesse'].includes(k.status[s])) });
   const res = await dialog({
     titel: alt ? 'Enpal-Kontakt bearbeiten' : `${KONTAKTART[c.art]} dokumentieren`,
     html: `

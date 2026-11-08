@@ -6,7 +6,7 @@
 //           - Speicherfehler gehen nie verloren: dirty bleibt true, nächster Versuch folgt.
 
 import { KeyRing, validateEnvelope } from '../core/crypto.ts';
-import { emptyData, migrate, statusVerlaufAbgleichen, type Daten, type Kunde } from '../core/model.ts';
+import { anzeigeSetzen, emptyData, migrate, statusVerlaufAbgleichen, type Daten, type Kunde } from '../core/model.ts';
 import { istEinstellungsPaket } from '../core/einstellungsdatei.ts';
 import { uid, nowIso, clone, type Rec } from '../core/util.ts';
 import * as db from './db.ts';
@@ -30,6 +30,7 @@ export function isUnlocked() {
 
 export function getData(): Daten {
   if (!data) throw new Error('Daten sind gesperrt.');
+  anzeigeSetzen(data.einstellungen);
   return schutzKundeId ? schutzSicht(data, schutzKundeId) : data;
 }
 
@@ -165,6 +166,7 @@ export function mutate(fn: (d: Daten) => void): void {
   // Jeden Statuswechsel mit Datum festhalten (Verkaufstrichter), egal an welcher Stelle der Status geändert wurde
   const jetzt = nowIso();
   for (const k of d.kunden) statusVerlaufAbgleichen(k, jetzt);
+  anzeigeSetzen(d.einstellungen);
   if (!demo) {
     dirty = true;
     scheduleSave();

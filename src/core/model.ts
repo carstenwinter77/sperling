@@ -690,6 +690,10 @@ export function normalizeEinstellungen(e: unknown) {
     /** Feldverwaltung (ab Schema 4): ausgeblendete Felder (Pfade) und eigene Felder */
     felder: normalizeFeldEinstellungen(src.felder),
     /** Ansicht, mit der der Kalender startet (ab Schema 7) */
+    /** Namensreihenfolge in Listen und Titeln (ab 0.13.6, Standard „Vorname Nachname“) */
+    namensFolge: (src.namensFolge === 'nachname' ? 'nachname' : 'vorname') as NamensFolge,
+    /** Kunden ohne Namen: Ort oder Straße zuerst (ab 0.13.6, Standard Ort) */
+    ortsFolge: (src.ortsFolge === 'strasse' ? 'strasse' : 'ort') as OrtsFolge,
     kalenderStart: (['liste', 'monat', 'woche', 'tag', 'geraete'].includes(src.kalenderStart) ? src.kalenderStart : 'monat') as 'liste' | 'monat' | 'woche' | 'tag' | 'geraete',
     /** Textbausteine je Bereich für die Gesprächsnotizen (ab Schema 6) */
     bausteine: normalizeBausteine(src.bausteine),
@@ -784,14 +788,63 @@ export type MitAdresse = Partial<Pick<Kunde, 'vorname' | 'nachname' | 'firma' | 
 
 // ---------- Anzeige-Helfer ----------
 
-export function kundenName(k: MitAdresse): string {
-  const name = [k.vorname, k.nachname].filter(Boolean).join(' ').trim();
+/** Namensreihenfolge in Listen und Titeln: „Vorname Nachname“ oder „Nachname, Vorname“ (ab 0.13.6). */
+export type NamensFolge = 'vorname' | 'nachname';
+/** Kunden ohne Namen: Titel und Sortierung beginnen mit dem Ort oder mit der Straße (ab 0.13.6). */
+export type OrtsFolge = 'ort' | 'strasse';
+/** Aktuelle Anzeige-Einstellung; setzt der Store bei jedem Zugriff aus den Einstellungen. */
+const anzeige: { namensFolge: NamensFolge; ortsFolge: OrtsFolge } = { namensFolge: 'vorname', ortsFolge: 'ort' };
+export function anzeigeSetzen(e: { namensFolge?: NamensFolge; ortsFolge?: OrtsFolge } | null | undefined) {
+  anzeige.namensFolge = e?.namensFolge === 'nachname' ? 'nachname' : 'vorname';
+  anzeige.ortsFolge = e?.ortsFolge === 'strasse' ? 'strasse' : 'ort';
+}
+
+/** Name des Kunden. Ohne `folge` gilt die Einstellung; Anbieter-Texte und Belege geben 'vorname' fest vor. */
+export function kundenName(k: MitAdresse, folge: NamensFolge = anzeige.namensFolge): string {
+  const vn = (k.vorname || '').trim();
+  const nn = (k.nachname || '').trim();
+  const name = folge === 'nachname' && vn && nn ? `${nn}, ${vn}` : [vn, nn].filter(Boolean).join(' ');
   if (name && k.firma) return `${name} (${k.firma})`;
   return name || k.firma || '';
 }
 
-export function kundenTitel(k: MitAdresse): string {
-  return kundenName(k) || adresseEinzeilig(k) || 'Unbenannter Standort';
+/** Adresse für Kunden ohne Namen, je nach Einstellung „Ort, Straße“ oder „Straße, PLZ Ort“. */
+function adresseTitel(k: MitAdresse, folge: OrtsFolge): string {
+  if (folge === 'strasse') return adresseEinzeilig(k);
+  const ortTeil = (k.ort || '').trim() || (k.plz || '').trim();
+  return [ortTeil, (k.strasse || '').trim()].filter(Boolean).join(', ');
+}
+
+export function kundenTitel(k: MitAdresse, folge: OrtsFolge = anzeige.ortsFolge): string {
+  return kundenName(k) || adresseTitel(k, folge) || 'Unbenannter Standort';
+}
+
+const vergleich = new Intl.Collator('de', { numeric: true, sensitivity: 'base' });
+/**
+ * Sortierung „Name A–Z“: Kunden mit Namen nach Nachname, dann Vorname, dann Firma
+ * (nur Vorname oder nur Firma zählt wie ein Nachname). Danach die Einträge ohne Namen,
+ * je nach Einstellung nach Ort, dann Straße oder nach Straße, dann Ort.
+ */
+export function kundenVergleich(a: MitAdresse, b: MitAdresse, folge: OrtsFolge = anzeige.ortsFolge): number {
+  const t = (s?: string) => (s || '').trim();
+  const schluessel = (k: MitAdresse): [number, string[]] => {
+    const nn = t(k.nachname) || t(k.vorname) || t(k.firma);
+    if (nn) return [0, [nn, t(k.nachname) ? t(k.vorname) : '', t(k.firma)]];
+    const ort = t(k.ort) || t(k.plz);
+    return [1, folge === 'strasse' ? [t(k.strasse), ort, t(k.plz)] : [ort, t(k.strasse), t(k.plz)]];
+  };
+  const [ga, sa] = schluessel(a);
+  const [gb, sb] = schluessel(b);
+  if (ga !== gb) return ga - gb;
+  for (let i = 0; i < sa.length; i++) {
+    const x = sa[i]!, y = sb[i]!;
+    if (x === y) continue;
+    if (!x) return 1; // Leeres ans Ende
+    if (!y) return -1;
+    const c = vergleich.compare(x, y);
+    if (c) return c;
+  }
+  return 0;
 }
 
 export function adresseEinzeilig(k: MitAdresse): string {

@@ -1,6 +1,6 @@
 // Sperling – Kunden auswählen (Reservieren, Verleihen, Termine): Suche statt endloser Liste.
 // Rein, ohne DOM, in Node testbar. Gleichnamige Kunden werden über Adresse/Telefon unterschieden.
-import { kundenTitel, adresseEinzeilig, type Daten, type Kunde } from './model.ts';
+import { kundenTitel, kundenVergleich, adresseEinzeilig, type Daten, type Kunde } from './model.ts';
 import { suchText } from './util.ts';
 
 export interface KundenTreffer { id: string; titel: string; zusatz: string; doppelt: boolean }
@@ -40,7 +40,7 @@ export function kundenSuchen(data: Daten, eingabe: string, max = 8): KundenTreff
       const p = woerter.reduce((s, w) => s + (name.startsWith(w) || name.includes(` ${w}`) ? 3 : name.includes(w) ? 2 : 1), 0);
       return { k, p };
     }).filter((x): x is { k: Kunde; p: number } => !!x);
-    liste = bewertet.sort((a, b) => b.p - a.p || kundenTitel(a.k).localeCompare(kundenTitel(b.k), 'de')).slice(0, max).map((x) => x.k);
+    liste = bewertet.sort((a, b) => b.p - a.p || kundenVergleich(a.k, b.k)).slice(0, max).map((x) => x.k);
   }
   const namen = new Map<string, number>();
   for (const k of data.kunden) { const n = suchText(kundenTitel(k)); namen.set(n, (namen.get(n) || 0) + 1); }

@@ -1,5 +1,9 @@
 # Änderungsverlauf
 
+## 0.13.6 – 08.11.2026
+- **Kunden nach Nachname sortieren.** „Name A–Z“ in der Kundenliste geht jetzt nach dem Nachnamen, dann nach dem Vornamen (vorher nach dem Vornamen). Einträge ohne Namen, etwa ein Pin auf der Karte, stehen danach und sind nach Ort und dann Straße sortiert (Hausnummern der Größe nach).
+- **Neue Einstellung „Namen in Listen“** (Einstellungen → Kundendaten): Namen als „Vorname Nachname“ oder „Nachname, Vorname“ anzeigen, und Einträge ohne Namen mit „Ort, dann Straße“ oder „Straße, dann Ort“ benennen und sortieren. Texte für Enpal, GALVANY und Vorwerk sowie Leihscheine schreiben den Namen weiter als „Vorname Nachname“.
+
 ## 0.13.5 – 08.11.2026
 - **Gespräch: „Zuletzt“ kompakter.** Links steht nur noch eine Zeile mit Datum und Anfang des letzten Eintrags. Ein Tipp klappt die letzten drei Gespräche/Notizen auf (je höchstens drei Zeilen) mit Knopf „Ganzer Verlauf“.
 

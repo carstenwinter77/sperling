@@ -63,7 +63,7 @@ export async function erzeugen(leihId, art = 'ausgabe') {
   zeile(`Erstellt am ${formatDateTime(new Date().toISOString())} Uhr`, 9, 'normal', 8);
 
   y += 2; zeile('Kunde', 12, 'bold', 7);
-  feld('Name', k ? (kundenName(k) || kundenTitel(k)) : '(Kunde gelöscht)');
+  feld('Name', k ? (kundenName(k, 'vorname') || kundenTitel(k)) : '(Kunde gelöscht)');
   feld('Anschrift', k ? adresseEinzeilig(k) : '');
   feld('Telefon', k?.telefon || '');
 

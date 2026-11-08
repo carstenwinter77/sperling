@@ -2,6 +2,13 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.13.6',
+    punkte: [
+      'Kunden „Name A–Z“ werden jetzt nach dem Nachnamen sortiert. Einträge ohne Namen stehen danach, nach Ort und Straße.',
+      'Unter Einstellungen → Kundendaten stellst du ein, ob Namen als „Vorname Nachname“ oder „Nachname, Vorname“ erscheinen, und ob bei Einträgen ohne Namen der Ort oder die Straße vorne steht.',
+    ],
+  },
+  {
     version: '0.13.5',
     punkte: [
       'Im Gespräch nimmt „Zuletzt“ nur noch eine Zeile ein. Antippen zeigt die letzten Einträge.',

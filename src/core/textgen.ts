@@ -123,7 +123,7 @@ export function kontext(kunde: Kunde, gruppe: string, einstellungen: Einstellung
   const aktiv = g.sparten.filter((s) => !['unbekannt', 'kein_interesse'].includes(p.status[s] ?? 'unbekannt'));
   const spartenLabel = (aktiv.length ? aktiv : g.sparten).map((s) => SPARTEN[s].label).join(' & ');
   return {
-    name: kundenName(p) || '(ohne Namen)',
+    name: kundenName(p, 'vorname') || '(ohne Namen)',
     vorname: p.vorname, nachname: p.nachname, firma: p.firma, anrede: p.anrede,
     adresse: adresseEinzeilig(p) || '–',
     telefon: p.telefon || '–',
@@ -172,7 +172,7 @@ function kontaktBlock(p: Projektion, c: EnpalKontakt): string {
 
 function kundenKopf(p: Projektion): string {
   return [
-    `Kunde: ${kundenName(p) || '(ohne Namen)'}`,
+    `Kunde: ${kundenName(p, 'vorname') || '(ohne Namen)'}`,
     `Adresse: ${adresseEinzeilig(p) || '–'}`,
     `Telefon: ${p.telefon || '–'}`,
     `E-Mail: ${p.email || '–'}`,

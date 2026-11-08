@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.5
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.6
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,11 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.13.5)
+## Erledigt (Version 0.13.6)
+
+### Neu in 0.13.6
+- [x] Kundenliste „Name A–Z“ sortiert nach Nachname, dann Vorname (nur Vorname oder nur Firma zählt wie ein Nachname); Einträge ohne Namen stehen danach, sortiert nach Ort, dann Straße oder nach Straße, dann Ort (`kundenVergleich` in `src/core/model.ts`, Hausnummern numerisch). Auch die Kundenauswahl im Kalender/Verleih nutzt diese Reihenfolge bei gleicher Trefferwertung.
+- [x] Neue Einstellung **Kundendaten → Namen in Listen**: „Vorname Nachname“ oder „Nachname, Vorname“ (`namensFolge`), dazu „Einträge ohne Namen“: „Ort, dann Straße“ (Standard, Titel z. B. „Lengede, Bahnhofstraße 2“) oder „Straße, dann Ort“ (`ortsFolge`). Gilt überall, wo `kundenName`/`kundenTitel` angezeigt wird; der Store setzt die Werte über `anzeigeSetzen()`. Anbieter-Texte (R-TEXT), Enpal-Gesprächspartner und Leihschein schreiben den Namen immer „Vorname Nachname“. Unit-Test ergänzt.
 
 ### Neu in 0.13.5
 - [x] Gesprächsmodus: „Zuletzt“ als einzeilige, aufklappbare Zeile (`.gm-zuletzt` in `src/ui/views/gespraechsmodus.ts`), Einträge aufgeklappt auf drei Zeilen gekürzt.

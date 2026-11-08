@@ -1,6 +1,6 @@
 // Kundenliste mit Suche, Filter (Mehrfachauswahl: Bereiche, Status, letzter Kontakt) und Sortierung.
 import { esc, formatDate } from '../../core/util.ts';
-import { SPARTEN, kundenTitel, adresseEinzeilig, neuerKunde, type Sparte } from '../../core/model.ts';
+import { SPARTEN, kundenTitel, kundenVergleich, adresseEinzeilig, neuerKunde, type Sparte } from '../../core/model.ts';
 import { passt, leererKartenFilter, filterAktiv, type KartenFilter } from '../../core/kartenfilter.ts';
 import { letzterKontakt, tageSeit, seitText } from '../../core/verlauf.ts';
 import { filterPanelHtml, filterPanelZeigen, filterPanelVerdrahten } from '../filterpanel.ts';
@@ -59,7 +59,7 @@ export function render(el: HTMLElement, params: URLSearchParams) {
     const alle = d.kunden;
     const mitKontakt = alle.map((k) => ({ k, kontakt: letzterKontakt(d, k) })).map((x) => ({ ...x, tage: tageSeit(x.kontakt) }));
     const treffer = mitKontakt.filter((x) => sucheTrifft(x.k, suche) && passt(x.k, filter, x.tage, d.einstellungen.felder));
-    const name = (a, b) => kundenTitel(a.k).localeCompare(kundenTitel(b.k), 'de');
+    const name = (a, b) => kundenVergleich(a.k, b.k);
     const tage = (x) => (x.tage === null ? Infinity : x.tage);
     treffer.sort(sortierung === 'kontakt-alt' ? (a, b) => tage(b) - tage(a) || name(a, b)
       : sortierung === 'kontakt-neu' ? (a, b) => tage(a) - tage(b) || name(a, b)

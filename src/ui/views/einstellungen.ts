@@ -37,7 +37,7 @@ export const GRUPPEN = [
   { key: 'allgemein', sym: 'allgemein', titel: 'Allgemein', such: 'absender gruss name farbschema hell dunkel automatisch kalender start ansicht hinfahren navigation karten app apple google waze' },
   { key: 'texte', sym: 'texte', titel: 'Texte & E-Mail', such: 'textvorlagen vorlage platzhalter textbausteine baustein mail e-mail mailprogramm empfaenger gmail outlook' },
   { key: 'vertrieb', sym: 'vertrieb', titel: 'Vertrieb', such: 'nachfassen angebot wiedervorlage tage abstand bereitlegen terminbestaetigung termin bestaetigen sms whatsapp stromrechnung' },
-  { key: 'kunden', sym: 'kundendaten', titel: 'Kundendaten', such: 'felder eigene felder feldverwaltung kundenansicht herzeigen fotos kundenfotos speicher' },
+  { key: 'kunden', sym: 'kundendaten', titel: 'Kundendaten', such: 'namen name nachname vorname reihenfolge sortierung sortieren ort strasse ohne namen felder eigene felder feldverwaltung kundenansicht herzeigen fotos kundenfotos speicher' },
   { key: 'sicherung', sym: 'sicherung', titel: 'Sicherung', such: 'sicherung icloud backup datei einspielen wiederherstellen versionen einstellungen uebertragen abgleich geraet wechseln fotos mitsichern' },
   { key: 'sicherheit', sym: 'sicherheit', titel: 'Sicherheit & Datenschutz', such: 'sperren automatisch sperre face id touch id passwort master-passwort datenschutz alles loeschen zuruecksetzen' },
   { key: 'kontaktseite', sym: 'kontaktseite', titel: 'Meine Kontaktseite', such: 'kontaktseite qr code link teilen werbung' },
@@ -46,6 +46,8 @@ export const GRUPPEN = [
 ] as const;
 type GruppeKey = typeof GRUPPEN[number]['key'];
 
+const NAMENS_FOLGEN: [string, string][] = [['vorname', 'Vorname Nachname'], ['nachname', 'Nachname, Vorname']];
+const ORTS_FOLGEN: [string, string][] = [['ort', 'Ort, dann Straße'], ['strasse', 'Straße, dann Ort']];
 const KARTEN_APPS: [string, string][] = [['auto', 'Beim ersten Mal fragen'], ['apple', 'Apple Karten'], ['google', 'Google Maps'], ['waze', 'Waze']];
 /** Verständliche Namen für die Platzhalter-Knöpfe (die Platzhalter selbst stehen in textgen.ts). */
 const PLATZHALTER_NAMEN: Record<string, string> = {
@@ -76,7 +78,7 @@ function statusText(key: GruppeKey, demo: boolean): string {
     case 'vertrieb': return `Nachfassen: ${e.nachfassTage.length ? `nach ${tageListeText(e.nachfassTage)}` : 'aus'} · Bereitlegen: ${SPARTEN_KEYS.reduce((z, s) => z + e.bereitlegen[s].length, 0)} Punkte`;
     case 'kunden': {
       const st = fotoStatistik(d);
-      return `${n(e.felder.eigene.length, 'eigenes Feld', 'eigene Felder')} · ${st.anzahl ? `${n(st.anzahl, 'Foto', 'Fotos')} (${groesseText(st.bytes)})` : 'keine Fotos'}`;
+      return `${e.namensFolge === 'nachname' ? 'Nachname, Vorname' : 'Vorname Nachname'} · ${n(e.felder.eigene.length, 'eigenes Feld', 'eigene Felder')} · ${st.anzahl ? `${n(st.anzahl, 'Foto', 'Fotos')} (${groesseText(st.bytes)})` : 'keine Fotos'}`;
     }
     case 'sicherung': return demo ? 'Im Demo-Modus aus' : 'Wird geprüft …';
     case 'sicherheit': return demo ? 'Im Demo-Modus eingeschränkt' : (e.autoSperreMin ? `Sperrt nach ${e.autoSperreMin} Min.` : 'Sperrt nicht automatisch');
@@ -158,6 +160,18 @@ function inhalt(key: GruppeKey, demo: boolean): string {
     </section>`;
 
     case 'kunden': return `
+    <section class="karte-box" id="namenEinstellungen">
+      <h2>Namen in Listen</h2>
+      <div class="formgrid einst-felder">
+        <label>Namen anzeigen als<select id="namensFolge">
+          ${NAMENS_FOLGEN.map(([k, l]) => `<option value="${k}" ${e.namensFolge === k ? 'selected' : ''}>${l}</option>`).join('')}
+        </select></label>
+        <label>Einträge ohne Namen<select id="ortsFolge">
+          ${ORTS_FOLGEN.map(([k, l]) => `<option value="${k}" ${e.ortsFolge === k ? 'selected' : ''}>${l}</option>`).join('')}
+        </select></label>
+      </div>
+      ${mehr('Wie wird sortiert?', '<p class="hinweis">„Name A–Z“ in der Kundenliste sortiert immer nach dem Nachnamen, dann nach dem Vornamen. Steht nur ein Vorname oder nur eine Firma da, zählt diese wie ein Nachname. Einträge ohne Namen (z. B. ein Pin auf der Karte) folgen danach, je nach Wahl nach Ort und dann Straße oder nach Straße und dann Ort. Texte für Enpal, GALVANY und Vorwerk sowie Leihscheine schreiben den Namen immer als „Vorname Nachname“.</p>')}
+    </section>
     ${feldverwaltung.html(e.felder)}
     <section class="karte-box" id="kaEinstellungen">
       <h2>Kundenansicht zum Herzeigen ${hilfe.knopf('kundenansicht')}</h2>
@@ -413,6 +427,9 @@ export function render(el: HTMLElement, params?: URLSearchParams) {
   });
   el.querySelector('#hilfeKnoepfe')?.addEventListener('change', (ev) => { hilfe.vorliebeSetzen({ knoepfe: (ev.target as HTMLInputElement).checked }); toast('Gespeichert', 'ok'); });
   el.querySelector('#kalenderStart').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.kalenderStart = (ev.target as HTMLSelectElement).value as typeof d.einstellungen.kalenderStart; }));
+  // Namensanzeige gilt sofort, auch im Demo-Modus (dort nur bis zum Neuladen)
+  el.querySelector('#namensFolge')?.addEventListener('change', (ev) => { const v = (ev.target as HTMLSelectElement).value === 'nachname' ? 'nachname' : 'vorname'; store.mutate((d) => { d.einstellungen.namensFolge = v; }); toast(v === 'nachname' ? 'Namen jetzt als „Nachname, Vorname“' : 'Namen jetzt als „Vorname Nachname“', 'ok'); });
+  el.querySelector('#ortsFolge')?.addEventListener('change', (ev) => { const v = (ev.target as HTMLSelectElement).value === 'strasse' ? 'strasse' : 'ort'; store.mutate((d) => { d.einstellungen.ortsFolge = v; }); toast('Gespeichert', 'ok'); });
   el.querySelector('#kartenApp').addEventListener('change', (ev) => speichere((d) => { d.einstellungen.kartenApp = (ev.target as HTMLInputElement).value; }));
   feldverwaltung.verdrahten(el, () => { const y = scrollY; render(el); scrollTo(0, y); });
   bausteinverwaltung.verdrahten(el, () => { const y = scrollY; render(el); scrollTo(0, y); });
