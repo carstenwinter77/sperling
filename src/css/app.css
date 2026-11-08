@@ -1755,3 +1755,5 @@ dialog.dlg.dlg-terminwahl .dlg-inner { gap: .5rem; }
 .tw-sperrliste small { color: var(--text-2); }
 @media (max-width: 600px) { .tw-raster { max-height: 52vh; } .tw-vorschlag { width: 100%; } }
 .sz-zeit[hidden], .sz-tage[hidden], .tw-zeile [hidden], label.check.ed-wv[hidden], .tw-nahe[hidden] { display: none; }
+/* Kalender Woche/Tag: Raster scrollt in sich, die Tageszeile (Datum) bleibt beim Scrollen oben stehen (ab 0.16.0) */
+.k-raster { max-height: calc(100dvh - var(--band-h, 0px) - 7rem); overflow: auto; overscroll-behavior: contain; }

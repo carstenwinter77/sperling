@@ -21,6 +21,7 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 - [x] „📅 Im Kalender wählen“ (`src/ui/terminwahl.ts`): ganzer Kalender Tag/Woche mit vorhandenen Terminen im Fenster; am Termin-Fenster, Gesprächsabschluss, Leitfaden und an der Enpal-Doku. Warnzeile bei Überschneidung.
 - [x] Feste Zeiten verwalten (`src/ui/sperrzeiten.ts`): Kalender „🔒 Feste Zeiten“, Einstellungen → Allgemein; gestreift im Kalender (Woche/Tag).
 - [x] „Termin vereinbart“ Pflichtdatum oder „Datum noch offen“ (Wiedervorlage „Termin-Datum klären“, nächster Werktag); Kalender öffnet sich bei Wahl des Ergebnisses (R-FLOW). Klemmbrett schätzt kein Termindatum mehr.
+- [x] Kalender Woche/Tag: Tageszeile bleibt beim Scrollen stehen (`.k-raster` scrollt in sich, Scrollstelle bleibt beim Neuzeichnen).
 - [x] Enpal-Doku: echter Termin bei „Termin vereinbart“, Status folgt dem Ergebnis, danach Terminbestätigung anbieten.
 - [ ] Mit Jan testen: Stimmen Standard-Arbeitszeit (Mo–Fr 8–18 Uhr), Puffer 15 Min., Termindauer PV/WP 1,5 Std., Umkreis 15 km? Private Kalender (iPhone/Google) bleiben bewusst außen vor.
 

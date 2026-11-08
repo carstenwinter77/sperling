@@ -8,6 +8,7 @@ export const NEUIGKEITEN = [
       'Oben im Kalender schlägt Sperling Zeiten vor, in denen du sowieso in der Nähe bist, z. B. „Di 10:45, nach 9:30 Müller (Lengede), 2 km“.',
       'Ohne Datum lässt sich ein vereinbarter Termin nicht mehr speichern. Steht das Datum noch nicht fest, kreuze „Datum noch offen“ an: Dann erinnert dich Sperling morgen daran.',
       'Feste Zeiten blocken: Im Kalender unter „🔒 Feste Zeiten“ trägst du deine Arbeitszeit ein und Zeiten, in denen du keine Kundentermine machst (z. B. jeden Mittwochnachmittag privat, Urlaub). Sie stehen gestreift im Kalender.',
+      'Kalender Woche und Tag: Die Zeile mit Wochentag und Datum bleibt beim Scrollen oben stehen.',
     ],
   },
   {

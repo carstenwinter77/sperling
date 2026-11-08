@@ -167,6 +167,8 @@ export function zeichnen(el, zustand, onWechsel, neuZeichnen) {
     titel = datum.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     inhalt = rasterHtml([datum], d, heuteKey, ge);
   }
+  // Woche/Tag scrollen innerhalb des Rasters, damit die Tageszeile oben stehen bleibt; Stelle beim Neuzeichnen halten
+  const altScroll = (el.querySelector('.k-raster') as HTMLElement | null)?.scrollTop ?? null;
   el.innerHTML = `
     <div class="k-leiste">
       <div class="k-nav"><button type="button" class="btn klein ghost" data-schritt="-1" aria-label="Zurück">‹</button><button type="button" class="btn klein ghost" data-schritt="0">Heute</button><button type="button" class="btn klein ghost" data-schritt="1" aria-label="Weiter">›</button></div>
@@ -179,6 +181,8 @@ export function zeichnen(el, zustand, onWechsel, neuZeichnen) {
     ? 'Tag antippen = Tagesansicht mit allen Terminen dieses Tages. Finger auf einem Termin halten und auf einen anderen Tag ziehen = verschieben.'
     : 'Uhrzeit antippen = neuer Termin (Finger halten und ziehen für die Dauer). Termin antippen = Details. Finger auf dem Termin halten = Griffe zum Verschieben und Länger/Kürzer-Ziehen.'}</p>
     ${inhalt}`;
+  const raster = el.querySelector('.k-raster') as HTMLElement | null;
+  if (raster) raster.scrollTop = altScroll ?? Math.max(0, ((Math.max(START_STUNDE, Math.min(new Date().getHours() - 1, 8)) - START_STUNDE) * 60 / SLOT_MIN) * SLOT_PX);
 
   el.querySelector('#kSperren')?.addEventListener('click', async () => { if (await sperrzeiten.verwalten()) neuZeichnen(); });
   el.querySelector('#kLeih')?.addEventListener('change', (e) => { leihZeigen = (e.target as HTMLInputElement).checked; neuZeichnen(); });
