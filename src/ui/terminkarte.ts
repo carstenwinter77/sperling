@@ -10,6 +10,7 @@ import { terminDialog, icsExport } from './parts.ts';
 import { naviLink } from './navi.ts';
 import { abhaken } from './abhaken.ts';
 import { anrufen, emailSchreiben } from './kontakt.ts';
+import { bestaetigungSenden } from './vertrieb.ts';
 
 const uhr = (d: Date) => d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
@@ -37,6 +38,7 @@ export async function terminKarte(t0: Termin): Promise<boolean> {
         ${route ? `<a class="btn" href="${esc(route)}" target="_blank" rel="noopener">🚗 Route</a>` : ''}
         ${k?.telefon ? '<button type="button" class="btn" data-tk="anrufen">📞 Anrufen</button>' : ''}
         ${k?.email ? '<button type="button" class="btn" data-tk="mail">✉️ E-Mail</button>' : ''}
+        ${k && t.art === 'termin' && !t.erledigt && t.beginn > new Date().toISOString() ? '<button type="button" class="btn" data-tk="bestaetigen">✅ Termin bestätigen</button>' : ''}
         <button type="button" class="btn ghost" data-tk="erledigt">${t.erledigt ? '↺ Wieder offen' : '✓ Erledigt'}</button>
         <button type="button" class="btn ghost" data-tk="ics">📅 In Kalender-App</button>
       </div>
@@ -69,6 +71,7 @@ export async function terminKarte(t0: Termin): Promise<boolean> {
     emailSchreiben({ an: k.email, betreff: t.titel || '', text: `${anrede}\n\n\n\nViele Grüße${gruss ? `\n${gruss}` : ''}` });
     return false;
   }
+  if (a === 'bestaetigen' && k) { await bestaetigungSenden(t); return false; }
   if (a === 'ics') { icsExport([t], `termin-${(t.titel || 'sperling').replace(/[^\wäöüÄÖÜß-]+/g, '_').slice(0, 40)}.ics`); return false; }
   if (a === 'erledigt') {
     return abhaken(t);

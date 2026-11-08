@@ -34,6 +34,7 @@ const S: Record<string, string> = {
   // Einstellungen: Bereiche
   allgemein: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle class="fs" cx="15" cy="7" r="2.2"/><circle class="fs" cx="9" cy="17" r="2.2"/>',
   texte: '<rect class="fs" x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m4.5 7 7.5 6 7.5-6"/>',
+  vertrieb: '<rect class="fs" x="3.5" y="7.5" width="17" height="12" rx="2.5"/><path d="M9 7.5V5.5h6v2M3.5 12.5h17M12 11.5v2"/>',
   kundendaten: '<rect class="fs" x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="10.5" r="2"/><path d="M5.5 16c.6-1.6 1.6-2.4 3-2.4s2.4.8 3 2.4M14 10h4M14 13.5h4"/>',
   sicherung: '<path class="fs" d="M7 19h10.5a4 4 0 0 0 .6-8 6 6 0 0 0-11.7-1.3A4.7 4.7 0 0 0 7 19z"/><path d="M12 16.5V11M9.6 13.2 12 10.8l2.4 2.4"/>',
   sicherheit: '<path class="fs" d="M12 3.5 19 6v5.5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6z"/><path d="m9 12 2.2 2.2L15.5 10"/>',

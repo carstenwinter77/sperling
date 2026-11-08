@@ -4,8 +4,9 @@
 import { AUSGANG, KONTAKTART, SPARTEN, KAUFINTERESSE, type Daten, type Kunde, type Sparte } from './model.ts';
 import { ERGEBNIS } from './einwaende.ts';
 import { MARKIERUNGEN } from './produkte.ts';
+import { HAUSTUER } from './vertrieb.ts';
 
-export type VerlaufArt = 'gespraech' | 'notiz' | 'termin' | 'verleih' | 'produkt';
+export type VerlaufArt = 'gespraech' | 'notiz' | 'termin' | 'verleih' | 'produkt' | 'haustuer';
 export interface VerlaufEintrag {
   zeitpunkt: string;
   art: VerlaufArt;
@@ -94,6 +95,9 @@ export function kundenVerlauf(data: Daten, k: Kunde, jetzt = new Date().toISOStr
     if (l.notiz) zeilen.push(l.notiz);
     out.push({ zeitpunkt: l.ausgabe, art: 'verleih', titel: `Verliehen: ${g?.name || 'Gerät'}`, zeilen: [zeilen.join(' · ')], sparten: ['vorwerk'], notizIds: [], enpalIds: [], leihId: l.id });
   }
+  for (const h of k.haustuer || []) {
+    out.push({ zeitpunkt: h.zeitpunkt, art: 'haustuer', titel: `An der Haustür: ${HAUSTUER[h.ergebnis].label}`, zeilen: h.notiz ? [h.notiz] : [], sparten: [], notizIds: [], enpalIds: [] });
+  }
   // Produkte im Gespräch: alle Markierungen eines Tages als ein Eintrag (Tag in Ortszeit)
   const tage = new Map<string, VerlaufEintrag>();
   for (const m of [...(k.produkte || [])].sort((a, b) => (a.zeitpunkt < b.zeitpunkt ? -1 : 1))) {
@@ -113,7 +117,7 @@ export function kundenVerlauf(data: Daten, k: Kunde, jetzt = new Date().toISOStr
 
 /**
  * Letzter Kontakt: jüngstes Gespräch, Enpal-Kontakt, Notiz, erledigter Termin, Ausgabe oder Rückgabe
- * eines Geräts, oder der von Hand gesetzte Tag. Nichts in der Zukunft. null = noch nie.
+ * eines Geräts, Haustür-Gespräch, oder der von Hand gesetzte Tag. Nichts in der Zukunft. null = noch nie.
  */
 export function letzterKontakt(data: Pick<Daten, 'termine' | 'leihvorgaenge'>, k: Kunde, jetzt = new Date().toISOString()): string | null {
   let best: string | null = null;
@@ -124,6 +128,8 @@ export function letzterKontakt(data: Pick<Daten, 'termine' | 'leihvorgaenge'>, k
   for (const n of k.notizen) nimm(n.zeitpunkt);
   for (const t of data.termine) if (t.kundeId === k.id && t.erledigt) nimm(t.beginn);
   for (const l of data.leihvorgaenge) if (l.kundeId === k.id) { nimm(l.ausgabe); nimm(l.rueckgabe); }
+  // An der Haustür zählt nur, wenn jemand geöffnet hat (nicht „nicht angetroffen“, nicht „keine Werbung“)
+  for (const h of k.haustuer || []) if (HAUSTUER[h.ergebnis].kontakt) nimm(h.zeitpunkt);
   return best;
 }
 

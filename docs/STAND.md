@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.12.1
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.0
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,11 +14,21 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.12.1)
+## Erledigt (Version 0.13.0)
+
+### Neu in 0.13.0 (Vertriebswerkzeuge, Schema 9)
+- [x] Angebote mit Betrag, Frist, Nachfass-Wiedervorlagen (Abstände unter Einstellungen → Vertrieb, Standard Tag 3 und 7), Summe offener Angebote; Angenommen → Abschluss + Auftragsstand.
+- [x] Auftragsstand nach dem Abschluss je Bereich, Kopiertext für den Kunden, Pflege-Wiedervorlagen nach dem letzten Schritt.
+- [x] Termin bestätigen per SMS, WhatsApp oder E-Mail mit „Bitte bereitlegen“-Liste (Termin-Karte); Listen je Bereich unter Einstellungen → Vertrieb.
+- [x] Tagesroute auf der Karte mit „Unterwegs vorbeischauen“; Link aus der Kalender-Tagesansicht; andere Kunden ausgeblendet, optional einblendbar.
+- [x] Ansprechpartner mit Rolle bei Firmen und Höfen.
+- [x] Haustür-Ergebnis mit einem Tipp (Kunde, Karte, auch neue Häuser); „Keine Werbung“ sperrt Vorschläge (R-WERBUNG).
+- [ ] Mit Jan abstimmen: Auftragsschritte je Anbieter (stimmen Enpal-/GALVANY-Abläufe?), Pflege-Abstände (Nachfass-Abstände und Bereitlegen-Listen kann Jan selbst einstellen).
+- [ ] Auf echtem iPhone/iPad prüfen: SMS- und WhatsApp-Link mit vorausgefülltem Text, Haustür-Knöpfe in der Karten-Infobox.
+- [ ] Offen aus dem Vorschlag vom 08.11.: Kontakt-Einwilligung je Kunde (§ 7 UWG); die Nachfassliste der Auswertung könnte Angebotsbetrag und „gültig bis“ nutzen.
 
 ### Neu in 0.12.1
 - [x] Textvorlagen: Platzhalter per Knopf („+ Vorname“, „+ Kundendaten“ …) an der Schreibmarke einfügen; Fokus bleibt in der Vorlage, wird sofort gespeichert.
-
 
 ### Neu in 0.12.0
 - [x] **Gespräch als digitales Klemmbrett** (`src/core/klemmbrett.ts`, `src/ui/views/gespraech.ts`, `src/ui/views/gespraechsmodus.ts`): ersetzt die 7 Phasen aus 0.10.6. Je Bereich Situation / Bedarf / Nächster Schritt. Kartei-Felder werden direkt in die Kartei geschrieben (gleiche Bindung wie die Kundenseite), Antworten (Antippen + Freitext) kommen beim Speichern als Zeilen in die Notiz des eigenen Bereichs (R-TEXT). Haken, Zähler, Fortschrittsring, Vorbereitung „Heute noch klären“, schwebender Einwand-Knopf mit Fenster von unten (Rückfrage vor Antwort), Gesprächsbilanz „x von y erfasst“ mit offenen Punkten, nächster Schritt vorausgefüllt. Antworten nur im Entwurf (Arbeitsspeicher), kein Schemawechsel. Unit-Tests und Browser-Test angepasst.
@@ -28,7 +38,6 @@ Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenb
 - [x] Einstellungen in acht Bereichen statt einer langen Liste: Allgemein, Texte & E-Mail, Kundendaten, Sicherung, Sicherheit & Datenschutz, Meine Kontaktseite, Hilfe, Gelöscht & Beispieldaten. Unter jedem Bereich der aktuelle Stand (Sicherung orange, wenn älter als eine Woche). Ab 900 px links Liste, rechts Inhalt; schmaler Übersicht → Unterseite mit „‹ Alle Einstellungen“ (`?bereich=…`). Suchfeld über alle Bereiche. Ein/Aus als Schalter, lange Erklärungen hinter „ⓘ“, Vorlagen je Bereich eingeklappt, „Alles löschen“ im Gefahrenbereich. Keine Funktion entfernt, kein Datenmodell geändert.
 - [x] Menüleiste, „Mehr“-Menü und Einstellungen mit einheitlichen Linien-Symbolen in der Akzentfarbe (`src/ui/symbole.ts`, inline SVG, hell/dunkel automatisch) statt der kleinen Logo-Bildchen.
 - [ ] Auf dem iPad 6 (quer und hochkant) und iPhone ansehen: Symbole gut erkennbar, Schalter, Suche.
-
 
 ### Neu in 0.11.0
 - [x] Auswertungen nach Vertriebssicht: vier Kernzahlen, Verkaufstrichter mit schwächster Stufe und Tipp, „Jetzt nachfassen“, Sparten im Vergleich, Details eingeklappt; fairer Vergleich bei laufenden Zeiträumen; Zeitraum „Quartal“, Rest unter „Mehr“. Kein Monatsziel (auf Wunsch bewusst weggelassen).

@@ -2,6 +2,7 @@
 // Alle Bereiche werden gezeichnet und nur ein-/ausgeblendet, damit Suche und Verdrahtung überall greifen.
 import * as abgleich from '../abgleich.ts';
 import { esc, formatDateTime, parseNumber } from '../../core/util.ts';
+import { BEREITLEGEN, NACHFASS_TAGE, NACHFASS_MAX, BEREITLEGEN_MAX, normalizeBereitlegen, normalizeNachfassTage, tageListeText } from '../../core/vertrieb.ts';
 import { DEFAULT_VORLAGEN, KUNDENANSICHT_TEILE, SPARTEN, SPARTEN_KEYS, migrate, normalizeGeraet, type KundenansichtTeil, type Sparte } from '../../core/model.ts';
 import { demoDaten, beispielAnzahl, beispielEinfuegen, beispielEntfernen, beispielBestand, bestandAnzahl, bestandEinfuegen, bestandEntfernen, beispielSicher } from '../../demo.ts';
 import { PLATZHALTER } from '../../core/textgen.ts';
@@ -35,6 +36,7 @@ function tageText(iso: string): string {
 export const GRUPPEN = [
   { key: 'allgemein', sym: 'allgemein', titel: 'Allgemein', such: 'absender gruss name farbschema hell dunkel automatisch kalender start ansicht hinfahren navigation karten app apple google waze' },
   { key: 'texte', sym: 'texte', titel: 'Texte & E-Mail', such: 'textvorlagen vorlage platzhalter textbausteine baustein mail e-mail mailprogramm empfaenger gmail outlook' },
+  { key: 'vertrieb', sym: 'vertrieb', titel: 'Vertrieb', such: 'nachfassen angebot wiedervorlage tage abstand bereitlegen terminbestaetigung termin bestaetigen sms whatsapp stromrechnung' },
   { key: 'kunden', sym: 'kundendaten', titel: 'Kundendaten', such: 'felder eigene felder feldverwaltung kundenansicht herzeigen fotos kundenfotos speicher' },
   { key: 'sicherung', sym: 'sicherung', titel: 'Sicherung', such: 'sicherung icloud backup datei einspielen wiederherstellen versionen einstellungen uebertragen abgleich geraet wechseln fotos mitsichern' },
   { key: 'sicherheit', sym: 'sicherheit', titel: 'Sicherheit & Datenschutz', such: 'sperren automatisch sperre face id touch id passwort master-passwort datenschutz alles loeschen zuruecksetzen' },
@@ -71,6 +73,7 @@ function statusText(key: GruppeKey, demo: boolean): string {
       const m = gemerktesMailprogramm();
       return `3 Vorlagen · ${n(b, 'Baustein', 'Bausteine')} · ${m && m in MAILPROGRAMME ? esc(MAILPROGRAMME[m as keyof typeof MAILPROGRAMME]) : 'Mail: jedes Mal fragen'}`;
     }
+    case 'vertrieb': return `Nachfassen: ${e.nachfassTage.length ? `nach ${tageListeText(e.nachfassTage)}` : 'aus'} · Bereitlegen: ${SPARTEN_KEYS.reduce((z, s) => z + e.bereitlegen[s].length, 0)} Punkte`;
     case 'kunden': {
       const st = fotoStatistik(d);
       return `${n(e.felder.eigene.length, 'eigenes Feld', 'eigene Felder')} · ${st.anzahl ? `${n(st.anzahl, 'Foto', 'Fotos')} (${groesseText(st.bytes)})` : 'keine Fotos'}`;
@@ -133,6 +136,26 @@ function inhalt(key: GruppeKey, demo: boolean): string {
       <div class="knopfreihe"><button type="button" class="btn ghost" id="vReset">Vorlagen zurücksetzen</button></div>
     </section>
     ${bausteinverwaltung.html(e.bausteine)}`;
+
+    case 'vertrieb': return `
+    <section class="karte-box" id="nachfassEinstellungen">
+      <h2>Angebote nachfassen</h2>
+      <p class="hinweis">Beim Erfassen eines Angebots legt Sperling an diesen Tagen danach eine Wiedervorlage an (10 Uhr). Ohne Tage wird nichts angelegt.</p>
+      <div class="nf-tage" role="list">${e.nachfassTage.map((n) => `<span class="nf-tag" role="listitem">${n} ${n === 1 ? 'Tag' : 'Tage'} <button type="button" class="nf-weg" data-nf-weg="${n}" aria-label="${n} Tage entfernen">×</button></span>`).join('') || '<span class="hinweis">Nachfassen aus</span>'}</div>
+      <div class="knopfreihe einst-zeile">
+        <input type="number" id="nfNeu" min="1" max="90" step="1" inputmode="numeric" placeholder="Tage" aria-label="Tage nach dem Angebot" ${e.nachfassTage.length >= NACHFASS_MAX ? 'disabled' : ''}>
+        <button type="button" class="btn ghost" id="nfDazu" ${e.nachfassTage.length >= NACHFASS_MAX ? 'disabled' : ''}>+ Hinzufügen</button>
+        ${e.nachfassTage.join() !== NACHFASS_TAGE.join() ? `<button type="button" class="btn ghost" id="nfReset">Zurück auf ${tageListeText(NACHFASS_TAGE)}</button>` : ''}
+      </div>
+      ${mehr('Gilt das auch für schon erfasste Angebote?', `<p class="hinweis">Nein. Die Abstände gelten für neue Angebote. Schon angelegte Wiedervorlagen bleiben im Kalender und lassen sich dort verschieben oder löschen. Höchstens ${NACHFASS_MAX} Abstände, je 1 bis 90 Tage.</p>`)}
+    </section>
+    <section class="karte-box" id="bereitlegenEinstellungen">
+      <h2>Termin bestätigen: „Bitte bereitlegen“</h2>
+      <p class="hinweis">Diese Punkte stehen in der Terminbestätigung an den Kunden und lassen sich dort einzeln abwählen. Ein Punkt pro Zeile, höchstens ${BEREITLEGEN_MAX}.</p>
+      ${SPARTEN_KEYS.map((s) => `<details class="felder-kat einst-vorlage" data-bl-bereich="${s}"><summary><b>${esc(SPARTEN[s].label)}</b> <small>${e.bereitlegen[s].length} Punkte${e.bereitlegen[s].join('\n') !== BEREITLEGEN[s].join('\n') ? ' · angepasst' : ''}</small></summary>
+        <textarea data-bereitlegen="${s}" rows="5" aria-label="Bitte bereitlegen ${esc(SPARTEN[s].label)}">${esc(e.bereitlegen[s].join('\n'))}</textarea></details>`).join('')}
+      <div class="knopfreihe"><button type="button" class="btn ghost" id="blReset">Listen zurücksetzen</button></div>
+    </section>`;
 
     case 'kunden': return `
     ${feldverwaltung.html(e.felder)}
@@ -396,6 +419,36 @@ export function render(el: HTMLElement, params?: URLSearchParams) {
   el.querySelector('#kaEinstellungen').addEventListener('change', (ev) => {
     const c = (ev.target as Element).closest<HTMLInputElement>('[data-ka]');
     if (c) speichere((d) => { d.einstellungen.kundenansicht[c.dataset.ka as KundenansichtTeil] = c.checked; });
+  });
+  // Vertrieb: Nachfass-Abstände und „Bitte bereitlegen“
+  const nachfassSetzen = (tage: number[]) => {
+    if (demo) { toast('Im Demo-Modus wird nichts gespeichert.', 'info'); return; }
+    store.mutate((d) => { d.einstellungen.nachfassTage = normalizeNachfassTage(tage); });
+    const y = scrollY; render(el); scrollTo(0, y);
+  };
+  el.querySelector('#nachfassEinstellungen')?.addEventListener('click', (ev) => {
+    const weg = (ev.target as Element).closest<HTMLElement>('[data-nf-weg]');
+    if (weg) nachfassSetzen(store.getData().einstellungen.nachfassTage.filter((n) => n !== Number(weg.dataset.nfWeg)));
+  });
+  const nfDazu = () => {
+    const f = el.querySelector<HTMLInputElement>('#nfNeu')!;
+    const n = parseNumber(f.value);
+    if (n === null || !Number.isInteger(n) || n < 1 || n > 90) { toast('Bitte ganze Tage von 1 bis 90 eingeben.', 'error'); return; }
+    if (store.getData().einstellungen.nachfassTage.includes(n)) { toast(`${n} Tage sind schon eingetragen.`, 'info'); return; }
+    nachfassSetzen([...store.getData().einstellungen.nachfassTage, n]);
+  };
+  el.querySelector('#nfDazu')?.addEventListener('click', nfDazu);
+  el.querySelector('#nfNeu')?.addEventListener('keydown', (ev) => { if ((ev as KeyboardEvent).key === 'Enter') { ev.preventDefault(); nfDazu(); } });
+  el.querySelector('#nfReset')?.addEventListener('click', () => nachfassSetzen([...NACHFASS_TAGE]));
+  el.querySelectorAll<HTMLTextAreaElement>('[data-bereitlegen]').forEach((t) => t.addEventListener('change', () => {
+    const s = t.dataset.bereitlegen as Sparte;
+    speichere((d) => { d.einstellungen.bereitlegen = normalizeBereitlegen({ ...d.einstellungen.bereitlegen, [s]: t.value.split('\n') }); });
+    if (!demo) { const n = store.getData().einstellungen.bereitlegen[s].length; toast(`Gespeichert (${n} Punkte)`, 'ok'); }
+  }));
+  el.querySelector('#blReset')?.addEventListener('click', async () => {
+    if (!(await bestaetigen('Listen zurücksetzen?', 'Die „Bitte bereitlegen“-Listen aller Bereiche bekommen wieder die Standardpunkte.', 'Zurücksetzen'))) return;
+    speichere((d) => { d.einstellungen.bereitlegen = normalizeBereitlegen({}); });
+    const y = scrollY; render(el); scrollTo(0, y);
   });
   el.querySelector('#mailprogramm').addEventListener('change', (ev) => { mailprogrammMerken((ev.target as HTMLInputElement).value); toast('Gespeichert', 'ok'); });
   el.querySelectorAll<HTMLInputElement>('[data-empf]').forEach((i) => i.addEventListener('change', () => speichere((d) => { d.einstellungen.empfaenger[i.dataset.empf as Sparte] = i.value.trim(); })));

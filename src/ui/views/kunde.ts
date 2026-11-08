@@ -20,6 +20,7 @@ import { kontaktKlasse } from './kunden.ts';
 import * as ablauf from '../gespraechsablauf.ts';
 import * as suche from '../suche.ts';
 import * as kundenfotos from '../kundenfotos.ts';
+import * as vertrieb from '../vertrieb.ts';
 import { statusOptions, terminDialog, terminZeile, terminListeVerdrahten, icsExport, spartenIcon, statusChips } from '../parts.ts';
 
 const TABS = [
@@ -29,6 +30,7 @@ const TABS = [
   { key: 'doku', label: 'Enpal-Doku', bild: 'photovoltaik' },
   { key: 'wp', label: 'Wärmepumpe', bild: 'waermepumpe' },
   { key: 'vorwerk', label: 'Vorwerk', bild: 'vorwerk' },
+  { key: 'angebote', label: 'Angebot & Auftrag', bild: 'notizen' },
   { key: 'fotos', label: 'Fotos', bild: 'kunde-neu' },
   { key: 'verlauf', label: 'Verlauf', bild: 'notizen' },
   { key: 'termine', label: 'Termine', bild: 'termine' },
@@ -54,6 +56,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
       <span id="kChips">${statusChips(kunde)}</span>
     </header>
     <p class="kunde-kontakt"><button type="button" class="kontakt-alter-knopf" id="kKontakt" title="Letzten Kontakt von Hand setzen"></button></p>
+    <div id="kBand">${vertrieb.werbeverbotBand(kunde)}</div>
     <div class="knopfreihe kunde-aktionen"><a class="btn klein primary" href="#/kunde/${esc(kunde.id)}/gespraech" id="gespraechStarten">${laeuft ? '▶ Gespräch fortsetzen' : '📞 Gespräch starten'}</a><a class="btn klein" href="#/kunde/${esc(kunde.id)}/gespraech?seite=leitfaden">💬 Gesprächsleitfaden</a><button class="btn klein" id="kundenansicht">👁 Kundenansicht zum Herzeigen</button></div>
     <nav class="tabs" role="tablist">
       ${TABS.map((t) => `<button role="tab" data-tab="${t.key}" class="${t.key === tab ? 'aktiv' : ''}">${esc(t.label)}</button>`).join('')}
@@ -101,6 +104,8 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
     kontaktZeigen();
     el.querySelector('#kTitel').textContent = kundenTitel(k);
     el.querySelector('#kChips').innerHTML = statusChips(k);
+    const band = el.querySelector('#kBand');
+    if (band) band.innerHTML = vertrieb.werbeverbotBand(k);
   };
 
   const zeigeTab = (t) => {
@@ -109,7 +114,7 @@ export function render(el: HTMLElement, params: URLSearchParams, [id = '']: stri
     history.replaceState(null, '', `#/kunde/${id}?tab=${t}`);
     const k = store.findKunde(id);
     if (!k) { location.hash = '#/kunden'; return; }
-    ({ uebersicht, notizen, pv, wp, doku: enpalDoku.tab, vorwerk, fotos: kundenfotos.tab, verlauf, termine, texte })[t](inhalt, k, kopfAktualisieren);
+    ({ uebersicht, notizen, pv, wp, doku: enpalDoku.tab, vorwerk, angebote: vertrieb.tab, fotos: kundenfotos.tab, verlauf, termine, texte })[t](inhalt, k, kopfAktualisieren);
   };
   el.querySelector('.tabs').addEventListener('click', (e) => {
     const b = (e.target as Element).closest('button[data-tab]');
@@ -207,6 +212,8 @@ function uebersicht(el, k, kopf) {
         <button class="btn ghost" id="geocode">📍 Standort aus Adresse ermitteln</button>
       </div>
     </section>
+    ${vertrieb.ansprechpartnerHtml(k)}
+    ${vertrieb.haustuerHtml(k)}
     ${bestandKunde.blockHtml(k.id)}
     ${k.lat !== null ? `
     <section class="karte-box nachbarn-box">
@@ -235,6 +242,8 @@ function uebersicht(el, k, kopf) {
   });
 
   bestandKunde.verdrahten(el, k.id, () => { kopf(); uebersicht(el, store.findKunde(k.id), kopf); });
+  vertrieb.ansprechpartnerVerdrahten(el, k.id, () => uebersicht(el, store.findKunde(k.id), kopf));
+  vertrieb.haustuerVerdrahten(el, () => { kopf(); uebersicht(el, store.findKunde(k.id), kopf); });
   // Immer den aktuellen Stand nehmen (Felder speichern beim Tippen).
   el.querySelector('#anrufen').addEventListener('click', () => {
     const akt = store.findKunde(k.id);
@@ -439,8 +448,8 @@ function texte(el, k) {
   }));
 }
 
-const VERLAUF_FILTER = [['alle', 'Alles'], ['gespraech', 'Gespräche'], ['notiz', 'Notizen'], ['termin', 'Termine'], ['verleih', 'Geräte'], ['produkt', 'Produkte']] as const;
-const VERLAUF_SYMBOL: Record<VerlaufEintrag['art'], string> = { gespraech: '💬', notiz: '📝', termin: '📅', verleih: '📦', produkt: '🏷️' };
+const VERLAUF_FILTER = [['alle', 'Alles'], ['gespraech', 'Gespräche'], ['notiz', 'Notizen'], ['termin', 'Termine'], ['verleih', 'Geräte'], ['produkt', 'Produkte'], ['haustuer', 'Haustür']] as const;
+const VERLAUF_SYMBOL: Record<VerlaufEintrag['art'], string> = { gespraech: '💬', notiz: '📝', termin: '📅', verleih: '📦', produkt: '🏷️', haustuer: '🚪' };
 
 function verlaufHtml(v: VerlaufEintrag) {
   return `<li class="verlauf-eintrag art-${v.art}${v.zukunft ? ' zukunft' : ''}${v.erledigt ? ' erledigt' : ''}">
