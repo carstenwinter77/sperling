@@ -1,5 +1,8 @@
 # Änderungsverlauf
 
+## 0.13.1 – 08.11.2026
+- **Belegungskalender: Titelzeile bleibt oben.** Bei vielen Geräten scrollte die Datumszeile nach oben weg. Jetzt bleibt sie stehen: auf Tablet und Computer klebt sie oben an der Seite (unter dem Demo-Band), auf dem Handy scrollt die Geräteliste in einem eigenen Bereich unter der festen Zeile.
+
 ## 0.13.0 – 08.11.2026
 - **Angebote mit Betrag und Frist** (Kunde → Reiter „Angebot & Auftrag“, `src/core/vertrieb.ts`, `src/ui/vertrieb.ts`): Bereich, Bezeichnung, Betrag, Datum, „gültig bis“, Notiz. Auf Wunsch legt Sperling Nachfass-Wiedervorlagen an (Abstände unter **Einstellungen → Vertrieb** frei wählbar, Standard 3 und 7 Tage, bis zu 6 Abstände, leer = aus) und setzt den Status auf „Angebot erstellt“. Summe der offenen Angebote, Hinweis „Frist abgelaufen“. „Angenommen“ setzt den Abschluss, beginnt den Auftragsstand und hakt die Nachfass-Wiedervorlagen ab; „Abgelehnt“ und „Ersetzt“ ebenso ohne Abschluss.
 - **Auftragsstand nach dem Abschluss:** Schritte je Bereich (PV: Vertrag, Planung, Montage, Netzanmeldung, Inbetriebnahme; WP mit Förderantrag; Vorwerk: Kauf, Lieferung, Einweisung) mit Haken und Datum (ohne Haken = geplant), Fortschrittsbalken, Notiz und „Stand für den Kunden kopieren“. Ist der letzte Schritt abgehakt, schlägt Sperling **Pflege-Wiedervorlagen** vor (Zufriedenheit nach 4 bzw. 2 Wochen, Jahresbilanz, WP nach der Heizperiode und Wartung, Vorwerk-Service nach einem Jahr).

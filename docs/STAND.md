@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.0
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.13.1
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -14,7 +14,10 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
 
-## Erledigt (Version 0.13.0)
+## Erledigt (Version 0.13.1)
+
+### Neu in 0.13.1
+- [x] Belegungskalender: Titelzeile (Datumskopf) bleibt beim Scrollen oben stehen.
 
 ### Neu in 0.13.0 (Vertriebswerkzeuge, Schema 9)
 - [x] Angebote mit Betrag, Frist, Nachfass-Wiedervorlagen (Abstände unter Einstellungen → Vertrieb, Standard Tag 3 und 7), Summe offener Angebote; Angenommen → Abschluss + Auftragsstand.

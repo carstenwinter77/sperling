@@ -2,6 +2,12 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.13.1',
+    punkte: [
+      'Belegungskalender: Die Zeile mit den Tagen bleibt beim Scrollen oben stehen, auch bei vielen Geräten.',
+    ],
+  },
+  {
     version: '0.13.0',
     punkte: [
       'Angebote beim Kunden: Bereich, Betrag, „gültig bis“. Sperling erinnert ans Nachfassen (Abstände stellst du unter Einstellungen → Vertrieb ein, Standard 3 und 7 Tage) und zeigt, wie viel Euro an Angeboten offen sind.',

@@ -469,6 +469,12 @@ body.ka-aktiv { overflow: hidden; }
 .bk-leiste { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .75rem; }
 .bk-leiste select, .bk-leiste input { width: auto; }
 .bk-plan { overflow-x: auto; }
+/* Titelzeile (Datumskopf) bleibt beim Scrollen oben stehen */
+.bk-kopfzeile { position: sticky; top: 0; z-index: 3; background: var(--karte); box-shadow: 0 1px 0 var(--linie); }
+/* Tablet/Computer: Plan passt in die Breite, also scrollt die Seite und der Kopf klebt unter dem Demo-Band */
+@media (min-width: 640px) { .bk-plan { overflow-x: visible; } .bk-kopfzeile { top: var(--band-h); } }
+/* Handy: Plan scrollt seitlich, deshalb eigener Scrollbereich, in dem der Kopf oben bleibt */
+@media (max-width: 639px) { .bk-plan { overflow: auto; max-height: calc(100dvh - var(--nav-h) - var(--band-h) - 140px); overscroll-behavior: contain; } }
 .bk-zeile { display: grid; grid-template-columns: minmax(110px, 180px) minmax(420px, 1fr); border-bottom: 1px solid var(--linie); }
 .bk-name { padding: .4rem .5rem .4rem 0; display: flex; flex-direction: column; justify-content: center; font-size: .9rem; position: sticky; left: 0; background: var(--karte); z-index: 2; }
 .bk-name small { color: var(--text-2); }
