@@ -9,6 +9,7 @@ import { koordinateZuAdresse } from '../../services/geo.ts';
 import { maskottchen, toast, kopieren, bestaetigen, dialog } from '../dom.ts';
 import { anrufen, emailSchreiben } from '../kontakt.ts';
 import { felderHtml } from '../felder.ts';
+import { TITEL_FREI, titelNormalisieren } from '../../core/anrede.ts';
 import { markierenHtml, markierenVerdrahten, markierenNeuZeichnen } from '../produkte.ts';
 import * as enpalDoku from '../enpaldoku.ts';
 import * as pk from '../../core/papierkorb.ts';
@@ -21,6 +22,7 @@ import * as ablauf from '../gespraechsablauf.ts';
 import * as suche from '../suche.ts';
 import * as kundenfotos from '../kundenfotos.ts';
 import * as vertrieb from '../vertrieb.ts';
+import { anredeZeile } from '../../core/vertrieb.ts';
 import * as ruecksprung from '../ruecksprung.ts';
 import { statusOptions, terminDialog, terminZeile, terminListeVerdrahten, icsExport, spartenIcon, statusChips } from '../parts.ts';
 
@@ -172,8 +174,30 @@ export function bindeFelder(root, kundeId, nachher) {
     const inp = (e.target as Element).closest('[data-feld]');
     if (!inp) return;
     verzoegert.get(inp)?.flush?.();
+    if (inp.tagName === 'SELECT' && inp.value === TITEL_FREI) {
+      const k = store.getData().kunden.find((x) => x.id === kundeId) as Record<string, unknown> | undefined;
+      const w = k?.[inp.dataset.feld || ''];
+      void freiEingeben(inp as unknown as HTMLSelectElement, typeof w === 'string' ? w : '', speichern);
+      return;
+    }
     if (inp.tagName === 'SELECT') speichern(inp);
   });
+}
+
+/** „Anderer Titel …“: freie Eingabe im Fenster; der Wert kommt als gewählte Option ins Auswahlfeld. */
+async function freiEingeben(sel: HTMLSelectElement, vorher: string, speichern: (input: HTMLSelectElement) => void) {
+  const label = sel.dataset.frei || 'Titel';
+  const wert = await dialog<string>({
+    titel: `${label} eingeben`,
+    html: `<label>${esc(label)}<input name="frei" maxlength="50" autocomplete="off" placeholder="z. B. Dr. rer. nat." value="${esc(vorher)}"></label>`,
+    knoepfe: [{ label: 'Übernehmen', primaer: true, wert: (dlg) => titelNormalisieren(dlg.querySelector('form').frei.value) }],
+    onOpen: (dlg) => dlg.querySelector<HTMLInputElement>('input[name=frei]')?.focus(),
+  });
+  if (wert === null) { sel.value = vorher; return; }
+  let opt = Array.from(sel.options).find((o) => o.value === wert);
+  if (!opt) { opt = new Option(wert, wert); sel.insertBefore(opt, sel.querySelector(`option[value="${TITEL_FREI}"]`)); }
+  sel.value = wert;
+  speichern(sel);
 }
 
 // ---------- Tabs ----------
@@ -256,7 +280,7 @@ function uebersicht(el, k, kopf) {
   el.querySelector('#mailen').addEventListener('click', () => {
     const akt = store.findKunde(k.id);
     if (!akt) return;
-    const anrede = akt.nachname ? `Guten Tag ${[akt.anrede, akt.nachname].filter(Boolean).join(' ')},` : 'Guten Tag,';
+    const anrede = anredeZeile(akt);
     const gruss = store.getData().einstellungen.absender;
     emailSchreiben({ an: akt.email, betreff: '', text: `${anrede}\n\n\n\nViele Grüße${gruss ? `\n${gruss}` : ''}` });
   });

@@ -6,11 +6,12 @@ import { type Rec, uid, nowIso, isValidDate, parseNumber, isValidCoord } from '.
 import { normalizeFeldEinstellungen, normalizeEigeneWerte } from './felder.ts';
 import { normalizeProduktMarkierung, type ProduktMarkierung } from './produkte.ts';
 import { normalizeBausteine } from './bausteine.ts';
+import { anredeUndTitel, mitTitel } from './anrede.ts';
 import { normalizeFotoListe } from './fotos.ts';
 import { normalizeRechnerVorlagen, zuletztGewaehlt } from './rechnervorlagen.ts';
 import { normalizeAngebot, normalizeAuftrag, normalizeNachfassTage, normalizeBereitlegen, normalizeAnsprechpartner, normalizeHaustuer, ANGEBOTE_MAX, ANSPRECHPARTNER_MAX, HAUSTUER_MAX, type HaustuerEintrag } from './vertrieb.ts';
 
-export const SCHEMA_VERSION = 11;
+export const SCHEMA_VERSION = 12;
 
 /** Die drei Geschäftszweige, jeder mit eigenem Anbieter und eigenem Textgenerator (R-TEXT). */
 export const SPARTEN = {
@@ -571,11 +572,16 @@ export function normalizeKunde(k: unknown) {
   const lat = parseNumber(src.lat);
   const lng = parseNumber(src.lng);
   const coordOk = lat !== null && lng !== null && isValidCoord(lat, lng);
+  // Anrede als Vorauswahl, Titel eigenes Feld (ab Schema 12); alte Freitexte wie „Herr Dr.“ werden aufgeteilt
+  const at = anredeUndTitel(src.anrede, src.titel);
   return {
     id: typeof src.id === 'string' && src.id ? src.id : uid(),
     createdAt: (isValidDate(src.createdAt) ? src.createdAt : t) as string,
     updatedAt: (isValidDate(src.updatedAt) ? src.updatedAt : t) as string,
-    anrede: str(src.anrede, 50),
+    /** „Frau“, „Herr“, „Familie“ oder leer; unbekannte ältere Texte bleiben erhalten (src/core/anrede.ts) */
+    anrede: at.anrede,
+    /** Akademischer Titel, z. B. „Dr.“ oder „Prof. Dr.“ (ab Schema 12) */
+    titel: at.titel,
     vorname: str(src.vorname, 200),
     nachname: str(src.nachname, 200),
     firma: str(src.firma, 200),
@@ -784,7 +790,8 @@ export function migrate(input: unknown): Daten {
   // v9 → v10: termin.bezug (Angebot, Leihgabe, Pflege). Vorhandene Wiedervorlagen werden über ihren Titel zugeordnet
   // (bezugNachtragen unten), damit auch ältere Nachfass- und Nachfrage-Erinnerungen die passenden Knöpfe bekommen.
   // v10 → v11: entwuerfe (laufende Gespräche, verschlüsselt im Bestand), leer ergänzt.
-  // Künftige Migrationen hier schrittweise: if (v < 12) { ... }
+  // v11 → v12: kunde.titel. Anrede wird Vorauswahl; Freitexte wie „herr dr.“ teilt normalizeKunde in Anrede „Herr“ und Titel „Dr.“.
+  // Künftige Migrationen hier schrittweise: if (v < 13) { ... }
   const kunden = Array.isArray(data.kunden) ? data.kunden.map(normalizeKunde) : [];
   for (const k of kunden) statusVerlaufAbgleichen(k, v < 8 || !k.statusVerlauf.length ? k.createdAt : k.updatedAt, true);
   // Doppelte IDs verhindern (z. B. nach manuellem Zusammenführen)
@@ -876,7 +883,7 @@ export interface Daten {
   entwuerfe: EntwurfDaten[];
 }
 /** Adressfelder, wie sie Kunde und Formulare gemeinsam haben. */
-export type MitAdresse = Partial<Pick<Kunde, 'vorname' | 'nachname' | 'firma' | 'strasse' | 'plz' | 'ort'>>;
+export type MitAdresse = Partial<Pick<Kunde, 'titel' | 'vorname' | 'nachname' | 'firma' | 'strasse' | 'plz' | 'ort'>>;
 
 // ---------- Anzeige-Helfer ----------
 
@@ -895,7 +902,9 @@ export function anzeigeSetzen(e: { namensFolge?: NamensFolge; ortsFolge?: OrtsFo
 export function kundenName(k: MitAdresse, folge: NamensFolge = anzeige.namensFolge): string {
   const vn = (k.vorname || '').trim();
   const nn = (k.nachname || '').trim();
-  const name = folge === 'nachname' && vn && nn ? `${nn}, ${vn}` : [vn, nn].filter(Boolean).join(' ');
+  const ti = (k.titel || '').trim();
+  // Titel steht vor dem Vornamen: „Dr. Anna Beispiel“ bzw. „Beispiel, Dr. Anna“; sortiert wird weiter nach Nachname
+  const name = folge === 'nachname' && vn && nn ? `${nn}, ${mitTitel(ti, vn)}` : mitTitel(vn || nn ? ti : '', [vn, nn].filter(Boolean).join(' '));
   if (name && k.firma) return `${name} (${k.firma})`;
   return name || k.firma || '';
 }

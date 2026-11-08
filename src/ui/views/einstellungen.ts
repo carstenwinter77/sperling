@@ -52,7 +52,7 @@ const ORTS_FOLGEN: [string, string][] = [['ort', 'Ort, dann Straße'], ['strasse
 const KARTEN_APPS: [string, string][] = [['auto', 'Beim ersten Mal fragen'], ['apple', 'Apple Karten'], ['google', 'Google Maps'], ['waze', 'Waze']];
 /** Verständliche Namen für die Platzhalter-Knöpfe (die Platzhalter selbst stehen in textgen.ts). */
 const PLATZHALTER_NAMEN: Record<string, string> = {
-  name: 'Name', vorname: 'Vorname', nachname: 'Nachname', firma: 'Firma', anrede: 'Anrede', adresse: 'Adresse', telefon: 'Telefon', email: 'E-Mail',
+  name: 'Name', vorname: 'Vorname', nachname: 'Nachname', firma: 'Firma', anrede: 'Anrede', titel: 'Titel', begruessung: 'Begrüßung', adresse: 'Adresse', telefon: 'Telefon', email: 'E-Mail',
   sparten: 'Sparten', status: 'Status', daten: 'Kundendaten', notizen: 'Notizen', datum: 'Datum', absender: 'Absender',
 };
 const SPERR_MINUTEN = [0, 1, 2, 5, 10, 15, 20, 30, 45, 60, 90, 120, 240];

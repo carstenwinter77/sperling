@@ -1,5 +1,16 @@
 # Änderungsverlauf
 
+## 0.15.0 – 08.11.2026
+Anrede und Titel als Vorauswahl (Schema 12).
+- **Anrede als Auswahl:** Keine Anrede, Frau, Herr, Familie. Statt freier Eingabe ein Auswahlfeld in der Kundenkarte und im Gesprächsmodus.
+- **Neues Feld „Titel“** mit Vorauswahl (Dr., Prof., Prof. Dr., Dr. med., Dr. med. dent., Dr.-Ing., Dipl.-Ing., Dipl.-Kfm.) und „Anderer Titel …“ zur freien Eingabe (`TITEL_FREI`, Fenster in `bindeFelder`). Ein- und ausblendbar wie jedes Kontaktfeld (Einstellungen → Felder). ?-Knopf an beiden Feldern mit Hilfethema „Anrede und Titel“.
+- **Titel beim Namen:** „Dr. Bernd Muster“ bzw. „Muster, Dr. Bernd“ in Listen, Titeln, Leihschein, Enpal-Doku und Kundenliste-PDF; sortiert wird weiter nach Nachname.
+- **Begrüßung** in E-Mails und Terminbestätigungen einheitlich über `anredeZeile()`: „Guten Tag Frau Prof. Dr. Muster,“, „Guten Tag Familie Muster,“; ohne Anrede „Guten Tag Dr. Kim Muster,“. Nur Prof. und Dr. kommen in die Begrüßung (`titelFuerAnrede`), Zusätze wie „med.“ und Diplomgrade nicht.
+- **Textvorlagen:** neue Platzhalter `{{titel}}` und `{{begruessung}}`; `{{name}}` enthält den Titel.
+- **Export Excel/CSV:** neue Spalten „Anrede“ und „Titel“ nach dem Vornamen.
+- **Vorwerk-Listenimport:** „Herr Dr. Max Muster“ oder „Muster, Frau Erika“ wird in Anrede, Titel, Vor- und Nachname zerlegt.
+- **Migration:** Bisherige Freitexte werden beim Einlesen aufgeteilt („herr dr.“ → Anrede „Herr“, Titel „Dr.“; „Fr.“ → „Frau“; „Fam.“ → „Familie“). Unbekannte Anreden (z. B. „Eheleute“) bleiben unverändert erhalten und stehen weiter in der Auswahl.
+
 ## 0.14.6 – 08.11.2026
 Korrekturen aus der Fehlerprüfung vom 08.11.2026 (Schema 11).
 - **Laufende Gespräche verschlüsselt mitsichern.** Neuer Teil des Bestands `entwuerfe` (Schema 11): alle 20 s bei Änderungen, beim Wechsel in eine andere App, vor dem Sperren und vor „Jetzt aktualisieren“. Nach dem Entsperren kommen sie zurück, mit kurzem Hinweis. Speichern oder Verwerfen entfernt den Entwurf.

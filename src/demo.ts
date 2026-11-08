@@ -18,7 +18,7 @@ export function demoDaten(): Rec {
   d.einstellungen.karte = { lat: 52.2058, lng: 10.3020, zoom: 13, layer: 'satellit' };
   d.kunden = [
     {
-      id: 'demo-1', vorname: 'Anna', nachname: 'Beispiel', strasse: 'Lindenweg 4', plz: '38268', ort: 'Lengede',
+      id: 'demo-1', anrede: 'Frau', vorname: 'Anna', nachname: 'Beispiel', strasse: 'Lindenweg 4', plz: '38268', ort: 'Lengede',
       telefon: '05344 123456', email: 'anna@example.de', lat: 52.2061, lng: 10.3002,
       status: { pv: 'abschluss', wp: 'interesse', vorwerk: 'potenzial' },
       pv: { dachflaeche: 62, ausrichtung: 'Süd', neigung: 35, dachform: 'Satteldach', eindeckung: 'Ziegel', verschattung: 'Gering', stromverbrauch: 4800, personen: 4, eauto: true, wallbox: true, speicher: true },
@@ -45,7 +45,7 @@ export function demoDaten(): Rec {
       ],
     },
     {
-      id: 'demo-2', vorname: 'Bernd', nachname: 'Muster', strasse: 'Lindenweg 6', plz: '38268', ort: 'Lengede',
+      id: 'demo-2', anrede: 'Herr', titel: 'Dr.', vorname: 'Bernd', nachname: 'Muster', strasse: 'Lindenweg 6', plz: '38268', ort: 'Lengede',
       telefon: '05344 654321', lat: 52.2063, lng: 10.3009,
       status: { pv: 'potenzial', wp: 'unbekannt', vorwerk: 'unbekannt' },
       pv: { dachflaeche: 55, ausrichtung: 'Süd-West', dachform: 'Satteldach' },
@@ -54,7 +54,7 @@ export function demoDaten(): Rec {
       notizen: [{ id: 'n4', zeitpunkt: tageAb(-2, 18, 45), sparten: ['pv'], text: 'Nachbar von Frau Beispiel. Niemand angetroffen, Flyer eingeworfen. Großes Süddach.' }],
     },
     {
-      id: 'demo-3', vorname: 'Claudia', nachname: 'Probe', strasse: 'Am Markt 12', plz: '31224', ort: 'Peine',
+      id: 'demo-3', anrede: 'Frau', vorname: 'Claudia', nachname: 'Probe', strasse: 'Am Markt 12', plz: '31224', ort: 'Peine',
       telefon: '0170 1112223', email: 'c.probe@example.de', lat: 52.3207, lng: 10.2345,
       status: { pv: 'kein_interesse', wp: 'unbekannt', vorwerk: 'abschluss' },
       vorwerk: { interesseAn: 'Kobold Saugroboter', bodenbelaege: 'Parkett, Fliesen', flaeche: 95, allergien: true, vorfuehrung: true },
@@ -73,7 +73,7 @@ export function demoDaten(): Rec {
       ],
     },
     {
-      id: 'demo-4', vorname: 'Dieter', nachname: 'Test', firma: 'Bäckerei Test', strasse: 'Hauptstraße 20', plz: '38159', ort: 'Vechelde',
+      id: 'demo-4', anrede: 'Herr', vorname: 'Dieter', nachname: 'Test', firma: 'Bäckerei Test', strasse: 'Hauptstraße 20', plz: '38159', ort: 'Vechelde',
       telefon: '05302 999888', lat: 52.2612, lng: 10.3651,
       status: { pv: 'angebot', wp: 'termin', vorwerk: 'unbekannt' },
       pv: { dachflaeche: 180, ausrichtung: 'Ost/West', dachform: 'Flachdach', stromverbrauch: 28000, speicher: true },

@@ -5,6 +5,7 @@
 // Wichtig: Dieses Modul liest Werte aus model.ts nur innerhalb von Funktionen (Zyklus model ↔ felder).
 import { FELDER, type Feld, type Sparte } from './model.ts';
 import { type Rec, uid, parseNumber } from './util.ts';
+import { ANREDEN, TITEL_VORSCHLAEGE } from './anrede.ts';
 
 export type Kategorie = 'kontakt' | Sparte;
 export const KATEGORIEN: { key: Kategorie; label: string }[] = [
@@ -30,8 +31,9 @@ export const FELD_TYPEN: Record<FeldTyp, string> = {
 const TYP_KEYS = Object.keys(FELD_TYPEN) as FeldTyp[];
 
 /** Kontaktfelder der Kartei (feste Felder am Kunden). */
-export const KONTAKT_FELDER: { key: string; label: string; type: FeldTyp; breit?: boolean; platzhalter?: string }[] = [
-  { key: 'anrede', label: 'Anrede', type: 'text', platzhalter: 'Frau / Herr' },
+export const KONTAKT_FELDER: { key: string; label: string; type: FeldTyp; breit?: boolean; platzhalter?: string; options?: string[]; frei?: string; leer?: string; hilfe?: string }[] = [
+  { key: 'anrede', label: 'Anrede', type: 'select', options: [...ANREDEN], leer: 'Keine Anrede', hilfe: 'anrede' },
+  { key: 'titel', label: 'Titel', type: 'select', options: TITEL_VORSCHLAEGE, frei: 'Anderer Titel …', leer: 'Kein Titel', hilfe: 'anrede' },
   { key: 'vorname', label: 'Vorname', type: 'text' },
   { key: 'nachname', label: 'Nachname', type: 'text' },
   { key: 'firma', label: 'Firma', type: 'text' },
@@ -47,7 +49,15 @@ export interface FeldEinstellungen { aus: string[]; eigene: EigenesFeld[] }
 export const MAX_EIGENE = 100;
 
 /** Ein Feld, wie es Formulare, Texte, Kundenansicht und Filter sehen. `pfad` ist zugleich die ID. */
-export interface AnzeigeFeld { pfad: string; label: string; type: FeldTyp; unit?: string; options?: string[]; eigen: boolean; intern: boolean; breit?: boolean; platzhalter?: string }
+export interface AnzeigeFeld {
+  pfad: string; label: string; type: FeldTyp; unit?: string; options?: string[]; eigen: boolean; intern: boolean; breit?: boolean; platzhalter?: string;
+  /** Auswahlliste mit freier Eingabe: Beschriftung des Eintrags, der ein Textfeld öffnet (Titel) */
+  frei?: string;
+  /** Beschriftung des leeren Eintrags (Standard „–“) */
+  leer?: string;
+  /** Hilfethema (THEMEN in src/core/hilfe.ts) für den ?-Knopf am Feld */
+  hilfe?: string;
+}
 
 const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
@@ -102,7 +112,7 @@ export function normalizeEigeneWerte(x: unknown): Record<string, string | number
 const pfadEigen = (f: EigenesFeld) => `eigene.${f.id}`;
 
 function eingebaut(kat: Kategorie): AnzeigeFeld[] {
-  if (kat === 'kontakt') return KONTAKT_FELDER.map((f) => ({ pfad: `kontakt.${f.key}`, label: f.label, type: f.type, eigen: false, intern: false, breit: f.breit, platzhalter: f.platzhalter }));
+  if (kat === 'kontakt') return KONTAKT_FELDER.map((f) => ({ pfad: `kontakt.${f.key}`, label: f.label, type: f.type, eigen: false, intern: false, breit: f.breit, platzhalter: f.platzhalter, options: f.options, frei: f.frei, leer: f.leer, hilfe: f.hilfe }));
   return FELDER[kat].map((f: Feld) => ({ pfad: `${kat}.${f.key}`, label: f.label, type: f.type, unit: f.unit, options: f.options, eigen: false, intern: f.key === 'bemerkung' }));
 }
 

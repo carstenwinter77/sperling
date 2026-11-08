@@ -2,7 +2,7 @@
 
 > Diese Datei ist die erste Anlaufstelle. Sie wird bei **jeder** Änderung aktualisiert (siehe REGELN.md, R-DOKU).
 
-**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.14.6
+**Letzte Aktualisierung:** 08.11.2026 · **Version:** 0.15.0
 
 ## Echte App vs. Demo – was zum Produktivbetrieb fehlt
 
@@ -13,6 +13,16 @@ Was nur der Auftraggeber/Nutzer erledigen kann:
 - [ ] Auf dem Tablet „Zum Home-Bildschirm“ hinzufügen und Master-Passwort festlegen
 
 Was in der Demo eingeschränkt ist, in der echten App aber funktioniert: Kartenbilder (Satellit/Straße), Adresssuche, Anrufen, Mailprogramm öffnen, Speichern.
+
+## Erledigt (Version 0.15.0)
+
+### Neu in 0.15.0 (Anrede und Titel, Schema 12)
+- [x] Anrede als Auswahlfeld (Keine Anrede, Frau, Herr, Familie), neues Kontaktfeld `titel` mit Vorschlägen und „Anderer Titel …“ (freie Eingabe im Fenster, `freiEingeben()` in `src/ui/views/kunde.ts`). Logik rein in `src/core/anrede.ts` (`anredeTeilen`, `anredeUndTitel`, `titelFuerAnrede`, `titelNormalisieren`). ?-Knopf mit Hilfethema `anrede`.
+- [x] Titel in `kundenName()` vor dem Vornamen („Dr. Bernd Muster“ / „Muster, Dr. Bernd“), Sortierung unverändert nach Nachname.
+- [x] Begrüßung überall über `anredeZeile()` (E-Mail an Kunden, Unterlagen, Termin-Mail, Terminbestätigung, Auftragsstand); nur Prof./Dr. in der Begrüßung.
+- [x] Textvorlagen: Platzhalter `{{titel}}`, `{{begruessung}}` (R-TEXT unberührt: nur Stammdaten). Export Excel/CSV mit Spalten Anrede und Titel. Vorwerk-Listenimport trennt Anrede/Titel vom Namen.
+- [x] Migration: alte Freitexte aufgeteilt, Unbekanntes bleibt erhalten. Unit-Test, Browser-Test (Auswahl, freie Eingabe, Titel am Namen). Beispieldaten mit Anrede, „Dr. Bernd Muster“.
+- [ ] Mit Jan klären: Fehlen Anreden (z. B. „Eheleute“, „Firma“) oder Titel in der Liste?
 
 ## Erledigt (Version 0.14.6)
 

@@ -6,6 +6,7 @@
 import { neuerKunde, neueNotiz, type Daten, type Kunde } from './model.ts';
 import { normalizeEigenesFeld, type EigenesFeld } from './felder.ts';
 import type { Rec } from './util.ts';
+import { ANREDEN, anredeTeilen, titelNormalisieren } from './anrede.ts';
 
 export interface TextStueck { str: string; x: number; y: number; w?: number }
 export type Spalte = 'name' | 'strasse' | 'plz' | 'ort' | 'telefon' | 'sperre' | 'ewe' | 'eweDatum' | 'bnw' | 'notiz';
@@ -121,17 +122,39 @@ export function zeilenAusSeiten(seiten: TextStueck[][]): { zeilen: Zeile[]; kopf
 // ---------- Abgleich ----------
 
 export interface ListenEintrag {
-  vorname: string; nachname: string; strasse: string; plz: string; ort: string; telefon: string; notiz: string;
+  anrede: string; titel: string; vorname: string; nachname: string; strasse: string; plz: string; ort: string; telefon: string; notiz: string;
   werte: Record<string, string>; // feldId → Text (Sperre, EWE, EWE-Belegdatum, BNW)
 }
 
-/** Name: „Nachname, Vorname“ oder „Vorname Nachname“ (letztes Wort = Nachname). */
-export function nameTeilen(name: string): { vorname: string; nachname: string } {
+/**
+ * Name: „Nachname, Vorname“ oder „Vorname Nachname“ (letztes Wort = Nachname).
+ * Anrede und Titel am Anfang („Herr Dr. Max Muster“, „Muster, Frau Dr. Erika“) kommen in eigene Felder (ab 0.15.0).
+ */
+export function nameTeilen(name: string): { anrede: string; titel: string; vorname: string; nachname: string } {
   const n = (name || '').replace(/\s+/g, ' ').trim();
-  if (n.includes(',')) { const [nach, ...vor] = n.split(','); return { vorname: vor.join(',').trim(), nachname: nach!.trim() }; }
-  const w = n.split(' ');
-  if (w.length === 1) return { vorname: '', nachname: n };
-  return { vorname: w.slice(0, -1).join(' '), nachname: w[w.length - 1]! };
+  if (n.includes(',')) {
+    const [nach, ...vor] = n.split(',');
+    const v = vorspannAbtrennen(vor.join(',').trim());
+    return { anrede: v.anrede, titel: v.titel, vorname: v.rest, nachname: nach!.trim() };
+  }
+  const v = vorspannAbtrennen(n);
+  const w = v.rest.split(' ').filter(Boolean);
+  if (w.length <= 1) return { anrede: v.anrede, titel: v.titel, vorname: '', nachname: v.rest || n };
+  return { anrede: v.anrede, titel: v.titel, vorname: w.slice(0, -1).join(' '), nachname: w[w.length - 1]! };
+}
+
+/** Führende Anrede- und Titelwörter abtrennen („Herr Dr. Max“ → Herr, Dr., „Max“). */
+function vorspannAbtrennen(text: string): { anrede: string; titel: string; rest: string } {
+  const woerter = text.split(' ').filter(Boolean);
+  let anrede = ''; const titel: string[] = [];
+  while (woerter.length > 1) {
+    const w = woerter[0]!;
+    const a = anredeTeilen(w);
+    if (!anrede && !titel.length && a.anrede && (ANREDEN as readonly string[]).includes(a.anrede)) { anrede = a.anrede; woerter.shift(); continue; }
+    if (/^(dr|prof|dipl|med|dent|rer|nat|phil|jur|ing)\b[.-]?/i.test(w) && /[.-]/.test(w)) { titel.push(w); woerter.shift(); continue; }
+    break;
+  }
+  return { anrede, titel: titelNormalisieren(titel.join(' ')), rest: woerter.join(' ') };
 }
 
 /** Straße mit PLZ/Ort, falls die Liste „Musterweg 1, 38268 Lengede“ in einer Spalte hat. */
@@ -146,10 +169,10 @@ function adresseTeilen(z: Zeile): { strasse: string; plz: string; ort: string } 
 
 export function eintragAusZeile(z: Zeile): ListenEintrag | null {
   if (!z.name?.trim()) return null;
-  const { vorname, nachname } = nameTeilen(z.name);
+  const { anrede, titel, vorname, nachname } = nameTeilen(z.name);
   const werte: Record<string, string> = {};
   for (const f of LISTEN_FELDER) { const v = (z[f.spalte] || '').trim(); if (v) werte[f.id] = v.slice(0, 500); }
-  return { vorname, nachname, ...adresseTeilen(z), telefon: (z.telefon || '').trim().slice(0, 60), notiz: (z.notiz || '').trim().slice(0, 4000), werte };
+  return { anrede, titel, vorname, nachname, ...adresseTeilen(z), telefon: (z.telefon || '').trim().slice(0, 60), notiz: (z.notiz || '').trim().slice(0, 4000), werte };
 }
 
 const schluessel = (s: string) => (s || '').toLowerCase().replace(/str\.?(\s|$)/g, 'strasse$1').replace(/ß/g, 'ss').replace(/[^a-z0-9äöü]/g, '');
@@ -230,7 +253,7 @@ export function uebernehmen(data: Daten, abgleich: Abgleich, auswahl: (p: Abglei
     if (p.art === 'gleich' || !auswahl(p)) continue;
     const e = p.eintrag;
     if (p.art === 'neu') {
-      const k = neuerKunde({ vorname: e.vorname, nachname: e.nachname, strasse: e.strasse, plz: e.plz, ort: e.ort, telefon: e.telefon,
+      const k = neuerKunde({ anrede: e.anrede, titel: e.titel, vorname: e.vorname, nachname: e.nachname, strasse: e.strasse, plz: e.plz, ort: e.ort, telefon: e.telefon,
         status: { pv: 'unbekannt', wp: 'unbekannt', vorwerk: 'potenzial' }, eigene: { ...e.werte } });
       notizDazu(k, e.notiz);
       data.kunden.push(k);

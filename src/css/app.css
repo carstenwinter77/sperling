@@ -698,6 +698,10 @@ dialog.such-dlg::backdrop { background: var(--backdrop); }
 .hilfe-knopf::after { content: ''; position: absolute; inset: -8px; } /* Tippfläche 44 px */
 .hilfe-knopf:hover { background: var(--aktiv-bg); }
 body.hilfe-aus .hilfe-knopf { display: none; }
+/* ?-Knopf direkt an einer Feldbeschriftung (Anrede, Titel), ohne die Zeile höher zu machen */
+.feld-kopf { display: flex; align-items: center; }
+.feld-kopf .hilfe-knopf { width: 24px; height: 24px; font-size: .8rem; margin: -6px 0 -6px .35rem; }
+.feld-kopf .hilfe-knopf::after { inset: -10px; }
 .hilfe-schritte { margin: .2rem 0 .4rem; padding-left: 1.3rem; display: flex; flex-direction: column; gap: .35rem; }
 .hilfe-suche input { width: 100%; min-height: 48px; font-size: 1.05rem; margin-bottom: 1rem; }
 .hilfe-thema { border-top: 1px solid var(--linie); padding: .3rem 0; }

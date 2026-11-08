@@ -59,6 +59,7 @@ Browser (Tablet / Handy / Laptop)
  ├─ src/ui/bausteinverwaltung.ts  Einstellungen → Textbausteine
  ├─ src/demo-gebiet.ts  Beispielkunden im Beratungsgebiet (fester Startwert)
  ├─ src/ui/ziehsortieren.ts  Listen per Griff umsortieren (Zeiger + Pfeiltasten)
+ ├─ src/core/anrede.ts  Anrede (Vorauswahl) und Titel: alte Freitexte aufteilen, Titel für die Begrüßung (rein)
  ├─ src/core/kundenexport.ts  Kundenliste als Tabelle, CSV und XLSX (eigene ZIP-Erzeugung, rein, in Node getestet)
  ├─ src/core/listenimport.ts  Vorwerk-PDF-Liste: Zeilen aus Textstücken, Abgleich, Übernahme (rein, in Node getestet)
  ├─ src/ui/kundenexport.ts  Export-Dialog der Kundenliste, PDF mit jsPDF (lazy geladen)

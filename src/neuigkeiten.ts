@@ -2,6 +2,14 @@
 // Bei jeder Version mit sichtbaren Änderungen hier einen Eintrag ergänzen (siehe REGELN R-VERSION).
 export const NEUIGKEITEN = [
   {
+    version: '0.15.0',
+    punkte: [
+      'Anrede zum Antippen: Frau, Herr, Familie oder keine. Dazu ein eigenes Feld „Titel“ mit Dr., Prof., Prof. Dr., Dipl.-Ing. und mehr; fehlt einer, „Anderer Titel …“ wählen und eintippen.',
+      'Der Titel steht vor dem Namen („Dr. Bernd Muster“), E-Mails und Terminbestätigungen grüßen passend („Guten Tag Herr Dr. Muster,“). Sortiert wird weiter nach Nachname.',
+      'Bisher eingetippte Anreden wie „Herr Dr.“ teilt Sperling selbst in Anrede und Titel auf.',
+    ],
+  },
+  {
     version: '0.14.6',
     punkte: [
       'Gespräche gehen nicht mehr verloren: Ein laufendes, noch nicht gespeichertes Gespräch wird verschlüsselt mitgesichert. Nach dem Sperren, einem Update oder wenn das iPad die App neu lädt, ist es wieder da („▶ Gespräch fortsetzen“ beim Kunden).',

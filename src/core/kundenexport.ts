@@ -6,13 +6,13 @@ import { SPARTEN, SPARTEN_KEYS, STATUS, kundenName, kundenTitel, adresseEinzeili
 /** Ein Eintrag der angezeigten Liste: Kunde + Datum des letzten Kontakts (ISO oder null). */
 export interface ExportEintrag {
   k: {
-    vorname?: string; nachname?: string; firma?: string; strasse?: string; plz?: string; ort?: string;
+    anrede?: string; titel?: string; vorname?: string; nachname?: string; firma?: string; strasse?: string; plz?: string; ort?: string;
     telefon?: string; email?: string; status?: Partial<Record<string, string>>;
   };
   kontakt: string | null;
 }
 
-export const SPALTEN = ['Nachname', 'Vorname', 'Firma', 'Straße', 'PLZ', 'Ort', 'Telefon', 'E-Mail',
+export const SPALTEN = ['Nachname', 'Vorname', 'Anrede', 'Titel', 'Firma', 'Straße', 'PLZ', 'Ort', 'Telefon', 'E-Mail',
   ...SPARTEN_KEYS.map((s) => SPARTEN[s].label), 'Letzter Kontakt'] as const;
 
 /** Statuslabel ohne Klammerzusatz, „Unbekannt“ bleibt leer (übersichtlicher in der Tabelle). */
@@ -34,7 +34,7 @@ const s = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
 /** Tabellenzeilen in der Reihenfolge der Liste (erste Zeile = Spaltenköpfe). */
 export function tabelle(eintraege: readonly ExportEintrag[]): string[][] {
   return [[...SPALTEN], ...eintraege.map(({ k, kontakt }) => [
-    s(k.nachname), s(k.vorname), s(k.firma), s(k.strasse), s(k.plz), s(k.ort), s(k.telefon), s(k.email),
+    s(k.nachname), s(k.vorname), s(k.anrede), s(k.titel), s(k.firma), s(k.strasse), s(k.plz), s(k.ort), s(k.telefon), s(k.email),
     ...SPARTEN_KEYS.map((sp) => statusText(k.status?.[sp])), datumText(kontakt),
   ])];
 }

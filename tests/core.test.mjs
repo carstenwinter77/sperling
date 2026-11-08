@@ -1130,7 +1130,11 @@ test('Vorwerk-PDF-Liste: Spalten erkennen, Dubletten, Haushalt, Abgleich und Üb
   // Kaputtes bleibt harmlos
   assert.deepEqual(li.zeilenAusSeiten([[{ str: 'Irgendwas', x: 1, y: 1 }]]).zeilen, []);
   assert.equal(li.eintragAusZeile({ strasse: 'X' }), null);
-  assert.deepEqual(li.nameTeilen('Anna Maria Muster'), { vorname: 'Anna Maria', nachname: 'Muster' });
+  assert.deepEqual(li.nameTeilen('Anna Maria Muster'), { anrede: '', titel: '', vorname: 'Anna Maria', nachname: 'Muster' });
+  assert.deepEqual(li.nameTeilen('Herr Dr. Max Muster'), { anrede: 'Herr', titel: 'Dr.', vorname: 'Max', nachname: 'Muster' });
+  assert.deepEqual(li.nameTeilen('Muster, Frau Prof. Dr. Erika'), { anrede: 'Frau', titel: 'Prof. Dr.', vorname: 'Erika', nachname: 'Muster' });
+  assert.deepEqual(li.nameTeilen('Familie Muster'), { anrede: 'Familie', titel: '', vorname: '', nachname: 'Muster' });
+  assert.deepEqual(li.nameTeilen('Herr'), { anrede: '', titel: '', vorname: '', nachname: 'Herr' }, 'ein Wort bleibt der Name');
 });
 
 test('Kundenauswahl: Suche statt Liste, gleiche Namen unterscheidbar, zuletzt benutzte zuerst', async () => {
@@ -1942,10 +1946,10 @@ test('Export: Tabelle in Listenreihenfolge, ohne Notizen, Status lesbar', () => 
   const t = exportTabelle(exportEintraege);
   assert.deepEqual(t[0], [...EXPORT_SPALTEN]);
   assert.equal(t.length, 3);
-  assert.deepEqual(t[1].slice(0, 8), ['Muster', 'Erika', '', 'Teststraße 1', '01234', 'Beispielstadt', '+49 5344 0000', 'e@example.org']);
-  assert.deepEqual(t[1].slice(8, 11), ['Interesse', '', 'Potenzial'], '„Unbekannt“ leer, Klammerzusatz weg');
-  assert.equal(t[1][11], '01.11.2026');
-  assert.equal(t[2][11], '');
+  assert.deepEqual(t[1].slice(0, 10), ['Muster', 'Erika', '', '', '', 'Teststraße 1', '01234', 'Beispielstadt', '+49 5344 0000', 'e@example.org']);
+  assert.deepEqual(t[1].slice(10, 13), ['Interesse', '', 'Potenzial'], '„Unbekannt“ leer, Klammerzusatz weg');
+  assert.equal(t[1][13], '01.11.2026');
+  assert.equal(t[2][13], '');
   assert.ok(!JSON.stringify(t).includes('GEHEIM'), 'Notizen dürfen nicht exportiert werden');
   assert.ok(!JSON.stringify(pdfZeilen(exportEintraege)).includes('GEHEIM'));
   assert.equal(pdfZeilen(exportEintraege)[0][3], 'PV: Interesse\nVW: Potenzial');
@@ -2015,7 +2019,7 @@ test('Karten-Hinweis „Tippe lange …“ verschwindet nach Eingewöhnung oder 
 
 test('Gesprächsentwürfe im Bestand (Schema 11): sicher eingelesen, nur zu vorhandenen Kunden, einer je Kunde', async () => {
   const m = await import('../src/core/model.ts');
-  assert.equal(m.SCHEMA_VERSION, 11);
+  assert.ok(m.SCHEMA_VERSION >= 11);
   assert.deepEqual(m.emptyData().entwuerfe, []);
   assert.equal(m.normalizeEntwurf({}), null, 'ohne Kunde kein Entwurf');
   const e = m.normalizeEntwurf({ kundeId: 'k1', kontaktart: 'quatsch', sparten: ['pv', 'zz', 'pv'], notiz: { pv: 'x'.repeat(30000), wp: 5 }, antworten: { pv: { a: 'Ja', b: 7 } }, verlauf: 'kaputt', terminId: 't1' });
@@ -2059,4 +2063,48 @@ test('Karten-Pin nach Bereich: ein Bereich = seine Farbe, mehrere = Mischfarbe, 
   assert.equal(f.pinFarbe(k('angebot', 'termin', 'angebot'), nurAngebot), 'misch');
   assert.equal(f.pinFarbe(k('interesse', 'angebot', 'unbekannt'), nurAngebot), 'wp');
   for (const key of ['pv', 'wp', 'vorwerk', 'misch', 'leer']) assert.ok(f.PIN_FARBEN[key].css.startsWith('var(--'), 'nur CSS-Variablen (Dunkelmodus)');
+});
+
+test('Anrede und Titel (Schema 12): Vorauswahl, Aufteilen alter Texte, Begrüßung, Namen, Texte, Export', async () => {
+  const a = await import('../src/core/anrede.ts');
+  const v = await import('../src/core/vertrieb.ts');
+  const { tabelle, SPALTEN } = await import('../src/core/kundenexport.ts');
+  // Alte Freitexte werden aufgeteilt, Unbekanntes bleibt erhalten
+  assert.deepEqual(a.anredeTeilen('herr dr.'), { anrede: 'Herr', titel: 'Dr.' });
+  assert.deepEqual(a.anredeTeilen('Fr. Prof.Dr.'), { anrede: 'Frau', titel: 'Prof. Dr.' });
+  assert.deepEqual(a.anredeTeilen('Dr.-Ing.'), { anrede: '', titel: 'Dr.-Ing.' });
+  assert.deepEqual(a.anredeTeilen('Fam.'), { anrede: 'Familie', titel: '' });
+  assert.deepEqual(a.anredeTeilen('Eheleute'), { anrede: 'Eheleute', titel: '' });
+  assert.deepEqual(a.anredeUndTitel('Herr Dr.', 'Dr.'), { anrede: 'Herr', titel: 'Dr.' }, 'nicht doppelt');
+  assert.equal(a.titelFuerAnrede('Prof. Dr. med.'), 'Prof. Dr.');
+  assert.equal(a.titelFuerAnrede('Dr.-Ing.'), 'Dr.');
+  assert.equal(a.titelFuerAnrede('Dipl.-Ing.'), '');
+  // Migration von Schema 11
+  const d = migrate({ schemaVersion: 11, kunden: [
+    { id: 'a1', anrede: 'herr dr.', vorname: 'Max', nachname: 'Muster' },
+    { id: 'a2', anrede: 'Frau', vorname: 'Erika', nachname: 'Muster' },
+    { id: 'a3', anrede: 'Eheleute', nachname: 'Probe' },
+  ] });
+  assert.equal(d.schemaVersion, SCHEMA_VERSION);
+  assert.deepEqual(d.kunden.map((k) => [k.anrede, k.titel]), [['Herr', 'Dr.'], ['Frau', ''], ['Eheleute', '']]);
+  assert.deepEqual(migrate(JSON.parse(JSON.stringify(d))).kunden.map((k) => [k.anrede, k.titel]), [['Herr', 'Dr.'], ['Frau', ''], ['Eheleute', '']], 'stabil');
+  // Begrüßung
+  assert.equal(v.anredeZeile({ anrede: 'Frau', titel: 'Prof. Dr. med.', vorname: 'Erika', nachname: 'Muster' }), 'Guten Tag Frau Prof. Dr. Muster,');
+  assert.equal(v.anredeZeile({ anrede: 'Herr', titel: 'Dipl.-Ing.', vorname: 'Max', nachname: 'Muster' }), 'Guten Tag Herr Muster,');
+  assert.equal(v.anredeZeile({ anrede: 'Familie', titel: 'Dr.', vorname: '', nachname: 'Muster' }), 'Guten Tag Familie Muster,');
+  assert.equal(v.anredeZeile({ anrede: '', titel: 'Dr.', vorname: 'Kim', nachname: 'Muster' }), 'Guten Tag Dr. Kim Muster,');
+  assert.equal(v.anredeZeile({ anrede: 'herr dr.', vorname: 'Max', nachname: 'Muster' }), 'Guten Tag Herr Dr. Muster,', 'alte Texte');
+  // Namen: Titel davor, Sortierung bleibt beim Nachnamen
+  const k = normalizeKunde({ anrede: 'Herr', titel: 'Dr.', vorname: 'Max', nachname: 'Muster' });
+  assert.equal(kundenName(k, 'vorname'), 'Dr. Max Muster');
+  assert.equal(kundenName(k, 'nachname'), 'Muster, Dr. Max');
+  assert.equal(kundenName({ titel: 'Dr.', firma: 'Bäckerei' }, 'vorname'), 'Bäckerei', 'Titel nur mit Namen');
+  assert.ok(kundenVergleich(k, normalizeKunde({ vorname: 'Anna', nachname: 'Eck' })) > 0, 'Dr. zählt nicht beim Sortieren');
+  // Textgeneratoren: Platzhalter titel und begruessung
+  const text = generiereText(k, 'vorwerk', { vorlagen: { vorwerk: '{{begruessung}}|{{titel}}|{{anrede}}|{{name}}' } });
+  assert.equal(text, 'Guten Tag Herr Dr. Muster,|Dr.|Herr|Dr. Max Muster');
+  // Export: eigene Spalten
+  const t = tabelle([{ k, kontakt: null }]);
+  assert.equal(t[1][SPALTEN.indexOf('Anrede')], 'Herr');
+  assert.equal(t[1][SPALTEN.indexOf('Titel')], 'Dr.');
 });
